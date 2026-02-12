@@ -8,9 +8,12 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useBadges } from '@/hooks/useBadges';
 import { 
   Trophy, User, Settings, Bell, Shield, LogOut, 
-  ChevronRight, Edit2, Check, X, RotateCcw, Users, Zap, Target, Crown
+  ChevronRight, Edit2, Check, X, RotateCcw, Users, Zap, Target, Crown, Medal,
+  Palette, Image as ImageIcon, Star, Award
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { useUserPreferences } from '@/hooks/useLocalStorage';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Mock user data - will be replaced with API calls
 const DEFAULT_PREFERENCES = {
@@ -24,9 +27,68 @@ export default function ProfilePage() {
   const { data: session } = useSession();
   const { profile, isLoading, error, refetch } = useUserProfile();
   const { badges, isLoading: badgesLoading } = useBadges(profile?.user?.id);
-  const [activeTab, setActiveTab] = useState<'overview' | 'settings' | 'achievements'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'banner' | 'settings' | 'admin'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.user?.displayName || '');
+  
+  // Banner customization state (local until saved)
+  const [selectedBannerGradient, setSelectedBannerGradient] = useState('from-purple-600 to-indigo-600');
+  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
+  const [isSavingBanner, setIsSavingBanner] = useState(false);
+  const [hasBannerChanges, setHasBannerChanges] = useState(false);
+  
+  // Custom banners from admin
+  const [customBanners, setCustomBanners] = useState<Array<{id: string, name: string, imageUrl: string, thumbnailUrl?: string, isPremium: boolean}>>([]);
+  const [selectedCustomBanner, setSelectedCustomBanner] = useState<string | null>(null);
+  const [activeBannerTab, setActiveBannerTab] = useState<'gradient' | 'custom'>('gradient');
+  
+  // Use real preferences hooks
+  const { preferences: userPrefs, setPreferences: setUserPrefs } = useUserPreferences();
+  const { theme, toggleTheme } = useTheme();
+
+  // Initialize banner state from profile data
+  useEffect(() => {
+    if (profile?.user?.bannerUrl) {
+      if (profile.user.bannerUrl.startsWith('gradient:')) {
+        const gradient = profile.user.bannerUrl.replace('gradient:', '');
+        setSelectedBannerGradient(gradient);
+        setActiveBannerTab('gradient');
+      } else {
+        // It's a custom banner
+        setSelectedCustomBanner(profile.user.bannerUrl);
+        setActiveBannerTab('custom');
+      }
+    }
+    if (profile?.user?.selectedBadgeIds) {
+      try {
+        const ids = JSON.parse(profile.user.selectedBadgeIds);
+        setSelectedBadgeIds(ids);
+      } catch {
+        setSelectedBadgeIds([]);
+      }
+    }
+  }, [profile?.user?.bannerUrl, profile?.user?.selectedBadgeIds]);
+
+  // Load custom banners when banner tab is active
+  useEffect(() => {
+    if (activeTab === 'banner') {
+      fetch('/api/banners')
+        .then(res => res.json())
+        .then(data => {
+          if (data.banners) {
+            setCustomBanners(data.banners);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [activeTab]);
+
+  // Reset hasChanges when switching to banner tab
+  useEffect(() => {
+    if (activeTab === 'banner') {
+      setHasBannerChanges(false);
+    }
+  }, [activeTab]);
 
   if (!session) {
     return (
@@ -91,14 +153,15 @@ export default function ProfilePage() {
           </Link>
           
           <div className="flex items-center gap-4">
-            {/* Admin Button - Only for Ønyx */}
+            {/* Admin Crown Icon - Only for Ønyx */}
             {session?.user?.email === 'noe.barneron@gmail.com' && (
               <Link
                 href="/admin"
                 className="flex items-center gap-2 px-4 py-2 text-sm bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 border border-yellow-600/30 rounded-lg transition-colors"
+                title="Panneau Admin"
               >
                 <Crown className="w-4 h-4" />
-                Admin
+                <span className="hidden sm:inline">Admin</span>
               </Link>
             )}
             <button
@@ -109,8 +172,8 @@ export default function ProfilePage() {
               Rafraîchir
             </button>
             <div className="text-right">
-              <div className="text-sm font-semibold">{user.username}</div>
-              <div className="text-xs text-gray-400">{user.elo} Elo</div>
+              <div className="text-sm font-semibold">{profile?.user?.username}</div>
+              <div className="text-xs text-gray-400">{profile?.user?.elo} Elo</div>
             </div>
           </div>
         </div>
@@ -153,26 +216,50 @@ export default function ProfilePage() {
           </Link>
         </div>
 
-        {/* Profile Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          {/* Banner */}
-          {user.bannerUrl && (
-            <div className="w-full h-32 rounded-2xl mb-4 overflow-hidden">
-              <img 
-                src={user.bannerUrl} 
-                alt="Bannière" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
+        {/* Tabs Navigation */}
+        <div className="flex gap-2 mb-6 bg-[#1e1e2e] rounded-xl p-1 overflow-x-auto">
+          {[
+            { id: 'overview' as const, label: 'Profil', icon: User },
+            { id: 'achievements' as const, label: 'Succès', icon: Medal },
+            { id: 'banner' as const, label: 'Bannière', icon: Palette },
+            { id: 'settings' as const, label: 'Paramètres', icon: Settings }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-[#2a2a3a]'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span className="hidden md:inline">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            {/* Banner */}
+            {profile?.user?.bannerUrl && (
+              <div className="w-full h-32 rounded-2xl mb-4 overflow-hidden">
+                <img 
+                  src={profile?.user?.bannerUrl} 
+                  alt="Bannière" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
           
           <div className="flex items-center gap-6 mb-6">
             <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-4xl font-bold">
-              {user.displayName?.charAt(0) || user.username.charAt(0)}
+              {profile?.user?.displayName?.charAt(0) || profile?.user?.username?.charAt(0) || '?'}
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
@@ -192,7 +279,7 @@ export default function ProfilePage() {
                     </button>
                     <button 
                       onClick={() => {
-                        setDisplayName(user.displayName || '');
+                        setDisplayName(profile?.user?.displayName || '');
                         setIsEditing(false);
                       }}
                       className="p-1 text-red-400 hover:bg-red-500/20 rounded-lg rounded-lg"
@@ -212,14 +299,14 @@ export default function ProfilePage() {
                   </>
                 )}
               </div>
-              <p className="text-gray-400">@{user.username}</p>
+              <p className="text-gray-400">@{profile?.user?.username}</p>
               <p className="text-sm text-gray-500 mt-1">
                 Membre depuis {new Date().toLocaleDateString('fr-FR')}
               </p>
             </div>
-            <div className={`px-6 py-3 rounded-xl border text-center ${getRankColor(user.rankClass)}`}>
+            <div className={`px-6 py-3 rounded-xl border text-center ${getRankColor(profile?.user?.rankClass)}`}>
               <p className="text-sm text-gray-400">Classe</p>
-              <p className="text-2xl font-bold">{user.rankClass}</p>
+              <p className="text-2xl font-bold">{profile?.user?.rankClass}</p>
             </div>
           </div>
 
@@ -227,7 +314,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-4 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
               <p className="text-gray-400 text-sm">Elo actuel</p>
-              <p className="text-2xl font-bold text-indigo-400">{user.elo}</p>
+              <p className="text-2xl font-bold text-indigo-400">{profile?.user?.elo}</p>
             </div>
             <div className="p-4 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
               <p className="text-gray-400 text-sm">Tests complétés</p>
@@ -241,7 +328,7 @@ export default function ProfilePage() {
             </div>
             <div className="p-4 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
               <p className="text-gray-400 text-sm">Meilleure série</p>
-              <p className="text-2xl font-bold text-orange-400">{user.bestStreak} 🔥</p>
+              <p className="text-2xl font-bold text-orange-400">{profile?.user?.bestStreak} 🔥</p>
             </div>
           </div>
 
@@ -251,14 +338,14 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">Vers {user.bestRankClass}</span>
-                  <span>{user.elo} / {user.bestElo + 100}</span>
+                  <span className="text-gray-400">Vers {profile?.user?.bestRankClass}</span>
+                  <span>{profile?.user?.elo} / {profile?.user?.bestElo + 100}</span>
                 </div>
                 <div className="w-full bg-[#1e1e2e] rounded-full h-3 overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-500"
                     style={{ 
-                      width: `${Math.min(100, Math.max(0, ((user.elo - 600) / (user.bestElo + 100 - 600)) * 100))}%` 
+                      width: `${Math.min(100, Math.max(0, ((profile?.user?.elo - 600) / (profile?.user?.bestElo + 100 - 600)) * 100))}%` 
                     }}
                   />
                 </div>
@@ -335,132 +422,644 @@ export default function ProfilePage() {
             )}
           </div>
         </motion.div>
+        )}
 
-        {/* Settings Tab */}
+        {/* Achievements Tab */}
+        {activeTab === 'achievements' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                <Medal className="w-8 h-8 text-yellow-400" />
+                Tes Achievements
+                <span className="text-lg font-normal text-gray-400">({badges.length})</span>
+              </h2>
+              
+              {badgesLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                  <p className="text-gray-400">Chargement de tes achievements...</p>
+                </div>
+              ) : badges.length === 0 ? (
+                <div className="text-center py-12">
+                  <Medal className="w-20 h-20 mx-auto mb-6 text-gray-400" />
+                  <h3 className="text-xl font-semibold mb-3">Aucun achievement débloqué</h3>
+                  <p className="text-gray-400 mb-6">
+                    Continue à t'entraîner pour débloquer des badges et montrer tes compétences !
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Link
+                      href="/test"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-semibold transition-colors"
+                    >
+                      <Zap className="w-5 h-5" />
+                      Test d'évaluation
+                    </Link>
+                    <Link
+                      href="/practice"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#1e1e2e] hover:bg-[#2a2a3a] border border-[#2a2a3a] rounded-lg font-semibold transition-colors"
+                    >
+                      <Target className="w-5 h-5" />
+                      Entraînement libre
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Achievement Categories */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {badges.map((userBadge) => (
+                      <motion.div
+                        key={userBadge.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.1 }}
+                        className="p-5 bg-[#1e1e2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all group"
+                        style={{ 
+                          borderColor: userBadge.badge.color + '40',
+                          boxShadow: userBadge.badge.isTemporary ? `0 0 20px ${userBadge.badge.color}20` : undefined
+                        }}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div
+                            className="w-14 h-14 rounded-full flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-110 transition-transform"
+                            style={{ backgroundColor: userBadge.badge.color }}
+                          >
+                            {userBadge.badge.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-bold text-white text-lg">
+                                {userBadge.badge.name}
+                              </h3>
+                              {userBadge.badge.isTemporary && (
+                                <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-medium">
+                                  ⏰ Temporaire
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-300 mb-3 leading-relaxed">
+                              {userBadge.badge.description}
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 text-xs">
+                                <span className="px-2 py-1 bg-[#2a2a3a] rounded-full text-gray-400">
+                                  {userBadge.badge.category}
+                                </span>
+                              </div>
+                              <span className="text-xs text-gray-500">
+                                {new Date(userBadge.earnedAt).toLocaleDateString('fr-FR', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Achievement Progress */}
+                  <div className="p-6 bg-[#1e1e2e] rounded-xl border border-[#2a2a3a]">
+                    <h3 className="text-lg font-bold mb-4">Progrès des achievements</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-[#2a2a3a] rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Trophy className="w-5 h-5 text-yellow-400" />
+                          <span className="font-medium">Classe actuelle</span>
+                        </div>
+                        <div className="text-2xl font-bold text-yellow-400">{profile?.user?.rankClass}</div>
+                        <div className="text-sm text-gray-400">Prochaine classe: {profile?.user?.bestRankClass}</div>
+                      </div>
+                      <div className="p-4 bg-[#2a2a3a] rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Target className="w-5 h-5 text-green-400" />
+                          <span className="font-medium">Tests complétés</span>
+                        </div>
+                        <div className="text-2xl font-bold text-green-400">{stats?.totalTests || 0}</div>
+                        <div className="text-sm text-gray-400">Prochain palier: 100 tests</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Banner Tab - Banner Customization with Save Button */}
+        {activeTab === 'banner' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            {/* Banner Preview - Shows local state */}
+            <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-purple-400" />
+                  Aperçu de ta bannière
+                </h3>
+                {hasBannerChanges && (
+                  <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-sm">
+                    Modifications non sauvegardées
+                  </span>
+                )}
+              </div>
+              
+              {activeBannerTab === 'custom' && selectedCustomBanner ? (
+                <div className="rounded-xl overflow-hidden relative h-32">
+                  <img 
+                    src={selectedCustomBanner} 
+                    alt="Custom Banner" 
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Dark gradient overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+                  
+                  {/* Avatar and info overlay */}
+                  <div className="absolute inset-0 flex items-center gap-4 p-6">
+                    <div className="relative">
+                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold backdrop-blur-sm">
+                        {profile?.user?.displayName?.charAt(0) || profile?.user?.username?.charAt(0) || '?'}
+                      </div>
+                      {/* Top 1 Crowns */}
+                      {badges.some(b => b.badge.id === 'top_1_solo') && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs shadow-lg" title="Top 1 Solo Mondial">
+                          👑
+                        </div>
+                      )}
+                      {badges.some(b => b.badge.id === 'top_1_multi') && (
+                        <div className="absolute -bottom-1 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs shadow-lg" title="Top 1 Multi Mondial">
+                          👑
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white drop-shadow-md">{profile?.user?.displayName || profile?.user?.username}</h3>
+                      <p className="text-white/80 drop-shadow-md">{profile?.user?.rankClass} • {profile?.user?.elo} Elo</p>
+                    </div>
+                  </div>
+                  
+                  {/* Badges overlay - top right */}
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    {selectedBadgeIds.map((badgeId) => {
+                      const userBadge = badges.find(b => b.badge.id === badgeId);
+                      if (!userBadge) return null;
+                      return (
+                        <div
+                          key={badgeId}
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg"
+                          style={{ backgroundColor: userBadge.badge.color }}
+                          title={userBadge.badge.name}
+                        >
+                          {userBadge.badge.icon}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className={`bg-gradient-to-r ${selectedBannerGradient} rounded-xl p-6 relative overflow-hidden`}>
+                  {/* Badges on banner */}
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    {selectedBadgeIds.map((badgeId) => {
+                      const userBadge = badges.find(b => b.badge.id === badgeId);
+                      if (!userBadge) return null;
+                      return (
+                        <div
+                          key={badgeId}
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg"
+                          style={{ backgroundColor: userBadge.badge.color }}
+                          title={userBadge.badge.name}
+                        >
+                          {userBadge.badge.icon}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
+                        {profile?.user?.displayName?.charAt(0) || profile?.user?.username?.charAt(0) || '?'}
+                      </div>
+                      {/* Top 1 Crowns */}
+                      {badges.some(b => b.badge.id === 'top_1_solo') && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs shadow-lg" title="Top 1 Solo Mondial">
+                          👑
+                        </div>
+                      )}
+                      {badges.some(b => b.badge.id === 'top_1_multi') && (
+                        <div className="absolute -bottom-1 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs shadow-lg" title="Top 1 Multi Mondial">
+                          👑
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">{profile?.user?.displayName || profile?.user?.username}</h3>
+                      <p className="text-white/80">{profile?.user?.rankClass} • {profile?.user?.elo} Elo</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Banner Type Tabs */}
+            <div className="flex gap-2 bg-[#1e1e2e] rounded-xl p-1">
+              <button
+                onClick={() => {
+                  setActiveBannerTab('gradient');
+                  setSelectedCustomBanner(null);
+                  setHasBannerChanges(true);
+                }}
+                className={`flex-1 py-2 rounded-lg font-medium transition-all ${
+                  activeBannerTab === 'gradient'
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Dégradés
+              </button>
+              <button
+                onClick={() => {
+                  setActiveBannerTab('custom');
+                  setHasBannerChanges(true);
+                }}
+                className={`flex-1 py-2 rounded-lg font-medium transition-all ${
+                  activeBannerTab === 'custom'
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Bannières perso ({customBanners.length})
+              </button>
+            </div>
+
+            {/* Gradient Selection */}
+            {activeBannerTab === 'gradient' && (
+              <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-purple-400" />
+                  Choisir un dégradé
+                </h3>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { id: 'default', name: 'Classique', gradient: 'from-purple-600 to-indigo-600' },
+                    { id: 'gold', name: 'Or', gradient: 'from-yellow-500 to-orange-600' },
+                    { id: 'fire', name: 'Feu', gradient: 'from-red-500 to-orange-500' },
+                    { id: 'ocean', name: 'Océan', gradient: 'from-blue-500 to-cyan-500' },
+                    { id: 'forest', name: 'Forêt', gradient: 'from-green-500 to-emerald-600' },
+                    { id: 'dark', name: 'Sombre', gradient: 'from-gray-700 to-gray-900' },
+                    { id: 'cosmic', name: 'Cosmique', gradient: 'from-indigo-500 via-purple-500 to-pink-500' },
+                    { id: 'sunset', name: 'Soleil', gradient: 'from-orange-400 via-pink-500 to-purple-600' }
+                  ].map((banner) => (
+                    <button
+                      key={banner.id}
+                      onClick={() => {
+                        setSelectedBannerGradient(banner.gradient);
+                        setHasBannerChanges(true);
+                      }}
+                      className={`p-3 rounded-xl bg-gradient-to-r ${banner.gradient} transition-all ${
+                        selectedBannerGradient === banner.gradient
+                          ? 'ring-2 ring-white scale-105' 
+                          : 'opacity-80 hover:opacity-100'
+                      }`}
+                    >
+                      <p className="font-semibold text-sm text-white drop-shadow-md">{banner.name}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Custom Banners Selection */}
+            {activeBannerTab === 'custom' && (
+              <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-purple-400" />
+                  Bannières personnalisées
+                </h3>
+                
+                {customBanners.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>Aucune bannière personnalisée disponible</p>
+                    <p className="text-sm mt-2">L&apos;administrateur n&apos;a pas encore uploadé de bannières</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {customBanners.map((banner) => (
+                      <button
+                        key={banner.id}
+                        onClick={() => {
+                          setSelectedCustomBanner(banner.imageUrl);
+                          setHasBannerChanges(true);
+                        }}
+                        className={`relative rounded-xl overflow-hidden border-2 transition-all ${
+                          selectedCustomBanner === banner.imageUrl
+                            ? 'border-purple-500 ring-2 ring-purple-500/50'
+                            : 'border-[#2a2a3a] hover:border-[#3a3a4a]'
+                        }`}
+                      >
+                        <div className="aspect-video">
+                          <img
+                            src={banner.thumbnailUrl || banner.imageUrl}
+                            alt={banner.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="p-3 bg-[#1e1e2e]">
+                          <p className="font-semibold text-sm">{banner.name}</p>
+                          {banner.isPremium && (
+                            <span className="inline-block mt-1 px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded text-xs">
+                              Premium
+                            </span>
+                          )}
+                        </div>
+                        {selectedCustomBanner === banner.imageUrl && (
+                          <div className="absolute top-2 right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                            <Check className="w-4 h-4 text-white" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Badge Selection */}
+            <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Medal className="w-5 h-5 text-yellow-400" />
+                Badges affichés
+                <span className="text-sm font-normal text-gray-400">
+                  ({selectedBadgeIds.length}/3)
+                </span>
+              </h3>
+              
+              {badges.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <Award className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>Tu n&apos;as pas encore de badges</p>
+                  <p className="text-sm mt-2">Complète des accomplissements pour en gagner !</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {badges.map((userBadge) => {
+                    const isSelected = selectedBadgeIds.includes(userBadge.badge.id);
+                    
+                    return (
+                      <button
+                        key={userBadge.id}
+                        onClick={() => {
+                          let newSelectedIds;
+                          if (isSelected) {
+                            newSelectedIds = selectedBadgeIds.filter(id => id !== userBadge.badge.id);
+                          } else if (selectedBadgeIds.length < 3) {
+                            newSelectedIds = [...selectedBadgeIds, userBadge.badge.id];
+                          } else {
+                            return; // Max 3 badges
+                          }
+                          setSelectedBadgeIds(newSelectedIds);
+                          setHasBannerChanges(true);
+                        }}
+                        disabled={!isSelected && selectedBadgeIds.length >= 3}
+                        className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 ${
+                          isSelected
+                            ? 'border-yellow-400 bg-yellow-400/10'
+                            : selectedBadgeIds.length >= 3
+                            ? 'border-[#2a2a3a] bg-[#1e1e2e] opacity-50 cursor-not-allowed'
+                            : 'border-[#2a2a3a] bg-[#1e1e2e] hover:border-purple-500'
+                        }`}
+                      >
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+                          style={{ backgroundColor: userBadge.badge.color }}
+                        >
+                          {userBadge.badge.icon}
+                        </div>
+                        <div className="text-left flex-1">
+                          <p className="font-semibold">{userBadge.badge.name}</p>
+                          <p className="text-sm text-gray-400">{userBadge.badge.description}</p>
+                        </div>
+                        {isSelected && (
+                          <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Save Button */}
+            <div className="flex gap-3">
+              <button
+                onClick={async () => {
+                  setIsSavingBanner(true);
+                  try {
+                    const bannerUrl = activeBannerTab === 'custom' && selectedCustomBanner
+                      ? selectedCustomBanner
+                      : `gradient:${selectedBannerGradient}`;
+                    
+                    const response = await fetch('/api/badges', {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        bannerUrl,
+                        selectedBadgeIds: selectedBadgeIds
+                      })
+                    });
+                    if (response.ok) {
+                      setHasBannerChanges(false);
+                      refetch();
+                    }
+                  } catch (error) {
+                    console.error('Error saving banner:', error);
+                  } finally {
+                    setIsSavingBanner(false);
+                  }
+                }}
+                disabled={!hasBannerChanges || isSavingBanner}
+                className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+              >
+                {isSavingBanner ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Sauvegarde...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Sauvegarder les modifications
+                  </>
+                )}
+              </button>
+              
+              {hasBannerChanges && (
+                <button
+                  onClick={() => {
+                    // Reset to original values
+                    if (profile?.user?.bannerUrl) {
+                      if (profile.user.bannerUrl.startsWith('gradient:')) {
+                        const gradient = profile.user.bannerUrl.replace('gradient:', '');
+                        setSelectedBannerGradient(gradient);
+                        setActiveBannerTab('gradient');
+                        setSelectedCustomBanner(null);
+                      } else {
+                        setSelectedCustomBanner(profile.user.bannerUrl);
+                        setActiveBannerTab('custom');
+                      }
+                    }
+                    if (profile?.user?.selectedBadgeIds) {
+                      try {
+                        const ids = JSON.parse(profile.user.selectedBadgeIds);
+                        setSelectedBadgeIds(ids);
+                      } catch {
+                        setSelectedBadgeIds([]);
+                      }
+                    }
+                    setHasBannerChanges(false);
+                  }}
+                  className="px-4 py-3 bg-[#1e1e2e] hover:bg-[#2a2a3a] border border-[#2a2a3a] rounded-xl font-semibold transition-all"
+                >
+                  Annuler
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Settings Tab - Functional Preferences */}
         {activeTab === 'settings' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            {/* Banner Configuration */}
+            {/* Appearance Settings */}
             <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
               <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <Target className="w-5 h-5 text-purple-400" />
-                Configuration de la bannière (Combat)
+                <Palette className="w-5 h-5 text-purple-400" />
+                Apparence
               </h3>
-              
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">URL de la bannière</label>
-                  <input
-                    type="text"
-                    defaultValue={user.bannerUrl || ''}
-                    placeholder="https://exemple.com/ma-banniere.jpg"
-                    className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
-                    onBlur={(e) => {
-                      // TODO: Save banner URL via API
-                      fetch('/api/badges', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ bannerUrl: e.target.value })
-                      });
-                    }}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Cette bannière s'affichera avant chaque combat, style Clash Royale
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Badges affichés (max 3)</label>
-                  <div className="flex gap-2 flex-wrap">
-                    {badges.slice(0, 3).map((userBadge) => (
-                      <div 
-                        key={userBadge.id}
-                        className="flex items-center gap-2 px-3 py-2 bg-[#1e1e2e] rounded-lg border border-[#3a3a4a]"
-                        style={{ borderColor: userBadge.badge.color + '40' }}
-                      >
-                        <span style={{ color: userBadge.badge.color }}>{userBadge.badge.icon}</span>
-                        <span className="text-sm">{userBadge.badge.name}</span>
-                      </div>
-                    ))}
-                    {badges.length === 0 && (
-                      <p className="text-sm text-gray-500">Débloque des badges pour les afficher sur ta bannière !</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Preview */}
-                <div className="mt-6 p-4 bg-[#0a0a0f] rounded-xl border border-[#3a3a4a]">
-                  <p className="text-sm text-gray-400 mb-3">Aperçu bannière de combat :</p>
-                  <div className="relative h-32 rounded-xl overflow-hidden bg-gradient-to-r from-purple-900/50 to-indigo-900/50">
-                    {user.bannerUrl ? (
-                      <img 
-                        src={user.bannerUrl} 
-                        alt="Bannière" 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-r from-purple-600/20 to-indigo-600/20" />
-                    )}
-                    <div className="absolute inset-0 flex items-center justify-between px-6 bg-gradient-to-r from-black/60 via-transparent to-black/60">
-                      <div className="flex items-center gap-3">
-                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-2xl font-bold">
-                          {user.displayName?.charAt(0) || user.username.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-lg">{user.displayName || user.username}</p>
-                          <p className="text-sm text-purple-400">{user.rankClass} • {user.elo} Elo</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        {badges.slice(0, 3).map((userBadge) => (
-                          <div 
-                            key={userBadge.id}
-                            className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
-                            style={{ backgroundColor: userBadge.badge.color + '30' }}
-                          >
-                            {userBadge.badge.icon}
-                          </div>
-                        ))}
-                      </div>
+                {/* Dark Mode Toggle */}
+                <div className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <span>Mode sombre</span>
+                      <p className="text-xs text-gray-500">Activer le thème sombre</p>
                     </div>
                   </div>
+                  <button 
+                    onClick={toggleTheme}
+                    className={`w-12 h-6 rounded-full transition-all ${
+                      theme === 'dark' ? 'bg-indigo-500' : 'bg-[#2a2a3a]'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                      theme === 'dark' ? 'translate-x-6' : 'translate-x-0.5'
+                    }`} />
+                  </button>
+                </div>
+
+                {/* Animations Toggle */}
+                <div className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
+                  <div className="flex items-center gap-3">
+                    <Zap className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <span>Animations</span>
+                      <p className="text-xs text-gray-500">Activer les animations</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setUserPrefs(prev => ({ ...prev, animations: !prev.animations }))}
+                    className={`w-12 h-6 rounded-full transition-all ${
+                      userPrefs.animations ? 'bg-indigo-500' : 'bg-[#2a2a3a]'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                      userPrefs.animations ? 'translate-x-6' : 'translate-x-0.5'
+                    }`} />
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* General Settings */}
+            {/* Sound Settings */}
             <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
-              <h3 className="text-xl font-bold mb-6">Paramètres</h3>
-              <div className="space-y-6">
-                {[
-                  { key: 'soundEffects', label: 'Effets sonores', icon: Bell, pref: 'soundEffects' },
-                  { key: 'animations', label: 'Animations', icon: Zap, pref: 'animations' },
-                  { key: 'darkMode', label: 'Mode sombre', icon: Shield, pref: 'darkMode' },
-                  { key: 'emailNotifications', label: 'Notifications email', icon: Settings, pref: 'emailNotifications' }
-                ].map((pref) => (
-                  <div key={pref.key} className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
-                    <div className="flex items-center gap-3">
-                      <pref.icon className="w-5 h-5 text-gray-400" />
-                      <span>{pref.label}</span>
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <Bell className="w-5 h-5 text-yellow-400" />
+                Audio
+              </h3>
+              <div className="space-y-4">
+                {/* Sound Effects Toggle */}
+                <div className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
+                  <div className="flex items-center gap-3">
+                    <Trophy className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <span>Effets sonores</span>
+                      <p className="text-xs text-gray-500">Sons lors des réponses</p>
                     </div>
-                    <button 
-                      className={`w-12 h-6 rounded-full transition-all ${
-                        DEFAULT_PREFERENCES[pref.key as keyof typeof DEFAULT_PREFERENCES] === true ? 'bg-indigo-500' : 'bg-[#2a2a3a]'
-                      }`}
-                    >
-                      <div className={`w-full h-full rounded-full transition-all ${
-                        DEFAULT_PREFERENCES[pref.key as keyof typeof DEFAULT_PREFERENCES] === true ? 'translate-x-6' : 'translate-x-0.5'
-                      }`} />
-                    </button>
                   </div>
-                ))}
+                  <button 
+                    onClick={() => setUserPrefs(prev => ({ ...prev, soundEffects: !prev.soundEffects }))}
+                    className={`w-12 h-6 rounded-full transition-all ${
+                      userPrefs.soundEffects ? 'bg-indigo-500' : 'bg-[#2a2a3a]'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                      userPrefs.soundEffects ? 'translate-x-6' : 'translate-x-0.5'
+                    }`} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Test Settings */}
+            <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <Target className="w-5 h-5 text-green-400" />
+                Test & Entraînement
+              </h3>
+              <div className="space-y-4">
+                {/* Show Timer Toggle */}
+                <div className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
+                  <div className="flex items-center gap-3">
+                    <Zap className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <span>Afficher le timer</span>
+                      <p className="text-xs text-gray-500">Chronomètre visible pendant les tests</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setUserPrefs(prev => ({ ...prev, showTimer: !prev.showTimer }))}
+                    className={`w-12 h-6 rounded-full transition-all ${
+                      userPrefs.showTimer ? 'bg-indigo-500' : 'bg-[#2a2a3a]'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                      userPrefs.showTimer ? 'translate-x-6' : 'translate-x-0.5'
+                    }`} />
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>
         )}
+
+        {/* Admin tab removed - use /admin page instead */}
       </main>
     </div>
   );

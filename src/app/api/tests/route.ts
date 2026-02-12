@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { calculateAdvancedEloChange, getRankFromElo } from '@/lib/elo';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { AchievementService } from '@/lib/achievement-service';
 
 // POST /api/tests - Complete a test and update Elo
 export async function POST(req: NextRequest) {
@@ -84,6 +85,9 @@ export async function POST(req: NextRequest) {
           lastTestDate: new Date()
         }
       });
+
+      // Check for rank achievement
+      await AchievementService.checkRankAchievement(user.id, newRankClass);
     }
 
     // Create test record
@@ -108,6 +112,9 @@ export async function POST(req: NextRequest) {
         questions: true
       }
     });
+
+    // Check for perfect test achievement
+    await AchievementService.checkPerfectTestAchievement(user.id, correct, questions.length);
 
     // Update statistics
     await prisma.statistics.upsert({
@@ -143,6 +150,9 @@ export async function POST(req: NextRequest) {
         }
       });
     }
+
+    // Check for solo games achievements
+    await AchievementService.checkSoloGamesAchievements(user.id);
 
     return NextResponse.json({
       success: true,

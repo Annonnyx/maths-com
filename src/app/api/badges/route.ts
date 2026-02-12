@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     // Créer un nouveau badge (admin uniquement)
     if (body.action === 'create') {
       // Vérifier si l'utilisateur est admin (Ønyx)
-      const isOnyx = user.email === 'noie.barneron@gmail.com';
+      const isOnyx = user.email === 'noe.barneron@gmail.com';
       if (!user.isAdmin && !isOnyx) {
         return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
       }
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
 
     // Attribuer un badge à un utilisateur
     if (body.action === 'award') {
-      const isOnyx = user.email === 'noie.barneron@gmail.com';
+      const isOnyx = user.email === 'noe.barneron@gmail.com';
       if (!user.isAdmin && !isOnyx) {
         return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
       }
@@ -187,7 +187,7 @@ export async function PUT(req: NextRequest) {
     }
 
     // Mettre à jour le profil
-    const updateData: any = {};
+    const updateData: Record<string, string | undefined> = {};
     if (selectedBadgeIds !== undefined) {
       updateData.selectedBadgeIds = JSON.stringify(selectedBadgeIds);
     }
@@ -231,7 +231,7 @@ export async function DELETE(req: NextRequest) {
       select: { id: true, isAdmin: true, email: true }
     });
 
-    const isOnyx = user?.email === 'noie.barneron@gmail.com';
+    const isOnyx = user?.email === 'noe.barneron@gmail.com';
     if (!user?.isAdmin && !isOnyx) {
       return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 });
     }

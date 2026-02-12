@@ -3,10 +3,18 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+import { Session } from 'next-auth';
+
 // Vérifier si l'utilisateur est Ønyx (admin spécial)
-async function isOnyxAdmin(session: any): Promise<boolean> {
-  if (!session?.user?.email) return false;
-  return session.user.email === 'noe.barneron@gmail.com';
+async function isOnyxAdmin(session: Session | null): Promise<boolean> {
+  console.log('Checking admin auth, session:', session?.user?.email);
+  if (!session?.user?.email) {
+    console.log('No session or email');
+    return false;
+  }
+  const isAdmin = session.user.email === 'noe.barneron@gmail.com';
+  console.log('Is admin:', isAdmin);
+  return isAdmin;
 }
 
 // GET - Récupérer les infos admin
@@ -94,7 +102,7 @@ export async function POST(req: NextRequest) {
         bestMultiplayerRankClass
       } = body;
 
-      const updateData: any = {};
+      const updateData: Record<string, string | number> = {};
       
       if (elo !== undefined) updateData.elo = parseInt(elo);
       if (multiplayerElo !== undefined) updateData.multiplayerElo = parseInt(multiplayerElo);

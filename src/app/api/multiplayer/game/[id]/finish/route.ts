@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { calculateMultiplayerEloChange } from '@/lib/multiplayer-elo';
+import { AchievementService } from '@/lib/achievement-service';
 
 export async function POST(
   req: NextRequest,
@@ -196,6 +197,12 @@ export async function POST(
     await updateMultiplayerStatistics(game.player1Id, player1Result, game.timeControl);
     if (game.player2Id) {
       await updateMultiplayerStatistics(game.player2Id, player2Result, game.timeControl);
+    }
+
+    // Check for multiplayer achievements for both players
+    await AchievementService.checkMultiplayerGamesAchievements(game.player1Id);
+    if (game.player2Id) {
+      await AchievementService.checkMultiplayerGamesAchievements(game.player2Id);
     }
 
     return NextResponse.json({

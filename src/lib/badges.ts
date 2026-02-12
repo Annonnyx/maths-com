@@ -1,11 +1,11 @@
 import { prisma } from './prisma';
 
 // Badges de rang - attribués automatiquement
-const RANK_BADGES = {
-  'S+': { name: 'Maître S+', icon: '👑', color: '#FFD700', description: 'Atteint le rang S+' },
+export const RANK_BADGES = {
+  'S+': { name: 'Maître S+', icon: '🌟', color: '#FFD700', description: 'Atteint le rang S+' },
   'S': { name: 'Légende S', icon: '⭐', color: '#FFA500', description: 'Atteint le rang S' },
   'S-': { name: 'Elite S-', icon: '💎', color: '#C0C0C0', description: 'Atteint le rang S-' },
-  'A+': { name: 'Expert A+', icon: '🏆', color: '#FF6B35', description: 'Atteint le rang A+' },
+  'A+': { name: 'Expert A+', icon: '�', color: '#FF6B35', description: 'Atteint le rang A+' },
   'A': { name: 'Vétéran A', icon: '🎖️', color: '#FF8C42', description: 'Atteint le rang A' },
   'A-': { name: 'Spécialiste A-', icon: '🎯', color: '#FF9F5A', description: 'Atteint le rang A-' },
   'B+': { name: 'Confirmé B+', icon: '⚔️', color: '#9B59B6', description: 'Atteint le rang B+' },

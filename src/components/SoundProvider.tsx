@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 interface SoundContextType {
   isMuted: boolean;
@@ -35,8 +35,38 @@ const createOscillator = (frequency: number, type: OscillatorType, duration: num
 
 export function SoundProvider({ children }: { children: React.ReactNode }) {
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(0.3);
+  const [volume, setVolumeState] = useState(0.3);
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+
+  // Load preferences from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('mathcom-preferences');
+        if (saved) {
+          const prefs = JSON.parse(saved);
+          // soundEffects: true means NOT muted
+          setIsMuted(!prefs.soundEffects);
+        }
+      } catch (error) {
+        console.error('Error loading sound preferences:', error);
+      }
+    }
+  }, []);
+
+  // Save to localStorage when mute state changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('mathcom-preferences');
+        const prefs = saved ? JSON.parse(saved) : { soundEffects: true, animations: true, showTimer: true, difficulty: 'adaptive' };
+        prefs.soundEffects = !isMuted;
+        localStorage.setItem('mathcom-preferences', JSON.stringify(prefs));
+      } catch (error) {
+        console.error('Error saving sound preferences:', error);
+      }
+    }
+  }, [isMuted]);
 
   const initAudioContext = useCallback(() => {
     if (!audioContext && typeof window !== 'undefined') {
@@ -104,6 +134,10 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
 
   const toggleMute = useCallback(() => {
     setIsMuted(prev => !prev);
+  }, []);
+
+  const setVolume = useCallback((newVolume: number) => {
+    setVolumeState(newVolume);
   }, []);
 
   return (

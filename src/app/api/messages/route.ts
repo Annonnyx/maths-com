@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const whereClause: any = {
+    const whereClause: Record<string, unknown> = {
       OR: [
         { senderId: user.id },
         { receiverId: user.id }
@@ -85,6 +85,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Group messages by conversation (friend)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const conversations = new Map<string, any[]>();
     
     messages.forEach(message => {

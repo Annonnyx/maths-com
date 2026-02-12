@@ -196,7 +196,7 @@ export default function MultiplayerGamePage() {
         
         if (gameData.questions) {
           // Count opponent's answered questions
-          const opponentAnsweredCount = gameData.questions.filter((q: any) => {
+          const opponentAnsweredCount = gameData.questions.filter((q: { player1Answer: string | null; player2Answer: string | null }) => {
             const isPlayer1 = game.player1?.id === session?.user?.id;
             return isPlayer1 ? q.player2Answer !== null : q.player1Answer !== null;
           }).length;

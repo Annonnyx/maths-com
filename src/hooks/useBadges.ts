@@ -9,6 +9,7 @@ interface Badge {
   color: string;
   requirement?: string;
   isCustom: boolean;
+  isTemporary?: boolean;
   createdAt: string;
 }
 

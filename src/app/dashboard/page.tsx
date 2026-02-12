@@ -9,7 +9,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { 
   Trophy, Target, Clock, TrendingUp, BookOpen, 
   Calculator, ChevronRight, Award, BarChart3,
-  Zap, Star, History, Users, MessageCircle
+  Zap, Star, History, Users, MessageCircle, Medal
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
@@ -19,12 +19,6 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const { profile, isLoading, error } = useUserProfile();
   const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'history'>('overview');
-
-  console.log('🔍 DASHBOARD - status:', status);
-  console.log('🔍 DASHBOARD - session:', session);
-  console.log('🔍 DASHBOARD - profile:', profile);
-  console.log('🔍 DASHBOARD - isLoading:', isLoading);
-  console.log('🔍 DASHBOARD - error:', error);
 
   // Redirect to login if not authenticated (fallback if middleware fails)
   useEffect(() => {
@@ -181,6 +175,15 @@ export default function DashboardPage() {
             <MessageCircle className="w-8 h-8 text-pink-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="font-semibold">Messages</h3>
             <p className="text-sm text-gray-400">Tes conversations</p>
+          </Link>
+
+          <Link
+            href="/banner"
+            className="p-6 bg-[#1e1e2e] rounded-2xl border border-[#2a2a3a] hover:border-yellow-500/50 transition-all group"
+          >
+            <Medal className="w-8 h-8 text-yellow-400 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-semibold">Bannières</h3>
+            <p className="text-sm text-gray-400">Customise ton profil</p>
           </Link>
         </motion.div>
 

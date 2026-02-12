@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { 
-  ArrowLeft, Crown, Medal, Save, Trash2, UserPlus, Loader2,
-  Award, Zap, Target, Star, Shield
+  Download, Users, ArrowLeft, Crown, Medal, Save, Trash2, UserPlus, Loader2,
+  Award, Zap, Target, Star, Shield, Upload, Image, Edit2, Eye, EyeOff
 } from 'lucide-react';
 
 interface Badge {
@@ -30,7 +30,23 @@ interface User {
   multiplayerRankClass: string;
 }
 
-const ICON_OPTIONS = ['🏆', '🥇', '🥈', '🥉', '⭐', '💎', '👑', '🔥', '⚡', '🎯', '🛡️', '⚔️', '🎖️', '🏅', '💪', '🧠', '⚡', '🔮', '🌟', '✨'];
+interface CustomBanner {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl: string;
+  thumbnailUrl?: string;
+  isPremium: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  _count: {
+    users: number;
+  };
+}
+
+const ICON_OPTIONS = ['🏆', '🥇', '🥈', '🥉', '⭐', '💎', '👑', '🔥', '⚡', '🎯', '🛡️', '⚔️', '🎖️', '🏅', '💪', '🧠', '🔮', '🌟', '✨'];
 const CATEGORY_OPTIONS = ['rank', 'achievement', 'special', 'custom'];
 
 export default function AdminPage() {
@@ -66,7 +82,21 @@ export default function AdminPage() {
   const [newElo, setNewElo] = useState('');
   const [newMultiplayerElo, setNewMultiplayerElo] = useState('');
 
+  // Banner management
+  const [banners, setBanners] = useState<CustomBanner[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [bannerFormData, setBannerFormData] = useState({
+    name: '',
+    description: '',
+    isPremium: false
+  });
+
+  // User list
+  const [showUserList, setShowUserList] = useState(false);
+
   useEffect(() => {
+    console.log('Admin page - Session:', session);
+    console.log('Admin page - User email:', session?.user?.email);
     if (session?.user?.email === 'noe.barneron@gmail.com') {
       setIsAuthorized(true);
       loadData();
@@ -77,22 +107,32 @@ export default function AdminPage() {
 
   const loadData = async () => {
     try {
+      console.log('Loading admin data...');
       // Load badges
-      const badgesRes = await fetch('/api/badges');
+      const badgesRes = await fetch('/api/badges', { credentials: 'include' });
+      console.log('Badges API status:', badgesRes.status);
       if (badgesRes.ok) {
         const badgesData = await badgesRes.json();
         setBadges(badgesData.badges || []);
+      } else {
+        const error = await badgesRes.json();
+        console.error('Badges API error:', error);
       }
 
       // Load users
-      const usersRes = await fetch('/api/admin?action=users');
+      const usersRes = await fetch('/api/admin?action=users', { credentials: 'include' });
+      console.log('Users API status:', usersRes.status);
       if (usersRes.ok) {
         const usersData = await usersRes.json();
         setUsers(usersData.users || []);
+      } else {
+        const error = await usersRes.json();
+        console.error('Users API error:', error);
       }
 
       // Load my Elo
-      const eloRes = await fetch('/api/admin?action=my-elo');
+      const eloRes = await fetch('/api/admin?action=my-elo', { credentials: 'include' });
+      console.log('Elo API status:', eloRes.status);
       if (eloRes.ok) {
         const eloData = await eloRes.json();
         if (eloData.user) {
@@ -100,6 +140,20 @@ export default function AdminPage() {
           setNewElo(eloData.user.elo.toString());
           setNewMultiplayerElo(eloData.user.multiplayerElo.toString());
         }
+      } else {
+        const error = await eloRes.json();
+        console.error('Elo API error:', error);
+      }
+
+      // Load banners
+      const bannersRes = await fetch('/api/admin/banners', { credentials: 'include' });
+      console.log('Banners API status:', bannersRes.status);
+      if (bannersRes.ok) {
+        const bannersData = await bannersRes.json();
+        setBanners(bannersData.banners || []);
+      } else {
+        const error = await bannersRes.json();
+        console.error('Banners API error:', error);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -110,9 +164,11 @@ export default function AdminPage() {
 
   const createBadge = async () => {
     try {
+      console.log('Creating badge:', { name: badgeName, description: badgeDescription });
       const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           action: 'create-badge',
           name: badgeName,
@@ -124,6 +180,9 @@ export default function AdminPage() {
         })
       });
 
+      const data = await response.json();
+      console.log('Create badge response:', data);
+
       if (response.ok) {
         alert('Badge créé avec succès !');
         setBadgeName('');
@@ -131,11 +190,11 @@ export default function AdminPage() {
         setBadgeRequirement('');
         loadData();
       } else {
-        alert('Erreur lors de la création');
+        alert('Erreur: ' + (data.error || 'Erreur lors de la création'));
       }
     } catch (error) {
       console.error('Error creating badge:', error);
-      alert('Erreur lors de la création');
+      alert('Erreur réseau lors de la création');
     }
   };
 
@@ -149,6 +208,7 @@ export default function AdminPage() {
       const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           action: 'award-badge',
           badgeId: selectedBadge,
@@ -172,9 +232,11 @@ export default function AdminPage() {
 
   const updateMyElo = async () => {
     try {
+      console.log('Updating Elo:', { elo: newElo, multiplayerElo: newMultiplayerElo });
       const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           action: 'update-my-elo',
           elo: parseInt(newElo),
@@ -182,15 +244,18 @@ export default function AdminPage() {
         })
       });
 
+      const data = await response.json();
+      console.log('Elo update response:', data);
+
       if (response.ok) {
         alert('Elo mis à jour !');
         loadData();
       } else {
-        alert('Erreur lors de la mise à jour');
+        alert('Erreur: ' + (data.error || 'Erreur lors de la mise à jour'));
       }
     } catch (error) {
       console.error('Error updating elo:', error);
-      alert('Erreur lors de la mise à jour');
+      alert('Erreur réseau lors de la mise à jour');
     }
   };
 
@@ -201,6 +266,7 @@ export default function AdminPage() {
       const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           action: 'delete-badge',
           badgeId
@@ -215,6 +281,91 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Error deleting badge:', error);
+      alert('Erreur lors de la suppression');
+    }
+  };
+
+  // Banner functions
+  const handleBannerUpload = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setUploading(true);
+
+    const form = e.currentTarget;
+    const fileInput = form.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = fileInput.files?.[0];
+
+    if (!file) {
+      alert('Veuillez sélectionner une image');
+      setUploading(false);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', bannerFormData.name);
+    formData.append('description', bannerFormData.description);
+    formData.append('isPremium', bannerFormData.isPremium.toString());
+
+    try {
+      const response = await fetch('/api/admin/banners', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setBanners(prev => [data.banner, ...prev]);
+        setBannerFormData({ name: '', description: '', isPremium: false });
+        form.reset();
+        alert('Bannière uploadée avec succès !');
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erreur lors de l\'upload');
+      }
+    } catch (error) {
+      console.error('Error uploading banner:', error);
+      alert('Erreur lors de l\'upload');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const toggleBannerStatus = async (bannerId: string, isActive: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/banners?id=${bannerId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setBanners(prev => prev.map(b => b.id === bannerId ? data.banner : b));
+      } else {
+        alert('Erreur lors de la mise à jour');
+      }
+    } catch (error) {
+      console.error('Error updating banner:', error);
+      alert('Erreur lors de la mise à jour');
+    }
+  };
+
+  const deleteBanner = async (bannerId: string) => {
+    if (!confirm('Supprimer cette bannière ?')) return;
+
+    try {
+      const response = await fetch(`/api/admin/banners?id=${bannerId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setBanners(prev => prev.filter(b => b.id !== bannerId));
+        alert('Bannière supprimée');
+      } else {
+        alert('Erreur lors de la suppression');
+      }
+    } catch (error) {
+      console.error('Error deleting banner:', error);
       alert('Erreur lors de la suppression');
     }
   };
@@ -437,18 +588,41 @@ export default function AdminPage() {
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Badge</label>
+                <label className="block text-sm text-gray-400 mb-2">Badge (tous les badges)</label>
                 <select
                   value={selectedBadge}
                   onChange={(e) => setSelectedBadge(e.target.value)}
                   className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
                 >
                   <option value="">Choisir un badge</option>
-                  {badges.filter(b => b.isCustom).map(badge => (
-                    <option key={badge.id} value={badge.id}>
-                      {badge.icon} {badge.name}
-                    </option>
-                  ))}
+                  <optgroup label="Rang (Classes)">
+                    {badges.filter(b => b.category === 'rank').map(badge => (
+                      <option key={badge.id} value={badge.id}>
+                        {badge.icon} {badge.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Succès">
+                    {badges.filter(b => b.category === 'achievement').map(badge => (
+                      <option key={badge.id} value={badge.id}>
+                        {badge.icon} {badge.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Custom">
+                    {badges.filter(b => b.category === 'custom').map(badge => (
+                      <option key={badge.id} value={badge.id}>
+                        {badge.icon} {badge.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Spécial (Top 1)">
+                    {badges.filter(b => b.category === 'special').map(badge => (
+                      <option key={badge.id} value={badge.id}>
+                        {badge.icon} {badge.name}
+                      </option>
+                    ))}
+                  </optgroup>
                 </select>
               </div>
 
@@ -478,7 +652,7 @@ export default function AdminPage() {
             </div>
           </motion.div>
 
-          {/* Liste des badges custom */}
+          {/* Liste de tous les badges */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -487,40 +661,416 @@ export default function AdminPage() {
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Medal className="w-5 h-5 text-yellow-400" />
-              Badges créés ({badges.filter(b => b.isCustom).length})
+              Tous les badges ({badges.length})
             </h2>
             
-            <div className="grid md:grid-cols-3 gap-4">
-              {badges.filter(b => b.isCustom).map(badge => (
-                <div
-                  key={badge.id}
-                  className="p-4 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] flex items-center gap-3"
+            <div className="space-y-4">
+              {/* Sync Button - Always visible */}
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={async () => {
+                    if (!confirm('⚠️ Cette action va SUPPRIMER TOUS les badges de rang et les recréer proprement. Continuer ?')) return;
+                    try {
+                      const res = await fetch('/api/admin/cleanup-badges', {
+                        method: 'POST',
+                        credentials: 'include'
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        alert(`🧹 NETTOYAGE COMPLET\n\n${data.deletedBadges} badges supprimés\n${data.deletedUserBadges} attributions supprimées\n${data.createdBadges} badges recréés\n${data.assignedToUsers} badges réattribués`);
+                        loadData();
+                      } else {
+                        const err = await res.json();
+                        alert('Erreur: ' + (err.details || 'Nettoyage échoué'));
+                      }
+                    } catch (e) {
+                      alert('Erreur réseau');
+                    }
+                  }}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors text-sm"
                 >
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
-                    style={{ backgroundColor: badge.color }}
-                  >
-                    {badge.icon}
+                  🧹 Nettoyage TOTAL (supprime tout et recrée)
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      const res = await fetch('/api/admin/init-badges', {
+                        method: 'POST',
+                        credentials: 'include'
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        alert(`${data.totalBadges} badges synchronisés !\n${data.rankBadgesAwarded} badges de rang attribués\n${data.rankBadgesRemoved} badges retirés`);
+                        loadData();
+                      } else {
+                        alert('Erreur lors de la synchronisation');
+                      }
+                    } catch (e) {
+                      alert('Erreur réseau');
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors text-sm"
+                >
+                  🔄 Synchroniser tous les badges
+                </button>
+              </div>
+
+              {/* Badges de Rang */}
+              {badges.filter(b => b.category === 'rank').length > 0 && (
+                <div>
+                  <h3 className="text-sm text-gray-400 mb-2">Classes (Rang)</h3>
+                  <div className="grid md:grid-cols-4 gap-3">
+                    {badges.filter(b => b.category === 'rank').map(badge => (
+                      <div
+                        key={badge.id}
+                        className="p-3 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] flex items-center gap-2"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
+                          style={{ backgroundColor: badge.color }}
+                        >
+                          {badge.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{badge.name}</p>
+                          <p className="text-xs text-gray-400 truncate">{badge.description}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">{badge.name}</p>
-                    <p className="text-xs text-gray-400 truncate">{badge.description}</p>
+                </div>
+              )}
+
+              {/* Badges de Succès */}
+              {badges.filter(b => b.category === 'achievement').length > 0 && (
+                <div>
+                  <h3 className="text-sm text-gray-400 mb-2">Succès</h3>
+                  <div className="grid md:grid-cols-4 gap-3">
+                    {badges.filter(b => b.category === 'achievement').map(badge => (
+                      <div
+                        key={badge.id}
+                        className="p-3 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] flex items-center gap-2"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
+                          style={{ backgroundColor: badge.color }}
+                        >
+                          {badge.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{badge.name}</p>
+                          <p className="text-xs text-gray-400 truncate">{badge.description}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                </div>
+              )}
+
+              {/* Badges Spéciaux (Top 1, etc) */}
+              {badges.filter(b => b.category === 'special').length > 0 && (
+                <div>
+                  <h3 className="text-sm text-gray-400 mb-2">Spécial (Top 1)</h3>
+                  <div className="grid md:grid-cols-4 gap-3">
+                    {badges.filter(b => b.category === 'special').map(badge => (
+                      <div
+                        key={badge.id}
+                        className="p-3 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] flex items-center gap-2"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
+                          style={{ backgroundColor: badge.color }}
+                        >
+                          {badge.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{badge.name}</p>
+                          <p className="text-xs text-gray-400 truncate">{badge.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Badges Custom (supprimables) */}
+              {badges.filter(b => b.category === 'custom').length > 0 && (
+                <div>
+                  <h3 className="text-sm text-gray-400 mb-2">Badges Custom (créés par toi)</h3>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {badges.filter(b => b.category === 'custom').map(badge => (
+                      <div
+                        key={badge.id}
+                        className="p-4 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] flex items-center gap-3"
+                      >
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+                          style={{ backgroundColor: badge.color }}
+                        >
+                          {badge.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold truncate">{badge.name}</p>
+                          <p className="text-xs text-gray-400 truncate">{badge.description}</p>
+                        </div>
+                        <button
+                          onClick={() => deleteBadge(badge.id)}
+                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {badges.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-400 mb-4">
+                    Aucun badge dans le système - clique ci-dessous pour initialiser
+                  </p>
                   <button
-                    onClick={() => deleteBadge(badge.id)}
-                    className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/admin/init-badges', {
+                          method: 'POST',
+                          credentials: 'include'
+                        });
+                        if (res.ok) {
+                          const data = await res.json();
+                          alert(`${data.totalBadges} badges initialisés !`);
+                          loadData();
+                        } else {
+                          alert('Erreur lors de l\'initialisation');
+                        }
+                      } catch (e) {
+                        alert('Erreur réseau');
+                      }
+                    }}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    Initialiser les badges (Rangs + Succès + Top 1)
                   </button>
                 </div>
-              ))}
-              
-              {badges.filter(b => b.isCustom).length === 0 && (
-                <p className="text-gray-400 text-center py-8 md:col-span-3">
-                  Aucun badge custom créé
-                </p>
               )}
             </div>
+          </motion.div>
+
+          {/* Gestion des Bannières */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a] md:col-span-2"
+          >
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Image className="w-5 h-5 text-purple-400" />
+              Gestion des Bannières ({banners.length})
+            </h2>
+            
+            {/* Upload Form */}
+            <div className="mb-6 p-4 bg-[#1e1e2e] rounded-xl border border-[#2a2a3a]">
+              <h3 className="font-medium mb-3">Uploader une nouvelle bannière</h3>
+              <form onSubmit={handleBannerUpload} className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <input
+                      type="text"
+                      value={bannerFormData.name}
+                      onChange={(e) => setBannerFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Nom de la bannière"
+                      required
+                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      value={bannerFormData.description}
+                      onChange={(e) => setBannerFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Description (optionnel)"
+                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    required
+                    className="flex-1 px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white text-sm"
+                  />
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={bannerFormData.isPremium}
+                      onChange={(e) => setBannerFormData(prev => ({ ...prev, isPremium: e.target.checked }))}
+                      className="w-4 h-4"
+                    />
+                    Premium
+                  </label>
+                  <button
+                    type="submit"
+                    disabled={uploading}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-lg font-semibold text-sm transition-colors"
+                  >
+                    {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    Upload
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Banners Grid */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {banners.map((banner) => (
+                <div
+                  key={banner.id}
+                  className="bg-[#1e1e2e] rounded-xl border border-[#2a2a3a] overflow-hidden"
+                >
+                  {/* Banner Preview */}
+                  <div className="relative h-32 bg-gradient-to-br from-purple-900/50 to-indigo-900/50">
+                    <img
+                      src={banner.thumbnailUrl || banner.imageUrl}
+                      alt={banner.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      {banner.isPremium && (
+                        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-medium">
+                          Premium
+                        </span>
+                      )}
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        banner.isActive 
+                          ? 'bg-green-500/20 text-green-400' 
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {banner.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Banner Info */}
+                  <div className="p-3">
+                    <h4 className="font-semibold text-sm mb-1">{banner.name}</h4>
+                    {banner.description && (
+                      <p className="text-xs text-gray-400 mb-2">{banner.description}</p>
+                    )}
+                    
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                      <span>{banner._count?.users ?? 0} utilisateurs</span>
+                      <span>{new Date(banner.createdAt).toLocaleDateString('fr-FR')}</span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => toggleBannerStatus(banner.id, !banner.isActive)}
+                        className="px-2 py-1 bg-gray-600/20 hover:bg-gray-600/30 rounded transition-colors"
+                      >
+                        {banner.isActive ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                      </button>
+                      <button
+                        onClick={() => deleteBanner(banner.id)}
+                        className="px-2 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {banners.length === 0 && (
+              <div className="text-center py-8 text-gray-400">
+                <Image className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>Aucune bannière uploadée</p>
+                <p className="text-sm">Commence par uploader ta première bannière personnalisée</p>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Liste des utilisateurs avec export */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a] md:col-span-2"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <Users className="w-5 h-5 text-blue-400" />
+                Liste des utilisateurs ({users.length})
+              </h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowUserList(!showUserList)}
+                  className="px-4 py-2 bg-[#1e1e2e] hover:bg-[#2a2a3a] border border-[#2a2a3a] rounded-lg text-sm transition-colors"
+                >
+                  {showUserList ? 'Masquer' : 'Afficher'} la liste
+                </button>
+                <button
+                  onClick={() => {
+                    // Export to CSV
+                    const csvContent = [
+                      ['ID', 'Username', 'Email', 'Display Name', 'Elo Solo', 'Classe Solo', 'Elo Multi', 'Classe Multi'].join(','),
+                      ...users.map(u => [
+                        u.id,
+                        u.username,
+                        u.email,
+                        u.displayName || '',
+                        u.elo,
+                        u.rankClass,
+                        u.multiplayerElo,
+                        u.multiplayerRankClass
+                      ].join(','))
+                    ].join('\n');
+                    
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+                    link.click();
+                  }}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Exporter CSV
+                </button>
+              </div>
+            </div>
+
+            {showUserList && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[#2a2a3a]">
+                      <th className="text-left p-2 text-gray-400">Username</th>
+                      <th className="text-left p-2 text-gray-400">Email</th>
+                      <th className="text-left p-2 text-gray-400">Elo Solo</th>
+                      <th className="text-left p-2 text-gray-400">Classe</th>
+                      <th className="text-left p-2 text-gray-400">Elo Multi</th>
+                      <th className="text-left p-2 text-gray-400">Classe Multi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map(user => (
+                      <tr key={user.id} className="border-b border-[#1e1e2e] hover:bg-[#1e1e2e]">
+                        <td className="p-2 font-medium">{user.username}</td>
+                        <td className="p-2 text-gray-400">{user.email}</td>
+                        <td className="p-2">{user.elo}</td>
+                        <td className="p-2 text-purple-400">{user.rankClass}</td>
+                        <td className="p-2">{user.multiplayerElo}</td>
+                        <td className="p-2 text-purple-400">{user.multiplayerRankClass}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </motion.div>
         </div>
       </main>

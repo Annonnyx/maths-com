@@ -28,11 +28,7 @@ export function useUserProfile() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchProfile = async () => {
-    console.log('🔍 useUserProfile - Session email:', session?.user?.email);
-    console.log('🔍 useUserProfile - Session status:', status);
-    
     if (!session?.user?.email) {
-      console.log('❌ useUserProfile - No email in session, skipping fetch');
       return;
     }
     
@@ -40,21 +36,16 @@ export function useUserProfile() {
     setError(null);
     
     try {
-      console.log('🚀 useUserProfile - Fetching /api/profile...');
       const response = await fetch('/api/profile');
-      console.log('📊 useUserProfile - Response status:', response.status);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ useUserProfile - Error response:', errorText);
         throw new Error(`Failed to fetch profile: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log('✅ useUserProfile - Profile fetched:', !!data.user);
       setProfile(data);
     } catch (err) {
-      console.error('💥 useUserProfile - Error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setIsLoading(false);
@@ -62,7 +53,6 @@ export function useUserProfile() {
   };
 
   useEffect(() => {
-    console.log('🔄 useUserProfile - useEffect triggered, session?.user?.email:', session?.user?.email);
     if (session?.user?.email) {
       fetchProfile();
     }
