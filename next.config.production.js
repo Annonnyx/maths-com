@@ -4,6 +4,17 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
+  // GitHub Pages configuration
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true
+  },
+  
+  // Base path pour GitHub Pages
+  basePath: process.env.NODE_ENV === 'production' ? '/maths-com' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/maths-com' : '',
+  
   // Optimisation des images
   images: {
     domains: ['localhost', 'ton-domaine.com'],
@@ -76,9 +87,6 @@ const nextConfig = {
     }
     return config;
   },
-  
-  // Configuration pour le déploiement
-  output: 'standalone',
   
   // Compression Gzip
   compress: true,
