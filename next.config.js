@@ -1,10 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // GitHub Pages configuration
-  output: 'export',
-  trailingSlash: true,
+  // Configuration de production optimisée
+  reactStrictMode: true,
+  
+  // Optimisation des images
   images: {
-    unoptimized: true,
+    domains: ['localhost', 'ton-domaine.com'],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 jours
     remotePatterns: [
       {
         protocol: 'https',
@@ -17,17 +20,16 @@ const nextConfig = {
     ],
   },
   
-  // Base path pour GitHub Pages
-  basePath: process.env.NODE_ENV === 'production' ? '/maths-com' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/maths-com' : '',
-  
-  // Turbopack config
-  turbopack: {},
-  
   // Variables d'environnement exposées au client
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
+  
+  // Turbopack config (vide pour utiliser les défauts Next.js 16)
+  turbopack: {},
+  
+  // Configuration pour le déploiement
+  output: 'standalone',
   
   // Compression Gzip
   compress: true,
