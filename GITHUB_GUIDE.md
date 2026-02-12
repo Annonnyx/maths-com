@@ -17,7 +17,7 @@
 ### **2. Lien local ↔ GitHub**
 ```bash
 # Ajouter le dépôt distant
-git remote add origin https://github.com/noebarneron/maths-com.git
+git remote add origin https://github.com/Annonnyx/maths-com.git
 
 # Vérifier la connexion
 git remote -v
@@ -189,17 +189,16 @@ git commit -m "refactor: optimisation composants publicitaires"
 3. Add rule pour `main`
 4. ✅ Require pull request reviews
 5. ✅ Require status checks to pass
-6. ✅ Do not allow force push
 
-### **Configurer GitHub Pages (optionnel) :**
+### Configurer GitHub Pages (optionnel) :
 1. Settings → Pages
 2. Source : Deploy from a branch
 3. Branch : main / (root)
-4. Ton site sera disponible sur `https://noebarneron.github.io/maths-com`
+4. Ton site sera disponible sur `https://Annonnyx.github.io/maths-com`
 
-## 📊 **Monitoring et Statistiques**
+## Monitoring et Statistiques
 
-### **GitHub Insights :**
+### GitHub Insights :
 - Contribution graph (activité)
 - Traffic (visites du dépôt)
 - Forks et stars

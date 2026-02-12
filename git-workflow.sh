@@ -198,7 +198,7 @@ create_release() {
     git push origin "$version"
     
     echo -e "${GREEN}✅ Release $version created and pushed!${NC}"
-    echo -e "${YELLOW}📝 Create a GitHub Release at: https://github.com/noebarneron/maths-com/releases/new${NC}"
+    echo -e "${YELLOW}📝 Create a GitHub Release at: https://github.com/Annonnyx/maths-com/releases/new${NC}"
 }
 
 # Show status
