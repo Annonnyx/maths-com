@@ -1,0 +1,356 @@
+/* Light Theme Colors */
+:root {
+  --bg-primary: 248, 250, 252;    /* slate-50 */
+  --bg-secondary: 241, 245, 249;   /* slate-100 */
+  --bg-tertiary: 226, 232, 240;    /* slate-200 */
+  --bg-card: 255, 255, 255;        /* white */
+  --bg-input: 248, 250, 252;       /* slate-50 */
+  
+  --text-primary: 15, 23, 42;        /* slate-900 */
+  --text-secondary: 71, 85, 105;     /* slate-600 */
+  --text-tertiary: 100, 116, 139;  /* slate-500 */
+  --text-muted: 148, 163, 184;      /* slate-400 */
+  
+  --border-primary: 226, 232, 240;   /* slate-200 */
+  --border-secondary: 203, 213, 225; /* slate-300 */
+  
+  --accent-primary: 99, 102, 241;    /* indigo-500 */
+  --accent-primary-hover: 79, 70, 229;  /* indigo-600 */
+  --accent-secondary: 168, 85, 247;   /* purple-500 */
+  --accent-secondary-hover: 147, 51, 234; /* purple-600 */
+  
+  --success: 34, 197, 94;          /* green-500 */
+  --warning: 251, 146, 60;         /* amber-500 */
+  --error: 239, 68, 68;            /* red-500 */
+  --info: 59, 130, 246;             /* blue-500 */
+}
+
+/* Apply light theme - IMPORTANT: Use !important to override dark theme */
+.light {
+  background-color: rgb(var(--bg-primary)) !important;
+  color: rgb(var(--text-primary)) !important;
+}
+
+.light body {
+  background-color: rgb(var(--bg-primary)) !important;
+  color: rgb(var(--text-primary)) !important;
+}
+
+/* Override all background colors */
+.light .bg-\[0a0a0f\],
+.light .bg-\[12121a\],
+.light .bg-\[1e1e2e\],
+.light .bg-\[2a2a3a\],
+.light .bg-\[3a3a4a\] {
+  background-color: rgb(var(--bg-primary)) !important;
+}
+
+.light .bg-\[12121a\] {
+  background-color: rgb(var(--bg-secondary)) !important;
+}
+
+.light .bg-\[1e1e2e\] {
+  background-color: rgb(var(--bg-tertiary)) !important;
+}
+
+.light .bg-\[2a2a3a\] {
+  background-color: rgb(var(--border-primary)) !important;
+}
+
+.light .bg-\[3a3a4a\] {
+  background-color: rgb(var(--border-secondary)) !important;
+}
+
+.light .bg-white {
+  background-color: rgb(var(--bg-card)) !important;
+}
+
+/* Override all text colors */
+.light .text-white,
+.light .text-gray-100,
+.light .text-gray-200,
+.light .text-gray-300 {
+  color: rgb(var(--text-primary)) !important;
+}
+
+.light .text-gray-400 {
+  color: rgb(var(--text-muted)) !important;
+}
+
+.light .text-gray-500 {
+  color: rgb(var(--text-tertiary)) !important;
+}
+
+.light .text-gray-600 {
+  color: rgb(var(--text-secondary)) !important;
+}
+
+/* Additional text colors */
+.light .text-indigo-300,
+.light .text-indigo-400,
+.light .text-purple-300,
+.light .text-purple-400 {
+  color: rgb(var(--accent-primary)) !important;
+}
+
+.light .text-green-400 {
+  color: rgb(var(--success)) !important;
+}
+
+.light .text-red-400 {
+  color: rgb(var(--error)) !important;
+}
+
+.light .text-yellow-400 {
+  color: rgb(var(--warning)) !important;
+}
+
+.light .text-blue-400 {
+  color: rgb(var(--info)) !important;
+}
+
+/* Override border colors */
+.light .border-\[2a2a3a\] {
+  border-color: rgb(var(--border-primary)) !important;
+}
+
+.light .border-\[3a3a4a\] {
+  border-color: rgb(var(--border-secondary)) !important;
+}
+
+.light .border-indigo-500\/30 {
+  border-color: rgba(var(--accent-primary), 0.3) !important;
+}
+
+.light .border-purple-500\/30 {
+  border-color: rgba(var(--accent-secondary), 0.3) !important;
+}
+
+/* Button styles for light theme */
+.light .bg-indigo-500 {
+  background-color: rgb(var(--accent-primary)) !important;
+}
+
+.light .bg-indigo-600 {
+  background-color: rgb(var(--accent-primary-hover)) !important;
+}
+
+.light .bg-purple-500 {
+  background-color: rgb(var(--accent-secondary)) !important;
+}
+
+.light .bg-purple-600 {
+  background-color: rgb(var(--accent-secondary-hover)) !important;
+}
+
+.light .hover\:bg-indigo-600:hover {
+  background-color: rgb(var(--accent-primary-hover)) !important;
+}
+
+.light .hover\:bg-indigo-700:hover {
+  background-color: rgb(var(--accent-primary-hover)) !important;
+}
+
+.light .hover\:bg-purple-600:hover {
+  background-color: rgb(var(--accent-secondary-hover)) !important;
+}
+
+.light .text-indigo-400 {
+  color: rgb(var(--accent-primary)) !important;
+}
+
+.light .text-purple-400 {
+  color: rgb(var(--accent-secondary)) !important;
+}
+
+.light .hover\:text-indigo-300:hover {
+  color: rgb(var(--accent-primary-hover)) !important;
+}
+
+/* Status colors */
+.light .text-green-400 {
+  color: rgb(var(--success)) !important;
+}
+
+.light .text-red-400 {
+  color: rgb(var(--error)) !important;
+}
+
+.light .text-yellow-400 {
+  color: rgb(var(--warning)) !important;
+}
+
+.light .text-blue-400 {
+  color: rgb(var(--info)) !important;
+}
+
+/* Background colors with opacity */
+.light .bg-green-500\/20 {
+  background-color: rgba(var(--success), 0.2) !important;
+}
+
+.light .bg-red-500\/20 {
+  background-color: rgba(var(--error), 0.2) !important;
+}
+
+.light .bg-yellow-500\/20 {
+  background-color: rgba(var(--warning), 0.2) !important;
+}
+
+.light .bg-blue-500\/20 {
+  background-color: rgba(var(--info), 0.2) !important;
+}
+
+.light .bg-indigo-500\/20 {
+  background-color: rgba(var(--accent-primary), 0.2) !important;
+}
+
+.light .bg-purple-500\/20 {
+  background-color: rgba(var(--accent-secondary), 0.2) !important;
+}
+
+/* Button hover states */
+.light button:hover,
+.light .hover\:bg-\[2a2a3a\]:hover {
+  background-color: rgb(var(--border-secondary)) !important;
+}
+
+.light .hover\:bg-\[3a3a4a\]:hover {
+  background-color: rgb(var(--border-primary)) !important;
+}
+
+/* Specific button fixes */
+.light button {
+  background-color: rgb(var(--bg-tertiary)) !important;
+  color: rgb(var(--text-primary)) !important;
+  border-color: rgb(var(--border-primary)) !important;
+}
+
+.light button:hover {
+  background-color: rgb(var(--border-secondary)) !important;
+  color: rgb(var(--text-primary)) !important;
+}
+
+/* Primary buttons */
+.light .bg-indigo-500,
+.light .bg-purple-500 {
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+/* Text readability improvements */
+.light .font-semibold,
+.light .font-bold {
+  color: rgb(var(--text-primary)) !important;
+  font-weight: 600 !important;
+}
+
+/* Homepage specific fixes */
+.light .bg-\[12121a\] {
+  background-color: rgb(var(--bg-secondary)) !important;
+}
+
+.light .bg-\[1e1e2e\] {
+  background-color: rgb(var(--bg-tertiary)) !important;
+}
+
+.light .bg-\[2a2a3a\] {
+  background-color: rgb(var(--border-primary)) !important;
+}
+
+.light .border-\[2a2a3a\] {
+  border-color: rgb(var(--border-primary)) !important;
+}
+
+.light .border-indigo-500\/30 {
+  border-color: rgba(var(--accent-primary), 0.3) !important;
+}
+
+/* Feature cards */
+.light .from-indigo-500\/20 {
+  background-color: rgba(var(--accent-primary), 0.2) !important;
+}
+
+.light .to-purple-600\/20 {
+  background-color: rgba(var(--accent-secondary), 0.2) !important;
+}
+
+.light .group-hover\:from-indigo-500\/30:hover {
+  background-color: rgba(var(--accent-primary), 0.3) !important;
+}
+
+.light .group-hover\:to-purple-600\/30:hover {
+  background-color: rgba(var(--accent-secondary), 0.3) !important;
+}
+
+/* Rank badges */
+.light .text-gray-400.border-gray-400\/30.bg-gray-400\/10 {
+  color: rgb(var(--text-secondary)) !important;
+  border-color: rgba(var(--text-secondary), 0.3) !important;
+  background-color: rgba(var(--text-secondary), 0.1) !important;
+}
+
+
+.light .bg-gradient-to-r {
+  background-color: rgb(var(--bg-secondary)) !important;
+}
+
+/* All card backgrounds */
+.light .rounded-2xl,
+.light .rounded-xl,
+.light .rounded-lg {
+  background-color: rgb(var(--bg-card)) !important;
+}
+
+/* Improve contrast for better readability */
+.light {
+  /* Improve text rendering */
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Transitions for theme switching */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Additional overrides for specific elements */
+.light .min-h-screen {
+  background-color: rgb(var(--bg-primary)) !important;
+}
+
+.light .bg-gradient-to-br {
+  background-image: none !important;
+  background-color: rgb(var(--bg-secondary)) !important;
+}
+
+.light .bg-gradient-to-r {
+  background-image: none !important;
+  background-color: rgb(var(--bg-secondary)) !important;
+}
+
+.light .from-indigo-500\/20 {
+  background-color: rgba(var(--accent-primary), 0.2) !important;
+}
+
+.light .to-purple-600\/20 {
+  background-color: rgba(var(--accent-secondary), 0.2) !important;
+}
+
+/* Input fields */
+.light input,
+.light textarea,
+.light select {
+  background-color: rgb(var(--bg-input)) !important;
+  color: rgb(var(--text-primary)) !important;
+  border-color: rgb(var(--border-primary)) !important;
+}
+
+/* Focus states */
+.light input:focus,
+.light textarea:focus,
+.light select:focus {
+  border-color: rgb(var(--accent-primary)) !important;
+  box-shadow: 0 0 0 1px rgba(var(--accent-primary), 0.2) !important;
+}

@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Math.com - L'entraînement au calcul mental
 
-## Getting Started
+> Le chess.com des maths - Un système d'entraînement au calcul mental gamifié et adaptatif
 
-First, run the development server:
+## 🎯 Objectif
+
+Math.com est une application moderne d'entraînement au calcul mental basée sur une progression ludique et motivante, inspirée des systèmes de ranking des jeux compétitifs comme Chess.com.
+
+## ✨ Fonctionnalités
+
+### 🎮 Système de Progression
+- **Classes de F- à S+** : 21 rangs avec progression basée sur l'Elo
+- **Système Elo** : Gains et pertes basés sur la performance
+- **Bonus de série** : Récompenses pour les performances consécutives
+- **Déblocage progressif** : Nouvelles opérations débloquées selon le niveau
+
+### 🧮 Types d'Opérations
+1. **Additions** (F-) - Débloquée par défaut
+2. **Soustractions** (F+) - 500 Elo
+3. **Multiplications** (E) - 600 Elo
+4. **Divisions** (D-) - 750 Elo
+5. **Puissances** (C-) - 900 Elo
+6. **Racines carrées** (B-) - 1050 Elo
+7. **Factorisation** (A-) - 1200 Elo
+
+### 📊 Tests et Évaluation
+- Tests de 20 questions chronométrés
+- Test d'évaluation initial pour déterminer le niveau
+- Correction détaillée avec explications
+- Historique des performances
+
+### 📚 Apprentissage
+- 8 cours pédagogiques interactifs
+- Méthodes de calcul mental expliquées
+- Exercices libres sans impact sur l'Elo
+- Feedback immédiat
+
+## 🛠️ Stack Technique
+
+- **Framework** : Next.js 16 avec App Router
+- **Langage** : TypeScript
+- **Styling** : Tailwind CSS
+- **Animations** : Framer Motion
+- **Database** : SQLite avec Prisma ORM
+- **Icônes** : Lucide React
+
+## 🚀 Installation
+
+### Prérequis
+- Node.js 18+
+- npm
+
+### Étapes
 
 ```bash
+# 1. Installer les dépendances
+npm install
+
+# 2. Configurer la base de données
+npx prisma migrate dev
+npx prisma generate
+
+# 3. Lancer le serveur
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'application sera accessible sur `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Structure du Projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/src/app/` - Routes et pages
+- `/src/components/` - Composants React
+- `/src/lib/` - Utilitaires (Elo, exercices, Prisma)
+- `/prisma/` - Schéma base de données
 
-## Learn More
+## 🎨 Design
 
-To learn more about Next.js, take a look at the following resources:
+Thème gaming néo-moderne avec :
+- Background sombre `#0a0a0f`
+- Gradients indigo/violet
+- Couleurs par rang (F=gris → S=or)
+- Animations fluides avec Framer Motion
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📝 License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+MIT License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+**Math.com** - Deviens le maître du calcul mental ! 🧮✨

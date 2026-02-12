@@ -1,0 +1,426 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Profile
+  displayName   String?
+  avatarUrl     String?
+  
+  // Banner customization
+  bannerUrl     String?   // URL de la bannière personnalisée
+  selectedBadgeIds String? // JSON array of up to 3 badge IDs to display on banner
+  
+  // Admin flag
+  isAdmin       Boolean   @default(false)
+  
+  // Ranking System
+  elo           Int       @default(400)
+  rankClass     String    @default("F-")
+  bestElo       Int       @default(400)
+  bestRankClass String    @default("F-")
+  
+  // First-time setup
+  hasCompletedOnboarding Boolean @default(false)
+  
+  // Progression tracking
+  additionLevel      Int @default(1)
+  subtractionLevel   Int @default(0)
+  multiplicationLevel Int @default(0)
+  divisionLevel      Int @default(0)
+  powerLevel         Int @default(0)
+  rootLevel          Int @default(0)
+  factorizationLevel Int @default(0)
+  
+  // Streaks
+  currentStreak Int @default(0)
+  bestStreak    Int @default(0)
+  lastTestDate  DateTime?
+  
+  // Multiplayer ranking system
+  multiplayerElo           Int @default(400)
+  multiplayerRankClass     String @default("F-")
+  bestMultiplayerElo       Int @default(400)
+  bestMultiplayerRankClass String @default("F-")
+  multiplayerGames         Int @default(0)
+  multiplayerWins          Int @default(0)
+  multiplayerLosses        Int @default(0)
+  
+  // Online status
+  isOnline     Boolean @default(false)
+  lastSeenAt   DateTime @default(now())
+  
+  // Relations
+  tests        Test[]
+  statistics   Statistics?
+  exerciseAttempts ExerciseAttempt[]
+  multiplayerStatistics MultiplayerStatistics?
+  
+  // Badge relations
+  userBadges   UserBadge[]
+  
+  // Multiplayer relations
+  sentFriendships Friendship[] @relation("User1")
+  receivedFriendships Friendship[] @relation("User2")
+  sentMessages Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  player1Games MultiplayerGame[] @relation("Player1Games")
+  player2Games MultiplayerGame[] @relation("Player2Games")
+  
+  // Challenge relations
+  sentChallenges Challenge[] @relation("Challenger")
+  receivedChallenges Challenge[] @relation("Challenged")
+  
+  @@map("users")
+}
+
+// Badge system
+model Badge {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  icon        String    // Emoji or icon name
+  category    String    // 'rank', 'achievement', 'special', 'custom'
+  color       String    @default("#FFD700") // Gold default
+  requirement String?   // Description of how to earn
+  isCustom    Boolean  @default(false)
+  createdById String?   // Admin who created it (for custom badges)
+  createdAt   DateTime  @default(now())
+  
+  // Relations
+  userBadges  UserBadge[]
+  
+  @@map("badges")
+}
+
+// User-Badge association
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  earnedAt  DateTime @default(now())
+  awardedById String? // For custom badges awarded by admin
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, badgeId])
+  @@map("user_badges")
+}
+
+model Test {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Test metadata
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  
+  // Scoring
+  totalQuestions Int @default(20)
+  correctAnswers Int @default(0)
+  score          Int // 0-100 percentage
+  timeTaken      Int // in seconds
+  
+  // Elo changes
+  eloBefore Int
+  eloAfter  Int
+  eloChange Int
+  
+  // Perfect score tracking
+  isPerfect   Boolean @default(false)
+  isStreakTest Boolean @default(false)
+  
+  // Questions
+  questions Question[]
+  
+  @@map("tests")
+}
+
+model Question {
+  id       String @id @default(cuid())
+  testId   String
+  test     Test   @relation(fields: [testId], references: [id], onDelete: Cascade)
+  
+  // Question content
+  type        String // addition, subtraction, multiplication, division, power, root, factorization
+  difficulty  Int    // 1-10
+  question    String
+  answer      String
+  userAnswer  String?
+  isCorrect   Boolean?
+  timeTaken   Int?    // in milliseconds
+  
+  // For correction display
+  explanation String?
+  
+  // Order in test
+  order       Int
+  
+  @@map("questions")
+}
+
+model Statistics {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Global stats
+  totalTests      Int @default(0)
+  totalQuestions  Int @default(0)
+  totalCorrect    Int @default(0)
+  totalTime       Int @default(0) // in seconds
+  
+  // Average performance
+  averageScore    Float @default(0)
+  averageTime     Float @default(0) // in seconds per test
+  
+  // By operation type
+  additionTests      Int @default(0)
+  additionCorrect    Int @default(0)
+  additionTotal      Int @default(0)
+  
+  subtractionTests   Int @default(0)
+  subtractionCorrect Int @default(0)
+  subtractionTotal   Int @default(0)
+  
+  multiplicationTests   Int @default(0)
+  multiplicationCorrect Int @default(0)
+  multiplicationTotal   Int @default(0)
+  
+  divisionTests      Int @default(0)
+  divisionCorrect    Int @default(0)
+  divisionTotal      Int @default(0)
+  
+  powerTests      Int @default(0)
+  powerCorrect    Int @default(0)
+  powerTotal      Int @default(0)
+  
+  rootTests       Int @default(0)
+  rootCorrect     Int @default(0)
+  rootTotal       Int @default(0)
+  
+  factorizationTests   Int @default(0)
+  factorizationCorrect Int @default(0)
+  factorizationTotal   Int @default(0)
+  
+  // Weak points (stored as JSON)
+  weakPoints      String? // JSON array of weak operation types
+  
+  // Elo history (stored as JSON)
+  eloHistory      String? // JSON array of {date, elo} objects
+  
+  updatedAt DateTime @updatedAt
+  
+  @@map("statistics")
+}
+
+model ExerciseAttempt {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Exercise details
+  type        String // operation type
+  difficulty  Int
+  question    String
+  answer      String
+  userAnswer  String
+  isCorrect   Boolean
+  timeTaken   Int // in milliseconds
+  
+  // Feedback
+  feedbackShown Boolean @default(false)
+  
+  createdAt   DateTime @default(now())
+  
+  @@map("exercise_attempts")
+}
+
+// Course content for learning
+model Course {
+  id          String @id @default(cuid())
+  title       String
+  slug        String @unique
+  description String
+  content     String // Markdown content
+  
+  // Metadata
+  difficulty  Int    // 1-10
+  order       Int
+  isPublished Boolean @default(true)
+  
+  // Related operation types
+  relatedTypes String? // JSON array of operation types
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("courses")
+}
+
+// Multiplayer friendship system
+model Friendship {
+  id        String   @id @default(cuid())
+  user1Id   String
+  user2Id   String
+  status    String   // pending, accepted, blocked
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user1     User     @relation("User1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2     User     @relation("User2", fields: [user2Id], references: [id], onDelete: Cascade)
+  
+  @@unique([user1Id, user2Id])
+  @@map("friendships")
+}
+
+// Message system for friends and challenges
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  content    String
+  type       String   // friend_request, challenge, chat, system
+  read       Boolean  @default(false)
+  metadata   String?  // JSON metadata for challenges, etc.
+  createdAt  DateTime @default(now())
+  
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  @@map("messages")
+}
+
+// Multiplayer games
+model MultiplayerGame {
+  id          String    @id @default(cuid())
+  player1Id   String
+  player2Id   String?   // null if waiting for opponent
+  status      String    // waiting, playing, finished, aborted
+  gameType    String    // friendly, ranked, random
+  timeControl String    // lightning, blitz, rapid, classical, thinking
+  timeLimit   Int       // in seconds (120, 180, 300, 480, 720)
+  player1Elo  Int
+  player2Elo  Int?
+  player1Score Int      @default(0)
+  player2Score Int      @default(0)
+  winner      String?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  
+  // Game settings
+  questionCount Int @default(20)
+  difficulty    String @default("mixed") // easy, medium, hard, mixed
+  
+  player1     User      @relation("Player1Games", fields: [player1Id], references: [id], onDelete: Cascade)
+  player2     User?     @relation("Player2Games", fields: [player2Id], references: [id], onDelete: Cascade)
+  questions   MultiplayerQuestion[]
+  
+  @@map("multiplayer_games")
+}
+
+// Questions in multiplayer games
+model MultiplayerQuestion {
+  id            String @id @default(cuid())
+  gameId        String
+  question      String
+  answer        String
+  type          String // operation type
+  difficulty    Int
+  order         Int
+  
+  // Player answers and timing
+  player1Answer String?
+  player2Answer String?
+  player1Time   Int?    // in milliseconds
+  player2Time   Int?    // in milliseconds
+  player1Correct Boolean?
+  player2Correct Boolean?
+  
+  game          MultiplayerGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  
+  @@map("multiplayer_questions")
+}
+
+// Multiplayer statistics (separate from solo stats)
+model MultiplayerStatistics {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Overall multiplayer stats
+  totalGames     Int @default(0)
+  totalWins      Int @default(0)
+  totalLosses    Int @default(0)
+  totalDraws     Int @default(0)
+  
+  // By time control
+  lightningGames Int @default(0)
+  lightningWins  Int @default(0)
+  blitzGames      Int @default(0)
+  blitzWins       Int @default(0)
+  rapidGames      Int @default(0)
+  rapidWins       Int @default(0)
+  classicalGames  Int @default(0)
+  classicalWins   Int @default(0)
+  thinkingGames   Int @default(0)
+  thinkingWins    Int @default(0)
+  
+  // Performance metrics
+  averageScore    Float @default(0)
+  averageTime     Float @default(0) // average time per question
+  bestStreak      Int @default(0)
+  currentStreak   Int @default(0)
+  
+  // Head to head records (stored as JSON)
+  headToHead      String? // JSON array of {opponentId, wins, losses, draws}
+  
+  updatedAt DateTime @updatedAt
+  
+  @@map("multiplayer_statistics")
+}
+
+// Challenge system for friendly and ranked matches
+model Challenge {
+  id           String   @id @default(cuid())
+  challengerId String
+  challengedId String
+  
+  // Game settings
+  gameType     String   // 'ranked' or 'friendly'
+  timeControl  String   // 'lightning', 'blitz', 'rapid', 'classical', 'thinking'
+  timeLimit    Int      // in seconds
+  questionCount Int     @default(20)
+  difficulty   String   @default("mixed") // 'easy', 'medium', 'hard', 'mixed'
+  
+  // Status and timing
+  status       String   @default("pending") // 'pending', 'accepted', 'declined', 'expired', 'completed'
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+  respondedAt  DateTime?
+  
+  // Relations
+  challenger   User     @relation("Challenger", fields: [challengerId], references: [id])
+  challenged   User     @relation("Challenged", fields: [challengedId], references: [id])
+  
+  @@map("challenges")
+}

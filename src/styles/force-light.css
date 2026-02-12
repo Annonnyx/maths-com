@@ -1,0 +1,122 @@
+/* FORCE LIGHT THEME - More aggressive overrides */
+
+/* Force light theme colors */
+.light {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.light html {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Force all backgrounds to light */
+.light * {
+  background-color: transparent !important;
+}
+
+.light .bg-\[0a0a0f\] {
+  background-color: #f8fafc !important;
+}
+
+.light .bg-\[12121a\] {
+  background-color: #f1f5f9 !important;
+}
+
+.light .bg-\[1e1e2e\] {
+  background-color: #e2e8f0 !important;
+}
+
+.light .bg-\[2a2a3a\] {
+  background-color: #e2e8f0 !important;
+}
+
+.light .bg-\[3a3a4a\] {
+  background-color: #cbd5e1 !important;
+}
+
+.light .bg-white {
+  background-color: #ffffff !important;
+}
+
+/* Force all text to dark */
+.light .text-white,
+.light .text-gray-100,
+.light .text-gray-200,
+.light .text-gray-300,
+.light .text-gray-400,
+.light .text-gray-500,
+.light .text-gray-600 {
+  color: #0f172a !important;
+}
+
+/* Force borders */
+.light .border-\[2a2a3a\],
+.light .border-\[3a3a4a\] {
+  border-color: #e2e8f0 !important;
+}
+
+/* Force buttons */
+.light button {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light button:hover {
+  background-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Force primary buttons */
+.light .bg-indigo-500,
+.light .bg-purple-500 {
+  background-color: #6366f1 !important;
+  color: white !important;
+}
+
+.light .bg-indigo-600,
+.light .bg-purple-600 {
+  background-color: #4f46e5 !important;
+  color: white !important;
+}
+
+/* Force cards */
+.light .rounded-2xl,
+.light .rounded-xl,
+.light .rounded-lg {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Force gradients */
+.light .bg-gradient-to-br,
+.light .bg-gradient-to-r {
+  background-image: none !important;
+  background-color: #f1f5f9 !important;
+}
+
+/* Force Math.com title */
+.light .text-3xl,
+.light .text-4xl,
+.light .text-5xl,
+.light .text-6xl {
+  color: #0f172a !important;
+}
+
+/* Force all containers */
+.light .min-h-screen {
+  background-color: #f8fafc !important;
+}
+
+.light .container,
+.light main,
+.light section {
+  background-color: #f8fafc !important;
+}
