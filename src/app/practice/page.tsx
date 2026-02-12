@@ -75,9 +75,9 @@ export default function PracticePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
@@ -85,10 +85,10 @@ export default function PracticePage() {
               <span className="font-bold">Math.com</span>
             </Link>
             <span className="text-gray-500">|</span>
-            <span className="text-gray-400">Exercices libres</span>
+            <span className="text-muted-foreground">Exercices libres</span>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-[#1e1e2e] rounded-lg">
+            <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg">
               <Target className="w-5 h-5 text-green-400" />
               <span className="font-semibold">{stats.correct}/{stats.total}</span>
               {stats.streak > 0 && (
@@ -110,7 +110,7 @@ export default function PracticePage() {
               className="max-w-2xl mx-auto"
             >
               <div className="flex items-center gap-2 mb-8">
-                <Link href="/" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/" className="text-muted-foreground hover:text-white transition-colors">
                   <ArrowLeft className="w-5 h-5" />
                 </Link>
                 <h1 className="text-2xl font-bold">Configuration des exercices</h1>
@@ -130,7 +130,7 @@ export default function PracticePage() {
                       className={`p-4 rounded-xl border transition-all ${
                         selectedOperation === op.type
                           ? 'border-indigo-500 bg-indigo-500/10'
-                          : 'border-[#2a2a3a] bg-[#1e1e2e] hover:border-[#3a3a4a]'
+                          : 'border-border bg-card hover:border-[#3a3a4a]'
                       }`}
                     >
                       <div className={`w-10 h-10 mx-auto mb-2 rounded-lg bg-gradient-to-br ${op.color} flex items-center justify-center text-xl font-bold`}>
@@ -156,14 +156,14 @@ export default function PracticePage() {
                       className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
                         difficulty === level
                           ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
-                          : 'bg-[#1e1e2e] hover:bg-[#2a2a3a]'
+                          : 'bg-card hover:bg-border'
                       }`}
                     >
                       {level}
                     </button>
                   ))}
                 </div>
-                <p className="mt-2 text-sm text-gray-400">
+                <p className="mt-2 text-sm text-muted-foreground">
                   {difficulty <= 3 ? 'Facile - Nombres petits, calculs rapides' :
                    difficulty <= 6 ? 'Moyen - Nombres moyens, quelques retenues' :
                    difficulty <= 8 ? 'Difficile - Grands nombres, calculs complexes' :
@@ -197,12 +197,12 @@ export default function PracticePage() {
                     playSound('click');
                     setShowSettings(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all"
+                  className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg hover:bg-border transition-all"
                 >
                   <Settings2 className="w-4 h-4" />
                   <span>Paramètres</span>
                 </button>
-                <div className="flex items-center gap-4 text-sm text-gray-400">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span className="capitalize">{OPERATIONS.find(o => o.type === selectedOperation)?.label}</span>
                   <span>|</span>
                   <span>Difficulté {difficulty}</span>
@@ -218,7 +218,7 @@ export default function PracticePage() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="mb-8"
                   >
-                    <div className="p-8 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
+                    <div className="p-8 bg-[#12121a] rounded-2xl border border-border">
                       <h2 className="text-5xl md:text-6xl font-bold font-mono">
                         {currentExercise.question}
                       </h2>
@@ -234,7 +234,7 @@ export default function PracticePage() {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Ta réponse..."
-                      className="w-full max-w-xs px-6 py-4 bg-[#1e1e2e] border-2 border-[#2a2a3a] rounded-xl text-center text-2xl font-mono focus:border-indigo-500 focus:outline-none transition-all"
+                      className="w-full max-w-xs px-6 py-4 bg-card border-2 border-border rounded-xl text-center text-2xl font-mono focus:border-indigo-500 focus:outline-none transition-all"
                       autoFocus
                       disabled={!!feedback}
                     />
@@ -264,7 +264,7 @@ export default function PracticePage() {
                           {feedback.message}
                         </p>
                         {currentExercise.explanation && (
-                          <p className="mt-2 text-sm text-gray-400">
+                          <p className="mt-2 text-sm text-muted-foreground">
                             {currentExercise.explanation}
                           </p>
                         )}
@@ -274,7 +274,7 @@ export default function PracticePage() {
                     {feedback && (
                       <button
                         onClick={generateNewExercise}
-                        className="flex items-center gap-2 px-8 py-3 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-xl font-semibold transition-all border border-[#2a2a3a]"
+                        className="flex items-center gap-2 px-8 py-3 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border"
                       >
                         <RotateCcw className="w-5 h-5" />
                         Exercice suivant
@@ -285,22 +285,22 @@ export default function PracticePage() {
               )}
 
               {/* Stats */}
-              <div className="mt-12 p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
+              <div className="mt-12 p-6 bg-[#12121a] rounded-2xl border border-border">
                 <h3 className="text-lg font-semibold mb-4">Statistiques de la session</h3>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
                     <p className="text-2xl font-bold text-green-400">{stats.correct}</p>
-                    <p className="text-sm text-gray-400">Correct</p>
+                    <p className="text-sm text-muted-foreground">Correct</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-red-400">{stats.total - stats.correct}</p>
-                    <p className="text-sm text-gray-400">Incorrect</p>
+                    <p className="text-sm text-muted-foreground">Incorrect</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-indigo-400">
                       {stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0}%
                     </p>
-                    <p className="text-sm text-gray-400">Taux de réussite</p>
+                    <p className="text-sm text-muted-foreground">Taux de réussite</p>
                   </div>
                 </div>
               </div>

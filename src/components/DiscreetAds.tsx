@@ -28,7 +28,7 @@ export function DiscreetAds({ showAds = true }: DiscreetAdsProps) {
       <div className="hidden lg:block">
         <div className="fixed bottom-4 right-4 z-30 opacity-80 hover:opacity-100 transition-opacity">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2 border border-white/20">
-            <div className="text-xs text-gray-400 mb-1">Publicité</div>
+            <div className="text-xs text-foreground mb-1">Publicité</div>
             {/* Petite pub rectangulaire */}
             <ins
               className="adsbygoogle"

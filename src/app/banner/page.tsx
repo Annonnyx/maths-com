@@ -115,7 +115,7 @@ export default function BannerPage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Connecte-toi pour customiser ta bannière</h1>
           <Link href="/login" className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold">
@@ -128,7 +128,7 @@ export default function BannerPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
       </div>
     );
@@ -137,9 +137,9 @@ export default function BannerPage() {
   const currentBanner = BANNER_PRESETS.find(b => b.id === selectedBanner);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/profile" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
@@ -247,7 +247,7 @@ export default function BannerPage() {
             </h2>
             
             {badges.length === 0 ? (
-              <div className="text-center py-8 text-gray-400 bg-[#1e1e2e] rounded-xl">
+              <div className="text-center py-8 text-muted-foreground bg-card rounded-xl">
                 <Award className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p>Tu n&apos;as pas encore de badges</p>
                 <p className="text-sm mt-2">Complète des accomplissements pour en gagner !</p>
@@ -261,7 +261,7 @@ export default function BannerPage() {
                     className={`w-full p-4 rounded-xl border transition-all flex items-center gap-4 ${
                       selectedBadges.includes(badge.id)
                         ? 'border-yellow-400 bg-yellow-400/10'
-                        : 'border-[#2a2a3a] bg-[#1e1e2e] hover:border-purple-500'
+                        : 'border-border bg-card hover:border-primary'
                     }`}
                   >
                     <div
@@ -272,7 +272,7 @@ export default function BannerPage() {
                     </div>
                     <div className="text-left flex-1">
                       <p className="font-semibold">{badge.name}</p>
-                      <p className="text-sm text-gray-400">{badge.description}</p>
+                      <p className="text-sm text-muted-foreground">{badge.description}</p>
                     </div>
                     {selectedBadges.includes(badge.id) && (
                       <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />

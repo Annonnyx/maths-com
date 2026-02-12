@@ -238,9 +238,9 @@ export default function MultiplayerPage() {
   }, [searching]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -255,7 +255,7 @@ export default function MultiplayerPage() {
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-sm font-semibold">{(session?.user as any)?.username || 'Joueur'}</div>
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-muted-foreground">
                 {(session?.user as any)?.multiplayerElo || 400} Elo multijoueur
               </div>
             </div>
@@ -281,7 +281,7 @@ export default function MultiplayerPage() {
                 </div>
                 <div className="text-left">
                   <h3 className="font-semibold text-lg">Défier un ami</h3>
-                  <p className="text-sm text-gray-400">Envoie un défi à un ami pour jouer ensemble</p>
+                  <p className="text-sm text-muted-foreground">Envoie un défi à un ami pour jouer ensemble</p>
                 </div>
               </div>
               <div className="text-green-400">
@@ -298,14 +298,14 @@ export default function MultiplayerPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-[#1e1e2e] rounded-2xl border border-[#2a2a3a] overflow-hidden"
+              className="bg-card rounded-2xl border border-border overflow-hidden"
             >
-              <div className="p-4 border-b border-[#2a2a3a]">
+              <div className="p-4 border-b border-border">
                 <h3 className="font-semibold">Sélectionne un ami à défier</h3>
               </div>
               <div className="max-h-64 overflow-y-auto">
                 {friends.length === 0 ? (
-                  <div className="p-8 text-center text-gray-400">
+                  <div className="p-8 text-center text-muted-foreground">
                     <UserPlus className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p>Tu n&apos;as pas encore d&apos;amis</p>
                     <Link href="/friends" className="text-indigo-400 hover:text-indigo-300 text-sm mt-2 inline-block">
@@ -316,7 +316,7 @@ export default function MultiplayerPage() {
                   friends.map((friend) => (
                     <div
                       key={friend.id}
-                      className="p-4 flex items-center justify-between border-b border-[#2a2a3a] hover:bg-[#2a2a3a] transition-colors"
+                      className="p-4 flex items-center justify-between border-b border-border hover:bg-border transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <div className="relative">
@@ -329,7 +329,7 @@ export default function MultiplayerPage() {
                         </div>
                         <div>
                           <p className="font-medium">{friend.user.displayName || friend.user.username}</p>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-sm text-muted-foreground">
                             {friend.user.multiplayerElo} Elo • {friend.user.isOnline ? 'En ligne' : 'Hors ligne'}
                           </p>
                         </div>
@@ -363,7 +363,7 @@ export default function MultiplayerPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <div className="bg-gradient-to-br from-[#1e1e2e] to-[#2a2a3a] rounded-2xl border border-[#3a3a4a] p-8">
+          <div className="bg-gradient-to-br from-card to-muted rounded-2xl border border-border p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
               <Zap className="w-8 h-8 text-purple-400" />
               Configuration de la partie
@@ -371,7 +371,7 @@ export default function MultiplayerPage() {
 
             {/* Time Control Selection */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-400 mb-3">
+              <label className="block text-sm font-medium text-muted-foreground mb-3">
                 Contrôle du temps
               </label>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -381,13 +381,13 @@ export default function MultiplayerPage() {
                     onClick={() => setSelectedTimeControl(key as TimeControl)}
                     className={`p-4 rounded-xl border-2 transition-all ${
                       selectedTimeControl === key
-                        ? 'border-purple-500 bg-purple-500/20'
-                        : 'border-[#3a3a4a] hover:border-purple-500/50 hover:bg-purple-500/10'
+                        ? 'border-primary bg-purple-500/20'
+                        : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-purple-500/10'
                     }`}
                   >
                     <div className="text-2xl mb-1">{config.icon}</div>
                     <div className="font-semibold">{config.name}</div>
-                    <div className="text-xs text-gray-400">{config.description}</div>
+                    <div className="text-xs text-muted-foreground">{config.description}</div>
                   </button>
                 ))}
               </div>
@@ -395,7 +395,7 @@ export default function MultiplayerPage() {
 
             {/* Game Type Selection */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-400 mb-3">
+              <label className="block text-sm font-medium text-muted-foreground mb-3">
                 Type de partie
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -403,25 +403,25 @@ export default function MultiplayerPage() {
                   onClick={() => setSelectedGameType('ranked')}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     selectedGameType === 'ranked'
-                      ? 'border-purple-500 bg-purple-500/20'
-                      : 'border-[#3a3a4a] hover:border-purple-500/50 hover:bg-purple-500/10'
+                      ? 'border-primary bg-purple-500/20'
+                      : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-purple-500/10'
                   }`}
                 >
                   <Trophy className="w-6 h-6 mb-2 mx-auto text-yellow-400" />
                   <div className="font-semibold">Classé</div>
-                  <div className="text-xs text-gray-400">Elo en jeu</div>
+                  <div className="text-xs text-muted-foreground">Elo en jeu</div>
                 </button>
                 <button
                   onClick={() => setSelectedGameType('friendly')}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     selectedGameType === 'friendly'
-                      ? 'border-purple-500 bg-purple-500/20'
-                      : 'border-[#3a3a4a] hover:border-purple-500/50 hover:bg-purple-500/10'
+                      ? 'border-primary bg-purple-500/20'
+                      : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-purple-500/10'
                   }`}
                 >
                   <Users className="w-6 h-6 mb-2 mx-auto text-blue-400" />
                   <div className="font-semibold">Amical</div>
-                  <div className="text-xs text-gray-400">Pour s'entraîner</div>
+                  <div className="text-xs text-muted-foreground">Pour s'entraîner</div>
                 </button>
               </div>
             </div>
@@ -471,9 +471,9 @@ export default function MultiplayerPage() {
               className="bg-gradient-to-br from-[#1e1e2e] to-[#2a2a3a] rounded-2xl border border-[#3a3a4a] p-8 text-center"
             >
               <div className="mb-6">
-                <div className="w-16 h-16 border-4 border-purple-500/30 rounded-full border-t-transparent animate-spin mx-auto mb-4"></div>
+                <div className="w-16 h-16 border-4 border-primary/30 rounded-full border-t-transparent animate-spin mx-auto mb-4"></div>
                 <h3 className="text-xl font-semibold mb-2">Recherche d'un adversaire...</h3>
-                <p className="text-gray-400">
+                <p className="text-muted-foreground">
                   {TIME_CONTROLS[selectedTimeControl].name} • {selectedGameType === 'ranked' ? 'Classé' : 'Amical'}
                 </p>
               </div>

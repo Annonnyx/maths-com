@@ -81,12 +81,12 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
           {/* Icon */}
           <div className={`w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${currentStep.color} flex items-center justify-center shadow-lg`}>
-            <Icon className="w-12 h-12 text-white" />
+            <Icon className="w-12 h-12 text-foreground" />
           </div>
 
           {/* Content */}
           <h2 className="text-2xl font-bold mb-4">{currentStep.title}</h2>
-          <p className="text-gray-400 mb-8 leading-relaxed">
+          <p className="text-foreground mb-8 leading-relaxed">
             {currentStep.description}
           </p>
 

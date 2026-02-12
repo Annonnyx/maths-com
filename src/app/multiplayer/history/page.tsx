@@ -26,7 +26,7 @@ export default function MultiplayerHistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto mb-4"></div>
           <p>Chargement...</p>
@@ -36,8 +36,8 @@ export default function MultiplayerHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/multiplayer" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
@@ -47,8 +47,8 @@ export default function MultiplayerHistoryPage() {
             <h1 className="text-xl font-bold">Historique Multijoueur</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Eye className="w-5 h-5 text-gray-400" />
-            <span className="text-sm text-gray-400">{games.length} parties</span>
+            <Eye className="w-5 h-5 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">{games.length} parties</span>
           </div>
         </div>
       </header>
@@ -61,7 +61,7 @@ export default function MultiplayerHistoryPage() {
             className="text-center py-12"
           >
             <div className="text-6xl mb-4">🎮</div>
-            <h3 className="text-xl font-semibold text-gray-300 mb-2">
+            <h3 className="text-xl font-semibold text-muted-foreground mb-2">
               Aucune partie jouée
             </h3>
             <Link
@@ -80,16 +80,16 @@ export default function MultiplayerHistoryPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="bg-[#1e1e2e] rounded-2xl border border-[#3a3a4a] p-6"
+                className="bg-card rounded-2xl border border-border p-6"
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-400">{new Date(game.createdAt).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-muted-foreground">{new Date(game.createdAt).toLocaleDateString('fr-FR')}</p>
                     <p className="font-semibold">{game.player1?.username} vs {game.player2?.username || 'En attente'}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold">{game.player1Score} - {game.player2Score}</p>
-                    <p className="text-sm text-gray-400">{game.status}</p>
+                    <p className="text-sm text-muted-foreground">{game.status}</p>
                   </div>
                 </div>
               </motion.div>

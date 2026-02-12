@@ -138,7 +138,7 @@ export default function FriendsManager() {
                         {request.user.username}
                       </Link>
                     </div>
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm text-foreground">
                       {request.user.displayName || request.user.username}
                     </div>
                   </div>
@@ -191,7 +191,7 @@ export default function FriendsManager() {
                       {friend.user.displayName || friend.user.username}
                     </Link>
                   </div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-foreground">
                     {friend.user.isOnline ? 'En ligne' : `Hors ligne depuis ${formatLastSeen(friend.user.lastSeenAt)}`}
                   </div>
                   <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -220,7 +220,7 @@ export default function FriendsManager() {
       ) : (
         <div className="text-center py-12">
           <UserIcon className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-          <p className="text-gray-400">Tu n'as pas encore d'amis</p>
+          <p className="text-foreground">Tu n'as pas encore d'amis</p>
           <p className="text-sm text-gray-500 mt-2">Ajoute des amis pour jouer avec eux !</p>
         </div>
       )}
@@ -232,7 +232,7 @@ export default function FriendsManager() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-[#1e1e2e] rounded-xl p-4"
         >
-          <h4 className="font-semibold text-gray-400 mb-3">Demandes envoyées ({sentRequests.length})</h4>
+          <h4 className="font-semibold text-foreground mb-3">Demandes envoyées ({sentRequests.length})</h4>
           <div className="space-y-2">
             {sentRequests.map((request) => (
               <div key={request.id} className="flex items-center justify-between p-2">
@@ -293,7 +293,7 @@ export default function FriendsManager() {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Nom d'utilisateur
                   </label>
                   <input
@@ -310,7 +310,7 @@ export default function FriendsManager() {
                   <button
                     onClick={handleAddFriend}
                     disabled={isLoading}
-                    className="flex-1 px-4 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                    className="flex-1 px-4 py-3 bg-indigo-500 text-foreground rounded-xl hover:bg-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                   >
                     {isLoading ? 'Envoi...' : 'Ajouter'}
                   </button>
@@ -321,7 +321,7 @@ export default function FriendsManager() {
                       setError('');
                       setSuccess('');
                     }}
-                    className="flex-1 px-4 py-3 bg-[#2a2a3a] text-white rounded-xl hover:bg-[#3a3a4a] transition-all font-semibold"
+                    className="flex-1 px-4 py-3 bg-[#2a2a3a] text-foreground rounded-xl hover:bg-[#3a3a4a] transition-all font-semibold"
                   >
                     Annuler
                   </button>
@@ -371,7 +371,7 @@ export default function FriendsManager() {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Message
                   </label>
                   <textarea
@@ -388,7 +388,7 @@ export default function FriendsManager() {
                   <button
                     onClick={handleSendMessage}
                     disabled={!messageContent.trim()}
-                    className="flex-1 px-4 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                    className="flex-1 px-4 py-3 bg-purple-500 text-foreground rounded-xl hover:bg-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                   >
                     Envoyer
                   </button>
@@ -399,7 +399,7 @@ export default function FriendsManager() {
                       setError('');
                       setSuccess('');
                     }}
-                    className="flex-1 px-4 py-3 bg-[#2a2a3a] text-white rounded-xl hover:bg-[#3a3a4a] transition-all font-semibold"
+                    className="flex-1 px-4 py-3 bg-[#2a2a3a] text-foreground rounded-xl hover:bg-[#3a3a4a] transition-all font-semibold"
                   >
                     Annuler
                   </button>

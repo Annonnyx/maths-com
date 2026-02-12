@@ -386,14 +386,14 @@ export default function CoursesPage() {
 
   if (selectedCourse) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white">
+      <div className="min-h-screen bg-background text-white">
         {/* Header */}
-        <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+        <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setSelectedCourse(null)}
-                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
                 Retour
@@ -441,10 +441,10 @@ export default function CoursesPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] overflow-hidden"
+                    className="bg-[#12121a] rounded-2xl border border-border overflow-hidden"
                   >
                     {/* Section Header */}
-                    <div className="p-6 border-b border-[#2a2a3a] bg-gradient-to-r from-indigo-500/10 to-purple-500/10">
+                    <div className="p-6 border-b border-border bg-gradient-to-r from-indigo-500/10 to-purple-500/10">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400 font-bold">
                           {index + 1}
@@ -455,7 +455,7 @@ export default function CoursesPage() {
 
                     {/* Section Content */}
                     <div className="p-6">
-                      <p className="text-gray-300 mb-6 leading-relaxed">{section.content}</p>
+                      <p className="text-muted-foreground mb-6 leading-relaxed">{section.content}</p>
 
                       {/* Examples */}
                       <div className="mb-6">
@@ -465,12 +465,12 @@ export default function CoursesPage() {
                         </h3>
                         <div className="space-y-3">
                           {section.examples.map((example, exIndex) => (
-                            <div key={exIndex} className="bg-[#1a1a2e] rounded-xl p-4 border border-[#2a2a3a]">
+                            <div key={exIndex} className="bg-[#1a1a2e] rounded-xl p-4 border border-border">
                               <div className="flex items-center justify-between mb-2">
                                 <span className="font-mono text-lg text-white">{example.problem}</span>
                                 <span className="text-green-400 font-bold text-xl">= {example.solution}</span>
                               </div>
-                              <p className="text-sm text-gray-400">{example.explanation}</p>
+                              <p className="text-sm text-muted-foreground">{example.explanation}</p>
                             </div>
                           ))}
                         </div>
@@ -484,7 +484,7 @@ export default function CoursesPage() {
                         </h3>
                         <ul className="space-y-2">
                           {section.tips.map((tip, tipIndex) => (
-                            <li key={tipIndex} className="flex items-start gap-3 text-sm text-gray-300">
+                            <li key={tipIndex} className="flex items-start gap-3 text-sm text-muted-foreground">
                               <span className="text-yellow-400 mt-0.5">▸</span>
                               {tip}
                             </li>
@@ -503,13 +503,13 @@ export default function CoursesPage() {
                   {selectedCourse.topics.map((topic, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-4 p-4 bg-[#12121a] rounded-xl border border-[#2a2a3a]"
+                      className="flex items-center gap-4 p-4 bg-[#12121a] rounded-xl border border-border"
                     >
                       <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400 font-bold">
                         {index + 1}
                       </div>
                       <span className="font-medium">{topic}</span>
-                      <CheckCircle className="w-5 h-5 text-gray-500 ml-auto" />
+                      <CheckCircle className="w-5 h-5 text-muted-foreground ml-auto" />
                     </div>
                   ))}
                 </div>
@@ -527,7 +527,7 @@ export default function CoursesPage() {
               </Link>
               <Link
                 href="/practice"
-                className="px-6 py-4 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-xl font-semibold transition-all border border-[#2a2a3a] flex items-center gap-2"
+                className="px-6 py-4 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border flex items-center gap-2"
               >
                 <Target className="w-5 h-5" />
                 S'exercer
@@ -540,17 +540,17 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
               <Trophy className="w-6 h-6" />
               <span className="font-bold">Math.com</span>
             </Link>
-            <span className="text-gray-500">|</span>
-            <span className="text-gray-400">Cours</span>
+            <span className="text-muted-foreground">|</span>
+            <span className="text-muted-foreground">Cours</span>
           </div>
         </div>
       </header>
@@ -563,7 +563,7 @@ export default function CoursesPage() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl font-bold mb-4">Cours et Méthodes</h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Apprends les techniques de calcul mental utilisées par les experts. 
             Progresse étape par étape avec nos cours interactifs.
           </p>
@@ -628,10 +628,10 @@ export default function CoursesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mt-12 p-8 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
+          className="mt-12 p-8 bg-card rounded-2xl border border-border"
         >
           <h2 className="text-2xl font-bold mb-4">Parcours d&apos;apprentissage recommandé</h2>
-          <p className="text-gray-400 mb-6">Apprends les méthodes et techniques pour devenir plus rapide.</p>
+          <p className="text-muted-foreground mb-6">Apprends les méthodes et techniques pour devenir plus rapide.</p>
           <div className="flex flex-wrap items-center gap-4">
             {['Addition', 'Soustraction', 'Multiplication', 'Division', 'Puissances', 'Avancé'].map((step, i) => (
               <div key={step} className="flex items-center gap-4">
@@ -639,7 +639,7 @@ export default function CoursesPage() {
                   {i + 1}
                 </div>
                 <span className="font-medium">{step}</span>
-                {i < 5 && <ChevronRight className="w-5 h-5 text-gray-500" />}
+                {i < 5 && <ChevronRight className="w-5 h-5 text-muted-foreground" />}
               </div>
             ))}
           </div>

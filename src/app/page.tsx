@@ -8,7 +8,7 @@ import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
@@ -26,7 +26,7 @@ export default function Home() {
               transition={{ delay: 0.1 }}
               className="mb-6"
             >
-              <span className="px-4 py-2 bg-[#1e1e2e] rounded-full text-sm text-indigo-400 border border-indigo-500/20">
+              <span className="px-4 py-2 bg-card rounded-full text-sm text-primary border border-primary/20">
                 Le chess.com des maths 🧮
               </span>
             </motion.div>
@@ -47,7 +47,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto"
+              className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto"
             >
               Entraîne-toi avec un système adaptatif et gamifié. Progresse de F- à S+,
               débloque de nouvelles opérations et deviens un maître des maths.
@@ -68,7 +68,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/practice"
-                className="px-8 py-4 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-xl transition-all font-semibold text-lg border border-[#2a2a3a] flex items-center justify-center gap-2"
+                className="px-8 py-4 bg-card hover:bg-muted rounded-xl transition-all font-semibold text-lg border border-border flex items-center justify-center gap-2"
               >
                 <Target className="w-5 h-5" />
                 Exercices libres
@@ -110,13 +110,13 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + index * 0.1 }}
-                className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a] hover:border-indigo-500/30 transition-all group"
+                className="p-6 bg-card rounded-2xl border border-border hover:border-primary/30 transition-all group"
               >
                 <div className="w-12 h-12 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-xl flex items-center justify-center mb-4 group-hover:from-indigo-500/30 group-hover:to-purple-600/30 transition-all">
-                  <feature.icon className="w-6 h-6 text-indigo-400" />
+                  <feature.icon className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-400">{feature.description}</p>
+                <p className="text-muted-foreground">{feature.description}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -149,7 +149,7 @@ export default function Home() {
               {['F-', 'F', 'F+', 'E-', 'E', 'E+', 'D-', 'D', 'D+', 'C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+', 'S-', 'S', 'S+'].map((rank, index) => {
                 const tier = rank.charAt(0);
                 const colors: Record<string, string> = {
-                  'F': 'text-gray-400 border-gray-400/30 bg-gray-400/10',
+                  'F': 'text-foreground border-gray-400/30 bg-gray-400/10',
                   'E': 'text-green-400 border-green-400/30 bg-green-400/10',
                   'D': 'text-teal-400 border-teal-400/30 bg-teal-400/10',
                   'C': 'text-blue-400 border-blue-400/30 bg-blue-400/10',

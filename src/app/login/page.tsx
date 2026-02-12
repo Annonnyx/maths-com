@@ -70,9 +70,9 @@ function LoginPageContent() {
   // Afficher un loader pendant la vérification de session
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Vérification de la session...</p>
         </div>
       </div>
@@ -82,9 +82,9 @@ function LoginPageContent() {
   // Si déjà connecté, afficher redirection
   if (status === 'authenticated' && session) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Redirection...</p>
         </div>
       </div>
@@ -120,7 +120,7 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -135,11 +135,11 @@ function LoginPageContent() {
             <span className="text-2xl font-bold">Math.com</span>
           </Link>
           <h1 className="mt-6 text-3xl font-bold">Connexion</h1>
-          <p className="mt-2 text-gray-400">Connecte-toi pour continuer ta progression</p>
+          <p className="mt-2 text-muted-foreground">Connecte-toi pour continuer ta progression</p>
         </div>
 
         {/* Form */}
-        <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-8">
+        <div className="bg-[#12121a] rounded-2xl border border-border p-8">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -154,12 +154,12 @@ function LoginPageContent() {
             <div>
               <label className="block text-sm font-medium mb-2">Email ou Pseudo</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 bg-[#1e1e2e] border border-[#2a2a3a] rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
                   placeholder="ton@email.com ou TonPseudo"
                   required
                 />
@@ -169,19 +169,19 @@ function LoginPageContent() {
             <div>
               <label className="block text-sm font-medium mb-2">Mot de passe</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-12 pr-12 py-3 bg-[#1e1e2e] border border-[#2a2a3a] rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
+                  className="w-full pl-12 pr-12 py-3 bg-card border border-border rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -208,9 +208,9 @@ function LoginPageContent() {
           <div className="mt-6">
             <div className="relative flex items-center justify-center mb-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[#2a2a3a]"></div>
+                <div className="w-full border-t border-border"></div>
               </div>
-              <span className="relative px-4 bg-[#12121a] text-sm text-gray-400">Ou continuer avec</span>
+              <span className="relative px-4 bg-[#12121a] text-sm text-muted-foreground">Ou continuer avec</span>
             </div>
             
             <div className="space-y-3">
@@ -251,7 +251,7 @@ function LoginPageContent() {
           </div>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-400">
+            <p className="text-muted-foreground">
               Pas encore de compte ?{' '}
               <Link href="/register" className="text-indigo-400 hover:text-indigo-300 font-medium">
                 S'inscrire
@@ -262,7 +262,7 @@ function LoginPageContent() {
 
         {/* Back to home */}
         <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-400 hover:text-white text-sm transition-colors">
+          <Link href="/" className="text-muted-foreground hover:text-white text-sm transition-colors">
             ← Retour à l'accueil
           </Link>
         </div>
@@ -274,7 +274,7 @@ function LoginPageContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
         <div className="animate-pulse">Chargement...</div>
       </div>
     }>

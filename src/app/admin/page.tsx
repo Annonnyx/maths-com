@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { 
   Download, Users, ArrowLeft, Crown, Medal, Save, Trash2, UserPlus, Loader2,
-  Award, Zap, Target, Star, Shield, Upload, Image, Edit2, Eye, EyeOff
+  Award, Zap, Target, Star, Shield, Upload, Image, Edit2, Eye, EyeOff, Gift
 } from 'lucide-react';
 
 interface Badge {
@@ -372,7 +372,7 @@ export default function AdminPage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0f] text-foreground flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Connecte-toi</h1>
           <Link href="/login" className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold">
@@ -385,7 +385,7 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0f] text-foreground flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
       </div>
     );
@@ -393,7 +393,7 @@ export default function AdminPage() {
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0f] text-foreground flex items-center justify-center">
         <div className="text-center">
           <Shield className="w-16 h-16 mx-auto mb-4 text-red-500" />
           <h1 className="text-2xl font-bold mb-4">Accès refusé</h1>
@@ -407,9 +407,9 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-[#0a0a0f] text-foreground">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
@@ -430,7 +430,7 @@ export default function AdminPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
+            className="p-6 bg-[#12121a] rounded-2xl border border-border"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Zap className="w-5 h-5 text-yellow-400" />
@@ -439,12 +439,12 @@ export default function AdminPage() {
             
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="p-3 bg-[#1e1e2e] rounded-lg">
+                <div className="p-3 bg-card rounded-lg">
                   <p className="text-gray-400">Elo Solo actuel</p>
                   <p className="text-xl font-bold">{myElo.elo}</p>
                   <p className="text-sm text-purple-400">{myElo.rankClass}</p>
                 </div>
-                <div className="p-3 bg-[#1e1e2e] rounded-lg">
+                <div className="p-3 bg-card rounded-lg">
                   <p className="text-gray-400">Elo Multi actuel</p>
                   <p className="text-xl font-bold">{myElo.multiplayerElo}</p>
                   <p className="text-sm text-purple-400">{myElo.multiplayerRankClass}</p>
@@ -457,7 +457,7 @@ export default function AdminPage() {
                   type="number"
                   value={newElo}
                   onChange={(e) => setNewElo(e.target.value)}
-                  className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
+                  className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                 />
               </div>
 
@@ -467,7 +467,7 @@ export default function AdminPage() {
                   type="number"
                   value={newMultiplayerElo}
                   onChange={(e) => setNewMultiplayerElo(e.target.value)}
-                  className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
+                  className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                 />
               </div>
 
@@ -485,7 +485,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
+            className="p-6 bg-[#12121a] rounded-2xl border border-border"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Award className="w-5 h-5 text-purple-400" />
@@ -500,7 +500,7 @@ export default function AdminPage() {
                   value={badgeName}
                   onChange={(e) => setBadgeName(e.target.value)}
                   placeholder="Nom du badge"
-                  className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
+                  className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                 />
               </div>
 
@@ -511,7 +511,7 @@ export default function AdminPage() {
                   value={badgeDescription}
                   onChange={(e) => setBadgeDescription(e.target.value)}
                   placeholder="Description"
-                  className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
+                  className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                 />
               </div>
 
@@ -521,7 +521,7 @@ export default function AdminPage() {
                   <select
                     value={badgeIcon}
                     onChange={(e) => setBadgeIcon(e.target.value)}
-                    className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
+                    className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                   >
                     {ICON_OPTIONS.map(icon => (
                       <option key={icon} value={icon}>{icon}</option>
@@ -545,7 +545,7 @@ export default function AdminPage() {
                 <select
                   value={badgeCategory}
                   onChange={(e) => setBadgeCategory(e.target.value)}
-                  className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
+                  className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                 >
                   {CATEGORY_OPTIONS.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -560,7 +560,7 @@ export default function AdminPage() {
                   value={badgeRequirement}
                   onChange={(e) => setBadgeRequirement(e.target.value)}
                   placeholder="Comment obtenir ce badge ?"
-                  className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
+                  className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                 />
               </div>
 
@@ -579,7 +579,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
+            className="p-6 bg-[#12121a] rounded-2xl border border-border"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <UserPlus className="w-5 h-5 text-green-400" />
@@ -592,7 +592,7 @@ export default function AdminPage() {
                 <select
                   value={selectedBadge}
                   onChange={(e) => setSelectedBadge(e.target.value)}
-                  className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
+                  className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                 >
                   <option value="">Choisir un badge</option>
                   <optgroup label="Rang (Classes)">
@@ -631,7 +631,7 @@ export default function AdminPage() {
                 <select
                   value={selectedUser}
                   onChange={(e) => setSelectedUser(e.target.value)}
-                  className="w-full px-4 py-2 bg-[#1e1e2e] border border-[#3a3a4a] rounded-lg text-white"
+                  className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                 >
                   <option value="">Choisir un utilisateur</option>
                   {users.map(user => (
@@ -657,7 +657,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a] md:col-span-2"
+            className="p-6 bg-[#12121a] rounded-2xl border border-border md:col-span-2"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Medal className="w-5 h-5 text-yellow-400" />
@@ -723,7 +723,7 @@ export default function AdminPage() {
                     {badges.filter(b => b.category === 'rank').map(badge => (
                       <div
                         key={badge.id}
-                        className="p-3 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] flex items-center gap-2"
+                        className="p-3 bg-card rounded-xl border border-border flex items-center gap-2"
                       >
                         <div
                           className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
@@ -749,7 +749,7 @@ export default function AdminPage() {
                     {badges.filter(b => b.category === 'achievement').map(badge => (
                       <div
                         key={badge.id}
-                        className="p-3 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] flex items-center gap-2"
+                        className="p-3 bg-card rounded-xl border border-border flex items-center gap-2"
                       >
                         <div
                           className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
@@ -775,7 +775,7 @@ export default function AdminPage() {
                     {badges.filter(b => b.category === 'special').map(badge => (
                       <div
                         key={badge.id}
-                        className="p-3 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] flex items-center gap-2"
+                        className="p-3 bg-card rounded-xl border border-border flex items-center gap-2"
                       >
                         <div
                           className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
@@ -801,7 +801,7 @@ export default function AdminPage() {
                     {badges.filter(b => b.category === 'custom').map(badge => (
                       <div
                         key={badge.id}
-                        className="p-4 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] flex items-center gap-3"
+                        className="p-4 bg-card rounded-xl border border-border flex items-center gap-3"
                       >
                         <div
                           className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
@@ -862,7 +862,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a] md:col-span-2"
+            className="p-6 bg-[#12121a] rounded-2xl border border-border md:col-span-2"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Image className="w-5 h-5 text-purple-400" />
@@ -870,7 +870,7 @@ export default function AdminPage() {
             </h2>
             
             {/* Upload Form */}
-            <div className="mb-6 p-4 bg-[#1e1e2e] rounded-xl border border-[#2a2a3a]">
+            <div className="mb-6 p-4 bg-card rounded-xl border border-border">
               <h3 className="font-medium mb-3">Uploader une nouvelle bannière</h3>
               <form onSubmit={handleBannerUpload} className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
@@ -881,7 +881,7 @@ export default function AdminPage() {
                       onChange={(e) => setBannerFormData(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="Nom de la bannière"
                       required
-                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white text-sm"
+                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
                     />
                   </div>
                   <div>
@@ -890,7 +890,7 @@ export default function AdminPage() {
                       value={bannerFormData.description}
                       onChange={(e) => setBannerFormData(prev => ({ ...prev, description: e.target.value }))}
                       placeholder="Description (optionnel)"
-                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white text-sm"
+                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
                     />
                   </div>
                 </div>
@@ -899,7 +899,7 @@ export default function AdminPage() {
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     required
-                    className="flex-1 px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white text-sm"
+                    className="flex-1 px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
                   />
                   <label className="flex items-center gap-2 text-sm">
                     <input
@@ -922,12 +922,75 @@ export default function AdminPage() {
               </form>
             </div>
 
+            {/* Give Banner to User */}
+            <div className="mb-6 p-4 bg-card rounded-xl border border-border">
+              <h3 className="font-medium mb-3 text-yellow-400 flex items-center gap-2">
+                <Gift className="w-4 h-4" />
+                Donner une bannière à un utilisateur
+              </h3>
+              <div className="grid grid-cols-3 gap-3">
+                <select
+                  id="giveBannerUser"
+                  className="px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
+                >
+                  <option value="">Sélectionner un utilisateur</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.username} ({u.email})</option>
+                  ))}
+                </select>
+                <select
+                  id="giveBannerSelect"
+                  className="px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
+                >
+                  <option value="">Sélectionner une bannière</option>
+                  {banners.map(b => (
+                    <option key={b.id} value={b.imageUrl}>
+                      {b.name} {b.isPremium ? '(Premium)' : '(Gratuit)'}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={async () => {
+                    const userId = (document.getElementById('giveBannerUser') as HTMLSelectElement)?.value;
+                    const bannerUrl = (document.getElementById('giveBannerSelect') as HTMLSelectElement)?.value;
+                    
+                    if (!userId || !bannerUrl) {
+                      alert('Veuillez sélectionner un utilisateur et une bannière');
+                      return;
+                    }
+                    
+                    try {
+                      const res = await fetch('/api/admin/give-banner', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId, bannerUrl })
+                      });
+                      
+                      if (res.ok) {
+                        const data = await res.json();
+                        alert(data.message);
+                      } else {
+                        const err = await res.json();
+                        alert('Erreur: ' + (err.error || 'Échec'));
+                      }
+                    } catch (e) {
+                      alert('Erreur réseau');
+                    }
+                  }}
+                  className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-semibold text-sm transition-colors"
+                >
+                  Donner la bannière
+                </button>
+              </div>
+            </div>
+
             {/* Banners Grid */}
             <div className="grid md:grid-cols-2 gap-4">
               {banners.map((banner) => (
                 <div
                   key={banner.id}
-                  className="bg-[#1e1e2e] rounded-xl border border-[#2a2a3a] overflow-hidden"
+                  className="bg-card rounded-xl border border-border overflow-hidden"
                 >
                   {/* Banner Preview */}
                   <div className="relative h-32 bg-gradient-to-br from-purple-900/50 to-indigo-900/50">
@@ -998,7 +1061,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a] md:col-span-2"
+            className="p-6 bg-[#12121a] rounded-2xl border border-border md:col-span-2"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -1008,7 +1071,7 @@ export default function AdminPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowUserList(!showUserList)}
-                  className="px-4 py-2 bg-[#1e1e2e] hover:bg-[#2a2a3a] border border-[#2a2a3a] rounded-lg text-sm transition-colors"
+                  className="px-4 py-2 bg-card hover:bg-[#2a2a3a] border border-border rounded-lg text-sm transition-colors"
                 >
                   {showUserList ? 'Masquer' : 'Afficher'} la liste
                 </button>
@@ -1047,7 +1110,7 @@ export default function AdminPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[#2a2a3a]">
+                    <tr className="border-b border-border">
                       <th className="text-left p-2 text-gray-400">Username</th>
                       <th className="text-left p-2 text-gray-400">Email</th>
                       <th className="text-left p-2 text-gray-400">Elo Solo</th>
@@ -1058,7 +1121,7 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {users.map(user => (
-                      <tr key={user.id} className="border-b border-[#1e1e2e] hover:bg-[#1e1e2e]">
+                      <tr key={user.id} className="border-b border-[#1e1e2e] hover:bg-card">
                         <td className="p-2 font-medium">{user.username}</td>
                         <td className="p-2 text-gray-400">{user.email}</td>
                         <td className="p-2">{user.elo}</td>

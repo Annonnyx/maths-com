@@ -177,7 +177,7 @@ function MessagesContent() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0f] text-foreground flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Connecte-toi pour voir tes messages</h1>
           <Link href="/login" className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold">
@@ -189,14 +189,14 @@ function MessagesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-[#0a0a0f] text-foreground">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
           {selectedFriend && (
             <button
               onClick={() => setSelectedFriend(null)}
-              className="lg:hidden flex items-center gap-2 text-gray-400 hover:text-white"
+              className="lg:hidden flex items-center gap-2 text-muted-foreground hover:text-foreground"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -208,7 +208,7 @@ function MessagesContent() {
           <h1 className="text-xl font-bold flex items-center gap-2">
             Messages
             {conversations.reduce((acc, c) => acc + c.unreadCount, 0) > 0 && (
-              <span className="px-2 py-0.5 bg-red-500 text-white rounded-full text-xs">
+              <span className="px-2 py-0.5 bg-red-500 text-foreground rounded-full text-xs">
                 {conversations.reduce((acc, c) => acc + c.unreadCount, 0)}
               </span>
             )}
@@ -219,8 +219,8 @@ function MessagesContent() {
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div className="grid lg:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
           {/* Conversations List */}
-          <div className={`lg:col-span-1 bg-[#12121a] rounded-2xl border border-[#2a2a3a] overflow-hidden flex flex-col ${selectedFriend ? 'hidden lg:flex' : 'flex'}`}>
-            <div className="p-4 border-b border-[#2a2a3a]">
+          <div className={`lg:col-span-1 bg-[#12121a] rounded-2xl border border-border overflow-hidden flex flex-col ${selectedFriend ? 'hidden lg:flex' : 'flex'}`}>
+            <div className="p-4 border-b border-border">
               <h2 className="font-semibold">Conversations</h2>
             </div>
             
@@ -230,7 +230,7 @@ function MessagesContent() {
                   <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
                 </div>
               ) : conversations.length === 0 ? (
-                <div className="p-8 text-center text-gray-400">
+                <div className="p-8 text-center text-muted-foreground">
                   <p>Aucune conversation</p>
                   <Link href="/friends" className="text-indigo-400 hover:text-indigo-300 text-sm mt-2 inline-block">
                     Ajouter des amis
@@ -241,8 +241,8 @@ function MessagesContent() {
                   <button
                     key={conv.friendId}
                     onClick={() => setSelectedFriend(conv.friendId)}
-                    className={`w-full p-4 flex items-center gap-3 hover:bg-[#1e1e2e] transition-colors border-b border-[#2a2a3a] ${
-                      selectedFriend === conv.friendId ? 'bg-[#1e1e2e] border-l-4 border-l-purple-500' : ''
+                    className={`w-full p-4 flex items-center gap-3 hover:bg-card transition-colors border-b border-border ${
+                      selectedFriend === conv.friendId ? 'bg-card border-l-4 border-l-purple-500' : ''
                     }`}
                   >
                     <div className="relative">
@@ -257,12 +257,12 @@ function MessagesContent() {
                       <div className="flex items-center justify-between">
                         <span className="font-medium truncate">{conv.friend.displayName || conv.friend.username}</span>
                         {conv.unreadCount > 0 && (
-                          <span className="px-2 py-0.5 bg-red-500 text-white rounded-full text-xs">
+                          <span className="px-2 py-0.5 bg-red-500 text-foreground rounded-full text-xs">
                             {conv.unreadCount}
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-400 truncate">
+                      <p className="text-sm text-muted-foreground truncate">
                         {conv.latestMessage.type === 'friend_request' 
                           ? "Demande d'ami" 
                           : conv.latestMessage.type === 'challenge'
@@ -277,11 +277,11 @@ function MessagesContent() {
           </div>
 
           {/* Chat Area */}
-          <div className={`lg:col-span-2 bg-[#12121a] rounded-2xl border border-[#2a2a3a] overflow-hidden flex flex-col ${selectedFriend ? 'flex' : 'hidden lg:flex'}`}>
+          <div className={`lg:col-span-2 bg-[#12121a] rounded-2xl border border-border overflow-hidden flex flex-col ${selectedFriend ? 'flex' : 'hidden lg:flex'}`}>
             {selectedConversation ? (
               <>
                 {/* Chat Header */}
-                <div className="p-4 border-b border-[#2a2a3a] flex items-center justify-between">
+                <div className="p-4 border-b border-border flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-sm font-bold">
@@ -293,7 +293,7 @@ function MessagesContent() {
                     </div>
                     <div>
                       <p className="font-medium">{selectedConversation.friend.displayName || selectedConversation.friend.username}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-muted-foreground">
                         {selectedConversation.friend.isOnline ? 'En ligne' : 'Hors ligne'}
                       </p>
                     </div>
@@ -318,7 +318,7 @@ function MessagesContent() {
                     >
                       <div className={`max-w-[70%] ${msg.type !== 'chat' ? 'w-full' : ''}`}>
                         {msg.type === 'friend_request' && msg.senderId !== session.user?.id ? (
-                          <div className="bg-[#1e1e2e] p-4 rounded-xl border border-[#3a3a4a]">
+                          <div className="bg-card p-4 rounded-xl border border-border">
                             <p className="text-sm mb-3">{msg.content}</p>
                             <div className="flex gap-2">
                               <button
@@ -352,13 +352,13 @@ function MessagesContent() {
                         ) : (
                           <div className={`px-4 py-2 rounded-xl ${
                             msg.senderId === session.user?.id
-                              ? 'bg-purple-600 text-white'
-                              : 'bg-[#1e1e2e] text-white'
+                              ? 'bg-purple-600 text-foreground'
+                              : 'bg-card text-foreground'
                           }`}>
                             <p>{msg.content}</p>
                           </div>
                         )}
-                        <p className="text-xs text-gray-500 mt-1 px-1">
+                        <p className="text-xs text-muted-foreground mt-1 px-1">
                           {new Date(msg.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
@@ -368,13 +368,13 @@ function MessagesContent() {
                 </div>
 
                 {/* Input */}
-                <form onSubmit={sendMessage} className="p-4 border-t border-[#2a2a3a] flex gap-3">
+                <form onSubmit={sendMessage} className="p-4 border-t border-border flex gap-3">
                   <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Écrire un message..."
-                    className="flex-1 px-4 py-3 bg-[#1e1e2e] border border-[#3a3a4a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                    className="flex-1 px-4 py-3 bg-card border border-border rounded-xl text-foreground placeholder-gray-500 focus:outline-none focus:border-purple-500"
                   />
                   <button
                     type="submit"
@@ -390,7 +390,7 @@ function MessagesContent() {
                 </form>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-gray-400">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
                   <User className="w-16 h-16 mx-auto mb-4 opacity-50" />
                   <p>Sélectionne une conversation</p>
@@ -407,7 +407,7 @@ function MessagesContent() {
 export default function MessagesPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0f] text-foreground flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
       </div>
     }>

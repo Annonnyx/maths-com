@@ -95,12 +95,12 @@ export default function LeaderboardPage() {
     if (rank === 1) return <Crown className="w-5 h-5 text-yellow-400" />;
     if (rank === 2) return <Medal className="w-5 h-5 text-gray-300" />;
     if (rank === 3) return <Medal className="w-5 h-5 text-orange-400" />;
-    return <span className="text-gray-400 font-bold">#{rank}</span>;
+    return <span className="text-muted-foreground font-bold">#{rank}</span>;
   };
 
   const getRankColor = (rank: string) => {
     const tier = rank.charAt(0);
-    return RANK_COLORS[tier] || 'text-gray-400';
+    return RANK_COLORS[tier] || 'text-muted-foreground';
   };
 
   const getRankBgColor = (rank: string) => {
@@ -149,7 +149,7 @@ export default function LeaderboardPage() {
   if (!session) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-center">
+        <div className="text-foreground text-center">
           <h1 className="text-2xl font-bold mb-4">Connecte-toi pour voir le classement</h1>
           <Link href="/login" className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors">
             Se connecter
@@ -160,9 +160,9 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
             <ArrowLeft className="w-5 h-5" />
@@ -176,7 +176,7 @@ export default function LeaderboardPage() {
           
           <div className="text-right">
             <div className="text-sm font-semibold">{profile?.user?.username}</div>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-muted-foreground">
               {activeTab === 'multiplayer' ? (profile?.user as any)?.multiplayerElo || 400 : profile?.user?.elo} Elo
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function LeaderboardPage() {
                 </div>
                 <div>
                   <div className="font-semibold">{currentUser.displayName || currentUser.username}</div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-muted-foreground">
                     {currentUser.stats.totalGames} parties • {currentUser.stats.currentElo} Elo
                   </div>
                 </div>
@@ -213,13 +213,13 @@ export default function LeaderboardPage() {
         {/* Controls */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           {/* Type Tabs */}
-          <div className="flex bg-[#1e1e2e] rounded-xl p-1">
+          <div className="flex bg-card rounded-xl p-1">
             <button
               onClick={() => setActiveTab('solo')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                 activeTab === 'solo' 
-                  ? 'bg-indigo-500 text-white' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Target className="w-4 h-4" />
@@ -229,8 +229,8 @@ export default function LeaderboardPage() {
               onClick={() => setActiveTab('multiplayer')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                 activeTab === 'multiplayer' 
-                  ? 'bg-indigo-500 text-white' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Swords className="w-4 h-4" />
@@ -239,13 +239,13 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Time Frame */}
-          <div className="flex bg-[#1e1e2e] rounded-xl p-1">
+          <div className="flex bg-card rounded-xl p-1">
             <button
               onClick={() => setTimeFrame('all')}
               className={`px-4 py-2 rounded-lg transition-all ${
                 timeFrame === 'all' 
-                  ? 'bg-indigo-500 text-white' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Tout le temps
@@ -254,8 +254,8 @@ export default function LeaderboardPage() {
               onClick={() => setTimeFrame('week')}
               className={`px-4 py-2 rounded-lg transition-all ${
                 timeFrame === 'week' 
-                  ? 'bg-indigo-500 text-white' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Cette semaine
@@ -264,8 +264,8 @@ export default function LeaderboardPage() {
               onClick={() => setTimeFrame('month')}
               className={`px-4 py-2 rounded-lg transition-all ${
                 timeFrame === 'month' 
-                  ? 'bg-indigo-500 text-white' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Ce mois
@@ -273,13 +273,13 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Scope - Global / Friends */}
-          <div className="flex bg-[#1e1e2e] rounded-xl p-1">
+          <div className="flex bg-card rounded-xl p-1">
             <button
               onClick={() => setScope('global')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                 scope === 'global' 
-                  ? 'bg-purple-500 text-white' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-purple-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <TrendingUp className="w-4 h-4" />
@@ -289,8 +289,8 @@ export default function LeaderboardPage() {
               onClick={() => setScope('friends')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                 scope === 'friends' 
-                  ? 'bg-purple-500 text-white' 
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-purple-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Users className="w-4 h-4" />
@@ -303,22 +303,22 @@ export default function LeaderboardPage() {
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Rechercher un joueur..."
-              className="w-full pl-10 pr-4 py-3 bg-[#1e1e2e] border border-[#3a3a4a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+              className="w-full pl-10 pr-4 py-3 bg-card border border-[#3a3a4a] rounded-xl text-foreground placeholder-gray-500 focus:outline-none focus:border-primary"
             />
           </div>
 
           {/* Sort Buttons */}
-          <div className="flex bg-[#1e1e2e] rounded-xl p-1">
+          <div className="flex bg-card rounded-xl p-1">
             <button
               onClick={() => toggleSort('elo')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                sortBy === 'elo' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-white'
+                sortBy === 'elo' ? 'bg-indigo-500 text-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <ArrowUpDown className={`w-4 h-4 ${sortBy === 'elo' && sortOrder === 'asc' ? 'rotate-180' : ''}`} />
@@ -327,7 +327,7 @@ export default function LeaderboardPage() {
             <button
               onClick={() => toggleSort('games')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                sortBy === 'games' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-white'
+                sortBy === 'games' ? 'bg-indigo-500 text-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <ArrowUpDown className={`w-4 h-4 ${sortBy === 'games' && sortOrder === 'asc' ? 'rotate-180' : ''}`} />
@@ -337,7 +337,7 @@ export default function LeaderboardPage() {
               <button
                 onClick={() => toggleSort('winRate')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  sortBy === 'winRate' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-white'
+                  sortBy === 'winRate' ? 'bg-indigo-500 text-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <ArrowUpDown className={`w-4 h-4 ${sortBy === 'winRate' && sortOrder === 'asc' ? 'rotate-180' : ''}`} />
@@ -347,7 +347,7 @@ export default function LeaderboardPage() {
             <button
               onClick={() => toggleSort('accuracy')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                sortBy === 'accuracy' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-white'
+                sortBy === 'accuracy' ? 'bg-indigo-500 text-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <ArrowUpDown className={`w-4 h-4 ${sortBy === 'accuracy' && sortOrder === 'asc' ? 'rotate-180' : ''}`} />
@@ -355,7 +355,7 @@ export default function LeaderboardPage() {
             </button>
           </div>
         </div>
-        <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] overflow-hidden">
+        <div className="bg-[#12121a] rounded-2xl border border-border overflow-hidden">
           <div className="p-6">
             <h2 className="text-xl font-bold mb-6">
               Classement {scope === 'friends' ? 'Amis' : activeTab === 'multiplayer' ? 'Multijoueur' : 'Solo'} - {timeFrame === 'all' ? 'Tout le temps' : timeFrame === 'week' ? 'Cette semaine' : 'Ce mois'}
@@ -369,7 +369,7 @@ export default function LeaderboardPage() {
             ) : leaderboard.length === 0 ? (
               <div className="text-center py-12">
                 <Trophy className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                <p className="text-gray-400">Aucun joueur trouvé pour cette période</p>
+                <p className="text-muted-foreground">Aucun joueur trouvé pour cette période</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -379,8 +379,8 @@ export default function LeaderboardPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className={`flex items-center justify-between p-4 rounded-xl border transition-all hover:bg-[#2a2a3a] ${
-                      currentUser?.id === entry.id ? 'border-indigo-500/50 bg-indigo-500/10' : 'border-[#2a2a3a]'
+                    className={`flex items-center justify-between p-4 rounded-xl border transition-all hover:bg-border ${
+                      currentUser?.id === entry.id ? 'border-indigo-500/50 bg-indigo-500/10' : 'border-border'
                     }`}
                   >
                     <div className="flex items-center gap-4">
@@ -406,7 +406,7 @@ export default function LeaderboardPage() {
                               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                             )}
                           </div>
-                          <div className="text-sm text-gray-400">
+                          <div className="text-sm text-muted-foreground">
                             {entry.stats.totalGames} parties
                           </div>
                         </div>
@@ -417,7 +417,7 @@ export default function LeaderboardPage() {
                     <div className="flex items-center gap-6">
                       <div className="text-right">
                         <div className="text-lg font-bold">{entry.stats.currentElo}</div>
-                        <div className="text-xs text-gray-400">Elo</div>
+                        <div className="text-xs text-muted-foreground">Elo</div>
                       </div>
                       
                       <div className={`px-3 py-1 rounded-lg border text-center ${getRankBgColor(entry.stats.currentRank)}`}>
@@ -427,12 +427,12 @@ export default function LeaderboardPage() {
                       {activeTab === 'multiplayer' ? (
                         <div className="text-right">
                           <div className="text-lg font-bold text-green-400">{entry.stats.winRate}%</div>
-                          <div className="text-xs text-gray-400">Victoires</div>
+                          <div className="text-xs text-muted-foreground">Victoires</div>
                         </div>
                       ) : (
                         <div className="text-right">
                           <div className="text-lg font-bold text-blue-400">{entry.stats.accuracy}%</div>
-                          <div className="text-xs text-gray-400">Précision</div>
+                          <div className="text-xs text-muted-foreground">Précision</div>
                         </div>
                       )}
                     </div>
@@ -447,17 +447,17 @@ export default function LeaderboardPage() {
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-3 py-1 bg-[#2a2a3a] rounded-lg hover:bg-[#3a3a4a] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-3 py-1 bg-border rounded-lg hover:bg-[#3a3a4a] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   Précédent
                 </button>
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-muted-foreground">
                   Page {page} sur {totalPages}
                 </span>
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="px-3 py-1 bg-[#2a2a3a] rounded-lg hover:bg-[#3a3a4a] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-3 py-1 bg-border rounded-lg hover:bg-[#3a3a4a] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   Suivant
                 </button>

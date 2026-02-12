@@ -30,8 +30,8 @@ export default function DashboardPage() {
   // Show nothing while checking auth to prevent flash of content
   if (status === 'loading' || status === 'unauthenticated') {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -39,10 +39,10 @@ export default function DashboardPage() {
   // Show loading while fetching profile
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Chargement de ton profil...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Chargement de ton profil...</p>
         </div>
       </div>
     );
@@ -51,7 +51,7 @@ export default function DashboardPage() {
   if (error || !profile) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-center">
+        <div className="text-foreground text-center">
           <h1 className="text-2xl font-bold mb-4">Erreur de chargement</h1>
           <p className="mb-4 text-red-400">{error || 'Impossible de charger le profil'}</p>
           <button 
@@ -75,25 +75,25 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
             <Trophy className="w-6 h-6" />
             <span className="font-bold">Math.com</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/friends" className="p-2 text-gray-400 hover:text-white transition-colors" title="Amis">
+            <Link href="/friends" className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Amis">
               <Users className="w-5 h-5" />
             </Link>
-            <Link href="/messages" className="p-2 text-gray-400 hover:text-white transition-colors" title="Messages">
+            <Link href="/messages" className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Messages">
               <MessageCircle className="w-5 h-5" />
             </Link>
-            <div className="flex items-center gap-2 px-4 py-2 bg-[#1e1e2e] rounded-lg">
+            <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg">
               <Award className="w-5 h-5 text-yellow-400" />
               <span className="font-semibold">{user.rankClass}</span>
-              <span className="text-gray-400">|</span>
+              <span className="text-muted-foreground">|</span>
               <span className="font-mono">{user.elo} Elo</span>
             </div>
           </div>
@@ -113,7 +113,7 @@ export default function DashboardPage() {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold mb-2">Bonjour, {user.username || user.displayName || 'Mathématicien'} ! 👋</h1>
-          <p className="text-gray-400">Prêt à améliorer tes capacités de calcul mental ?</p>
+          <p className="text-muted-foreground">Prêt à améliorer tes capacités de calcul mental ?</p>
         </motion.div>
 
         {/* Quick Actions */}
@@ -129,61 +129,61 @@ export default function DashboardPage() {
           >
             <Zap className="w-8 h-8 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="font-semibold">Test d'évaluation</h3>
-            <p className="text-sm text-gray-400">Teste ton niveau</p>
+            <p className="text-sm text-muted-foreground">Teste ton niveau</p>
           </Link>
           
           <Link
             href="/practice"
-            className="p-6 bg-[#1e1e2e] rounded-2xl border border-[#2a2a3a] hover:border-[#3a3a4a] transition-all group"
+            className="p-6 bg-card rounded-2xl border border-border hover:border-[#3a3a4a] transition-all group"
           >
             <Target className="w-8 h-8 text-cyan-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="font-semibold">Exercices libres</h3>
-            <p className="text-sm text-gray-400">Sans impact sur l'Elo</p>
+            <p className="text-sm text-muted-foreground">Sans impact sur l'Elo</p>
           </Link>
           
           <Link
             href="/courses"
-            className="p-6 bg-[#1e1e2e] rounded-2xl border border-[#2a2a3a] hover:border-[#3a3a4a] transition-all group"
+            className="p-6 bg-card rounded-2xl border border-border hover:border-[#3a3a4a] transition-all group"
           >
             <BookOpen className="w-8 h-8 text-green-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="font-semibold">Cours</h3>
-            <p className="text-sm text-gray-400">Apprends les techniques</p>
+            <p className="text-sm text-muted-foreground">Apprends les techniques</p>
           </Link>
           
           <Link
             href="/history"
-            className="p-6 bg-[#1e1e2e] rounded-2xl border border-[#2a2a3a] hover:border-[#3a3a4a] transition-all group"
+            className="p-6 bg-card rounded-2xl border border-border hover:border-[#3a3a4a] transition-all group"
           >
             <BarChart3 className="w-8 h-8 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="font-semibold">Historique</h3>
-            <p className="text-sm text-gray-400">Revois tes tests</p>
+            <p className="text-sm text-muted-foreground">Revois tes tests</p>
           </Link>
           
           <Link
             href="/friends"
-            className="p-6 bg-[#1e1e2e] rounded-2xl border border-[#2a2a3a] hover:border-green-500/50 transition-all group"
+            className="p-6 bg-card rounded-2xl border border-border hover:border-green-500/50 transition-all group"
           >
             <Users className="w-8 h-8 text-green-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="font-semibold">Amis</h3>
-            <p className="text-sm text-gray-400">Gère tes amis</p>
+            <p className="text-sm text-muted-foreground">Gère tes amis</p>
           </Link>
           
           <Link
             href="/messages"
-            className="p-6 bg-[#1e1e2e] rounded-2xl border border-[#2a2a3a] hover:border-pink-500/50 transition-all group"
+            className="p-6 bg-card rounded-2xl border border-border hover:border-pink-500/50 transition-all group"
           >
             <MessageCircle className="w-8 h-8 text-pink-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="font-semibold">Messages</h3>
-            <p className="text-sm text-gray-400">Tes conversations</p>
+            <p className="text-sm text-muted-foreground">Tes conversations</p>
           </Link>
 
           <Link
-            href="/banner"
-            className="p-6 bg-[#1e1e2e] rounded-2xl border border-[#2a2a3a] hover:border-yellow-500/50 transition-all group"
+            href="/profile?tab=banner"
+            className="p-6 bg-card rounded-2xl border border-border hover:border-yellow-500/50 transition-all group"
           >
             <Medal className="w-8 h-8 text-yellow-400 mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="font-semibold">Bannières</h3>
-            <p className="text-sm text-gray-400">Customise ton profil</p>
+            <p className="text-sm text-muted-foreground">Customise ton profil</p>
           </Link>
         </motion.div>
 
@@ -201,7 +201,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-2xl font-bold mb-1">Classe actuelle</h2>
-                  <p className="text-gray-400">Progresse pour débloquer de nouvelles opérations</p>
+                  <p className="text-muted-foreground">Progresse pour débloquer de nouvelles opérations</p>
                 </div>
                 <div className="text-4xl font-bold">{user.rankClass}</div>
               </div>
@@ -235,21 +235,21 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
+              className="p-6 bg-[#12121a] rounded-2xl border border-border"
             >
               <h2 className="text-xl font-bold mb-4">Statistiques</h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Calculator className="w-5 h-5 text-indigo-400" />
-                    <span className="text-gray-400">Tests complétés</span>
+                    <span className="text-muted-foreground">Tests complétés</span>
                   </div>
                   <span className="font-bold">{stats?.totalTests || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Target className="w-5 h-5 text-green-400" />
-                    <span className="text-gray-400">Taux de réussite</span>
+                    <span className="text-muted-foreground">Taux de réussite</span>
                   </div>
                   <span className="font-bold">
                     {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
@@ -258,14 +258,14 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Clock className="w-5 h-5 text-cyan-400" />
-                    <span className="text-gray-400">Temps moyen</span>
+                    <span className="text-muted-foreground">Temps moyen</span>
                   </div>
                   <span className="font-bold">{stats ? Math.round(stats.averageTime) : 0}s</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Star className="w-5 h-5 text-yellow-400" />
-                    <span className="text-gray-400">Meilleure série</span>
+                    <span className="text-muted-foreground">Meilleure série</span>
                   </div>
                   <span className="font-bold">{user.bestStreak}</span>
                 </div>
@@ -277,7 +277,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
+              className="p-6 bg-[#12121a] rounded-2xl border border-border"
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold">Tests récents</h2>
@@ -289,7 +289,7 @@ export default function DashboardPage() {
                 {recentTests.slice(0, 5).map((test: any) => (
                   <div
                     key={test.id}
-                    className="flex items-center justify-between p-4 bg-[#1e1e2e] rounded-xl"
+                    className="flex items-center justify-between p-4 bg-card rounded-xl"
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
@@ -303,7 +303,7 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <p className="font-semibold">{test.correctAnswers}/{test.totalQuestions} correct</p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                           {new Date(test.completedAt).toLocaleDateString('fr-FR', {
                             day: 'numeric',
                             month: 'short',
@@ -315,16 +315,16 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-right">
                       <div className={`font-bold ${
-                        test.eloChange > 0 ? 'text-green-400' : test.eloChange < 0 ? 'text-red-400' : 'text-gray-400'
+                        test.eloChange > 0 ? 'text-green-400' : test.eloChange < 0 ? 'text-red-400' : 'text-muted-foreground'
                       }`}>
                         {test.eloChange > 0 ? '+' : ''}{test.eloChange}
                       </div>
-                      <p className="text-sm text-gray-400">Elo</p>
+                      <p className="text-sm text-muted-foreground">Elo</p>
                     </div>
                   </div>
                 ))}
                 {recentTests.length === 0 && (
-                  <p className="text-gray-400 text-center py-4">Aucun test encore</p>
+                  <p className="text-muted-foreground text-center py-4">Aucun test encore</p>
                 )}
               </div>
             </motion.div>
@@ -334,7 +334,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
+              className="p-6 bg-[#12121a] rounded-2xl border border-border"
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold flex items-center gap-2">
@@ -349,7 +349,7 @@ export default function DashboardPage() {
                 {(profile?.recentGames || []).slice(0, 5).map((game: any) => (
                   <div
                     key={game.id}
-                    className="flex items-center justify-between p-4 bg-[#1e1e2e] rounded-xl"
+                    className="flex items-center justify-between p-4 bg-card rounded-xl"
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
@@ -365,7 +365,7 @@ export default function DashboardPage() {
                         <p className="font-semibold">
                           {game.player1?.username || 'Joueur 1'} vs {game.player2?.username || 'En attente'}
                         </p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                           {new Date(game.createdAt).toLocaleDateString('fr-FR', {
                             day: 'numeric',
                             month: 'short',
@@ -382,10 +382,10 @@ export default function DashboardPage() {
                     <div className="text-right">
                       {game.status === 'finished' ? (
                         <>
-                          <div className="font-bold text-white">
+                          <div className="font-bold text-foreground">
                             {game.player1Score} - {game.player2Score}
                           </div>
-                          <p className="text-sm text-gray-400">Score</p>
+                          <p className="text-sm text-muted-foreground">Score</p>
                         </>
                       ) : (
                         <Link
@@ -400,7 +400,7 @@ export default function DashboardPage() {
                 ))}
                 {(profile?.recentGames || []).length === 0 && (
                   <div className="text-center py-6">
-                    <p className="text-gray-400 mb-3">Aucune partie multijoueur encore</p>
+                    <p className="text-muted-foreground mb-3">Aucune partie multijoueur encore</p>
                     <Link
                       href="/multiplayer"
                       className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition-colors inline-flex items-center gap-2"
@@ -424,7 +424,7 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
+              className="p-6 bg-[#12121a] rounded-2xl border border-border"
             >
               <h2 className="text-xl font-bold mb-4">Points à améliorer</h2>
               <div className="space-y-2">

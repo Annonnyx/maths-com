@@ -96,7 +96,7 @@ function ChallengeModal({ friendId, friendName, isOpen, onClose }: ChallengeModa
             <div className="space-y-4">
               {/* Game Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Type de partie
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -105,7 +105,7 @@ function ChallengeModal({ friendId, friendName, isOpen, onClose }: ChallengeModa
                     className={`px-3 py-2 rounded-lg border transition-all ${
                       gameType === 'ranked' 
                         ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400' 
-                        : 'bg-[#12121a] border-[#2a2a3a] text-gray-400 hover:border-[#3a3a4a]'
+                        : 'bg-[#12121a] border-[#2a2a3a] text-foreground hover:border-[#3a3a4a]'
                     }`}
                   >
                     <Trophy className="w-4 h-4 mx-auto mb-1" />
@@ -116,7 +116,7 @@ function ChallengeModal({ friendId, friendName, isOpen, onClose }: ChallengeModa
                     className={`px-3 py-2 rounded-lg border transition-all ${
                       gameType === 'friendly' 
                         ? 'bg-purple-500/20 border-purple-500 text-purple-400' 
-                        : 'bg-[#12121a] border-[#2a2a3a] text-gray-400 hover:border-[#3a3a4a]'
+                        : 'bg-[#12121a] border-[#2a2a3a] text-foreground hover:border-[#3a3a4a]'
                     }`}
                   >
                     <Target className="w-4 h-4 mx-auto mb-1" />
@@ -127,7 +127,7 @@ function ChallengeModal({ friendId, friendName, isOpen, onClose }: ChallengeModa
               
               {/* Time Control */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Temps de jeu
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -138,7 +138,7 @@ function ChallengeModal({ friendId, friendName, isOpen, onClose }: ChallengeModa
                       className={`px-3 py-2 rounded-lg border transition-all ${
                         timeControl === key 
                           ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400' 
-                          : 'bg-[#12121a] border-[#2a2a3a] text-gray-400 hover:border-[#3a3a4a]'
+                          : 'bg-[#12121a] border-[#2a2a3a] text-foreground hover:border-[#3a3a4a]'
                       }`}
                     >
                       <Clock className="w-4 h-4 mx-auto mb-1" />
@@ -153,13 +153,13 @@ function ChallengeModal({ friendId, friendName, isOpen, onClose }: ChallengeModa
                 <button
                   onClick={handleChallenge}
                   disabled={isLoading}
-                  className="flex-1 px-4 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                  className="flex-1 px-4 py-3 bg-indigo-500 text-foreground rounded-xl hover:bg-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                 >
                   {isLoading ? 'Envoi...' : 'Lancer le défi'}
                 </button>
                 <button
                   onClick={onClose}
-                  className="flex-1 px-4 py-3 bg-[#2a2a3a] text-white rounded-xl hover:bg-[#3a3a4a] transition-all font-semibold"
+                  className="flex-1 px-4 py-3 bg-[#2a2a3a] text-foreground rounded-xl hover:bg-[#3a3a4a] transition-all font-semibold"
                 >
                   Annuler
                 </button>
@@ -188,7 +188,7 @@ function ChallengesList({ title, challenges, onRespond, showActions = false }: C
       animate={{ opacity: 1, y: 0 }}
       className="bg-[#1e1e2e] rounded-xl p-4"
     >
-      <h4 className="font-semibold text-gray-400 mb-3">{title}</h4>
+      <h4 className="font-semibold text-foreground mb-3">{title}</h4>
       <div className="space-y-2">
         {challenges.map((challenge) => (
           <div key={challenge.id} className="flex items-center justify-between p-2">

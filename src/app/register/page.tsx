@@ -93,7 +93,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background text-white flex items-center justify-center p-4">
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
@@ -114,11 +114,11 @@ export default function RegisterPage() {
             <span className="text-2xl font-bold">Math.com</span>
           </Link>
           <h1 className="mt-6 text-3xl font-bold">Créer un compte</h1>
-          <p className="mt-2 text-gray-400">Rejoins la communauté et commence ta progression</p>
+          <p className="mt-2 text-muted-foreground">Rejoins la communauté et commence ta progression</p>
         </div>
 
         {/* Form */}
-        <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-8">
+        <div className="bg-[#12121a] rounded-2xl border border-border p-8">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -133,12 +133,12 @@ export default function RegisterPage() {
             <div>
               <label className="block text-sm font-medium mb-2">Nom d'utilisateur</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 bg-[#1e1e2e] border border-[#2a2a3a] rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
                   placeholder="MathWarrior"
                   required
                   minLength={3}
@@ -150,12 +150,12 @@ export default function RegisterPage() {
             <div>
               <label className="block text-sm font-medium mb-2">Email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 bg-[#1e1e2e] border border-[#2a2a3a] rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
                   placeholder="ton@email.com"
                   required
                 />
@@ -165,19 +165,19 @@ export default function RegisterPage() {
             <div>
               <label className="block text-sm font-medium mb-2">Mot de passe</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-12 pr-12 py-3 bg-[#1e1e2e] border border-[#2a2a3a] rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
+                  className="w-full pl-12 pr-12 py-3 bg-card border border-border rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -187,12 +187,12 @@ export default function RegisterPage() {
             <div>
               <label className="block text-sm font-medium mb-2">Confirmer le mot de passe</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3 bg-[#1e1e2e] border border-[#2a2a3a] rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl focus:border-indigo-500 focus:outline-none transition-all"
                   placeholder="••••••••"
                   required
                 />
@@ -201,7 +201,7 @@ export default function RegisterPage() {
 
             {/* Password Requirements */}
             <div className="space-y-2 text-sm">
-              <p className="text-gray-400">Le mot de passe doit contenir :</p>
+              <p className="text-muted-foreground">Le mot de passe doit contenir :</p>
               <div className="flex items-center gap-2">
                 {passwordValidation.minLength ? (
                   <Check className="w-4 h-4 text-green-400" />
@@ -251,7 +251,7 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-400">
+            <p className="text-muted-foreground">
               Déjà un compte ?{' '}
               <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium">
                 Se connecter
@@ -262,7 +262,7 @@ export default function RegisterPage() {
 
         {/* Back to home */}
         <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-400 hover:text-white text-sm transition-colors">
+          <Link href="/" className="text-muted-foreground hover:text-white text-sm transition-colors">
             ← Retour à l'accueil
           </Link>
         </div>

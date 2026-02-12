@@ -132,7 +132,7 @@ export default function MessagesManager() {
       {(!localConversations || localConversations.length === 0) ? (
         <div className="text-center py-12">
           <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-          <p className="text-gray-400">Tu n'as pas encore de conversations</p>
+          <p className="text-foreground">Tu n'as pas encore de conversations</p>
           <p className="text-sm text-gray-500">Ajoute des amis pour discuter !</p>
         </div>
       ) : (
@@ -161,7 +161,7 @@ export default function MessagesManager() {
                   </div>
                   <div>
                     <div className="font-semibold">{conversation.friend.displayName || conversation.friend.username}</div>
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm text-foreground">
                       {formatTime(conversation.friend.lastSeenAt)}
                     </div>
                   </div>
@@ -169,7 +169,7 @@ export default function MessagesManager() {
                 
                 <div className="flex items-center gap-2">
                   {conversation.unreadCount > 0 && (
-                    <div className="w-2 h-2 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                    <div className="w-2 h-2 bg-red-500 rounded-full flex items-center justify-center text-xs text-foreground font-bold">
                       {conversation.unreadCount}
                     </div>
                   )}
@@ -177,7 +177,7 @@ export default function MessagesManager() {
                     <div className="text-sm text-gray-500">
                       {conversation.latestMessage.isFromMe ? '→' : '←'}
                     </div>
-                    <div className="text-sm text-gray-400 truncate max-w-[150px]">
+                    <div className="text-sm text-foreground truncate max-w-[150px]">
                       {conversation.latestMessage.content}
                     </div>
                   </div>
@@ -246,7 +246,7 @@ export default function MessagesManager() {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Message
                   </label>
                   <textarea
@@ -263,7 +263,7 @@ export default function MessagesManager() {
                   <button
                     onClick={handleSendMessage}
                     disabled={!messageContent.trim() || isLoading}
-                    className="flex-1 px-4 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                    className="flex-1 px-4 py-3 bg-purple-500 text-foreground rounded-xl hover:bg-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                   >
                     {isLoading ? 'Envoi...' : 'Envoyer'}
                   </button>
@@ -274,7 +274,7 @@ export default function MessagesManager() {
                       setError('');
                       setSuccess('');
                     }}
-                    className="flex-1 px-4 py-3 bg-[#2a2a3a] text-white rounded-xl hover:bg-[#3a3a4a] transition-all font-semibold"
+                    className="flex-1 px-4 py-3 bg-[#2a2a3a] text-foreground rounded-xl hover:bg-[#3a3a4a] transition-all font-semibold"
                   >
                     Annuler
                   </button>

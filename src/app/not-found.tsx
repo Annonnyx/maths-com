@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
       <div className="text-center max-w-md">
         {/* Animated 404 */}
         <motion.div
@@ -31,7 +31,7 @@ export default function NotFound() {
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           <h1 className="text-2xl font-bold mb-4">Page introuvable</h1>
-          <p className="text-gray-400 mb-8">
+          <p className="text-muted-foreground mb-8">
             Désolé, cette page n'existe pas ou a été déplacée. 
             Retourne à l'accueil pour continuer ton entraînement !
           </p>
@@ -46,7 +46,7 @@ export default function NotFound() {
             </Link>
             <button
               onClick={() => window.history.back()}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-xl font-semibold transition-all border border-[#2a2a3a]"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border"
             >
               <ArrowLeft className="w-5 h-5" />
               Page précédente

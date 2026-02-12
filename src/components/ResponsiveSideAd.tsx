@@ -96,7 +96,7 @@ export function ResponsiveSideAd({ side, className = "" }: ResponsiveSideAdProps
     <div className={`${getPositionClasses()} ${className}`}>
       <AdWrapper showAdBlockMessage={false}>
         <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10 hover:bg-white/10 transition-all duration-300 shadow-lg">
-          <div className="text-xs text-gray-400 mb-2 text-center">Publicité</div>
+          <div className="text-xs text-foreground mb-2 text-center">Publicité</div>
           <AdSenseBanner 
             adSlot={getSlotId()}
             adFormat="vertical"

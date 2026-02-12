@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -23,11 +24,19 @@ const DEFAULT_PREFERENCES = {
   emailNotifications: true
 };
 
-export default function ProfilePage() {
+// Inner component that uses search params
+function ProfileContent() {
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const { profile, isLoading, error, refetch } = useUserProfile();
   const { badges, isLoading: badgesLoading } = useBadges(profile?.user?.id);
-  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'banner' | 'settings' | 'admin'>('overview');
+  
+  // Get tab from URL parameter
+  const urlTab = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'banner' | 'settings' | 'admin'>(
+    (urlTab === 'banner' || urlTab === 'achievements' || urlTab === 'settings') ? urlTab : 'overview'
+  );
+  
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.user?.displayName || '');
   
@@ -69,19 +78,33 @@ export default function ProfilePage() {
     }
   }, [profile?.user?.bannerUrl, profile?.user?.selectedBadgeIds]);
 
-  // Load custom banners when banner tab is active
+  // Load custom banners when banner tab is active - filter premium for non-admin users
   useEffect(() => {
     if (activeTab === 'banner') {
       fetch('/api/banners')
         .then(res => res.json())
         .then(data => {
           if (data.banners) {
-            setCustomBanners(data.banners);
+            // Filter premium banners - only show to admin for now
+            const isAdmin = session?.user?.email === 'noe.barneron@gmail.com';
+            const userBannerUrl = profile?.user?.bannerUrl;
+            
+            const filteredBanners = data.banners.filter((banner: any) => {
+              // Always show non-premium banners
+              if (!banner.isPremium) return true;
+              // Show premium banners only to admin
+              if (isAdmin) return true;
+              // Allow user to see their currently equipped premium banner
+              if (userBannerUrl && banner.imageUrl === userBannerUrl) return true;
+              return false;
+            });
+            
+            setCustomBanners(filteredBanners);
           }
         })
         .catch(console.error);
     }
-  }, [activeTab]);
+  }, [activeTab, session?.user?.email, profile?.user?.bannerUrl]);
 
   // Reset hasChanges when switching to banner tab
   useEffect(() => {
@@ -143,9 +166,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
             <Trophy className="w-6 h-6" />
@@ -166,14 +189,14 @@ export default function ProfilePage() {
             )}
             <button
               onClick={refetch}
-              className="flex items-center gap-2 px-4 py-2 text-sm bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-lg transition-colors border border-[#2a2a3a]"
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-card hover:bg-muted border border-border rounded-lg transition-colors"
             >
               <RotateCcw className="w-4 h-4" />
               Rafraîchir
             </button>
             <div className="text-right">
               <div className="text-sm font-semibold">{profile?.user?.username}</div>
-              <div className="text-xs text-gray-400">{profile?.user?.elo} Elo</div>
+              <div className="text-xs text-muted-foreground">{profile?.user?.elo} Elo</div>
             </div>
           </div>
         </div>
@@ -188,36 +211,36 @@ export default function ProfilePage() {
           >
             <Users className="w-6 h-6 text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
             <div className="text-sm font-semibold">Multijoueur</div>
-            <div className="text-xs text-gray-400">Joueurs en ligne</div>
+            <div className="text-xs text-muted-foreground">Joueurs en ligne</div>
           </Link>
           <Link
             href="/friends"
-            className="p-4 bg-[#1e1e2e] rounded-xl border border-[#2a2a3a] hover:border-[#3a3a4a] transition-all group"
+            className="p-4 bg-card rounded-xl border border-border hover:border-muted transition-all group"
           >
             <Users className="w-6 h-6 text-green-400 mb-2 group-hover:scale-110 transition-transform" />
             <div className="text-sm font-semibold">Amis</div>
-            <div className="text-xs text-gray-400">Gérer</div>
+            <div className="text-xs text-muted-foreground">Gérer</div>
           </Link>
           <Link
             href="/test"
-            className="p-4 bg-[#1e1e2e] rounded-xl border border-[#2a2a3a] hover:border-[#3a2a3a] transition-all group"
+            className="p-4 bg-card rounded-xl border border-border hover:border-muted transition-all group"
           >
-            <Zap className="w-6 h-6 text-gray-400 mb-2 group-hover:scale-110 transition-transform" />
+            <Zap className="w-6 h-6 text-muted-foreground mb-2 group-hover:scale-110 transition-transform" />
             <div className="text-sm font-semibold">Test</div>
-            <div className="text-xs text-gray-400">S'entraîner</div>
+            <div className="text-xs text-muted-foreground">S'entraîner</div>
           </Link>
           <Link
             href="/practice"
-            className="p-4 bg-[#1e1e2e] rounded-xl border border-[#2a2a3a] hover:border-[#3a2a4a] transition-all group"
+            className="p-4 bg-card rounded-xl border border-border hover:border-muted transition-all group"
           >
-            <Target className="w-6 h-6 text-gray-400 mb-2 group-hover:scale-110 transition-transform" />
+            <Target className="w-6 h-6 text-muted-foreground mb-2 group-hover:scale-110 transition-transform" />
             <div className="text-sm font-semibold">Entraînement</div>
-            <div className="text-xs text-gray-400">Libre</div>
+            <div className="text-xs text-muted-foreground">Libre</div>
           </Link>
         </div>
 
         {/* Tabs Navigation */}
-        <div className="flex gap-2 mb-6 bg-[#1e1e2e] rounded-xl p-1 overflow-x-auto">
+        <div className="flex gap-2 mb-6 bg-card rounded-xl p-1 overflow-x-auto">
           {[
             { id: 'overview' as const, label: 'Profil', icon: User },
             { id: 'achievements' as const, label: 'Succès', icon: Medal },
@@ -229,8 +252,8 @@ export default function ProfilePage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-[#2a2a3a]'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -269,11 +292,11 @@ export default function ProfilePage() {
                       type="text"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      className="px-3 py-1 bg-[#1e1e2e] border border-[#2a2a3a] rounded-lg focus:border-indigo-500 focus:outline-none transition-all"
+                      className="px-3 py-1 bg-card border border-border rounded-lg focus:border-primary focus:outline-none transition-all"
                     />
                     <button 
                       onClick={() => setIsEditing(false)}
-                      className="p-1 text-green-400 hover:bg-green-500/20 rounded-lg rounded-lg"
+                      className="p-1 text-green-400 hover:bg-green-500/20 rounded-lg"
                     >
                       <Check className="w-5 h-5" />
                     </button>
@@ -282,7 +305,7 @@ export default function ProfilePage() {
                         setDisplayName(profile?.user?.displayName || '');
                         setIsEditing(false);
                       }}
-                      className="p-1 text-red-400 hover:bg-red-500/20 rounded-lg rounded-lg"
+                      className="p-1 text-red-400 hover:bg-red-500/20 rounded-lg"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -292,58 +315,58 @@ export default function ProfilePage() {
                     <h1 className="text-3xl font-bold mb-2">{displayName}</h1>
                     <button 
                       onClick={() => setIsEditing(true)}
-                      className="p-2 text-gray-400 hover:text-white hover:bg-[#1e1e2e] rounded-lg transition-all"
+                      className="p-2 text-muted-foreground hover:text-foreground hover:bg-card rounded-lg transition-all"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                   </>
                 )}
               </div>
-              <p className="text-gray-400">@{profile?.user?.username}</p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-muted-foreground">@{profile?.user?.username}</p>
+              <p className="text-sm text-muted-foreground mt-1">
                 Membre depuis {new Date().toLocaleDateString('fr-FR')}
               </p>
             </div>
             <div className={`px-6 py-3 rounded-xl border text-center ${getRankColor(profile?.user?.rankClass)}`}>
-              <p className="text-sm text-gray-400">Classe</p>
+              <p className="text-sm text-muted-foreground">Classe</p>
               <p className="text-2xl font-bold">{profile?.user?.rankClass}</p>
             </div>
           </div>
 
           {/* Stats Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
-              <p className="text-gray-400 text-sm">Elo actuel</p>
-              <p className="text-2xl font-bold text-indigo-400">{profile?.user?.elo}</p>
+            <div className="p-4 bg-card rounded-xl border border-border">
+              <p className="text-muted-foreground text-sm">Elo actuel</p>
+              <p className="text-2xl font-bold text-primary">{profile?.user?.elo}</p>
             </div>
-            <div className="p-4 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
-              <p className="text-gray-400 text-sm">Tests complétés</p>
+            <div className="p-4 bg-card rounded-xl border border-border">
+              <p className="text-muted-foreground text-sm">Tests complétés</p>
               <p className="text-2xl font-bold">{stats?.totalTests || 0}</p>
             </div>
-            <div className="p-4 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
-              <p className="text-gray-400 text-sm">Précision</p>
+            <div className="p-4 bg-card rounded-xl border border-border">
+              <p className="text-muted-foreground text-sm">Précision</p>
               <p className="text-2xl font-bold text-green-400">
                 {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
               </p>
             </div>
-            <div className="p-4 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
-              <p className="text-gray-400 text-sm">Meilleure série</p>
+            <div className="p-4 bg-card rounded-xl border border-border">
+              <p className="text-muted-foreground text-sm">Meilleure série</p>
               <p className="text-2xl font-bold text-orange-400">{profile?.user?.bestStreak} 🔥</p>
             </div>
           </div>
 
           {/* Progress Section */}
-          <div className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
+          <div className="p-6 bg-card rounded-2xl border border-border">
             <h3 className="text-xl font-bold mb-4">Progression</h3>
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">Vers {profile?.user?.bestRankClass}</span>
+                  <span className="text-muted-foreground">Vers {profile?.user?.bestRankClass}</span>
                   <span>{profile?.user?.elo} / {profile?.user?.bestElo + 100}</span>
                 </div>
-                <div className="w-full bg-[#1e1e2e] rounded-full h-3 overflow-hidden">
+                <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500"
                     style={{ 
                       width: `${Math.min(100, Math.max(0, ((profile?.user?.elo - 600) / (profile?.user?.bestElo + 100 - 600)) * 100))}%` 
                     }}
@@ -354,7 +377,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
+          <div className="p-6 bg-card rounded-2xl border border-border">
             <h3 className="text-xl font-bold mb-4">Activité récente</h3>
             <div className="space-y-3">
               {[
@@ -363,7 +386,7 @@ export default function ProfilePage() {
                 { action: 'Test réussi', detail: 'Score: 85%', time: 'Il y a 30 min' },
                 { action: 'Test parfait', detail: 'Score: 100%', time: 'Il y a 5 min' }
               ].map((activity, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
+                <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                       activity.action.includes('parfait') ? 'bg-green-500/20' : activity.action.includes('échoué') ? 'bg-red-500/20' : 'bg-yellow-500/20'
@@ -374,10 +397,10 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <div className="font-medium text-sm">{activity.action}</div>
-                      <div className="text-xs text-gray-500">{activity.detail}</div>
+                      <div className="text-xs text-muted-foreground">{activity.detail}</div>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {activity.time}
                   </div>
                 </div>
@@ -386,15 +409,15 @@ export default function ProfilePage() {
           </div>
 
           {/* Badges / Succès */}
-          <div className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
+          <div className="p-6 bg-card rounded-2xl border border-border">
             <h3 className="text-xl font-bold mb-4">Badges ({badges.length})</h3>
             {badgesLoading ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
-                <p className="text-gray-400 mt-2">Chargement des badges...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p className="text-muted-foreground mt-2">Chargement des badges...</p>
               </div>
             ) : badges.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-muted-foreground">
                 <p>Aucun badge encore débloqué</p>
                 <p className="text-sm mt-2">Continue à t'entraîner pour gagner des badges !</p>
               </div>
@@ -403,7 +426,7 @@ export default function ProfilePage() {
                 {badges.map((userBadge) => (
                   <div 
                     key={userBadge.id} 
-                    className="p-4 bg-[#1e1e2e] rounded-xl border border-green-500/30"
+                    className="p-4 bg-muted rounded-xl border border-green-500/30"
                     style={{ borderColor: userBadge.badge.color + '40' }}
                   >
                     <div className="text-2xl mb-2 text-center" style={{ color: userBadge.badge.color }}>
@@ -411,8 +434,8 @@ export default function ProfilePage() {
                     </div>
                     <div className="text-center">
                       <div className="font-semibold">{userBadge.badge.name}</div>
-                      <div className="text-sm text-gray-400">{userBadge.badge.description}</div>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-sm text-muted-foreground">{userBadge.badge.description}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
                         Débloqué le {new Date(userBadge.earnedAt).toLocaleDateString('fr-FR')}
                       </div>
                     </div>
@@ -431,23 +454,23 @@ export default function ProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            <div className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
+            <div className="p-6 bg-card rounded-2xl border border-border">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
                 <Medal className="w-8 h-8 text-yellow-400" />
                 Tes Achievements
-                <span className="text-lg font-normal text-gray-400">({badges.length})</span>
+                <span className="text-lg font-normal text-muted-foreground">({badges.length})</span>
               </h2>
               
               {badgesLoading ? (
                 <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-                  <p className="text-gray-400">Chargement de tes achievements...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Chargement de tes achievements...</p>
                 </div>
               ) : badges.length === 0 ? (
                 <div className="text-center py-12">
-                  <Medal className="w-20 h-20 mx-auto mb-6 text-gray-400" />
+                  <Medal className="w-20 h-20 mx-auto mb-6 text-muted-foreground" />
                   <h3 className="text-xl font-semibold mb-3">Aucun achievement débloqué</h3>
-                  <p className="text-gray-400 mb-6">
+                  <p className="text-muted-foreground mb-6">
                     Continue à t'entraîner pour débloquer des badges et montrer tes compétences !
                   </p>
                   <div className="flex gap-3 justify-center">
@@ -460,7 +483,7 @@ export default function ProfilePage() {
                     </Link>
                     <Link
                       href="/practice"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#1e1e2e] hover:bg-[#2a2a3a] border border-[#2a2a3a] rounded-lg font-semibold transition-colors"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-card hover:bg-muted border border-border rounded-lg font-semibold transition-colors"
                     >
                       <Target className="w-5 h-5" />
                       Entraînement libre
@@ -477,7 +500,7 @@ export default function ProfilePage() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.1 }}
-                        className="p-5 bg-[#1e1e2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all group"
+                        className="p-5 bg-muted rounded-xl border border-border hover:border-primary/50 transition-all group"
                         style={{ 
                           borderColor: userBadge.badge.color + '40',
                           boxShadow: userBadge.badge.isTemporary ? `0 0 20px ${userBadge.badge.color}20` : undefined
@@ -501,16 +524,16 @@ export default function ProfilePage() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-gray-300 mb-3 leading-relaxed">
+                            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
                               {userBadge.badge.description}
                             </p>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2 text-xs">
-                                <span className="px-2 py-1 bg-[#2a2a3a] rounded-full text-gray-400">
+                                <span className="px-2 py-1 bg-muted rounded-full text-muted-foreground">
                                   {userBadge.badge.category}
                                 </span>
                               </div>
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-muted-foreground">
                                 {new Date(userBadge.earnedAt).toLocaleDateString('fr-FR', {
                                   day: 'numeric',
                                   month: 'short',
@@ -525,24 +548,24 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Achievement Progress */}
-                  <div className="p-6 bg-[#1e1e2e] rounded-xl border border-[#2a2a3a]">
+                  <div className="p-6 bg-muted rounded-xl border border-border">
                     <h3 className="text-lg font-bold mb-4">Progrès des achievements</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 bg-[#2a2a3a] rounded-lg">
+                      <div className="p-4 bg-card rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                           <Trophy className="w-5 h-5 text-yellow-400" />
                           <span className="font-medium">Classe actuelle</span>
                         </div>
                         <div className="text-2xl font-bold text-yellow-400">{profile?.user?.rankClass}</div>
-                        <div className="text-sm text-gray-400">Prochaine classe: {profile?.user?.bestRankClass}</div>
+                        <div className="text-sm text-muted-foreground">Prochaine classe: {profile?.user?.bestRankClass}</div>
                       </div>
-                      <div className="p-4 bg-[#2a2a3a] rounded-lg">
+                      <div className="p-4 bg-card rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                           <Target className="w-5 h-5 text-green-400" />
                           <span className="font-medium">Tests complétés</span>
                         </div>
                         <div className="text-2xl font-bold text-green-400">{stats?.totalTests || 0}</div>
-                        <div className="text-sm text-gray-400">Prochain palier: 100 tests</div>
+                        <div className="text-sm text-muted-foreground">Prochain palier: 100 tests</div>
                       </div>
                     </div>
                   </div>
@@ -560,7 +583,7 @@ export default function ProfilePage() {
             className="space-y-6"
           >
             {/* Banner Preview - Shows local state */}
-            <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+            <div className="bg-card rounded-2xl border border-border p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold flex items-center gap-2">
                   <ImageIcon className="w-5 h-5 text-purple-400" />
@@ -672,7 +695,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Banner Type Tabs */}
-            <div className="flex gap-2 bg-[#1e1e2e] rounded-xl p-1">
+            <div className="flex gap-2 bg-card rounded-xl p-1">
               <button
                 onClick={() => {
                   setActiveBannerTab('gradient');
@@ -681,8 +704,8 @@ export default function ProfilePage() {
                 }}
                 className={`flex-1 py-2 rounded-lg font-medium transition-all ${
                   activeBannerTab === 'gradient'
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 Dégradés
@@ -694,8 +717,8 @@ export default function ProfilePage() {
                 }}
                 className={`flex-1 py-2 rounded-lg font-medium transition-all ${
                   activeBannerTab === 'custom'
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 Bannières perso ({customBanners.length})
@@ -704,7 +727,7 @@ export default function ProfilePage() {
 
             {/* Gradient Selection */}
             {activeBannerTab === 'gradient' && (
-              <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+              <div className="bg-card rounded-2xl border border-border p-6">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                   <Palette className="w-5 h-5 text-purple-400" />
                   Choisir un dégradé
@@ -742,14 +765,14 @@ export default function ProfilePage() {
 
             {/* Custom Banners Selection */}
             {activeBannerTab === 'custom' && (
-              <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+              <div className="bg-card rounded-2xl border border-border p-6">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                   <ImageIcon className="w-5 h-5 text-purple-400" />
                   Bannières personnalisées
                 </h3>
                 
                 {customBanners.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400">
+                  <div className="text-center py-8 text-muted-foreground">
                     <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p>Aucune bannière personnalisée disponible</p>
                     <p className="text-sm mt-2">L&apos;administrateur n&apos;a pas encore uploadé de bannières</p>
@@ -766,7 +789,7 @@ export default function ProfilePage() {
                         className={`relative rounded-xl overflow-hidden border-2 transition-all ${
                           selectedCustomBanner === banner.imageUrl
                             ? 'border-purple-500 ring-2 ring-purple-500/50'
-                            : 'border-[#2a2a3a] hover:border-[#3a3a4a]'
+                            : 'border-border hover:border-muted'
                         }`}
                       >
                         <div className="aspect-video">
@@ -776,7 +799,7 @@ export default function ProfilePage() {
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div className="p-3 bg-[#1e1e2e]">
+                        <div className="p-3 bg-card">
                           <p className="font-semibold text-sm">{banner.name}</p>
                           {banner.isPremium && (
                             <span className="inline-block mt-1 px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded text-xs">
@@ -797,17 +820,17 @@ export default function ProfilePage() {
             )}
 
             {/* Badge Selection */}
-            <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+            <div className="bg-card rounded-2xl border border-border p-6">
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <Medal className="w-5 h-5 text-yellow-400" />
                 Badges affichés
-                <span className="text-sm font-normal text-gray-400">
+                <span className="text-sm font-normal text-muted-foreground">
                   ({selectedBadgeIds.length}/3)
                 </span>
               </h3>
               
               {badges.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
+                <div className="text-center py-8 text-muted-foreground">
                   <Award className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p>Tu n&apos;as pas encore de badges</p>
                   <p className="text-sm mt-2">Complète des accomplissements pour en gagner !</p>
@@ -837,8 +860,8 @@ export default function ProfilePage() {
                           isSelected
                             ? 'border-yellow-400 bg-yellow-400/10'
                             : selectedBadgeIds.length >= 3
-                            ? 'border-[#2a2a3a] bg-[#1e1e2e] opacity-50 cursor-not-allowed'
-                            : 'border-[#2a2a3a] bg-[#1e1e2e] hover:border-purple-500'
+                            ? 'border-border bg-card opacity-50 cursor-not-allowed'
+                            : 'border-border bg-card hover:border-primary/50'
                         }`}
                       >
                         <div
@@ -849,7 +872,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="text-left flex-1">
                           <p className="font-semibold">{userBadge.badge.name}</p>
-                          <p className="text-sm text-gray-400">{userBadge.badge.description}</p>
+                          <p className="text-sm text-muted-foreground">{userBadge.badge.description}</p>
                         </div>
                         {isSelected && (
                           <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
@@ -930,7 +953,7 @@ export default function ProfilePage() {
                     }
                     setHasBannerChanges(false);
                   }}
-                  className="px-4 py-3 bg-[#1e1e2e] hover:bg-[#2a2a3a] border border-[#2a2a3a] rounded-xl font-semibold transition-all"
+                  className="px-4 py-3 bg-card hover:bg-muted border border-border rounded-xl font-semibold transition-all"
                 >
                   Annuler
                 </button>
@@ -947,25 +970,25 @@ export default function ProfilePage() {
             className="space-y-6"
           >
             {/* Appearance Settings */}
-            <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+            <div className="bg-card rounded-2xl border border-border p-6">
               <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <Palette className="w-5 h-5 text-purple-400" />
                 Apparence
               </h3>
               <div className="space-y-4">
                 {/* Dark Mode Toggle */}
-                <div className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
                   <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-gray-400" />
+                    <Shield className="w-5 h-5 text-muted-foreground" />
                     <div>
                       <span>Mode sombre</span>
-                      <p className="text-xs text-gray-500">Activer le thème sombre</p>
+                      <p className="text-xs text-muted-foreground">Activer le thème sombre</p>
                     </div>
                   </div>
                   <button 
                     onClick={toggleTheme}
                     className={`w-12 h-6 rounded-full transition-all ${
-                      theme === 'dark' ? 'bg-indigo-500' : 'bg-[#2a2a3a]'
+                      theme === 'dark' ? 'bg-primary' : 'bg-muted'
                     }`}
                   >
                     <div className={`w-5 h-5 bg-white rounded-full transition-all ${
@@ -975,18 +998,18 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Animations Toggle */}
-                <div className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
                   <div className="flex items-center gap-3">
-                    <Zap className="w-5 h-5 text-gray-400" />
+                    <Zap className="w-5 h-5 text-muted-foreground" />
                     <div>
                       <span>Animations</span>
-                      <p className="text-xs text-gray-500">Activer les animations</p>
+                      <p className="text-xs text-muted-foreground">Activer les animations</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setUserPrefs(prev => ({ ...prev, animations: !prev.animations }))}
                     className={`w-12 h-6 rounded-full transition-all ${
-                      userPrefs.animations ? 'bg-indigo-500' : 'bg-[#2a2a3a]'
+                      userPrefs.animations ? 'bg-primary' : 'bg-muted'
                     }`}
                   >
                     <div className={`w-5 h-5 bg-white rounded-full transition-all ${
@@ -998,25 +1021,25 @@ export default function ProfilePage() {
             </div>
 
             {/* Sound Settings */}
-            <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+            <div className="bg-card rounded-2xl border border-border p-6">
               <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <Bell className="w-5 h-5 text-yellow-400" />
                 Audio
               </h3>
               <div className="space-y-4">
                 {/* Sound Effects Toggle */}
-                <div className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
                   <div className="flex items-center gap-3">
-                    <Trophy className="w-5 h-5 text-gray-400" />
+                    <Trophy className="w-5 h-5 text-muted-foreground" />
                     <div>
                       <span>Effets sonores</span>
-                      <p className="text-xs text-gray-500">Sons lors des réponses</p>
+                      <p className="text-xs text-muted-foreground">Sons lors des réponses</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setUserPrefs(prev => ({ ...prev, soundEffects: !prev.soundEffects }))}
                     className={`w-12 h-6 rounded-full transition-all ${
-                      userPrefs.soundEffects ? 'bg-indigo-500' : 'bg-[#2a2a3a]'
+                      userPrefs.soundEffects ? 'bg-primary' : 'bg-muted'
                     }`}
                   >
                     <div className={`w-5 h-5 bg-white rounded-full transition-all ${
@@ -1028,25 +1051,25 @@ export default function ProfilePage() {
             </div>
 
             {/* Test Settings */}
-            <div className="bg-[#12121a] rounded-2xl border border-[#2a2a3a] p-6">
+            <div className="bg-card rounded-2xl border border-border p-6">
               <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <Target className="w-5 h-5 text-green-400" />
                 Test & Entraînement
               </h3>
               <div className="space-y-4">
                 {/* Show Timer Toggle */}
-                <div className="flex items-center justify-between p-3 bg-[#1e1e2e] rounded-lg hover:bg-[#2a2a3a] transition-all">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
                   <div className="flex items-center gap-3">
-                    <Zap className="w-5 h-5 text-gray-400" />
+                    <Zap className="w-5 h-5 text-muted-foreground" />
                     <div>
                       <span>Afficher le timer</span>
-                      <p className="text-xs text-gray-500">Chronomètre visible pendant les tests</p>
+                      <p className="text-xs text-muted-foreground">Chronomètre visible pendant les tests</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setUserPrefs(prev => ({ ...prev, showTimer: !prev.showTimer }))}
                     className={`w-12 h-6 rounded-full transition-all ${
-                      userPrefs.showTimer ? 'bg-indigo-500' : 'bg-[#2a2a3a]'
+                      userPrefs.showTimer ? 'bg-primary' : 'bg-muted'
                     }`}
                   >
                     <div className={`w-5 h-5 bg-white rounded-full transition-all ${
@@ -1062,5 +1085,21 @@ export default function ProfilePage() {
         {/* Admin tab removed - use /admin page instead */}
       </main>
     </div>
+  );
+}
+
+// Main export with Suspense wrapper
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p>Chargement...</p>
+        </div>
+      </div>
+    }>
+      <ProfileContent />
+    </Suspense>
   );
 }

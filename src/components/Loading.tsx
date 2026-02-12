@@ -9,7 +9,7 @@ interface LoadingProps {
 
 export default function Loading({ message = "Chargement..." }: LoadingProps) {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+    <div className="min-h-screen bg-[#0a0a0f] text-foreground flex items-center justify-center">
       <div className="text-center">
         {/* Animated loader */}
         <div className="relative w-24 h-24 mx-auto mb-6">
@@ -42,7 +42,7 @@ export default function Loading({ message = "Chargement..." }: LoadingProps) {
           
           {/* Center icon */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <Calculator className="w-8 h-8 text-white" />
+            <Calculator className="w-8 h-8 text-foreground" />
           </div>
         </div>
 
@@ -51,7 +51,7 @@ export default function Loading({ message = "Chargement..." }: LoadingProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-lg text-gray-400"
+          className="text-lg text-foreground"
         >
           {message}
         </motion.p>

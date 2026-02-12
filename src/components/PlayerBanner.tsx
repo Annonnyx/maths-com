@@ -102,10 +102,10 @@ export function PlayerBanner({ player, isOpponent = false, showBadges = true }: 
 
         {/* Info */}
         <div className={`${isOpponent ? 'text-right' : ''}`}>
-          <h3 className="text-xl font-bold text-white drop-shadow-md">
+          <h3 className="text-xl font-bold text-foreground drop-shadow-md">
             {player.displayName || player.username}
           </h3>
-          <div className={`flex items-center gap-2 text-sm text-white/90 ${isOpponent ? 'justify-end' : ''}`}>
+          <div className={`flex items-center gap-2 text-sm text-foreground/90 ${isOpponent ? 'justify-end' : ''}`}>
             <span className="font-semibold">{player.elo} Elo</span>
             <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-bold">
               {player.rankClass}

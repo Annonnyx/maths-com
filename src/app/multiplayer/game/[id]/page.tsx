@@ -361,9 +361,9 @@ export default function MultiplayerGamePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Chargement de la partie...</p>
         </div>
       </div>
@@ -372,7 +372,7 @@ export default function MultiplayerGamePage() {
 
   if (error || !game) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-400 text-xl mb-4">{error}</div>
           <button
@@ -389,7 +389,7 @@ export default function MultiplayerGamePage() {
   // Show banners at game start
   if (showBanners && player1Profile && player2Profile) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -421,13 +421,13 @@ export default function MultiplayerGamePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <button
             onClick={() => router.push('/multiplayer')}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>Retour</span>
@@ -443,7 +443,7 @@ export default function MultiplayerGamePage() {
             <div className="text-gray-500 font-bold text-xl">VS</div>
 
             {/* Player 2 */}
-            <div className={`text-center ${!isPlayer1 ? 'text-purple-400' : 'text-gray-400'}`}>
+            <div className={`text-center ${!isPlayer1 ? 'text-purple-400' : 'text-muted-foreground'}`}>
               <div className="flex items-center gap-2 mb-1">
                 <User className="w-4 h-4" />
                 <span className="font-semibold">{game.player2?.username || 'En attente...'}</span>
@@ -454,7 +454,7 @@ export default function MultiplayerGamePage() {
 
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <div className="text-sm text-gray-400">Temps total</div>
+              <div className="text-sm text-muted-foreground">Temps total</div>
               <div className="text-xl font-bold">{formatTime(totalTimeLeft)}</div>
             </div>
             <button
@@ -474,10 +474,10 @@ export default function MultiplayerGamePage() {
         {/* Opponent Progress */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-400">Progression adversaire</span>
+            <span className="text-sm text-muted-foreground">Progression adversaire</span>
             <span className="text-sm font-semibold">{opponentProgress}/{game.questions?.length || 0}</span>
           </div>
-          <div className="w-full bg-[#2a2a3a] rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-border rounded-full h-2 overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-500"
               style={{ width: `${(opponentProgress / (game.questions?.length || 1)) * 100}%` }}
@@ -493,9 +493,9 @@ export default function MultiplayerGamePage() {
             className="bg-gradient-to-br from-[#1e1e2e] to-[#2a2a3a] rounded-2xl border border-[#3a3a4a] p-8 mb-6"
           >
             <div className="flex justify-between items-center mb-6">
-              <span className="text-sm text-gray-400">Question {currentQuestionIndex + 1}/{game.questions?.length}</span>
+              <span className="text-sm text-muted-foreground">Question {currentQuestionIndex + 1}/{game.questions?.length}</span>
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-gray-400" />
+                <Clock className="w-4 h-4 text-muted-foreground" />
                 <span className={`font-bold ${timeLeft <= 10 ? 'text-red-400' : 'text-white'}`}>
                   {timeLeft}s
                 </span>
@@ -518,7 +518,7 @@ export default function MultiplayerGamePage() {
                   onChange={(e) => setUserAnswer(e.target.value)}
                   placeholder="Ta réponse..."
                   disabled={!isGameActive || answeredQuestions.has(currentQuestionIndex)}
-                  className="flex-1 px-4 py-3 bg-[#0a0a0f] border border-[#3a3a4a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                  className="flex-1 px-4 py-3 bg-background border border-[#3a3a4a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary disabled:opacity-50"
                 />
                 <button
                   type="submit"
@@ -536,7 +536,7 @@ export default function MultiplayerGamePage() {
               <button
                 onClick={moveToNextQuestion}
                 disabled={!hasNextUnanswered() || answeredQuestions.has(currentQuestionIndex)}
-                className="px-6 py-3 bg-[#1e1e2e] hover:bg-[#2a2a3a] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-card hover:bg-border disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold transition-all flex items-center gap-2"
               >
                 <ArrowRight className="w-5 h-5" />
                 {answeredQuestions.has(currentQuestionIndex) ? 'Question passée' : 'Passer'}
@@ -558,7 +558,7 @@ export default function MultiplayerGamePage() {
               <p className="text-gray-300 mb-6">
                 Tu as terminé toutes les questions ! Attends que ton adversaire finisse...
               </p>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-muted-foreground">
                 {opponentFinished ? 'Les deux joueurs ont terminé' : 'En attente de l\'adversaire...'}
               </div>
             </div>
@@ -568,7 +568,7 @@ export default function MultiplayerGamePage() {
 
         {/* Answer Status */}
         <div className="mt-6">
-          <div className="text-sm text-gray-400 mb-2">Questions répondues</div>
+          <div className="text-sm text-muted-foreground mb-2">Questions répondues</div>
           <div className="flex gap-2 flex-wrap">
             {game.questions?.map((_, index) => (
               <div
@@ -578,7 +578,7 @@ export default function MultiplayerGamePage() {
                     ? 'bg-green-500 text-white'
                     : index === currentQuestionIndex
                     ? 'bg-purple-500 text-white'
-                    : 'bg-[#2a2a3a] text-gray-500'
+                    : 'bg-border text-gray-500'
                 }`}
               >
                 {index + 1}

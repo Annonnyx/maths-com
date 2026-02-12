@@ -28,6 +28,34 @@
   --rank-s: #eab308;
 }
 
+.light {
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #f8fafc;
+  --card-foreground: #0f172a;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #22d3ee;
+  --accent-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #6366f1;
+  --radius: 0.75rem;
+  
+  /* Rank colors - slightly adjusted for light theme */
+  --rank-f: #6b7280;
+  --rank-e: #16a34a;
+  --rank-d: #0d9488;
+  --rank-c: #2563eb;
+  --rank-b: #9333ea;
+  --rank-a: #ea580c;
+  --rank-s: #ca8a04;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

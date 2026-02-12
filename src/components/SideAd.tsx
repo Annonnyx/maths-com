@@ -40,7 +40,7 @@ export function SideAd({ side, className = "" }: SideAdProps) {
     <div className={`${getPositionClasses()} ${className}`}>
       <AdWrapper showAdBlockMessage={false}>
         <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10 hover:bg-white/10 transition-all duration-300">
-          <div className="text-xs text-gray-400 mb-2 text-center">Publicité</div>
+          <div className="text-xs text-foreground mb-2 text-center">Publicité</div>
           <AdSenseBanner 
             adSlot="XXXXXXXXXX" // Slot pour side ads
             adFormat="vertical"
@@ -80,7 +80,7 @@ export function MediumScreenAds() {
     <div className="fixed right-4 top-32 z-30 hidden lg:block xl:hidden">
       <AdWrapper showAdBlockMessage={false}>
         <div className="bg-white/5 backdrop-blur-sm rounded-lg p-2 border border-white/10 hover:bg-white/10 transition-all duration-300">
-          <div className="text-xs text-gray-400 mb-1 text-center">Pub</div>
+          <div className="text-xs text-foreground mb-1 text-center">Pub</div>
           <AdSenseBanner 
             adSlot="XXXXXXXXXX" // Slot medium screen
             adFormat="rectangle"

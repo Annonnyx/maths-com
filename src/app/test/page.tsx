@@ -11,6 +11,7 @@ import {
   Link, BarChart3, ArrowRight
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
+import { useUserPreferences } from '@/hooks/useLocalStorage';
 import { Exercise, generateTest, generateEvaluationTest, generateFocusedTest, getOperationTypesForCourse, validateAnswer } from '@/lib/exercises';
 import { calculateAdvancedEloChange, getPerformanceTier, getRankFromElo, RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
@@ -41,6 +42,7 @@ function TestPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const { playSound } = useSound();
+  const { preferences: userPrefs } = useUserPreferences();
   const courseType = searchParams.get('type');
   
   const [testMode, setTestMode] = useState<TestMode>(null);
@@ -67,6 +69,15 @@ function TestPage() {
   } | null>(null);
   
   const [eloUpdated, setEloUpdated] = useState(false);
+
+  // Apply animations preference
+  useEffect(() => {
+    if (!userPrefs.animations) {
+      document.body.style.setProperty('--motion-duration', '0s');
+    } else {
+      document.body.style.removeProperty('--motion-duration');
+    }
+  }, [userPrefs.animations]);
 
   const generateQuestions = useCallback((mode: TestMode) => {
     let questions: Exercise[];
@@ -365,8 +376,8 @@ function TestPage() {
   // MODE SELECTION SCREEN
   if (!testMode) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white">
-        <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
               <Trophy className="w-6 h-6" />
@@ -382,7 +393,7 @@ function TestPage() {
             className="text-center mb-12"
           >
             <h1 className="text-4xl font-bold mb-4">Choisis ton mode</h1>
-            <p className="text-xl text-gray-400">
+            <p className="text-xl text-muted-foreground">
               Sélectionne le mode qui correspond à ton objectif
             </p>
           </motion.div>
@@ -462,7 +473,7 @@ function TestPage() {
   // LOADING STATE
   if (!testState) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="animate-pulse">Chargement...</div>
       </div>
     );
@@ -470,14 +481,14 @@ function TestPage() {
 
   // TEST SCREEN
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={resetToModeSelection}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowRight className="w-5 h-5 rotate-180" />
               <span className="hidden sm:inline">Quitter</span>
@@ -499,14 +510,14 @@ function TestPage() {
             {courseType && (
               <>
                 <span className="text-gray-500 hidden sm:inline">|</span>
-                <span className="text-sm text-gray-400 hidden sm:inline">
+                <span className="text-sm text-muted-foreground hidden sm:inline">
                   {testTitle.split(' - ')[1]}
                 </span>
               </>
             )}
           </div>
           <div className="flex items-center gap-4">
-            {testMode === 'competitive' && (
+            {testMode === 'competitive' && userPrefs.showTimer && (
               <div className="flex items-center gap-2 text-red-400">
                 <Timer className="w-5 h-5" />
                 <span className="font-mono text-lg">
@@ -514,7 +525,7 @@ function TestPage() {
                 </span>
               </div>
             )}
-            <div className="px-3 py-1 bg-[#1e1e2e] rounded-lg text-sm">
+            <div className="px-3 py-1 bg-card rounded-lg text-sm">
               {testState.currentIndex + 1} / {testState.questions.length}
             </div>
           </div>
@@ -522,7 +533,7 @@ function TestPage() {
       </header>
 
       {/* Progress Bar */}
-      <div className="w-full bg-[#1e1e2e] h-1">
+      <div className="w-full bg-card h-1">
         <motion.div
           className={`h-full ${testMode === 'competitive' 
             ? 'bg-gradient-to-r from-red-500 to-orange-500' 
@@ -592,7 +603,7 @@ function TestPage() {
                       </span>
                     </p>
                     {testState.questions[testState.currentIndex].explanation && (
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         {testState.questions[testState.currentIndex].explanation}
                       </p>
                     )}
@@ -616,10 +627,10 @@ function TestPage() {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Ta réponse..."
-                      className={`w-full max-w-xs px-6 py-4 bg-[#1e1e2e] border-2 rounded-xl text-center text-2xl font-mono focus:outline-none transition-all ${
+                      className={`w-full max-w-xs px-6 py-4 bg-card border-2 rounded-xl text-center text-2xl font-mono focus:outline-none transition-all ${
                         testMode === 'competitive'
-                          ? 'border-[#2a2a3a] focus:border-red-500'
-                          : 'border-[#2a2a3a] focus:border-blue-500'
+                          ? 'border-border focus:border-red-500'
+                          : 'border-border focus:border-blue-500'
                       }`}
                       autoFocus
                     />
@@ -658,7 +669,7 @@ function TestPage() {
                             ? isCorrect
                               ? 'w-2 bg-green-500'
                               : 'w-2 bg-red-500'
-                            : 'w-2 bg-[#2a2a3a]'
+                            : 'w-2 bg-border'
                       }`}
                     />
                   );
@@ -715,7 +726,7 @@ function TestPage() {
                         ? '💪 Continue ainsi !'
                         : '📚 Tu peux mieux faire'}
                     </h2>
-                    <p className="text-gray-400 mb-4">
+                    <p className="text-muted-foreground mb-4">
                       {detailedResults.correct} / {detailedResults.total} bonnes réponses
                     </p>
                     
@@ -727,10 +738,10 @@ function TestPage() {
                         transition={{ delay: 0.2 }}
                         className="inline-flex flex-col items-center gap-2"
                       >
-                        <div className={`px-6 py-3 rounded-xl font-bold text-2xl ${detailedResults.tier.color} bg-[#1e1e2e] border border-[#2a2a3a]`}>
+                        <div className={`px-6 py-3 rounded-xl font-bold text-2xl ${detailedResults.tier.color} bg-card border border-border`}>
                           Rang {detailedResults.tier.tier}
                         </div>
-                        <span className="text-gray-400">{detailedResults.tier.message}</span>
+                        <span className="text-muted-foreground">{detailedResults.tier.message}</span>
                       </motion.div>
                     )}
                   </div>
@@ -741,7 +752,7 @@ function TestPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
-                      className="mb-8 p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
+                      className="mb-8 p-6 bg-[#12121a] rounded-2xl border border-border"
                     >
                       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <BarChart3 className="w-5 h-5 text-indigo-400" />
@@ -749,30 +760,30 @@ function TestPage() {
                       </h3>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between p-3 bg-[#1a1a2e] rounded-xl">
-                          <span className="text-gray-400">Score de base ({detailedResults.correct}/{detailedResults.total})</span>
+                          <span className="text-muted-foreground">Score de base ({detailedResults.correct}/{detailedResults.total})</span>
                           <span className={`font-semibold ${detailedResults.performance.baseChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {detailedResults.performance.baseChange >= 0 ? '+' : ''}{detailedResults.performance.baseChange}
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-[#1a1a2e] rounded-xl">
-                          <span className="text-gray-400">Bonus de vitesse</span>
+                          <span className="text-muted-foreground">Bonus de vitesse</span>
                           <span className={`font-semibold ${detailedResults.performance.speedBonus >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {detailedResults.performance.speedBonus >= 0 ? '+' : ''}{detailedResults.performance.speedBonus}
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-[#1a1a2e] rounded-xl">
-                          <span className="text-gray-400">Bonus difficulté</span>
+                          <span className="text-muted-foreground">Bonus difficulté</span>
                           <span className="font-semibold text-green-400">+{detailedResults.performance.difficultyBonus}</span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-[#1a1a2e] rounded-xl">
-                          <span className="text-gray-400">Bonus précision (questions difficiles)</span>
+                          <span className="text-muted-foreground">Bonus précision (questions difficiles)</span>
                           <span className="font-semibold text-green-400">+{detailedResults.performance.accuracyBonus}</span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-[#1a1a2e] rounded-xl">
-                          <span className="text-gray-400">Bonus série</span>
+                          <span className="text-muted-foreground">Bonus série</span>
                           <span className="font-semibold text-green-400">+{detailedResults.performance.streakBonus}</span>
                         </div>
-                        <div className="border-t border-[#2a2a3a] pt-3">
+                        <div className="border-t border-border pt-3">
                           <div className="flex items-center justify-between p-3 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl">
                             <span className="font-semibold">Total Elo</span>
                             <span className={`font-bold text-xl ${detailedResults.eloChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -809,7 +820,7 @@ function TestPage() {
                             <div>
                               <p className="font-mono text-lg">{result.question.question}</p>
                               {!result.isCorrect && (
-                                <p className="text-sm text-gray-400 mt-1">
+                                <p className="text-sm text-muted-foreground mt-1">
                                   Ta réponse: <span className="text-red-400">{result.userAnswer || '-'}</span>
                                   {' → '}
                                   Réponse: <span className="text-green-400">{result.question.answer}</span>
@@ -824,7 +835,7 @@ function TestPage() {
                           </div>
                           <div className="text-right">
                             <span className="text-sm text-gray-500">{result.timeTaken}s</span>
-                            <span className="ml-2 px-2 py-0.5 bg-[#1a1a2e] rounded text-xs text-gray-400">
+                            <span className="ml-2 px-2 py-0.5 bg-[#1a1a2e] rounded text-xs text-muted-foreground">
                               Niv.{result.question.difficulty}
                             </span>
                           </div>
@@ -848,7 +859,7 @@ function TestPage() {
                     </button>
                     <button
                       onClick={() => startTest(testMode === 'competitive' ? 'training' : 'competitive')}
-                      className="flex items-center justify-center gap-2 px-8 py-4 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-xl font-semibold transition-all border border-[#2a2a3a]"
+                      className="flex items-center justify-center gap-2 px-8 py-4 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border"
                     >
                       {testMode === 'competitive' ? (
                         <>
@@ -864,21 +875,21 @@ function TestPage() {
                     </button>
                     <Link
                       href="/history"
-                      className="flex items-center justify-center gap-2 px-8 py-4 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-xl font-semibold transition-all border border-[#2a2a3a]"
+                      className="flex items-center justify-center gap-2 px-8 py-4 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border"
                     >
                       <BarChart3 className="w-5 h-5 text-purple-400" />
                       Voir l'historique
                     </Link>
                     <button
                       onClick={() => window.location.reload()}
-                      className="flex items-center justify-center gap-2 px-8 py-4 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-xl font-semibold transition-all border border-[#2a2a3a]"
+                      className="flex items-center justify-center gap-2 px-8 py-4 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border"
                     >
                       <RotateCcw className="w-5 h-5 text-purple-400" />
                       Rafraîchir l'Elo
                     </button>
                     <Link
                       href="/"
-                      className="flex items-center justify-center gap-2 px-8 py-4 bg-[#1e1e2e] hover:bg-[#2a2a3a] rounded-xl font-semibold transition-all border border-[#2a2a3a]"
+                      className="flex items-center justify-center gap-2 px-8 py-4 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border"
                     >
                       Retour à l'accueil
                     </Link>
@@ -899,7 +910,7 @@ function TestPage() {
 function TestPageWrapper() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="animate-pulse">Chargement...</div>
       </div>
     }>
