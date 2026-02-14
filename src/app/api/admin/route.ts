@@ -5,16 +5,23 @@ import { prisma } from '@/lib/prisma';
 
 import { Session } from 'next-auth';
 
-// Vérifier si l'utilisateur est Ønyx (admin spécial)
-async function isOnyxAdmin(session: Session | null): Promise<boolean> {
-  console.log('Checking admin auth, session:', session?.user?.email);
-  if (!session?.user?.email) {
-    console.log('No session or email');
-    return false;
+async function isAdmin(session: Session | null): Promise<boolean> {
+  const email = session?.user?.email;
+  if (!email) return false;
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { isAdmin: true, email: true }
+  });
+
+  if (user?.isAdmin) return true;
+
+  const allowlistedEmail = process.env.ADMIN_EMAIL;
+  if (allowlistedEmail && user?.email && user.email.toLowerCase() === allowlistedEmail.toLowerCase()) {
+    return true;
   }
-  const isAdmin = session.user.email === 'noe.barneron@gmail.com';
-  console.log('Is admin:', isAdmin);
-  return isAdmin;
+
+  return false;
 }
 
 // GET - Récupérer les infos admin
@@ -22,7 +29,7 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!(await isOnyxAdmin(session))) {
+    if (!(await isAdmin(session))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -82,7 +89,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!(await isOnyxAdmin(session))) {
+    if (!(await isAdmin(session))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

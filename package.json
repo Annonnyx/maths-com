@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
+    "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "migrate:data": "SQLITE_DATABASE_URL=\"file:./prisma/prisma/dev.db\" tsx prisma/migrate-sqlite-to-postgres.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

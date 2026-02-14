@@ -1,0 +1,458 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
+    "id"                    TEXT PRIMARY KEY NOT NULL,
+    "checksum"              TEXT NOT NULL,
+    "finished_at"           DATETIME,
+    "migration_name"        TEXT NOT NULL,
+    "logs"                  TEXT,
+    "rolled_back_at"        DATETIME,
+    "started_at"            DATETIME NOT NULL DEFAULT current_timestamp,
+    "applied_steps_count"   INTEGER UNSIGNED NOT NULL DEFAULT 0
+);
+INSERT INTO _prisma_migrations VALUES('65215642-de58-4287-8711-65f36dd1e1b6','b84255f071496fe508d0a20dda87468655453bd315f88d6bb2d9aa754130ebef',1770836699257,'20260209191050_init',NULL,NULL,1770836699236,1);
+INSERT INTO _prisma_migrations VALUES('576238b7-709a-4be5-ba23-93c289de74e6','24b29f8814fd5fc1d64ea55a98746d2d82f93fb4a1d49529da6a5f46952afaa8',1770836699302,'20260209211517_add_multiplayer_features',NULL,NULL,1770836699258,1);
+INSERT INTO _prisma_migrations VALUES('1a57c9ea-892b-47b8-a7f1-f00bf94e9173','03059442a810da47b66e5876b2e5be86acdb66dced27ab5bf0fe63a43c966d3b',1770836699370,'20260211190459_add_badges_and_banner',NULL,NULL,1770836699352,1);
+INSERT INTO _prisma_migrations VALUES('b0c171a0-7c10-4023-b7c3-6e8fb0a5c27c','90ffafcd828bc89c6f5035d57d588c30acfff5f96a8cebf94acc1211fa0319f0',1770920917465,'20260212182837_add_badge_expiration',NULL,NULL,1770920917454,1);
+INSERT INTO _prisma_migrations VALUES('8e36e41c-63bb-4bf4-a28d-84c48b225644','42d78e80628dbc92de723ff52e9e4d7ac9666a9fe3093aa70d2112dbd775b927',1770922760829,'20260212185920_add_custom_banners',NULL,NULL,1770922760793,1);
+CREATE TABLE IF NOT EXISTS "tests" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "startedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "completedAt" DATETIME,
+    "totalQuestions" INTEGER NOT NULL DEFAULT 20,
+    "correctAnswers" INTEGER NOT NULL DEFAULT 0,
+    "score" INTEGER NOT NULL,
+    "timeTaken" INTEGER NOT NULL,
+    "eloBefore" INTEGER NOT NULL,
+    "eloAfter" INTEGER NOT NULL,
+    "eloChange" INTEGER NOT NULL,
+    "isPerfect" BOOLEAN NOT NULL DEFAULT false,
+    "isStreakTest" BOOLEAN NOT NULL DEFAULT false,
+    CONSTRAINT "tests_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO tests VALUES('cmljw2ts60003pigsbkwxa0rj','cmlif25yg0000q6wf9x9vpojp',1770926776134,1770926776131,20,1,5,0,1000,900,-100,0,0);
+CREATE TABLE IF NOT EXISTS "questions" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "testId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "difficulty" INTEGER NOT NULL,
+    "question" TEXT NOT NULL,
+    "answer" TEXT NOT NULL,
+    "userAnswer" TEXT,
+    "isCorrect" BOOLEAN,
+    "timeTaken" INTEGER,
+    "explanation" TEXT,
+    "order" INTEGER NOT NULL,
+    CONSTRAINT "questions_testId_fkey" FOREIGN KEY ("testId") REFERENCES "tests" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO questions VALUES('cmljw2ts60004pigsjwvcpx3i','cmljw2ts60003pigsbkwxa0rj','power',4,'4^2 = ?','16','16',1,3,NULL,0);
+INSERT INTO questions VALUES('cmljw2ts60005pigsrw6lsp0g','cmljw2ts60003pigsbkwxa0rj','mental_math',4,'81² = ?','6561','83',0,6,NULL,1);
+INSERT INTO questions VALUES('cmljw2ts60006pigslst4v9qz','cmljw2ts60003pigsbkwxa0rj','division',4,'208 ÷ 8 = ?','26','3',0,7,NULL,2);
+INSERT INTO questions VALUES('cmljw2ts60007pigsmiyyagw7','cmljw2ts60003pigsbkwxa0rj','multiplication',4,'14 × 10 = ?','140','4',0,8,NULL,3);
+INSERT INTO questions VALUES('cmljw2ts60008pigs2ylffv5c','cmljw2ts60003pigsbkwxa0rj','fraction',4,'9/10 + 8/10 = ? (donne le numérateur)','17','4',0,8,NULL,4);
+INSERT INTO questions VALUES('cmljw2ts70009pigstlc3hvva','cmljw2ts60003pigsbkwxa0rj','addition',5,'185 + 65 = ?','250','4',0,8,NULL,5);
+INSERT INTO questions VALUES('cmljw2ts7000apigs19yzmj1a','cmljw2ts60003pigsbkwxa0rj','root',5,'√441 = ?','21','4',0,8,NULL,6);
+INSERT INTO questions VALUES('cmljw2ts7000bpigs26ksq4vo','cmljw2ts60003pigsbkwxa0rj','subtraction',5,'322 - 58 = ?','264','4',0,8,NULL,7);
+INSERT INTO questions VALUES('cmljw2ts7000cpigsfwc8na9r','cmljw2ts60003pigsbkwxa0rj','mental_math',5,'234 × 5 = ?','1170','4',0,8,NULL,8);
+INSERT INTO questions VALUES('cmljw2ts7000dpigsxasv2kud','cmljw2ts60003pigsbkwxa0rj','equation',6,'Résous: 2x + 2 = 20','9','4',0,9,NULL,9);
+INSERT INTO questions VALUES('cmljw2ts7000epigsljlxau5l','cmljw2ts60003pigsbkwxa0rj','root',6,'√1296 = ?','36','4',0,9,NULL,10);
+INSERT INTO questions VALUES('cmljw2ts7000fpigsqrsfrsw4','cmljw2ts60003pigsbkwxa0rj','root',6,'√1681 = ?','41','4',0,9,NULL,11);
+INSERT INTO questions VALUES('cmljw2ts7000gpigsg4becdbh','cmljw2ts60003pigsbkwxa0rj','addition',6,'247 + 431 = ?','678','4',0,9,NULL,12);
+INSERT INTO questions VALUES('cmljw2ts7000hpigsb7otfkcr','cmljw2ts60003pigsbkwxa0rj','fraction',6,'Simplifie 31/14 au maximum (format: a/b)','31/14','4',0,9,NULL,13);
+INSERT INTO questions VALUES('cmljw2ts7000ipigsgwnxw09b','cmljw2ts60003pigsbkwxa0rj','power',7,'7^3 = ?','343','4',0,9,NULL,14);
+INSERT INTO questions VALUES('cmljw2ts7000jpigsb8lzphfy','cmljw2ts60003pigsbkwxa0rj','fraction',7,'Simplifie 2/18 au maximum (format: a/b)','1/9','4',0,10,NULL,15);
+INSERT INTO questions VALUES('cmljw2ts7000kpigsefj26948','cmljw2ts60003pigsbkwxa0rj','power',7,'8^5 = ?','32768','4',0,10,NULL,16);
+INSERT INTO questions VALUES('cmljw2ts7000lpigsy8tfnv6a','cmljw2ts60003pigsbkwxa0rj','subtraction',7,'1115 - 326 = ?','789','4',0,10,NULL,17);
+INSERT INTO questions VALUES('cmljw2ts7000mpigsyehyeuk3','cmljw2ts60003pigsbkwxa0rj','logic',7,'Motif: 3, 6, 9, 12, ?','15','4',0,10,NULL,18);
+INSERT INTO questions VALUES('cmljw2ts7000npigsvo031qms','cmljw2ts60003pigsbkwxa0rj','logic',7,'Suite: 2, 5, 8, 11, ?','14','',0,0,NULL,19);
+CREATE TABLE IF NOT EXISTS "statistics" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "totalTests" INTEGER NOT NULL DEFAULT 0,
+    "totalQuestions" INTEGER NOT NULL DEFAULT 0,
+    "totalCorrect" INTEGER NOT NULL DEFAULT 0,
+    "totalTime" INTEGER NOT NULL DEFAULT 0,
+    "averageScore" REAL NOT NULL DEFAULT 0,
+    "averageTime" REAL NOT NULL DEFAULT 0,
+    "additionTests" INTEGER NOT NULL DEFAULT 0,
+    "additionCorrect" INTEGER NOT NULL DEFAULT 0,
+    "additionTotal" INTEGER NOT NULL DEFAULT 0,
+    "subtractionTests" INTEGER NOT NULL DEFAULT 0,
+    "subtractionCorrect" INTEGER NOT NULL DEFAULT 0,
+    "subtractionTotal" INTEGER NOT NULL DEFAULT 0,
+    "multiplicationTests" INTEGER NOT NULL DEFAULT 0,
+    "multiplicationCorrect" INTEGER NOT NULL DEFAULT 0,
+    "multiplicationTotal" INTEGER NOT NULL DEFAULT 0,
+    "divisionTests" INTEGER NOT NULL DEFAULT 0,
+    "divisionCorrect" INTEGER NOT NULL DEFAULT 0,
+    "divisionTotal" INTEGER NOT NULL DEFAULT 0,
+    "powerTests" INTEGER NOT NULL DEFAULT 0,
+    "powerCorrect" INTEGER NOT NULL DEFAULT 0,
+    "powerTotal" INTEGER NOT NULL DEFAULT 0,
+    "rootTests" INTEGER NOT NULL DEFAULT 0,
+    "rootCorrect" INTEGER NOT NULL DEFAULT 0,
+    "rootTotal" INTEGER NOT NULL DEFAULT 0,
+    "factorizationTests" INTEGER NOT NULL DEFAULT 0,
+    "factorizationCorrect" INTEGER NOT NULL DEFAULT 0,
+    "factorizationTotal" INTEGER NOT NULL DEFAULT 0,
+    "weakPoints" TEXT,
+    "eloHistory" TEXT,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "statistics_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO statistics VALUES('cmljw2tso000rpigstyz3nrth','cmlif25yg0000q6wf9x9vpojp',1,20,1,0,5.0,0.0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,NULL,1770926776814);
+CREATE TABLE IF NOT EXISTS "exercise_attempts" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "difficulty" INTEGER NOT NULL,
+    "question" TEXT NOT NULL,
+    "answer" TEXT NOT NULL,
+    "userAnswer" TEXT NOT NULL,
+    "isCorrect" BOOLEAN NOT NULL,
+    "timeTaken" INTEGER NOT NULL,
+    "feedbackShown" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "exercise_attempts_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "courses" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "difficulty" INTEGER NOT NULL,
+    "order" INTEGER NOT NULL,
+    "isPublished" BOOLEAN NOT NULL DEFAULT true,
+    "relatedTypes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+INSERT INTO courses VALUES('cmlieg7y600002fwdawd7623q','Addition rapide','addition-rapide','Maîtrise les techniques d''addition mentale pour calculer plus vite',replace('\n# Addition rapide\n\n## Introduction\nL''addition mentale est la base du calcul mental. Maîtriser ces techniques te permettra de gagner un temps précieux.\n\n## Techniques fondamentales\n\n### 1. Compléments à 10\nApprends à reconnaître les paires qui font 10 :\n- 1 + 9 = 10\n- 2 + 8 = 10\n- 3 + 7 = 10\n- 4 + 6 = 10\n- 5 + 5 = 10\n\n### 2. Méthode de décomposition\nDécompose les nombres pour simplifier le calcul :\n- 47 + 25 = 47 + 20 + 5 = 67 + 5 = 72\n- 38 + 46 = 38 + 40 + 6 = 78 + 6 = 84\n\n### 3. Addition de gauche à droite\nCommence par les chiffres de poids fort :\n- 45 + 32 : 40 + 30 = 70, puis 5 + 2 = 7, total = 77\n\n## Exercices pratiques\n- 23 + 45 = ?\n- 67 + 28 = ?\n- 156 + 89 = ?\n    ','\n',char(10)),1,1,1,'["addition"]',1770836701758,1770836701758);
+INSERT INTO courses VALUES('cmlieg80600012fwdyzjslkbj','Soustraction efficace','soustraction-efficace','Apprends à soustraire rapidement sans calculatrice',replace('\n# Soustraction efficace\n\n## Introduction\nLa soustraction peut être transformée en addition pour plus de rapidité.\n\n## Techniques fondamentales\n\n### 1. Méthode du complément\nTransforme la soustraction en recherche de complément :\n- 100 - 37 = ? → Quel nombre ajouté à 37 donne 100 ?\n- 63 - 29 = ? → 29 + ? = 63\n\n### 2. Soustraction par étapes\nDécompose la soustraction :\n- 85 - 37 = 85 - 30 - 7 = 55 - 7 = 48\n\n### 3. Arrondis astucieux\nArrondis puis ajuste :\n- 73 - 49 = 73 - 50 + 1 = 24\n- 156 - 98 = 156 - 100 + 2 = 58\n\n## Exercices pratiques\n- 95 - 47 = ?\n- 143 - 89 = ?\n- 200 - 76 = ?\n    ','\n',char(10)),2,2,1,'["subtraction"]',1770836701831,1770836701831);
+INSERT INTO courses VALUES('cmlieg80y00022fwdhfbkpkee','Tables de multiplication','tables-multiplication','Mémorise et maîtrise les tables de multiplication',replace('\n# Tables de multiplication\n\n## Introduction\nLes tables de multiplication sont essentielles pour tous les calculs avancés.\n\n## Tables de base (2-9)\nMaîtrise parfaitement les tables de 2 à 9 avant de passer aux suivantes.\n\n## Tables avancées\n\n### Table de 11\nPour les nombres à 2 chiffres : sépare et additionne\n- 11 × 34 : 3 _ (3+4) _ 4 = 374\n- 11 × 52 : 5 _ (5+2) _ 2 = 572\n\n### Table de 12\n- 12 × n = 10 × n + 2 × n\n- 12 × 7 = 70 + 14 = 84\n\n### Carrés parfaits (1-20)\n1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400\n\n## Astuces\n- Multiplication par 5 : diviser par 2 puis multiplier par 10\n- Multiplication par 9 : multiplier par 10 puis soustraire le nombre\n\n## Exercices pratiques\n- 8 × 7 = ?\n- 12 × 9 = ?\n- 15 × 15 = ?\n    ','\n',char(10)),3,3,1,'["multiplication"]',1770836701858,1770836701858);
+INSERT INTO courses VALUES('cmlieg81g00032fwdc1ujwrv9','Division mentale','division-mentale','Techniques pour diviser rapidement sans papier',replace('\n# Division mentale\n\n## Introduction\nLa division mentale repose sur la connaissance des tables et des astuces de simplification.\n\n## Techniques fondamentales\n\n### 1. Division par un chiffre\nUtilise la table de multiplication à l''envers :\n- 56 ÷ 8 = 7 car 7 × 8 = 56\n- 72 ÷ 9 = 8 car 8 × 9 = 72\n\n### 2. Division par 5\nMultiplie par 2 puis divise par 10 :\n- 85 ÷ 5 = 85 × 2 ÷ 10 = 170 ÷ 10 = 17\n\n### 3. Division par 25\nMultiplie par 4 puis divise par 100 :\n- 125 ÷ 25 = 125 × 4 ÷ 100 = 500 ÷ 100 = 5\n\n### 4. Estimation\nArrondis pour vérifier ton calcul :\n- 147 ÷ 7 ≈ 140 ÷ 7 = 20, donc réponse proche de 20 (21 exact)\n\n## Exercices pratiques\n- 96 ÷ 8 = ?\n- 135 ÷ 5 = ?\n- 208 ÷ 4 = ?\n    ','\n',char(10)),4,4,1,'["division"]',1770836701876,1770836701876);
+CREATE TABLE IF NOT EXISTS "friendships" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "user1Id" TEXT NOT NULL,
+    "user2Id" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "friendships_user1Id_fkey" FOREIGN KEY ("user1Id") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "friendships_user2Id_fkey" FOREIGN KEY ("user2Id") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO friendships VALUES('cmlifs45a0001mwcohkiy43gv','cmlif264i0001q6wfj36hyxmf','cmlif25yg0000q6wf9x9vpojp','accepted',1770838936316,1770843797865);
+INSERT INTO friendships VALUES('cmlifsab10005mwcoylne5tss','cmlif264i0001q6wfj36hyxmf','cmlif26b30002q6wf0eiumilg','pending',1770838944301,1770838944301);
+INSERT INTO friendships VALUES('cmljzp2do00012gbd61k0tf32','cmlif25yg0000q6wf9x9vpojp','cmlijmi9h00009ze6h7hh4fcq','pending',1770932852557,1770932852557);
+CREATE TABLE IF NOT EXISTS "messages" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "senderId" TEXT NOT NULL,
+    "receiverId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "read" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, "metadata" TEXT,
+    CONSTRAINT "messages_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "messages_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO messages VALUES('cmlifs45j0003mwcomim4rhvi','cmlif264i0001q6wfj36hyxmf','cmlif25yg0000q6wf9x9vpojp','t''envoie une demande d''ami','friend_request',1,1770838936328,NULL);
+INSERT INTO messages VALUES('cmlifsab40007mwco8ntykjt7','cmlif264i0001q6wfj36hyxmf','cmlif26b30002q6wf0eiumilg','t''envoie une demande d''ami','friend_request',0,1770838944304,NULL);
+INSERT INTO messages VALUES('cmliioims00011bf4j2wn6cnf','cmlif25yg0000q6wf9x9vpojp','cmlif264i0001q6wfj36hyxmf','slt','chat',1,1770843807313,NULL);
+INSERT INTO messages VALUES('cmliiomm100051bf4fh6671yz','cmlif25yg0000q6wf9x9vpojp','cmlif264i0001q6wfj36hyxmf','te défi en classé (blitz)','challenge',1,1770843812473,'{"challengeId":"cmliiomlx00031bf44xnc05gs","gameType":"ranked","timeControl":"blitz"}');
+INSERT INTO messages VALUES('cmljpe64r000586jon6bqms49','cmlif25yg0000q6wf9x9vpojp','cmlijmi9h00009ze6h7hh4fcq','t''envoie une demande d''ami','friend_request',0,1770915548043,NULL);
+INSERT INTO messages VALUES('cmljzp2e300032gbdt4xo4ja1','cmlif25yg0000q6wf9x9vpojp','cmlijmi9h00009ze6h7hh4fcq','t''envoie une demande d''ami','friend_request',0,1770932852571,NULL);
+CREATE TABLE IF NOT EXISTS "multiplayer_games" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "player1Id" TEXT NOT NULL,
+    "player2Id" TEXT,
+    "status" TEXT NOT NULL,
+    "gameType" TEXT NOT NULL,
+    "timeControl" TEXT NOT NULL,
+    "timeLimit" INTEGER NOT NULL,
+    "player1Elo" INTEGER NOT NULL,
+    "player2Elo" INTEGER,
+    "player1Score" INTEGER NOT NULL DEFAULT 0,
+    "player2Score" INTEGER NOT NULL DEFAULT 0,
+    "winner" TEXT,
+    "startedAt" DATETIME,
+    "finishedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "questionCount" INTEGER NOT NULL DEFAULT 20,
+    "difficulty" TEXT NOT NULL DEFAULT 'mixed',
+    CONSTRAINT "multiplayer_games_player1Id_fkey" FOREIGN KEY ("player1Id") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "multiplayer_games_player2Id_fkey" FOREIGN KEY ("player2Id") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO multiplayer_games VALUES('cmlijcwhs000312jhmzpv1s2o','cmlif25yg0000q6wf9x9vpojp',NULL,'aborted','ranked','blitz',180,1000,NULL,0,0,NULL,NULL,1770845179039,1770844945024,20,'mixed');
+INSERT INTO multiplayer_games VALUES('cmlijhzzy000512jhup8hscl8','cmlif25yg0000q6wf9x9vpojp',NULL,'aborted','ranked','blitz',180,1000,NULL,0,0,NULL,NULL,1770845188592,1770845182846,20,'mixed');
+INSERT INTO multiplayer_games VALUES('cmlijmpsy00029ze6s8u7kwzu','cmlijmi9h00009ze6h7hh4fcq','cmlif25yg0000q6wf9x9vpojp','finished','ranked','blitz',180,400,1000,0,0,NULL,1770845414871,1770845546332,1770845402914,20,'mixed');
+INSERT INTO multiplayer_games VALUES('cmlijpu5g000w9ze6imx7bpzo','cmlif25yg0000q6wf9x9vpojp','cmlijmi9h00009ze6h7hh4fcq','finished','ranked','blitz',180,985,415,0,17,'cmlijmi9h00009ze6h7hh4fcq',1770845549127,1770845702462,1770845548516,20,'mixed');
+INSERT INTO multiplayer_games VALUES('cmlijtzxk001m9ze6mtnx0nam','cmlijmi9h00009ze6h7hh4fcq','cmlif25yg0000q6wf9x9vpojp','finished','ranked','blitz',180,446,954,13,6,'cmlijmi9h00009ze6h7hh4fcq',1770845747659,1770845884940,1770845742632,20,'mixed');
+INSERT INTO multiplayer_games VALUES('cmljp4124000186jofpb8jd84','cmlif264i0001q6wfj36hyxmf',NULL,'waiting','ranked','blitz',180,400,NULL,0,0,NULL,NULL,NULL,1770915074904,20,'mixed');
+CREATE TABLE IF NOT EXISTS "multiplayer_questions" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "gameId" TEXT NOT NULL,
+    "question" TEXT NOT NULL,
+    "answer" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "difficulty" INTEGER NOT NULL,
+    "order" INTEGER NOT NULL,
+    "player1Answer" TEXT,
+    "player2Answer" TEXT,
+    "player1Time" INTEGER,
+    "player2Time" INTEGER,
+    "player1Correct" BOOLEAN,
+    "player2Correct" BOOLEAN,
+    CONSTRAINT "multiplayer_questions_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "multiplayer_games" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO multiplayer_questions VALUES('cmlijmz1700039ze6g1olmxcp','cmlijmpsy00029ze6s8u7kwzu','21 - 12 = ?','9','subtraction',2,0,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz1700049ze6jncmbgzn','cmlijmpsy00029ze6s8u7kwzu','12 + 10 = ?','22','addition',2,1,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz1700059ze693ibqhcu','cmlijmpsy00029ze6s8u7kwzu','Convertis 2/5 en décimal','0.40','fraction',2,2,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz1700069ze6ul268obc','cmlijmpsy00029ze6s8u7kwzu','18 + 8 = ?','26','addition',2,3,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz1700079ze64qixovei','cmlijmpsy00029ze6s8u7kwzu','28 - 17 = ?','11','subtraction',2,4,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz1700089ze65a2l5kqk','cmlijmpsy00029ze6s8u7kwzu','19 - 6 = ?','13','subtraction',2,5,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz1700099ze6fb5dsfo6','cmlijmpsy00029ze6s8u7kwzu','7 × 2 = ?','14','multiplication',2,6,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000a9ze6brq7va0m','cmlijmpsy00029ze6s8u7kwzu','74² = ?','5476','mental_math',3,7,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000b9ze66etdfvdw','cmlijmpsy00029ze6s8u7kwzu','Réduction de 10% sur 92 = ?','9','percentage',3,8,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000c9ze6rkpvrw44','cmlijmpsy00029ze6s8u7kwzu','42 × 11 = ?','462','mental_math',3,9,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000d9ze607qe9jbi','cmlijmpsy00029ze6s8u7kwzu','Suite: 1, 4, 7, 10, ?','13','logic',3,10,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000e9ze6wbis7vrr','cmlijmpsy00029ze6s8u7kwzu','506 × 5 = ?','2530','mental_math',3,11,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000f9ze62uhrar70','cmlijmpsy00029ze6s8u7kwzu','81 ÷ 9 = ?','9','division',3,12,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000g9ze6offrnbsn','cmlijmpsy00029ze6s8u7kwzu','Pourcentage d''augmentation de 85 de 20% = ?','17','percentage',3,13,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000h9ze65g4jmeft','cmlijmpsy00029ze6s8u7kwzu','14 × 9 = ?','126','multiplication',4,14,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000i9ze6j3u56ct5','cmlijmpsy00029ze6s8u7kwzu','73 - 24 = ?','49','subtraction',4,15,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000j9ze63uaqi6ha','cmlijmpsy00029ze6s8u7kwzu','17 × 14 = ?','238','multiplication',4,16,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000k9ze6e9vsfwoa','cmlijmpsy00029ze6s8u7kwzu','52 + 84 = ?','136','addition',4,17,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000l9ze6594h02x2','cmlijmpsy00029ze6s8u7kwzu','360 ÷ 12 = ?','30','division',4,18,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijmz17000m9ze6uitxl4zc','cmlijmpsy00029ze6s8u7kwzu','5 × ? = 30','6','logic',4,19,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg000x9ze6f6bv3vlg','cmlijpu5g000w9ze6imx7bpzo','7 × 12 = ?','84','multiplication',2,0,NULL,'94',NULL,28,NULL,0);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg000y9ze64lgjat8n','cmlijpu5g000w9ze6imx7bpzo','19 + 6 = ?','25','addition',2,1,NULL,'25',NULL,23,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg000z9ze6cwo7kqr2','cmlijpu5g000w9ze6imx7bpzo','3 × 4 = ?','12','multiplication',2,2,NULL,'12',NULL,23,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00109ze6ekmrxumm','cmlijpu5g000w9ze6imx7bpzo','15 + 14 = ?','29','addition',2,3,NULL,'29',NULL,23,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00119ze6cyvqxfjy','cmlijpu5g000w9ze6imx7bpzo','Motif: 2, 4, 6, 8, ?','10','logic',2,4,NULL,'10',NULL,25,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00129ze6qor581nl','cmlijpu5g000w9ze6imx7bpzo','2 × ? = 20','10','logic',2,5,NULL,'10',NULL,24,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00139ze6g6xwyvdl','cmlijpu5g000w9ze6imx7bpzo','Réduction de 50% sur 34 = ?','17','percentage',2,6,NULL,'17',NULL,28,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00149ze6rgqqrkwr','cmlijpu5g000w9ze6imx7bpzo','88 ÷ 11 = ?','8','division',3,7,NULL,'8',NULL,25,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00159ze6xq6j98ii','cmlijpu5g000w9ze6imx7bpzo','15 + 10 = ?','25','addition',3,8,NULL,'25',NULL,23,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00169ze60ab27fqd','cmlijpu5g000w9ze6imx7bpzo','56 × 11 = ?','616','mental_math',3,9,NULL,'616',NULL,29,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00179ze6hbsn469l','cmlijpu5g000w9ze6imx7bpzo','9 × 8 = ?','72','multiplication',3,10,NULL,'72',NULL,25,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00189ze6voq82xqe','cmlijpu5g000w9ze6imx7bpzo','15 + 19 = ?','34','addition',3,11,NULL,'34',NULL,23,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg00199ze63w6nqj32','cmlijpu5g000w9ze6imx7bpzo','5 × 12 = ?','60','multiplication',3,12,NULL,'60',NULL,23,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg001a9ze6t66hdabl','cmlijpu5g000w9ze6imx7bpzo','9 × 11 = ?','99','multiplication',3,13,NULL,'99',NULL,23,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg001b9ze6hd8kt5dm','cmlijpu5g000w9ze6imx7bpzo','10% de 43 = ?','4','percentage',4,14,NULL,'4,3',NULL,24,NULL,0);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg001c9ze654w0jg84','cmlijpu5g000w9ze6imx7bpzo','Motif: 9, 18, 27, 36, ?','45','logic',4,15,NULL,'45',NULL,25,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg001d9ze6buk03d0x','cmlijpu5g000w9ze6imx7bpzo','10 × 15 = ?','150','multiplication',4,16,NULL,'150',NULL,23,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg001e9ze6fh9a4n1b','cmlijpu5g000w9ze6imx7bpzo','89² = ?','7921','mental_math',4,17,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg001f9ze6zzlcroqd','cmlijpu5g000w9ze6imx7bpzo','412 × 5 = ?','2060','mental_math',4,18,NULL,'2060',NULL,28,NULL,1);
+INSERT INTO multiplayer_questions VALUES('cmlijpumg001g9ze6z25vyvdn','cmlijpu5g000w9ze6imx7bpzo','4/10 + 1/10 = ? (donne le numérateur)','5','fraction',4,19,'0','5',22,26,0,1);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001n9ze6y3mau889','cmlijtzxk001m9ze6mtnx0nam','10% de 87 = ?','9','percentage',2,0,'8,7',NULL,27,NULL,0,NULL);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001o9ze68d65mjo1','cmlijtzxk001m9ze6mtnx0nam','30 ÷ 5 = ?','6','division',2,1,'6','8.7',22,23,1,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001p9ze68hy3g9eb','cmlijtzxk001m9ze6mtnx0nam','60 ÷ 5 = ?','12','division',2,2,'12','12',22,26,1,1);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001q9ze6qu6lcbqy','cmlijtzxk001m9ze6mtnx0nam','17 - 6 = ?','11','subtraction',2,3,'9','11',22,24,0,1);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001r9ze6a07dbx0m','cmlijtzxk001m9ze6mtnx0nam','Réduction de 25% sur 64 = ?','16','percentage',2,4,'13','46',26,28,0,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001s9ze66ozt66ok','cmlijtzxk001m9ze6mtnx0nam','2 × ? = 4','2','logic',2,5,'2','2',22,24,1,1);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001t9ze621nm4nhy','cmlijtzxk001m9ze6mtnx0nam','28 ÷ 4 = ?','7','division',2,6,'7',NULL,23,NULL,1,NULL);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001u9ze6c6xy2gdn','cmlijtzxk001m9ze6mtnx0nam','5 × 6 = ?','30','multiplication',3,7,'30','30',22,24,1,1);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001v9ze65glm3qhu','cmlijtzxk001m9ze6mtnx0nam','7/9 + 5/9 = ? (donne le numérateur)','12','fraction',3,8,'12','12',25,26,1,1);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001w9ze6ebdjr65e','cmlijtzxk001m9ze6mtnx0nam','Motif: 2, 4, 6, 8, ?','10','logic',3,9,'10','10',22,24,1,1);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001x9ze6ycw8dsjo','cmlijtzxk001m9ze6mtnx0nam','Réduction de 25% sur 38 = ?','10','percentage',3,10,'9,25','345',29,23,0,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001y9ze66gw1azt6','cmlijtzxk001m9ze6mtnx0nam','282 × 5 = ?','1410','mental_math',3,11,'58','0',29,22,0,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t9001z9ze6y3ecbebt','cmlijtzxk001m9ze6mtnx0nam','50% de 104 = ?','52','percentage',3,12,'52','0',23,22,1,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t900209ze6s9lfi950','cmlijtzxk001m9ze6mtnx0nam','4/4 + 2/4 = ? (donne le numérateur)','6','fraction',3,13,'6','9',24,21,1,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t900219ze6mdhw4wsy','cmlijtzxk001m9ze6mtnx0nam','66 + 66 = ?','132','addition',4,14,'132','9',24,21,1,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t900229ze62xnmqw0o','cmlijtzxk001m9ze6mtnx0nam','209 ÷ 19 = ?','11','division',4,15,'9','9',26,21,0,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t900239ze6hnu16z8k','cmlijtzxk001m9ze6mtnx0nam','80 + 64 = ?','144','addition',4,16,'144','9',24,21,1,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t900249ze6185d43y3','cmlijtzxk001m9ze6mtnx0nam','94² = ?','8836','mental_math',4,17,NULL,'9',NULL,21,NULL,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t900259ze6zpwu9zhv','cmlijtzxk001m9ze6mtnx0nam','75 + 76 = ?','151','addition',4,18,'151','9',25,21,1,0);
+INSERT INTO multiplayer_questions VALUES('cmliju3t900269ze6it5wsdel','cmlijtzxk001m9ze6mtnx0nam','260 ÷ 13 = ?','20','division',4,19,'20','9',23,21,1,0);
+CREATE TABLE IF NOT EXISTS "multiplayer_statistics" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "totalGames" INTEGER NOT NULL DEFAULT 0,
+    "totalWins" INTEGER NOT NULL DEFAULT 0,
+    "totalLosses" INTEGER NOT NULL DEFAULT 0,
+    "totalDraws" INTEGER NOT NULL DEFAULT 0,
+    "lightningGames" INTEGER NOT NULL DEFAULT 0,
+    "lightningWins" INTEGER NOT NULL DEFAULT 0,
+    "blitzGames" INTEGER NOT NULL DEFAULT 0,
+    "blitzWins" INTEGER NOT NULL DEFAULT 0,
+    "rapidGames" INTEGER NOT NULL DEFAULT 0,
+    "rapidWins" INTEGER NOT NULL DEFAULT 0,
+    "classicalGames" INTEGER NOT NULL DEFAULT 0,
+    "classicalWins" INTEGER NOT NULL DEFAULT 0,
+    "thinkingGames" INTEGER NOT NULL DEFAULT 0,
+    "thinkingWins" INTEGER NOT NULL DEFAULT 0,
+    "averageScore" REAL NOT NULL DEFAULT 0,
+    "averageTime" REAL NOT NULL DEFAULT 0,
+    "bestStreak" INTEGER NOT NULL DEFAULT 0,
+    "currentStreak" INTEGER NOT NULL DEFAULT 0,
+    "headToHead" TEXT,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "multiplayer_statistics_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO multiplayer_statistics VALUES('cmlijpsi8000o9ze6pomdvz42','cmlijmi9h00009ze6h7hh4fcq',4,2,0,2,0,0,4,2,0,0,0,0,0,0,0.0,0.0,0,2,NULL,1770845884966);
+INSERT INTO multiplayer_statistics VALUES('cmlijpsij000q9ze667ewz37y','cmlif25yg0000q6wf9x9vpojp',4,0,2,2,0,0,4,0,0,0,0,0,0,0,0.0,0.0,0,0,NULL,1770845884977);
+CREATE TABLE IF NOT EXISTS "user_badges" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "badgeId" TEXT NOT NULL,
+    "earnedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "awardedById" TEXT, "expiresAt" DATETIME,
+    CONSTRAINT "user_badges_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "user_badges_badgeId_fkey" FOREIGN KEY ("badgeId") REFERENCES "badges" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO user_badges VALUES('cmljwops8000ocbaslfmnbqpu','cmlif25yg0000q6wf9x9vpojp','top_1_solo',1770927797385,NULL,NULL);
+INSERT INTO user_badges VALUES('cmljx9q740022cbashamnp42l','cmlif25yg0000q6wf9x9vpojp','cmljx9q5v001qcbas1zzd5tn0',1770928777696,NULL,NULL);
+INSERT INTO user_badges VALUES('cmljx9tfv0024cbas38t2qv2c','cmlijmi9h00009ze6h7hh4fcq','cmljx9q6u0020cbash8kthl33',1770928781900,NULL,NULL);
+INSERT INTO user_badges VALUES('cmljxqjok000111eaqj6ppael','cmlijmi9h00009ze6h7hh4fcq','top_1_multi',1770929562404,NULL,NULL);
+CREATE TABLE IF NOT EXISTS "users" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "password" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "displayName" TEXT,
+    "avatarUrl" TEXT,
+    "bannerUrl" TEXT,
+    "selectedBadgeIds" TEXT,
+    "isAdmin" BOOLEAN NOT NULL DEFAULT false,
+    "elo" INTEGER NOT NULL DEFAULT 400,
+    "rankClass" TEXT NOT NULL DEFAULT 'F-',
+    "bestElo" INTEGER NOT NULL DEFAULT 400,
+    "bestRankClass" TEXT NOT NULL DEFAULT 'F-',
+    "hasCompletedOnboarding" BOOLEAN NOT NULL DEFAULT false,
+    "additionLevel" INTEGER NOT NULL DEFAULT 1,
+    "subtractionLevel" INTEGER NOT NULL DEFAULT 0,
+    "multiplicationLevel" INTEGER NOT NULL DEFAULT 0,
+    "divisionLevel" INTEGER NOT NULL DEFAULT 0,
+    "powerLevel" INTEGER NOT NULL DEFAULT 0,
+    "rootLevel" INTEGER NOT NULL DEFAULT 0,
+    "factorizationLevel" INTEGER NOT NULL DEFAULT 0,
+    "currentStreak" INTEGER NOT NULL DEFAULT 0,
+    "bestStreak" INTEGER NOT NULL DEFAULT 0,
+    "lastTestDate" DATETIME,
+    "multiplayerElo" INTEGER NOT NULL DEFAULT 400,
+    "multiplayerRankClass" TEXT NOT NULL DEFAULT 'F-',
+    "bestMultiplayerElo" INTEGER NOT NULL DEFAULT 400,
+    "bestMultiplayerRankClass" TEXT NOT NULL DEFAULT 'F-',
+    "multiplayerGames" INTEGER NOT NULL DEFAULT 0,
+    "multiplayerWins" INTEGER NOT NULL DEFAULT 0,
+    "multiplayerLosses" INTEGER NOT NULL DEFAULT 0,
+    "isOnline" BOOLEAN NOT NULL DEFAULT false,
+    "lastSeenAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+, "customBannerId" TEXT);
+INSERT INTO users VALUES('cmlif25yg0000q6wf9x9vpojp','noe.barneron@gmail.com','Onyx','$2b$10$wnpshSH5q8yZbhGmE.WLMOmpkt/6uRvEvIdmGCkyHacPOprI7f5Zm',1770837725608,1770929537143,'Ønyx',NULL,'/banners/1770928903040.jpg','["cmljx9q5v001qcbas1zzd5tn0","top_1_multi","top_1_solo"]',1,900,'C',1000,'C',0,1,0,0,0,0,0,0,0,0,1770926776012,100,'C',985,'F-',4,0,2,0,1770845884961,NULL);
+INSERT INTO users VALUES('cmlif264i0001q6wfj36hyxmf','test1@test.com','Test1','$2b$10$tpx5ZntRPWN4XyUtgH8AhO83PrOuf3DOXdFX.Dq6lHH6eCJ2taIhK',1770837725826,1770930640145,NULL,NULL,'gradient:from-purple-600 to-indigo-600','[]',0,400,'F-',400,'F-',0,1,0,0,0,0,0,0,0,0,NULL,400,'F-',400,'F-',0,0,0,1,1770915074916,NULL);
+INSERT INTO users VALUES('cmlif26b30002q6wf0eiumilg','test2@test.com','Test2','$2b$10$YfReNiZmpS4vXGv.Pl9vDOBKpo3Y/9HAGJHEg0.AmEkQISXLPSkSq',1770837726064,1770837726064,NULL,NULL,NULL,NULL,0,400,'F-',400,'F-',0,1,0,0,0,0,0,0,0,0,NULL,400,'F-',400,'F-',0,0,0,0,1770837726064,NULL);
+INSERT INTO users VALUES('cmlij6fe3000012jht3s4tg1z','noe.b26@icloud.com','noe.b26f18k',NULL,1770844642924,1770844642924,'annonyx','https://cdn.discordapp.com/avatars/1122092101459517481/0c6c473b9fb293472c44b4a3fd521257.png',NULL,NULL,0,400,'F-',400,'F-',0,1,0,0,0,0,0,0,0,0,NULL,400,'F-',400,'F-',0,0,0,0,1770844642924,NULL);
+INSERT INTO users VALUES('cmlijawz5000112jhewxr8i96','foenyx.ytb@gmail.com','foenyx.ytbi01i',NULL,1770844852338,1770844852338,'FØENYX','https://lh3.googleusercontent.com/a/ACg8ocKR63m9egmI9OVG8U3KIhyhLIBFydgDpXQrnvq2pbY1JIWYLQ=s96-c',NULL,NULL,0,400,'F-',400,'F-',0,1,0,0,0,0,0,0,0,0,NULL,400,'F-',400,'F-',0,0,0,0,1770844852338,NULL);
+INSERT INTO users VALUES('cmlijmi9h00009ze6h7hh4fcq','pb26@orange.fr','pb26i6xg',NULL,1770845393141,1770932514023,'Pierre BARNERON','https://lh3.googleusercontent.com/a/ACg8ocLZmnHdMuVmVUW6K1CvREae1cL5m8ry-S3J-AOjYfR_oIaWMg=s96-c','gradient:from-blue-500 to-cyan-500','["top_1_multi"]',0,400,'F-',400,'F-',0,1,0,0,0,0,0,0,0,0,NULL,476,'F-',476,'F-',4,2,0,0,1770845884948,NULL);
+CREATE TABLE IF NOT EXISTS "badges" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "icon" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
+    "color" TEXT NOT NULL DEFAULT '#FFD700',
+    "requirement" TEXT,
+    "isCustom" BOOLEAN NOT NULL DEFAULT false,
+    "isTemporary" BOOLEAN NOT NULL DEFAULT false,
+    "createdById" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO badges VALUES('cmljsn12k000lvz10mmq9e1jo','Test Parfait','Réussir un test avec un score de 20/20','🏆','achievement','#FFD700','Obtenir 20/20 à un test chronométré',0,0,NULL,1770921000237);
+INSERT INTO badges VALUES('cmljsn12n000mvz10p2r9jfi2','10 Tests Solo','Compléter 10 tests en mode solo','🎯','achievement','#2ECC71','Compléter 10 tests solo',0,0,NULL,1770921000239);
+INSERT INTO badges VALUES('cmljsn12o000nvz10rq57w4dy','50 Tests Solo','Compléter 50 tests en mode solo','🏵️','achievement','#2ECC71','Compléter 50 tests solo',0,0,NULL,1770921000241);
+INSERT INTO badges VALUES('cmljsn12q000ovz10pheqr3un','100 Tests Solo','Compléter 100 tests en mode solo','🎖️','achievement','#3498DB','Compléter 100 tests solo',0,0,NULL,1770921000243);
+INSERT INTO badges VALUES('cmljsn12s000pvz10zbvqhtik','500 Tests Solo','Compléter 500 tests en mode solo','🏅','achievement','#9B59B6','Compléter 500 tests solo',0,0,NULL,1770921000244);
+INSERT INTO badges VALUES('cmljsn12w000qvz108g58g09s','1000 Tests Solo','Compléter 1000 tests en mode solo','💎','achievement','#FF6B35','Compléter 1000 tests solo',0,0,NULL,1770921000249);
+INSERT INTO badges VALUES('cmljsn12z000rvz10ye9elmxq','10 Parties Multijoueur','Jouer 10 parties en multijoueur','🥉','achievement','#CD7F32','Jouer 10 parties multijoueur',0,0,NULL,1770921000251);
+INSERT INTO badges VALUES('cmljsn131000svz10bt9l73vl','50 Parties Multijoueur','Jouer 50 parties en multijoueur','🥈','achievement','#CD7F32','Jouer 50 parties multijoueur',0,0,NULL,1770921000253);
+INSERT INTO badges VALUES('cmljsn133000tvz10fqvekgce','100 Parties Multijoueur','Jouer 100 parties en multijoueur','🥇','achievement','#CD7F32','Jouer 100 parties multijoueur',0,0,NULL,1770921000255);
+INSERT INTO badges VALUES('cmljsn135000uvz107ez6hul5','500 Parties Multijoueur','Jouer 500 parties en multijoueur','🏆','achievement','#C0C0C0','Jouer 500 parties multijoueur',0,0,NULL,1770921000258);
+INSERT INTO badges VALUES('cmljsn138000vvz100q4dk21h','1000 Parties Multijoueur','Jouer 1000 parties en multijoueur','👑','achievement','#FFD700','Jouer 1000 parties multijoueur',0,0,NULL,1770921000260);
+INSERT INTO badges VALUES('cmljsn13a000wvz10uzb9ab1v','Top 1 Mensuel Solo','Classé premier du mois en mode solo','🥇','special','#FFD700','Être premier au classement mensuel solo',0,1,NULL,1770921000262);
+INSERT INTO badges VALUES('cmljsn13d000xvz10lf0mm2vw','Top 1 Mensuel Multijoueur','Classé premier du mois en mode multijoueur','👑','special','#FF6B35','Être premier au classement mensuel multijoueur',0,1,NULL,1770921000265);
+INSERT INTO badges VALUES('first_win','Première Victoire','Gagner sa première partie multijoueur','🏅','achievement','#FFD700','Gagner sa première partie multijoueur',0,0,NULL,1770927797271);
+INSERT INTO badges VALUES('win_streak_5','Série de 5','Gagner 5 parties consécutives','🔥','achievement','#FF5722','Gagner 5 parties consécutives',0,0,NULL,1770927797274);
+INSERT INTO badges VALUES('win_streak_10','Invincible','Gagner 10 parties consécutives','👑','achievement','#FFD700','Gagner 10 parties consécutives',0,0,NULL,1770927797295);
+INSERT INTO badges VALUES('perfect_score','Score Parfait','Répondre correctement à 20/20 questions','💯','achievement','#E91E63','Répondre correctement à 20/20 questions',0,0,NULL,1770927797301);
+INSERT INTO badges VALUES('speed_demon','Vitesse Supersonique','Compléter un test en moins de 60 secondes','⚡','achievement','#00BCD4','Compléter un test en moins de 60 secondes',0,0,NULL,1770927797305);
+INSERT INTO badges VALUES('math_wizard','Magicien des Maths','Atteindre 1000 Elo en solo','🧙','achievement','#9C27B0','Atteindre 1000 Elo en solo',0,0,NULL,1770927797311);
+INSERT INTO badges VALUES('multi_master','Maître du Multi','Atteindre 1000 Elo en multijoueur','⚔️','achievement','#F44336','Atteindre 1000 Elo en multijoueur',0,0,NULL,1770927797315);
+INSERT INTO badges VALUES('dedicated','Dévoué','Jouer 7 jours consécutifs','📅','achievement','#3F51B5','Jouer 7 jours consécutifs',0,0,NULL,1770927797322);
+INSERT INTO badges VALUES('collector','Collectionneur','Débloquer toutes les opérations','🎯','achievement','#FF9800','Débloquer toutes les opérations',0,0,NULL,1770927797343);
+INSERT INTO badges VALUES('teacher','Professeur','Compléter tous les cours','📚','achievement','#4CAF50','Compléter tous les cours',0,0,NULL,1770927797347);
+INSERT INTO badges VALUES('top_1_solo','Top 1 Solo Mondial','Être classé numéro 1 au classement solo mondial','🔥','special','#00C851','Atteindre la première place du classement solo',0,0,NULL,1770927797353);
+INSERT INTO badges VALUES('top_1_multi','Top 1 Multi Mondial','Être classé numéro 1 au classement multijoueur mondial','🔥','special','#ff4444','Atteindre la première place du classement multijoueur',0,0,NULL,1770927797359);
+INSERT INTO badges VALUES('cmljx9q4z001gcbas2wow23e9','Maître S+','Atteint le rang S+','🌟','rank','#FFD700','Atteindre le rang S+',0,0,NULL,1770928777620);
+INSERT INTO badges VALUES('cmljx9q52001hcbasveamjnxp','Légende S','Atteint le rang S','⭐','rank','#FFA500','Atteindre le rang S',0,0,NULL,1770928777622);
+INSERT INTO badges VALUES('cmljx9q54001icbas2vv364rf','Elite S-','Atteint le rang S-','💎','rank','#C0C0C0','Atteindre le rang S-',0,0,NULL,1770928777624);
+INSERT INTO badges VALUES('cmljx9q55001jcbas3d7fdlw5','Expert A+','Atteint le rang A+','�','rank','#FF6B35','Atteindre le rang A+',0,0,NULL,1770928777626);
+INSERT INTO badges VALUES('cmljx9q5b001kcbas4ypr76wd','Vétéran A','Atteint le rang A','🎖️','rank','#FF8C42','Atteindre le rang A',0,0,NULL,1770928777631);
+INSERT INTO badges VALUES('cmljx9q5f001lcbashqxvg9q8','Spécialiste A-','Atteint le rang A-','🎯','rank','#FF9F5A','Atteindre le rang A-',0,0,NULL,1770928777635);
+INSERT INTO badges VALUES('cmljx9q5h001mcbasdtopm8kb','Confirmé B+','Atteint le rang B+','⚔️','rank','#9B59B6','Atteindre le rang B+',0,0,NULL,1770928777637);
+INSERT INTO badges VALUES('cmljx9q5j001ncbas5bv50fie','Adepte B','Atteint le rang B','🛡️','rank','#AF7AC5','Atteindre le rang B',0,0,NULL,1770928777639);
+INSERT INTO badges VALUES('cmljx9q5l001ocbasy4s8y2z7','Initié B-','Atteint le rang B-','🔮','rank','#C39BD3','Atteindre le rang B-',0,0,NULL,1770928777641);
+INSERT INTO badges VALUES('cmljx9q5n001pcbas7x88c4u4','Avancé C+','Atteint le rang C+','⚡','rank','#3498DB','Atteindre le rang C+',0,0,NULL,1770928777643);
+INSERT INTO badges VALUES('cmljx9q5v001qcbas1zzd5tn0','Intermédiaire C','Atteint le rang C','🔷','rank','#5DADE2','Atteindre le rang C',0,0,NULL,1770928777652);
+INSERT INTO badges VALUES('cmljx9q5x001rcbasl5hyib95','Débutant+ C-','Atteint le rang C-','💠','rank','#85C1E9','Atteindre le rang C-',0,0,NULL,1770928777653);
+INSERT INTO badges VALUES('cmljx9q60001scbasq8xo9a6q','Novice D+','Atteint le rang D+','🌱','rank','#1ABC9C','Atteindre le rang D+',0,0,NULL,1770928777656);
+INSERT INTO badges VALUES('cmljx9q62001tcbas8klk8xbk','Apprenti D','Atteint le rang D','🍃','rank','#48C9B0','Atteindre le rang D',0,0,NULL,1770928777658);
+INSERT INTO badges VALUES('cmljx9q64001ucbasacuiyo0h','Recrue D-','Atteint le rang D-','🌿','rank','#76D7C4','Atteindre le rang D-',0,0,NULL,1770928777660);
+INSERT INTO badges VALUES('cmljx9q6d001vcbas22256f8n','Stagiaire E+','Atteint le rang E+','📗','rank','#27AE60','Atteindre le rang E+',0,0,NULL,1770928777669);
+INSERT INTO badges VALUES('cmljx9q6f001wcbasetei4meg','Débutant E','Atteint le rang E','📘','rank','#52BE80','Atteindre le rang E',0,0,NULL,1770928777671);
+INSERT INTO badges VALUES('cmljx9q6h001xcbaspker3zwv','Initié E-','Atteint le rang E-','📙','rank','#7DCEA0','Atteindre le rang E-',0,0,NULL,1770928777674);
+INSERT INTO badges VALUES('cmljx9q6j001ycbasgjuvuwui','Amateur F+','Atteint le rang F+','📝','rank','#95A5A6','Atteindre le rang F+',0,0,NULL,1770928777676);
+INSERT INTO badges VALUES('cmljx9q6l001zcbas13z4nciw','Novice F','Atteint le rang F','✏️','rank','#B2BABB','Atteindre le rang F',0,0,NULL,1770928777678);
+INSERT INTO badges VALUES('cmljx9q6u0020cbash8kthl33','Débutant F-','Bienvenue dans le classement !','📋','rank','#CFD8DC','Atteindre le rang F-',0,0,NULL,1770928777687);
+CREATE TABLE IF NOT EXISTS "custom_banners" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "imageUrl" TEXT NOT NULL,
+    "thumbnailUrl" TEXT,
+    "isPremium" BOOLEAN NOT NULL DEFAULT false,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "custom_banners_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+INSERT INTO custom_banners VALUES('cmljxcex60026cbasgqea9ey8','Ballisien','Pour les membres de ballisos','/banners/1770928903040.jpg','/banners/thumb_1770928903040.jpg',1,1,'cmlif25yg0000q6wf9x9vpojp',1770928903051,1770929082645);
+CREATE TABLE IF NOT EXISTS "_UserBanners" (
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL,
+    CONSTRAINT "_UserBanners_A_fkey" FOREIGN KEY ("A") REFERENCES "custom_banners" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_UserBanners_B_fkey" FOREIGN KEY ("B") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "challenges" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "challengerId" TEXT NOT NULL,
+    "challengedId" TEXT NOT NULL,
+    "gameType" TEXT NOT NULL DEFAULT 'pending',
+    "timeControl" TEXT NOT NULL,
+    "timeLimit" INTEGER NOT NULL,
+    "questionCount" INTEGER NOT NULL DEFAULT 20,
+    "difficulty" TEXT NOT NULL DEFAULT 'mixed',
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" DATETIME NOT NULL,
+    "respondedAt" DATETIME,
+    CONSTRAINT "challenges_challengerId_fkey" FOREIGN KEY ("challengerId") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "challenges_challengedId_fkey" FOREIGN KEY ("challengedId") REFERENCES "users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+INSERT INTO challenges VALUES('cmliiomlx00031bf44xnc05gs','cmlif25yg0000q6wf9x9vpojp','cmlif264i0001q6wfj36hyxmf','ranked','blitz',180,20,'mixed','pending',1770843812469,1770930212468,NULL);
+CREATE UNIQUE INDEX "statistics_userId_key" ON "statistics"("userId");
+CREATE UNIQUE INDEX "courses_slug_key" ON "courses"("slug");
+CREATE UNIQUE INDEX "friendships_user1Id_user2Id_key" ON "friendships"("user1Id", "user2Id");
+CREATE UNIQUE INDEX "multiplayer_statistics_userId_key" ON "multiplayer_statistics"("userId");
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
+CREATE UNIQUE INDEX "user_badges_userId_badgeId_key" ON "user_badges"("userId", "badgeId");
+CREATE UNIQUE INDEX "_UserBanners_AB_unique" ON "_UserBanners"("A", "B");
+CREATE INDEX "_UserBanners_B_index" ON "_UserBanners"("B");
+CREATE UNIQUE INDEX "badges_name_key" ON "badges"("name");
+COMMIT;

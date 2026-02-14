@@ -4,12 +4,28 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { RANK_BADGES } from '@/lib/badges';
 
+async function isAdminEmail(email: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { isAdmin: true, email: true }
+  });
+
+  if (user?.isAdmin) return true;
+
+  const allowlistedEmail = process.env.ADMIN_EMAIL;
+  if (allowlistedEmail && user?.email && user.email.toLowerCase() === allowlistedEmail.toLowerCase()) {
+    return true;
+  }
+
+  return false;
+}
+
 // POST /api/admin/cleanup-badges - NUCLEAR OPTION: Delete all rank badges and recreate
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.email || session.user.email !== 'noe.barneron@gmail.com') {
+    if (!session?.user?.email || !(await isAdminEmail(session.user.email))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
