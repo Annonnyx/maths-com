@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import ClientProviders from '@/components/ClientProviders';
 import { DiscreetAds } from '@/components/DiscreetAds';
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,7 @@ export default function RootLayout({
           <DiscreetAds />
           {children}
         </ClientProviders>
+        <Analytics />
       </body>
     </html>
   );
