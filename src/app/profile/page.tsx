@@ -270,19 +270,120 @@ function ProfileContent() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            {/* Banner - Show gradient or custom image */}
+            {/* Banner - Show gradient or custom image with user info overlay */}
             {profile?.user?.bannerUrl && (
               profile.user.bannerUrl.startsWith('gradient:') ? (
-                // Gradient banner
-                <div className={`w-full h-32 rounded-2xl mb-4 overflow-hidden bg-gradient-to-r ${profile.user.bannerUrl.replace('gradient:', '')}`} />
+                // Gradient banner with overlay
+                <div className={`bg-gradient-to-r ${profile.user.bannerUrl.replace('gradient:', '')} rounded-2xl p-6 mb-6 relative overflow-hidden h-32`}>
+                  {/* Badges on banner */}
+                  {(() => {
+                    try {
+                      const ids = profile.user.selectedBadgeIds ? JSON.parse(profile.user.selectedBadgeIds) : [];
+                      if (ids.length === 0) return null;
+                      return (
+                        <div className="absolute top-4 right-4 flex gap-2">
+                          {ids.map((badgeId: string) => {
+                            const userBadge = badges.find(b => b.badge.id === badgeId);
+                            if (!userBadge) return null;
+                            return (
+                              <div
+                                key={badgeId}
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg"
+                                style={{ backgroundColor: userBadge.badge.color }}
+                                title={userBadge.badge.name}
+                              >
+                                {userBadge.badge.icon}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    } catch { return null; }
+                  })()}
+                  
+                  <div className="flex items-center gap-4 h-full">
+                    <div className="relative">
+                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold backdrop-blur-sm">
+                        {profile?.user?.displayName?.charAt(0) || profile?.user?.username?.charAt(0) || '?'}
+                      </div>
+                      {/* Top 1 Crowns */}
+                      {badges.some(b => b.badge.id === 'top_1_solo') && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs shadow-lg" title="Top 1 Solo Mondial">
+                          👑
+                        </div>
+                      )}
+                      {badges.some(b => b.badge.id === 'top_1_multi') && (
+                        <div className="absolute -bottom-1 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs shadow-lg" title="Top 1 Multi Mondial">
+                          👑
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">{profile?.user?.displayName || profile?.user?.username}</h3>
+                      <p className="text-white/80">{profile?.user?.rankClass} • {profile?.user?.elo} Elo</p>
+                    </div>
+                  </div>
+                </div>
               ) : (
-                // Custom image banner
-                <div className="w-full h-32 rounded-2xl mb-4 overflow-hidden">
+                // Custom image banner with overlay
+                <div className="rounded-2xl overflow-hidden relative h-32 mb-6">
                   <img 
                     src={profile.user.bannerUrl} 
                     alt="Bannière" 
                     className="w-full h-full object-cover"
                   />
+                  {/* Dark gradient overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+                  
+                  {/* Badges on banner */}
+                  {(() => {
+                    try {
+                      const ids = profile.user.selectedBadgeIds ? JSON.parse(profile.user.selectedBadgeIds) : [];
+                      if (ids.length === 0) return null;
+                      return (
+                        <div className="absolute top-4 right-4 flex gap-2">
+                          {ids.map((badgeId: string) => {
+                            const userBadge = badges.find(b => b.badge.id === badgeId);
+                            if (!userBadge) return null;
+                            return (
+                              <div
+                                key={badgeId}
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg"
+                                style={{ backgroundColor: userBadge.badge.color }}
+                                title={userBadge.badge.name}
+                              >
+                                {userBadge.badge.icon}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    } catch { return null; }
+                  })()}
+                  
+                  {/* Avatar and info overlay */}
+                  <div className="absolute inset-0 flex items-center gap-4 p-6">
+                    <div className="relative">
+                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold backdrop-blur-sm">
+                        {profile?.user?.displayName?.charAt(0) || profile?.user?.username?.charAt(0) || '?'}
+                      </div>
+                      {/* Top 1 Crowns */}
+                      {badges.some(b => b.badge.id === 'top_1_solo') && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs shadow-lg" title="Top 1 Solo Mondial">
+                          👑
+                        </div>
+                      )}
+                      {badges.some(b => b.badge.id === 'top_1_multi') && (
+                        <div className="absolute -bottom-1 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs shadow-lg" title="Top 1 Multi Mondial">
+                          👑
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white drop-shadow-md">{profile?.user?.displayName || profile?.user?.username}</h3>
+                      <p className="text-white/80 drop-shadow-md">{profile?.user?.rankClass} • {profile?.user?.elo} Elo</p>
+                    </div>
+                  </div>
                 </div>
               )
             )}
