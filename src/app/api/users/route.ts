@@ -6,16 +6,29 @@ import { authOptions } from '@/lib/auth';
 
 // POST /api/users - Create a new user (register)
 export async function POST(req: NextRequest) {
+  console.log('[API /users] POST started');
   try {
     const body = await req.json();
+    console.log('[API /users] Body parsed:', { email: body?.email, username: body?.username });
+    
     const { email, username, password, displayName } = body;
 
+    if (!email || !username) {
+      console.log('[API /users] Missing required fields');
+      return NextResponse.json(
+        { error: 'Email and username required' },
+        { status: 400 }
+      );
+    }
+
+    console.log('[API /users] Checking existing user...');
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [{ email }, { username }]
       }
     });
+    console.log('[API /users] Existing user check done:', !!existingUser);
 
     if (existingUser) {
       return NextResponse.json(
@@ -24,9 +37,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    console.log('[API /users] Hashing password...');
     // Hash password if provided
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+    console.log('[API /users] Password hashed:', !!hashedPassword);
 
+    console.log('[API /users] Creating user...');
     // Create user with statistics
     const user = await prisma.user.create({
       data: {
@@ -45,13 +61,13 @@ export async function POST(req: NextRequest) {
         statistics: true
       }
     });
+    console.log('[API /users] User created:', user.id);
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user;
     return NextResponse.json(userWithoutPassword);
   } catch (error: any) {
-    console.error('Error creating user:', error);
-    // Return detailed error for debugging
+    console.error('[API /users] ERROR:', error?.message, error?.code, error?.stack?.slice(0, 200));
     return NextResponse.json({ 
       error: 'Failed to create user',
       details: error?.message || 'Unknown error',
