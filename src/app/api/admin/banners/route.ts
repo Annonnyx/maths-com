@@ -2,8 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client with service role key for admin operations
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    }
+  }
+);
 
 async function isAdminEmail(email: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
@@ -83,25 +94,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Only JPEG, PNG, and WebP images are allowed' }, { status: 400 });
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), 'public', 'banners');
-    await mkdir(uploadsDir, { recursive: true });
-
-    // Generate unique filename
-    const timestamp = Date.now();
-    const fileExtension = file.name.split('.').pop();
-    const filename = `${timestamp}.${fileExtension}`;
-    const filepath = path.join(uploadsDir, filename);
-
-    // Save file
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filepath, buffer);
-
-    // Create thumbnail (simple resize - you might want to use sharp library for better quality)
-    const thumbnailFilename = `thumb_${timestamp}.${fileExtension}`;
-    const thumbnailPath = path.join(uploadsDir, thumbnailFilename);
-    await writeFile(thumbnailPath, buffer); // For now, using same file as thumbnail
+    // Validate file size (max 2MB)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: 'File size must be less than 2MB' }, { status: 400 });
+    }
 
     // Get admin user ID
     const admin = await prisma.user.findUnique({
@@ -113,13 +110,67 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Admin user not found' }, { status: 404 });
     }
 
+    // Generate unique filename
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'png';
+    const filename = `banner_${timestamp}.${fileExtension}`;
+    const thumbnailFilename = `banner_${timestamp}_thumb.${fileExtension}`;
+
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    // Upload to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
+      .from('banners')
+      .upload(filename, buffer, {
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Supabase upload error:', uploadError);
+      return NextResponse.json({ 
+        error: 'Failed to upload image to storage',
+        details: uploadError.message 
+      }, { status: 500 });
+    }
+
+    // Upload thumbnail (same image for now, can be optimized later)
+    const { data: thumbUploadData, error: thumbUploadError } = await supabase
+      .storage
+      .from('banners')
+      .upload(thumbnailFilename, buffer, {
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (thumbUploadError) {
+      console.error('Supabase thumbnail upload error:', thumbUploadError);
+      // Continue anyway, we have the main image
+    }
+
+    // Get public URLs
+    const { data: publicUrlData } = supabase
+      .storage
+      .from('banners')
+      .getPublicUrl(filename);
+
+    const { data: thumbPublicUrlData } = supabase
+      .storage
+      .from('banners')
+      .getPublicUrl(thumbnailFilename);
+
     // Save banner to database
     const banner = await prisma.customBanner.create({
       data: {
         name,
         description: description || null,
-        imageUrl: `/banners/${filename}`,
-        thumbnailUrl: `/banners/${thumbnailFilename}`,
+        imageUrl: publicUrlData.publicUrl,
+        thumbnailUrl: thumbPublicUrlData?.publicUrl || publicUrlData.publicUrl,
         isPremium,
         createdBy: admin.id
       },
@@ -140,9 +191,12 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ banner });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error uploading banner:', error);
-    return NextResponse.json({ error: 'Failed to upload banner' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to upload banner',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
   }
 }
 
@@ -204,7 +258,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Banner ID is required' }, { status: 400 });
     }
 
-    // Get banner info to delete files
+    // Get banner info to delete files from storage
     const banner = await prisma.customBanner.findUnique({
       where: { id }
     });
@@ -213,17 +267,47 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Banner not found' }, { status: 404 });
     }
 
+    // Extract filenames from URLs
+    const imageUrl = new URL(banner.imageUrl);
+    const thumbnailUrl = banner.thumbnailUrl ? new URL(banner.thumbnailUrl) : null;
+    
+    const imagePath = imageUrl.pathname.split('/').pop();
+    const thumbnailPath = thumbnailUrl ? thumbnailUrl.pathname.split('/').pop() : null;
+
+    // Delete files from Supabase Storage
+    if (imagePath) {
+      const { error: deleteError } = await supabase
+        .storage
+        .from('banners')
+        .remove([imagePath]);
+      
+      if (deleteError) {
+        console.error('Error deleting image from storage:', deleteError);
+      }
+    }
+
+    if (thumbnailPath && thumbnailPath !== imagePath) {
+      const { error: deleteThumbError } = await supabase
+        .storage
+        .from('banners')
+        .remove([thumbnailPath]);
+      
+      if (deleteThumbError) {
+        console.error('Error deleting thumbnail from storage:', deleteThumbError);
+      }
+    }
+
     // Delete banner from database
     await prisma.customBanner.delete({
       where: { id }
     });
 
-    // TODO: Delete actual files from filesystem
-    // This would require additional fs operations
-
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting banner:', error);
-    return NextResponse.json({ error: 'Failed to delete banner' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to delete banner',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
   }
 }

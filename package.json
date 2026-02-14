@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@supabase/supabase-js": "^2.95.3",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.34.0",
     "lucide-react": "^0.563.0",
