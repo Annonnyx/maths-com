@@ -10,7 +10,7 @@ import { useBadges } from '@/hooks/useBadges';
 import { 
   Trophy, User, Settings, Bell, Shield, LogOut, 
   ChevronRight, Edit2, Check, X, RotateCcw, Users, Zap, Target, Crown, Medal,
-  Palette, Image as ImageIcon, Star, Award
+  Palette, Image as ImageIcon, Star, Award, Swords, Volume2
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
@@ -1165,6 +1165,57 @@ function ProfileContent() {
             <div className="bg-card rounded-2xl border border-border p-6">
               <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <Bell className="w-5 h-5 text-yellow-400" />
+                Notifications
+              </h3>
+              <div className="space-y-4">
+                {/* Friend Requests Toggle */}
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <span>Demandes d&apos;ami</span>
+                      <p className="text-xs text-muted-foreground">Notifier quand quelqu&apos;un t&apos;envoie une demande</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setUserPrefs(prev => ({ ...prev, friendRequests: !prev.friendRequests }))}
+                    className={`w-12 h-6 rounded-full transition-all ${
+                      userPrefs.friendRequests ? 'bg-primary' : 'bg-muted'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                      userPrefs.friendRequests ? 'translate-x-6' : 'translate-x-0.5'
+                    }`} />
+                  </button>
+                </div>
+
+                {/* Challenges Toggle */}
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
+                  <div className="flex items-center gap-3">
+                    <Swords className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <span>Défis</span>
+                      <p className="text-xs text-muted-foreground">Notifier quand quelqu&apos;un te défie</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setUserPrefs(prev => ({ ...prev, challenges: !prev.challenges }))}
+                    className={`w-12 h-6 rounded-full transition-all ${
+                      userPrefs.challenges ? 'bg-primary' : 'bg-muted'
+                    }`}
+                  >
+                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                      userPrefs.challenges ? 'translate-x-6' : 'translate-x-0.5'
+                    }`} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Audio Settings */}
+            <div className="bg-card rounded-2xl border border-border p-6">
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <Volume2 className="w-5 h-5 text-blue-400" />
                 Audio
               </h3>
               <div className="space-y-4">

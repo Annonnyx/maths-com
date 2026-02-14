@@ -65,7 +65,9 @@ export function useUserPreferences() {
       soundEffects: true,
       animations: true,
       showTimer: true,
-      difficulty: 'adaptive' as const
+      difficulty: 'adaptive' as const,
+      friendRequests: true,
+      challenges: true
     }
   });
 
