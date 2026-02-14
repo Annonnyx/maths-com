@@ -39,6 +39,7 @@ function ProfileContent() {
   
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.user?.displayName || '');
+  const [isSavingDisplayName, setIsSavingDisplayName] = useState(false);
   
   // Banner customization state (local until saved)
   const [selectedBannerGradient, setSelectedBannerGradient] = useState('from-purple-600 to-indigo-600');
@@ -295,10 +296,40 @@ function ProfileContent() {
                       className="px-3 py-1 bg-card border border-border rounded-lg focus:border-primary focus:outline-none transition-all"
                     />
                     <button 
-                      onClick={() => setIsEditing(false)}
-                      className="p-1 text-green-400 hover:bg-green-500/20 rounded-lg"
+                      onClick={async () => {
+                        setIsSavingDisplayName(true);
+                        try {
+                          const response = await fetch('/api/profile', {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ displayName })
+                          });
+                          
+                          if (response.ok) {
+                            const data = await response.json();
+                            // Update local profile data
+                            if (profile && data.user) {
+                              profile.user.displayName = data.user.displayName;
+                            }
+                            setIsEditing(false);
+                          } else {
+                            const error = await response.json();
+                            alert(error.error || 'Erreur lors de la sauvegarde');
+                          }
+                        } catch (err) {
+                          alert('Erreur réseau');
+                        } finally {
+                          setIsSavingDisplayName(false);
+                        }
+                      }}
+                      disabled={isSavingDisplayName}
+                      className="p-1 text-green-400 hover:bg-green-500/20 rounded-lg disabled:opacity-50"
                     >
-                      <Check className="w-5 h-5" />
+                      {isSavingDisplayName ? (
+                        <div className="w-5 h-5 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Check className="w-5 h-5" />
+                      )}
                     </button>
                     <button 
                       onClick={() => {
@@ -312,9 +343,12 @@ function ProfileContent() {
                   </div>
                 ) : (
                   <>
-                    <h1 className="text-3xl font-bold mb-2">{displayName}</h1>
+                    <h1 className="text-3xl font-bold mb-2">{profile?.user?.displayName || profile?.user?.username}</h1>
                     <button 
-                      onClick={() => setIsEditing(true)}
+                      onClick={() => {
+                        setDisplayName(profile?.user?.displayName || '');
+                        setIsEditing(true);
+                      }}
                       className="p-2 text-muted-foreground hover:text-foreground hover:bg-card rounded-lg transition-all"
                     >
                       <Edit2 className="w-4 h-4" />

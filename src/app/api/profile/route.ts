@@ -145,3 +145,52 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+// PATCH /api/profile - Update user profile (displayName, etc.)
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { displayName } = await req.json();
+
+    if (displayName === undefined) {
+      return NextResponse.json({ error: 'displayName is required' }, { status: 400 });
+    }
+
+    // Validate displayName length
+    if (displayName.length < 2 || displayName.length > 30) {
+      return NextResponse.json({ error: 'Display name must be between 2 and 30 characters' }, { status: 400 });
+    }
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { email: session.user.email },
+      data: { displayName: displayName || null },
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        email: true,
+        elo: true,
+        rankClass: true,
+        bestElo: true,
+        bestRankClass: true,
+        bannerUrl: true,
+        selectedBadgeIds: true,
+      }
+    });
+
+    return NextResponse.json({ user: updatedUser });
+
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    return NextResponse.json(
+      { error: 'Failed to update user profile' },
+      { status: 500 }
+    );
+  }
+}
