@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { initializeBadges, awardRankBadge, RANK_BADGES } from '@/lib/badges';
+import { RANK_CLASSES } from '@/lib/elo';
 
 async function isAdminEmail(email: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
@@ -104,7 +105,6 @@ export async function POST(req: NextRequest) {
     });
 
     let awardedCount = 0;
-    let removedCount = 0;
 
     for (const user of users) {
       const soloGames = user.statistics?.totalTests || 0;
@@ -116,19 +116,26 @@ export async function POST(req: NextRequest) {
         include: { badge: true }
       });
 
-      // Remove old rank badges (keep only current rank)
-      for (const userBadge of userBadges.filter(ub => ub.badge.category === 'rank')) {
-        const expectedBadgeName = RANK_BADGES[user.rankClass as keyof typeof RANK_BADGES]?.name;
-        if (userBadge.badge.name !== expectedBadgeName) {
-          await prisma.userBadge.delete({ where: { id: userBadge.id } });
-          removedCount++;
-        }
-      }
-
-      // Award current rank badge (only if played at least 1 game)
+      // Award ALL rank badges up to current rank (not just current)
       if (user.rankClass && (soloGames > 0 || multiGames > 0)) {
-        await awardRankBadge(user.id, user.rankClass);
-        awardedCount++;
+        const currentRankIndex = RANK_CLASSES.indexOf(user.rankClass as any);
+        
+        for (let i = 0; i <= currentRankIndex; i++) {
+          const rankToAward = RANK_CLASSES[i];
+          const badgeInfo = RANK_BADGES[rankToAward as keyof typeof RANK_BADGES];
+          if (badgeInfo) {
+            const badge = allRankBadges.find(b => b.name === badgeInfo.name);
+            if (badge) {
+              const hasBadge = userBadges.some(ub => ub.badgeId === badge.id);
+              if (!hasBadge) {
+                await prisma.userBadge.create({
+                  data: { userId: user.id, badgeId: badge.id }
+                });
+                awardedCount++;
+              }
+            }
+          }
+        }
       }
 
       // Award/Remove Top 1 Solo badge
@@ -173,14 +180,17 @@ export async function POST(req: NextRequest) {
       message: 'Badges synchronized',
       totalBadges: allBadges.length,
       rankBadgesAwarded: awardedCount,
-      rankBadgesRemoved: removedCount,
       top1Solo: top1SoloUser?.id || null,
       top1Multi: top1MultiUser?.id || null,
       totalUsers: users.length
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error initializing badges:', error);
-    return NextResponse.json({ error: 'Failed to initialize badges' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to initialize badges',
+      details: error?.message || 'Unknown error',
+      code: error?.code || 'UNKNOWN'
+    }, { status: 500 });
   }
 }

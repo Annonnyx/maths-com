@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getRankFromElo } from '@/lib/elo';
 
 import { Session } from 'next-auth';
 
@@ -101,24 +102,37 @@ export async function POST(req: NextRequest) {
       const { 
         elo, 
         multiplayerElo, 
-        rankClass, 
-        multiplayerRankClass,
         bestElo,
-        bestRankClass,
         bestMultiplayerElo,
-        bestMultiplayerRankClass
       } = body;
 
       const updateData: Record<string, string | number> = {};
       
-      if (elo !== undefined) updateData.elo = parseInt(elo);
-      if (multiplayerElo !== undefined) updateData.multiplayerElo = parseInt(multiplayerElo);
-      if (rankClass) updateData.rankClass = rankClass;
-      if (multiplayerRankClass) updateData.multiplayerRankClass = multiplayerRankClass;
-      if (bestElo !== undefined) updateData.bestElo = parseInt(bestElo);
-      if (bestRankClass) updateData.bestRankClass = bestRankClass;
-      if (bestMultiplayerElo !== undefined) updateData.bestMultiplayerElo = parseInt(bestMultiplayerElo);
-      if (bestMultiplayerRankClass) updateData.bestMultiplayerRankClass = bestMultiplayerRankClass;
+      if (elo !== undefined) {
+        const newElo = parseInt(elo);
+        updateData.elo = newElo;
+        // Auto-calculate rank from ELO
+        updateData.rankClass = getRankFromElo(newElo);
+      }
+      
+      if (multiplayerElo !== undefined) {
+        const newMultiElo = parseInt(multiplayerElo);
+        updateData.multiplayerElo = newMultiElo;
+        // Auto-calculate rank from ELO
+        updateData.multiplayerRankClass = getRankFromElo(newMultiElo);
+      }
+      
+      if (bestElo !== undefined) {
+        const newBestElo = parseInt(bestElo);
+        updateData.bestElo = newBestElo;
+        updateData.bestRankClass = getRankFromElo(newBestElo);
+      }
+      
+      if (bestMultiplayerElo !== undefined) {
+        const newBestMultiElo = parseInt(bestMultiplayerElo);
+        updateData.bestMultiplayerElo = newBestMultiElo;
+        updateData.bestMultiplayerRankClass = getRankFromElo(newBestMultiElo);
+      }
 
       const user = await prisma.user.update({
         where: { email: session!.user.email },
