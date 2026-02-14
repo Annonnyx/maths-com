@@ -309,6 +309,12 @@ function TestPage() {
 
   const saveTestResults = async () => {
     if (!testState || !testMode) return;
+    
+    // Don't save if user is not authenticated (guest mode)
+    if (!session?.user) {
+      console.log('Guest mode: Test results not saved');
+      return;
+    }
 
     try {
       const response = await fetch('/api/tests', {
@@ -517,6 +523,15 @@ function TestPage() {
             )}
           </div>
           <div className="flex items-center gap-4">
+            {/* Guest Mode Banner */}
+            {!session?.user && (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+                <span className="text-yellow-400 text-sm">Mode invité</span>
+                <Link href="/login" className="text-xs text-yellow-300 hover:underline">
+                  Connecte-toi pour sauvegarder
+                </Link>
+              </div>
+            )}
             {testMode === 'competitive' && userPrefs.showTimer && (
               <div className="flex items-center gap-2 text-red-400">
                 <Timer className="w-5 h-5" />
@@ -530,6 +545,18 @@ function TestPage() {
             </div>
           </div>
         </div>
+        
+        {/* Mobile Guest Banner */}
+        {!session?.user && (
+          <div className="sm:hidden px-4 py-2 bg-yellow-500/20 border-t border-yellow-500/30">
+            <div className="flex items-center justify-between">
+              <span className="text-yellow-400 text-sm">Mode invité - résultats non sauvegardés</span>
+              <Link href="/login" className="text-xs text-yellow-300 hover:underline">
+                Se connecter
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Progress Bar */}

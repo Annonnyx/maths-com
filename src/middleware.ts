@@ -11,8 +11,12 @@ export function middleware(request: NextRequest) {
   const publicRoutes = ['/', '/login', '/register', '/leaderboard', '/courses'];
   const isPublicRoute = publicRoutes.includes(pathname);
   
-  // If not authenticated and trying to access protected route, redirect to login
-  if (!isAuthenticated && !isPublicRoute) {
+  // Guest routes - accessible without auth but with limited functionality
+  const guestRoutes = ['/test', '/practice', '/courses'];
+  const isGuestRoute = guestRoutes.some(route => pathname.startsWith(route));
+  
+  // If not authenticated and trying to access protected route (not guest), redirect to login
+  if (!isAuthenticated && !isPublicRoute && !isGuestRoute) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
