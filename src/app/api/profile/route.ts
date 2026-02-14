@@ -13,13 +13,49 @@ export async function GET(req: NextRequest) {
     if (userId) {
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        include: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          avatarUrl: true,
+          bannerUrl: true,
+          customBannerId: true,
+          selectedBadgeIds: true,
+          elo: true,
+          rankClass: true,
+          bestElo: true,
+          bestRankClass: true,
+          hasCompletedOnboarding: true,
+          isOnline: true,
+          lastSeenAt: true,
+          multiplayerElo: true,
+          multiplayerRankClass: true,
+          bestMultiplayerElo: true,
+          bestMultiplayerRankClass: true,
+          multiplayerGames: true,
+          multiplayerWins: true,
+          multiplayerLosses: true,
+          createdAt: true,
+          updatedAt: true,
           statistics: true,
-          tests: {
-            orderBy: { completedAt: 'desc' },
-            take: 10,
-            include: {
-              questions: true
+          userBadges: {
+            select: {
+              id: true,
+              earnedAt: true,
+              expiresAt: true,
+              badge: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true,
+                  icon: true,
+                  category: true,
+                  color: true,
+                  requirement: true,
+                  isCustom: true,
+                  isTemporary: true
+                }
+              }
             }
           }
         }
@@ -29,12 +65,8 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }
 
-      // Return user data without password
-      const { password, ...userData } = user;
-      
       return NextResponse.json({
-        user: userData,
-        recentTests: user.tests,
+        user,
         statistics: user.statistics
       });
     }

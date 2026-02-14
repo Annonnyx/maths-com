@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 
 interface BannerData {
+  id?: string;
   username: string;
   displayName?: string;
   bannerUrl?: string;
   selectedBadgeIds?: string[];
+  userBadges?: Array<{ badge: Badge }>;
   elo: number;
   rankClass: string;
   isOnline?: boolean;
@@ -29,26 +31,34 @@ export function PlayerBanner({ player, isOpponent = false, showBadges = true }: 
   const [badges, setBadges] = useState<Badge[]>([]);
 
   useEffect(() => {
-    if (player.selectedBadgeIds && player.selectedBadgeIds.length > 0) {
-      // Fetch badge details
-      fetch('/api/badges')
-        .then(res => res.json())
-        .then(data => {
-          const userBadges = data.badges || [];
-          const selected = userBadges
-            .filter((ub: any) => player.selectedBadgeIds?.includes(ub.badge.id))
-            .map((ub: any) => ub.badge);
-          setBadges(selected);
-        })
-        .catch(console.error);
+    if (!player.selectedBadgeIds || player.selectedBadgeIds.length === 0) {
+      setBadges([]);
+      return;
     }
+
+    if (player.userBadges && player.userBadges.length > 0) {
+      const selected = player.userBadges
+        .filter((ub: any) => player.selectedBadgeIds?.includes(ub.badge.id))
+        .map((ub: any) => ub.badge);
+      setBadges(selected);
+      return;
+    }
+
+    // Fallback: cannot fetch badges publicly (endpoint is auth-protected)
+    setBadges([]);
   }, [player.selectedBadgeIds]);
 
   // Parse banner gradient
   const getBannerStyle = () => {
     if (player.bannerUrl && player.bannerUrl.startsWith('gradient:')) {
-      const gradient = player.bannerUrl.replace('gradient:', '');
-      return { backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))` };
+      return {};
+    }
+    if (player.bannerUrl && (player.bannerUrl.startsWith('http://') || player.bannerUrl.startsWith('https://') || player.bannerUrl.startsWith('/'))) {
+      return {
+        backgroundImage: `url(${player.bannerUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      };
     }
     return {};
   };
@@ -73,7 +83,7 @@ export function PlayerBanner({ player, isOpponent = false, showBadges = true }: 
   };
 
   return (
-    <div className={`relative overflow-hidden rounded-2xl ${getBannerClass()} p-6`}>
+    <div className={`relative overflow-hidden rounded-2xl ${getBannerClass()} p-6`} style={getBannerStyle()}>
       {/* Badges */}
       {showBadges && badges.length > 0 && (
         <div className={`absolute top-3 ${isOpponent ? 'left-3' : 'right-3'} flex gap-2`}>

@@ -6,12 +6,27 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Trophy, Target, Clock, TrendingUp, Users, Calendar, Shield, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { PlayerBanner } from '@/components/PlayerBanner';
 
 interface UserProfile {
   id: string;
   username: string;
   displayName: string | null;
   email: string;
+  avatarUrl?: string | null;
+  bannerUrl?: string | null;
+  selectedBadgeIds?: string | string[] | null;
+  userBadges?: Array<{
+    id: string;
+    earnedAt: string;
+    expiresAt: string | null;
+    badge: {
+      id: string;
+      name: string;
+      icon: string;
+      color: string;
+    };
+  }>;
   elo: number;
   rankClass: string;
   bestElo: number;
@@ -55,8 +70,25 @@ export default function UserProfilePage() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'solo' | 'multiplayer' | 'all'>('all');
   const [isAlreadyFriend, setIsAlreadyFriend] = useState(false);
+  const [friendRequestSent, setFriendRequestSent] = useState(false);
 
   const userId = params.id as string;
+
+  const friendRequestsEnabled = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('friends') !== '0';
+
+  const selectedBadgeIds: string[] = (() => {
+    if (!profile?.selectedBadgeIds) return [];
+    if (Array.isArray(profile.selectedBadgeIds)) return profile.selectedBadgeIds;
+    if (typeof profile.selectedBadgeIds === 'string') {
+      try {
+        const parsed = JSON.parse(profile.selectedBadgeIds);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  })();
 
   useEffect(() => {
     if (!userId) return;
@@ -109,6 +141,8 @@ export default function UserProfilePage() {
 
   const sendFriendRequest = async () => {
     if (!profile || !session?.user) return;
+    if (!friendRequestsEnabled) return;
+    if (isAlreadyFriend || friendRequestSent) return;
 
     try {
       const response = await fetch('/api/friends', {
@@ -118,9 +152,19 @@ export default function UserProfilePage() {
       });
 
       if (response.ok) {
-        alert('Demande d\'ami envoyée !');
-        // Check if it's already a friend (in case of instant acceptance)
+        setFriendRequestSent(true);
         await checkFriendship();
+        return;
+      }
+
+      const data = await response.json().catch(() => null);
+      if (data?.error === 'Already friends') {
+        setIsAlreadyFriend(true);
+        return;
+      }
+      if (data?.error === 'Friend request already sent') {
+        setFriendRequestSent(true);
+        return;
       }
     } catch (error) {
       console.error('Error sending friend request:', error);
@@ -233,30 +277,20 @@ export default function UserProfilePage() {
           className="bg-gradient-to-r from-indigo-500/20 to-purple-600/20 rounded-2xl border border-indigo-500/30 p-8 mb-8"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-4xl font-bold">
-                {profile.username.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h2 className="text-3xl font-bold mb-2">{profile.displayName || profile.username}</h2>
-                <p className="text-gray-400 mb-4">@{profile.username}</p>
-                <div className="flex items-center gap-4">
-                  <div className="text-center">
-                    <div className={`text-2xl font-bold ${getRankColor(profile.rankClass)}`}>
-                      {profile.rankClass}
-                    </div>
-                    <div className="text-sm text-gray-400">Classement Solo</div>
-                  </div>
-                  {profile.multiplayerRankClass && (
-                    <div className="text-center">
-                      <div className={`text-2xl font-bold ${getRankColor(profile.multiplayerRankClass)}`}>
-                        {profile.multiplayerRankClass}
-                      </div>
-                      <div className="text-sm text-gray-400">Classement Multi</div>
-                    </div>
-                  )}
-                </div>
-              </div>
+            <div className="flex-1 pr-6">
+              <PlayerBanner
+                player={{
+                  username: profile.username,
+                  displayName: profile.displayName || undefined,
+                  bannerUrl: profile.bannerUrl || undefined,
+                  selectedBadgeIds,
+                  userBadges: profile.userBadges?.map((ub) => ({ badge: ub.badge })) ?? [],
+                  elo: profile.elo,
+                  rankClass: profile.rankClass,
+                  isOnline: profile.isOnline
+                }}
+                showBadges
+              />
             </div>
             
             <div className="text-right">
@@ -267,15 +301,25 @@ export default function UserProfilePage() {
               <div className="text-sm text-gray-500">
                 Membre depuis {formatDate(profile.createdAt)}
               </div>
-              {!isOwnProfile && !isAlreadyFriend && (
+              {!isOwnProfile && friendRequestsEnabled && !isAlreadyFriend && (
                 <button
                   onClick={sendFriendRequest}
-                  className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+                  disabled={friendRequestSent}
+                  className={`mt-4 px-4 py-2 rounded-lg transition-colors ${
+                    friendRequestSent
+                      ? 'bg-indigo-600/40 text-indigo-200 cursor-not-allowed'
+                      : 'bg-indigo-600 hover:bg-indigo-700'
+                  }`}
                 >
-                  Ajouter en ami
+                  {friendRequestSent ? 'Demande envoyée' : 'Ajouter en ami'}
                 </button>
               )}
-              {isAlreadyFriend && (
+              {!isOwnProfile && !friendRequestsEnabled && (
+                <div className="mt-4 px-4 py-2 bg-gray-600/20 text-gray-300 rounded-lg">
+                  Demandes d'ami désactivées
+                </div>
+              )}
+              {!isOwnProfile && isAlreadyFriend && (
                 <div className="mt-4 px-4 py-2 bg-green-600/20 text-green-400 rounded-lg">
                   Déjà ami
                 </div>
@@ -283,6 +327,51 @@ export default function UserProfilePage() {
             </div>
           </div>
         </motion.div>
+
+        {/* Badges */}
+        {profile.userBadges && profile.userBadges.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="bg-[#1e1e2e] rounded-2xl border border-[#2a2a3a] p-6 mb-8"
+          >
+            <h3 className="text-xl font-bold mb-4">Badges</h3>
+            <div className="flex flex-wrap gap-3">
+              {[...profile.userBadges]
+                .sort((a, b) => {
+                  const aSelected = selectedBadgeIds.includes(a.badge.id) ? 1 : 0;
+                  const bSelected = selectedBadgeIds.includes(b.badge.id) ? 1 : 0;
+                  if (aSelected !== bSelected) return bSelected - aSelected;
+                  return new Date(b.earnedAt).getTime() - new Date(a.earnedAt).getTime();
+                })
+                .map((ub) => {
+                  const isSelected = selectedBadgeIds.includes(ub.badge.id);
+                  return (
+                    <div
+                      key={ub.id}
+                      className={`px-3 py-2 rounded-xl border flex items-center gap-2 ${
+                        isSelected
+                          ? 'border-yellow-400/60 bg-yellow-400/10'
+                          : 'border-[#2a2a3a] bg-[#12121a]'
+                      }`}
+                      title={ub.badge.name}
+                    >
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-lg"
+                        style={{ backgroundColor: ub.badge.color }}
+                      >
+                        {ub.badge.icon}
+                      </div>
+                      <div className="text-sm font-semibold">
+                        {ub.badge.name}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </motion.div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 // POST /api/users - Create a new user (register)
 export async function POST(req: NextRequest) {
@@ -69,16 +71,47 @@ export async function GET(req: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: id ? { id } : { username: username! },
-      include: {
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        avatarUrl: true,
+        bannerUrl: true,
+        customBannerId: true,
+        selectedBadgeIds: true,
+        elo: true,
+        rankClass: true,
+        bestElo: true,
+        bestRankClass: true,
+        hasCompletedOnboarding: true,
+        isOnline: true,
+        lastSeenAt: true,
+        multiplayerElo: true,
+        multiplayerRankClass: true,
+        bestMultiplayerElo: true,
+        bestMultiplayerRankClass: true,
+        multiplayerGames: true,
+        multiplayerWins: true,
+        multiplayerLosses: true,
+        createdAt: true,
+        updatedAt: true,
         statistics: true,
-        tests: {
-          orderBy: { startedAt: 'desc' },
-          take: 5,
-          include: {
-            questions: {
+        userBadges: {
+          select: {
+            id: true,
+            earnedAt: true,
+            expiresAt: true,
+            badge: {
               select: {
-                type: true,
-                isCorrect: true
+                id: true,
+                name: true,
+                description: true,
+                icon: true,
+                category: true,
+                color: true,
+                requirement: true,
+                isCustom: true,
+                isTemporary: true
               }
             }
           }
@@ -90,9 +123,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Return user without password
-    const { password: _, ...userWithoutPassword } = user;
-    return NextResponse.json(userWithoutPassword);
+    return NextResponse.json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
     return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
@@ -102,11 +133,25 @@ export async function GET(req: NextRequest) {
 // PATCH /api/users - Update user
 export async function PATCH(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const currentUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true }
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     const body = await req.json();
-    const { id, displayName, avatarUrl, hasCompletedOnboarding } = body;
+    const { displayName, avatarUrl, hasCompletedOnboarding } = body;
 
     const user = await prisma.user.update({
-      where: { id },
+      where: { id: currentUser.id },
       data: {
         ...(displayName && { displayName }),
         ...(avatarUrl && { avatarUrl }),

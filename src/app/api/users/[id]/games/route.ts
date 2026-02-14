@@ -15,14 +15,23 @@ export async function GET(
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
+    const currentUser = session?.user?.email
+      ? await prisma.user.findUnique({
+          where: { email: session.user.email },
+          select: { id: true }
+        })
+      : null;
+
+    const isSelf = currentUser?.id === id;
+
     // Get recent games for the user
     const games = await prisma.test.findMany({
       where: {
         userId: id
       },
-      include: {
-        questions: true
-      },
+      include: isSelf
+        ? { questions: true }
+        : undefined,
       orderBy: { startedAt: 'desc' },
       take: 50
     });

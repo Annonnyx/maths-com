@@ -15,13 +15,26 @@ export async function GET(
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
+    const currentUser = session?.user?.email
+      ? await prisma.user.findUnique({
+          where: { email: session.user.email },
+          select: { id: true, email: true }
+        })
+      : null;
+
+    const isSelf = currentUser?.id === id;
+
     const user = await prisma.user.findUnique({
       where: { id },
       select: {
         id: true,
         username: true,
         displayName: true,
-        email: true,
+        ...(isSelf ? { email: true } : {}),
+        avatarUrl: true,
+        bannerUrl: true,
+        customBannerId: true,
+        selectedBadgeIds: true,
         elo: true,
         rankClass: true,
         bestElo: true,
@@ -35,7 +48,28 @@ export async function GET(
         multiplayerLosses: true,
         createdAt: true,
         lastSeenAt: true,
-        isOnline: true
+        isOnline: true,
+        statistics: true,
+        userBadges: {
+          select: {
+            id: true,
+            earnedAt: true,
+            expiresAt: true,
+            badge: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                icon: true,
+                category: true,
+                color: true,
+                requirement: true,
+                isCustom: true,
+                isTemporary: true
+              }
+            }
+          }
+        }
       }
     });
 
