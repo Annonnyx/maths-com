@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { 
   ArrowLeft, Bell, Users, Swords, Volume2, Palette, 
-  Check
+  Check, Moon, Zap, Target, Shield
 } from 'lucide-react';
 
 // Local storage hooks that work without contexts
@@ -32,10 +32,10 @@ function useLocalNotifSettings() {
 function useLocalPrefs() {
   const [preferences, setPreferences] = useState(() => {
     if (typeof window === 'undefined') {
-      return { soundEffects: true, animations: true, showTimer: true, difficulty: 'adaptive' };
+      return { soundEffects: true, animations: true, showTimer: true, darkMode: true, difficulty: 'adaptive' };
     }
     const saved = localStorage.getItem('mathcom-preferences');
-    return saved ? JSON.parse(saved) : { soundEffects: true, animations: true, showTimer: true, difficulty: 'adaptive' };
+    return saved ? JSON.parse(saved) : { soundEffects: true, animations: true, showTimer: true, darkMode: true, difficulty: 'adaptive' };
   });
 
   const setPref = (key: string, value: any) => {
@@ -43,6 +43,10 @@ function useLocalPrefs() {
     setPreferences(updated);
     if (typeof window !== 'undefined') {
       localStorage.setItem('mathcom-preferences', JSON.stringify(updated));
+    }
+    // Apply dark mode immediately
+    if (key === 'darkMode') {
+      document.documentElement.classList.toggle('dark', value);
     }
   };
 
@@ -59,7 +63,7 @@ export default function SettingsPage() {
     showSaved();
   };
 
-  const handlePrefChange = (key: 'soundEffects' | 'animations', value: boolean) => {
+  const handlePrefChange = (key: 'soundEffects' | 'animations' | 'showTimer' | 'darkMode', value: boolean) => {
     setPref(key, value);
     showSaved();
   };
@@ -92,6 +96,96 @@ export default function SettingsPage() {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+        {/* Appearance */}
+        <section className="bg-card rounded-2xl border border-border p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+              <Palette className="w-5 h-5 text-purple-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold">Apparence</h2>
+              <p className="text-sm text-muted-foreground">Personnalise l&apos;interface</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
+              <div className="flex items-center gap-3">
+                <Moon className="w-5 h-5 text-indigo-400" />
+                <div>
+                  <p className="font-medium">Mode sombre</p>
+                  <p className="text-sm text-muted-foreground">Activer le thème sombre</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handlePrefChange('darkMode', !preferences.darkMode)}
+                className={`w-12 h-6 rounded-full transition-all ${
+                  preferences.darkMode ? 'bg-primary' : 'bg-muted'
+                }`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                  preferences.darkMode ? 'translate-x-6' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
+              <div className="flex items-center gap-3">
+                <Zap className="w-5 h-5 text-yellow-400" />
+                <div>
+                  <p className="font-medium">Animations</p>
+                  <p className="text-sm text-muted-foreground">Activer les animations fluides</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handlePrefChange('animations', !preferences.animations)}
+                className={`w-12 h-6 rounded-full transition-all ${
+                  preferences.animations ? 'bg-primary' : 'bg-muted'
+                }`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                  preferences.animations ? 'translate-x-6' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Audio */}
+        <section className="bg-card rounded-2xl border border-border p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+              <Volume2 className="w-5 h-5 text-yellow-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold">Audio</h2>
+              <p className="text-sm text-muted-foreground">Gère les effets sonores</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
+              <div className="flex items-center gap-3">
+                <Volume2 className="w-5 h-5 text-blue-400" />
+                <div>
+                  <p className="font-medium">Effets sonores</p>
+                  <p className="text-sm text-muted-foreground">Sons lors des interactions</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handlePrefChange('soundEffects', !preferences.soundEffects)}
+                className={`w-12 h-6 rounded-full transition-all ${
+                  preferences.soundEffects ? 'bg-primary' : 'bg-muted'
+                }`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                  preferences.soundEffects ? 'translate-x-6' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
+          </div>
+        </section>
+
         {/* Notifications */}
         <section className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
@@ -109,18 +203,18 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3">
                 <Users className="w-5 h-5 text-green-400" />
                 <div>
-                  <p className="font-medium">Demandes d'ami</p>
-                  <p className="text-sm text-muted-foreground">Notifier quand quelqu'un t'envoie une demande</p>
+                  <p className="font-medium">Demandes d&apos;ami</p>
+                  <p className="text-sm text-muted-foreground">Notifier quand quelqu&apos;un t&apos;envoie une demande</p>
                 </div>
               </div>
               <button
                 onClick={() => handleNotifChange('friendRequests', !notifSettings.friendRequests)}
-                className={`w-12 h-6 rounded-full transition-colors relative ${
-                  notifSettings.friendRequests ? 'bg-indigo-500' : 'bg-gray-600'
+                className={`w-12 h-6 rounded-full transition-all ${
+                  notifSettings.friendRequests ? 'bg-primary' : 'bg-muted'
                 }`}
               >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
-                  notifSettings.friendRequests ? 'left-7' : 'left-1'
+                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                  notifSettings.friendRequests ? 'translate-x-6' : 'translate-x-0.5'
                 }`} />
               </button>
             </div>
@@ -130,72 +224,52 @@ export default function SettingsPage() {
                 <Swords className="w-5 h-5 text-red-400" />
                 <div>
                   <p className="font-medium">Défis</p>
-                  <p className="text-sm text-muted-foreground">Notifier quand quelqu'un te défie</p>
+                  <p className="text-sm text-muted-foreground">Notifier quand quelqu&apos;un te défie</p>
                 </div>
               </div>
               <button
                 onClick={() => handleNotifChange('challenges', !notifSettings.challenges)}
-                className={`w-12 h-6 rounded-full transition-colors relative ${
-                  notifSettings.challenges ? 'bg-indigo-500' : 'bg-gray-600'
+                className={`w-12 h-6 rounded-full transition-all ${
+                  notifSettings.challenges ? 'bg-primary' : 'bg-muted'
                 }`}
               >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
-                  notifSettings.challenges ? 'left-7' : 'left-1'
+                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                  notifSettings.challenges ? 'translate-x-6' : 'translate-x-0.5'
                 }`} />
               </button>
             </div>
           </div>
         </section>
 
-        {/* Sound & Display */}
+        {/* Test & Training */}
         <section className="bg-card rounded-2xl border border-border p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
-              <Volume2 className="w-5 h-5 text-purple-400" />
+            <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+              <Target className="w-5 h-5 text-green-400" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold">Son et affichage</h2>
-              <p className="text-sm text-muted-foreground">Personnalise ton expérience</p>
+              <h2 className="text-lg font-semibold">Test & Entraînement</h2>
+              <p className="text-sm text-muted-foreground">Options des exercices</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
               <div className="flex items-center gap-3">
-                <Volume2 className="w-5 h-5 text-blue-400" />
+                <Zap className="w-5 h-5 text-orange-400" />
                 <div>
-                  <p className="font-medium">Effets sonores</p>
-                  <p className="text-sm text-muted-foreground">Sons lors des interactions</p>
+                  <p className="font-medium">Afficher le timer</p>
+                  <p className="text-sm text-muted-foreground">Chronomètre visible pendant les tests</p>
                 </div>
               </div>
               <button
-                onClick={() => handlePrefChange('soundEffects', !preferences.soundEffects)}
-                className={`w-12 h-6 rounded-full transition-colors relative ${
-                  preferences.soundEffects ? 'bg-indigo-500' : 'bg-gray-600'
+                onClick={() => handlePrefChange('showTimer', !preferences.showTimer)}
+                className={`w-12 h-6 rounded-full transition-all ${
+                  preferences.showTimer ? 'bg-primary' : 'bg-muted'
                 }`}
               >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
-                  preferences.soundEffects ? 'left-7' : 'left-1'
-                }`} />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
-              <div className="flex items-center gap-3">
-                <Palette className="w-5 h-5 text-pink-400" />
-                <div>
-                  <p className="font-medium">Animations</p>
-                  <p className="text-sm text-muted-foreground">Animations fluides dans l'interface</p>
-                </div>
-              </div>
-              <button
-                onClick={() => handlePrefChange('animations', !preferences.animations)}
-                className={`w-12 h-6 rounded-full transition-colors relative ${
-                  preferences.animations ? 'bg-indigo-500' : 'bg-gray-600'
-                }`}
-              >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
-                  preferences.animations ? 'left-7' : 'left-1'
+                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
+                  preferences.showTimer ? 'translate-x-6' : 'translate-x-0.5'
                 }`} />
               </button>
             </div>
