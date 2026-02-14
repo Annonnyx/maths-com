@@ -270,15 +270,21 @@ function ProfileContent() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            {/* Banner */}
+            {/* Banner - Show gradient or custom image */}
             {profile?.user?.bannerUrl && (
-              <div className="w-full h-32 rounded-2xl mb-4 overflow-hidden">
-                <img 
-                  src={profile?.user?.bannerUrl} 
-                  alt="Bannière" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              profile.user.bannerUrl.startsWith('gradient:') ? (
+                // Gradient banner
+                <div className={`w-full h-32 rounded-2xl mb-4 overflow-hidden bg-gradient-to-r ${profile.user.bannerUrl.replace('gradient:', '')}`} />
+              ) : (
+                // Custom image banner
+                <div className="w-full h-32 rounded-2xl mb-4 overflow-hidden">
+                  <img 
+                    src={profile.user.bannerUrl} 
+                    alt="Bannière" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )
             )}
           
           <div className="flex items-center gap-6 mb-6">
