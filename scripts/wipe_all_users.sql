@@ -1,6 +1,5 @@
 -- Script SQL complet pour supprimer TOUS les users et leurs données liées
 -- Ordre : tables enfants vers tables parents (respect des FK)
-
 -- 1. Tables liées aux tests/questions
 DELETE FROM questions;
 DELETE FROM tests;
