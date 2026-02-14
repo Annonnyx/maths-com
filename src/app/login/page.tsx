@@ -97,6 +97,30 @@ function LoginPageContent() {
     setError('');
 
     try {
+      // Vérifier d'abord si l'utilisateur existe
+      const checkResponse = await fetch('/api/auth/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const checkData = await checkResponse.json();
+
+      if (!checkData.exists) {
+        setError('Ce mail/pseudo n\'existe pas');
+        playSound('incorrect');
+        setIsLoading(false);
+        return;
+      }
+
+      if (checkData.error === 'OAUTH_ACCOUNT') {
+        setError('Ce compte utilise Google/Discord. Connecte-toi via OAuth.');
+        playSound('incorrect');
+        setIsLoading(false);
+        return;
+      }
+
+      // User existe avec password, essayer le login
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
@@ -105,10 +129,9 @@ function LoginPageContent() {
       });
 
       if (result?.error) {
-        setError('Email/pseudo ou mot de passe incorrect');
+        setError('Le mot de passe ne correspond pas');
         playSound('incorrect');
       } else {
-        // Hard redirect to ensure session is loaded
         window.location.href = callbackUrl;
       }
     } catch {
