@@ -8,6 +8,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { Trophy, Medal, TrendingUp, Users, ArrowLeft, Crown, Swords, Target, Clock, Search, ArrowUpDown } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
 import { supabase } from '@/lib/supabase';
+import React from 'react';
 
 interface LeaderboardEntry {
   id: string;
@@ -87,34 +88,33 @@ export default function LeaderboardPage() {
   };
 
   useEffect(() => {
-    if (session) {
-      fetchLeaderboard();
+    // Allow guests to view leaderboard
+    fetchLeaderboard();
 
-      // Subscribe to changes in users and statistics for real-time leaderboard
-      const usersChannel = supabase
-        .channel('leaderboard_updates')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'users' },
-          () => fetchLeaderboard()
-        )
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'statistics' },
-          () => fetchLeaderboard()
-        )
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'multiplayer_statistics' },
-          () => fetchLeaderboard()
-        )
-        .subscribe();
+    // Subscribe to changes in users and statistics for real-time leaderboard
+    const usersChannel = supabase
+      .channel('leaderboard_updates')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'users' },
+        () => fetchLeaderboard()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'statistics' },
+        () => fetchLeaderboard()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'multiplayer_statistics' },
+        () => fetchLeaderboard()
+      )
+      .subscribe();
 
-      return () => {
-        supabase.removeChannel(usersChannel);
-      };
-    }
-  }, [session, activeTab, timeFrame, page, scope]);
+    return () => {
+      supabase.removeChannel(usersChannel);
+    };
+  }, [activeTab, timeFrame, page, scope]);
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Crown className="w-5 h-5 text-yellow-400" />;
@@ -171,15 +171,292 @@ export default function LeaderboardPage() {
     }
   };
 
+  // Leaderboard content component
+  const LeaderboardContent = ({ 
+    leaderboard, 
+    loading, 
+    activeTab, 
+    setActiveTab, 
+    timeFrame, 
+    setTimeFrame,
+    sortBy,
+    sortOrder,
+    toggleSort,
+    searchQuery,
+    setSearchQuery,
+    page,
+    setPage,
+    totalPages,
+    getRankIcon,
+    getRankColor,
+    getRankBgColor
+  }: {
+    leaderboard: LeaderboardEntry[];
+    loading: boolean;
+    activeTab: 'solo' | 'multiplayer';
+    setActiveTab: (tab: 'solo' | 'multiplayer') => void;
+    timeFrame: 'all' | 'week' | 'month';
+    setTimeFrame: (frame: 'all' | 'week' | 'month') => void;
+    sortBy: 'elo' | 'games' | 'winRate' | 'accuracy';
+    sortOrder: 'asc' | 'desc';
+    toggleSort: (field: 'elo' | 'games' | 'winRate' | 'accuracy') => void;
+    searchQuery: string;
+    setSearchQuery: (query: string) => void;
+    page: number;
+    setPage: (page: number) => void;
+    totalPages: number;
+    getRankIcon: (rank: number) => React.ReactNode;
+    getRankColor: (rank: string) => string;
+    getRankBgColor: (rank: string) => string;
+  }) => {
+    return (
+      <>
+        {/* Controls */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          {/* Type Tabs */}
+          <div className="flex bg-card rounded-xl p-1">
+            <button
+              onClick={() => setActiveTab('solo')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                activeTab === 'solo' 
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Target className="w-4 h-4" />
+              Solo
+            </button>
+            <button
+              onClick={() => setActiveTab('multiplayer')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                activeTab === 'multiplayer' 
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Swords className="w-4 h-4" />
+              Multijoueur
+            </button>
+          </div>
+
+          {/* Time Frame */}
+          <div className="flex bg-card rounded-xl p-1">
+            <button
+              onClick={() => setTimeFrame('all')}
+              className={`px-4 py-2 rounded-lg transition-all ${
+                timeFrame === 'all' 
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Tout le temps
+            </button>
+            <button
+              onClick={() => setTimeFrame('week')}
+              className={`px-4 py-2 rounded-lg transition-all ${
+                timeFrame === 'week' 
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Cette semaine
+            </button>
+            <button
+              onClick={() => setTimeFrame('month')}
+              className={`px-4 py-2 rounded-lg transition-all ${
+                timeFrame === 'month' 
+                  ? 'bg-indigo-500 text-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Ce mois
+            </button>
+          </div>
+        </div>
+
+        {/* Search and Sort */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          {/* Search */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Rechercher un joueur..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-lg focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          {/* Sort */}
+          <div className="flex gap-2">
+            {[
+              { key: 'elo', label: 'Elo' },
+              { key: 'games', label: 'Parties' },
+              { key: 'winRate', label: 'Win Rate' },
+              { key: 'accuracy', label: 'Précision' }
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => toggleSort(key as any)}
+                className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+                  sortBy === key 
+                    ? 'bg-indigo-500 text-foreground' 
+                    : 'bg-card text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {label}
+                <ArrowUpDown className="w-3 h-3" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Leaderboard Table */}
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Chargement du classement...</p>
+            </div>
+          ) : leaderboard.length === 0 ? (
+            <div className="p-8 text-center">
+              <Trophy className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">Aucun joueur trouvé</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left p-4 font-semibold">Rang</th>
+                    <th className="text-left p-4 font-semibold">Joueur</th>
+                    <th className="text-right p-4 font-semibold">Elo</th>
+                    <th className="text-right p-4 font-semibold">Win Rate</th>
+                    <th className="text-right p-4 font-semibold">Précision</th>
+                    <th className="text-right p-4 font-semibold">Parties</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaderboard.map((entry, index) => (
+                    <tr key={entry.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                      <td className="p-4">
+                        {getRankIcon(entry.globalRank)}
+                      </td>
+                      <td className="p-4">
+                        <div>
+                          <div className="font-medium">{entry.displayName || entry.username}</div>
+                          <div className="text-sm text-muted-foreground">@{entry.username}</div>
+                        </div>
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="font-bold">{entry.stats.currentElo}</div>
+                        <div className={`text-sm font-medium ${getRankColor(entry.stats.currentRank)}`}>
+                          {entry.stats.currentRank}
+                        </div>
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="font-medium">{entry.stats.winRate.toFixed(1)}%</div>
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="font-medium">{entry.stats.accuracy.toFixed(1)}%</div>
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="font-medium">{entry.stats.totalGames}</div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-6">
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              className="px-3 py-2 rounded-lg bg-card border border-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+            >
+              Précédent
+            </button>
+            <span className="px-4 py-2 text-muted-foreground">
+              Page {page} sur {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-2 rounded-lg bg-card border border-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+            >
+              Suivant
+            </button>
+          </div>
+        )}
+      </>
+    );
+  };
+
   if (!session) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-foreground text-center">
-          <h1 className="text-2xl font-bold mb-4">Connecte-toi pour voir le classement</h1>
-          <Link href="/login" className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors">
-            Se connecter
-          </Link>
+      <div className="min-h-screen bg-background text-foreground">
+        {/* Header */}
+        <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+              Retour
+            </Link>
+            
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Trophy className="w-6 h-6 text-yellow-400" />
+              Classement
+            </h1>
+            
+            <Link href="/login" className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+              Se connecter
+            </Link>
+          </div>
+        </header>
+
+        {/* Guest Banner */}
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-xl p-4 mb-6">
+            <div className="flex items-center gap-3">
+              <Trophy className="w-5 h-5 text-yellow-400" />
+              <div>
+                <p className="text-yellow-300 font-medium">Mode invité</p>
+                <p className="text-yellow-400/80 text-sm">
+                  Consulte le classement global. <Link href="/login" className="underline hover:text-yellow-300">Connecte-toi</Link> pour voir ton rang personnel et participer !
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Leaderboard Content */}
+        <main className="max-w-6xl mx-auto px-4 pb-8">
+          <LeaderboardContent 
+            leaderboard={processedLeaderboard}
+            loading={loading}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            timeFrame={timeFrame}
+            setTimeFrame={setTimeFrame}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            toggleSort={toggleSort}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            page={page}
+            setPage={setPage}
+            totalPages={totalPages}
+            getRankIcon={getRankIcon}
+            getRankColor={getRankColor}
+            getRankBgColor={getRankBgColor}
+          />
+        </main>
       </div>
     );
   }
