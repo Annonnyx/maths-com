@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { Trophy, Medal, TrendingUp, Users, ArrowLeft, Crown, Swords, Target, Clock, Search, ArrowUpDown } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { supabase } from '@/lib/supabase';
 
 interface LeaderboardEntry {
   id: string;
@@ -88,6 +89,30 @@ export default function LeaderboardPage() {
   useEffect(() => {
     if (session) {
       fetchLeaderboard();
+
+      // Subscribe to changes in users and statistics for real-time leaderboard
+      const usersChannel = supabase
+        .channel('leaderboard_updates')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'users' },
+          () => fetchLeaderboard()
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'statistics' },
+          () => fetchLeaderboard()
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'multiplayer_statistics' },
+          () => fetchLeaderboard()
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(usersChannel);
+      };
     }
   }, [session, activeTab, timeFrame, page, scope]);
 

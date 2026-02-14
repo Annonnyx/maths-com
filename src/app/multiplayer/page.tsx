@@ -12,6 +12,7 @@ import { useSound } from '@/components/SoundProvider';
 import { AdUnit } from '@/components/AdUnit';
 import { TimeControl, GameType } from '@/lib/multiplayer';
 import { TIME_CONTROLS } from '@/lib/multiplayer';
+import { supabase } from '@/lib/supabase';
 
 interface Game {
   id: string;
@@ -62,12 +63,10 @@ export default function MultiplayerPage() {
   const [selectedGameType, setSelectedGameType] = useState<GameType>('ranked');
   const [opponentFound, setOpponentFound] = useState(false);
   
-  // Friends challenge state
   const [friends, setFriends] = useState<Friend[]>([]);
   const [showFriends, setShowFriends] = useState(false);
   const [challenging, setChallenging] = useState<string | null>(null);
 
-  // Fetch friends when showing friends section
   useEffect(() => {
     if (session && showFriends) {
       fetchFriends();
@@ -126,8 +125,6 @@ export default function MultiplayerPage() {
       setSearching(true);
       playSound('click');
 
-      console.log('Starting search with:', { selectedTimeControl, selectedGameType });
-
       const response = await fetch('/api/multiplayer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -139,23 +136,16 @@ export default function MultiplayerPage() {
       });
 
       const result = await response.json();
-      console.log('Search response:', result);
 
       if (response.ok) {
         if (result.success) {
-          console.log('Game created/joined:', result.game);
           setGame(result.game);
-          
-          // Check if game already has opponent
           if (result.game.player2) {
-            console.log('Opponent already in game!');
             setOpponentFound(true);
             playSound('click');
             setTimeout(() => {
               window.location.href = `/multiplayer/game/${result.game.id}`;
             }, 1500);
-          } else {
-            console.log('Waiting for opponent...');
           }
         } else {
           setError(result.error || 'Erreur lors de la recherche');
@@ -170,32 +160,37 @@ export default function MultiplayerPage() {
       setError('Erreur de connexion');
       setSearching(false);
     }
-  }, [selectedTimeControl, selectedGameType]);
+  }, [selectedTimeControl, selectedGameType, playSound]);
 
-  // Poll for game updates
   useEffect(() => {
-    if (!game || game.status === 'finished') return;
+    if (!game || game.status === 'finished' || opponentFound) return;
 
-    const pollInterval = setInterval(async () => {
-      try {
-        const response = await fetch(`/api/multiplayer/game/${game.id}`);
-        const gameData = await response.json();
-
-        if (response.ok && gameData.status === 'playing' && gameData.player2) {
-          console.log('Opponent found! Player2:', gameData.player2);
-          setOpponentFound(true);
-          playSound('click');
-          setTimeout(() => {
-            window.location.href = `/multiplayer/game/${game.id}`;
-          }, 1000);
+    const channel = supabase
+      .channel(`game_search_${game.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'multiplayer_games',
+          filter: `id=eq.${game.id}`,
+        },
+        (payload: any) => {
+          if (payload.new.status === 'playing' && payload.new.player2Id) {
+            setOpponentFound(true);
+            playSound('click');
+            setTimeout(() => {
+              window.location.href = `/multiplayer/game/${game.id}`;
+            }, 1000);
+          }
         }
-      } catch (error) {
-        console.error('Error polling game:', error);
-      }
-    }, 1000);
+      )
+      .subscribe();
 
-    return () => clearInterval(pollInterval);
-  }, [game]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [game, opponentFound, playSound]);
 
   const handleCancelSearch = async () => {
     try {
@@ -221,16 +216,13 @@ export default function MultiplayerPage() {
     }
   };
 
-  // Cleanup on unmount or page leave
   useEffect(() => {
     const handlePageLeave = () => {
       if (searching) {
         handleCancelSearch();
       }
     };
-
     window.addEventListener('beforeunload', handlePageLeave);
-    
     return () => {
       window.removeEventListener('beforeunload', handlePageLeave);
       handlePageLeave();
@@ -239,7 +231,6 @@ export default function MultiplayerPage() {
 
   return (
     <div className="min-h-screen bg-background text-white">
-      {/* Header */}
       <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -251,7 +242,6 @@ export default function MultiplayerPage() {
               Tout nettoyer
             </button>
           </div>
-          
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-sm font-semibold">{(session?.user as any)?.username || 'Joueur'}</div>
@@ -263,13 +253,8 @@ export default function MultiplayerPage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Challenge Friend Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <button
             onClick={() => setShowFriends(!showFriends)}
             className="w-full p-6 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-2xl border border-green-500/30 hover:border-green-500/50 transition-all group"
@@ -284,14 +269,11 @@ export default function MultiplayerPage() {
                   <p className="text-sm text-muted-foreground">Envoie un défi à un ami pour jouer ensemble</p>
                 </div>
               </div>
-              <div className="text-green-400">
-                {showFriends ? '▲' : '▼'}
-              </div>
+              <div className="text-green-400">{showFriends ? '▲' : '▼'}</div>
             </div>
           </button>
         </motion.div>
 
-        {/* Friends List */}
         <AnimatePresence>
           {showFriends && (
             <motion.div
@@ -339,11 +321,7 @@ export default function MultiplayerPage() {
                         disabled={challenging === friend.user.id}
                         className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
                       >
-                        {challenging === friend.user.id ? (
-                          <Clock className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Swords className="w-4 h-4" />
-                        )}
+                        {challenging === friend.user.id ? <Clock className="w-4 h-4 animate-spin" /> : <Swords className="w-4 h-4" />}
                         Défier
                       </button>
                     </div>
@@ -354,26 +332,16 @@ export default function MultiplayerPage() {
           )}
         </AnimatePresence>
 
-        {/* Inline Ad */}
         <AdUnit type="inline" className="my-6" />
 
-        {/* Game Setup */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <div className="bg-gradient-to-br from-card to-muted rounded-2xl border border-border p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
               <Zap className="w-8 h-8 text-purple-400" />
               Configuration de la partie
             </h2>
-
-            {/* Time Control Selection */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-muted-foreground mb-3">
-                Contrôle du temps
-              </label>
+              <label className="block text-sm font-medium text-muted-foreground mb-3">Contrôle du temps</label>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {Object.entries(TIME_CONTROLS).map(([key, config]) => (
                   <button
@@ -392,12 +360,8 @@ export default function MultiplayerPage() {
                 ))}
               </div>
             </div>
-
-            {/* Game Type Selection */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-muted-foreground mb-3">
-                Type de partie
-              </label>
+              <label className="block text-sm font-medium text-muted-foreground mb-3">Type de partie</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setSelectedGameType('ranked')}
@@ -425,8 +389,6 @@ export default function MultiplayerPage() {
                 </button>
               </div>
             </div>
-
-            {/* Start Search Button */}
             <button
               onClick={startSearch}
               disabled={searching || !session}
@@ -435,25 +397,13 @@ export default function MultiplayerPage() {
               <Search className="w-6 h-6" />
               {searching ? 'Recherche en cours...' : 'Rechercher une partie'}
             </button>
-
-            {/* Error Display */}
             {error && (
-              <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300">
+              <div className="mt-6 p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300">
                 <div className="flex items-center justify-between">
                   <span>{error}</span>
                   <div className="flex gap-2">
-                    <button
-                      onClick={handleCancelSearch}
-                      className="px-3 py-1 bg-red-500/30 hover:bg-red-500/40 rounded-lg text-sm transition-colors"
-                    >
-                      Nettoyer
-                    </button>
-                    <button
-                      onClick={handleClearAllGames}
-                      className="px-3 py-1 bg-orange-500/30 hover:bg-orange-500/40 rounded-lg text-sm transition-colors"
-                    >
-                      Tout nettoyer
-                    </button>
+                    <button onClick={handleCancelSearch} className="px-3 py-1 bg-red-500/30 hover:bg-red-500/40 rounded-lg text-sm transition-colors">Nettoyer</button>
+                    <button onClick={handleClearAllGames} className="px-3 py-1 bg-orange-500/30 hover:bg-orange-500/40 rounded-lg text-sm transition-colors">Tout nettoyer</button>
                   </div>
                 </div>
               </div>
@@ -461,26 +411,15 @@ export default function MultiplayerPage() {
           </div>
         </motion.div>
 
-        {/* Searching State */}
         <AnimatePresence>
           {searching && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gradient-to-br from-[#1e1e2e] to-[#2a2a3a] rounded-2xl border border-[#3a3a4a] p-8 text-center"
-            >
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-gradient-to-br from-[#1e1e2e] to-[#2a2a3a] rounded-2xl border border-[#3a3a4a] p-8 text-center">
               <div className="mb-6">
                 <div className="w-16 h-16 border-4 border-primary/30 rounded-full border-t-transparent animate-spin mx-auto mb-4"></div>
                 <h3 className="text-xl font-semibold mb-2">Recherche d'un adversaire...</h3>
-                <p className="text-muted-foreground">
-                  {TIME_CONTROLS[selectedTimeControl].name} • {selectedGameType === 'ranked' ? 'Classé' : 'Amical'}
-                </p>
+                <p className="text-muted-foreground">{TIME_CONTROLS[selectedTimeControl].name} • {selectedGameType === 'ranked' ? 'Classé' : 'Amical'}</p>
               </div>
-              <button
-                onClick={handleCancelSearch}
-                className="px-6 py-3 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition-all"
-              >
+              <button onClick={handleCancelSearch} className="px-6 py-3 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition-all flex items-center gap-2 mx-auto">
                 <XCircle className="w-5 h-5" />
                 Annuler la recherche
               </button>
@@ -488,21 +427,13 @@ export default function MultiplayerPage() {
           )}
         </AnimatePresence>
 
-        {/* Opponent Found */}
         <AnimatePresence>
           {opponentFound && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl border border-green-500/30 p-8 text-center"
-            >
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl border border-green-500/30 p-8 text-center">
               <div className="mb-4">
                 <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold mb-2">Adversaire trouvé !</h3>
-                <p className="text-gray-300">
-                  Redirection vers la partie en cours...
-                </p>
+                <p className="text-gray-300">Redirection vers la partie en cours...</p>
               </div>
               <div className="w-16 h-16 border-4 border-green-500/30 rounded-full border-t-transparent animate-spin mx-auto"></div>
             </motion.div>

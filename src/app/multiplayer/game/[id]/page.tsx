@@ -12,6 +12,7 @@ import { useSound } from '@/components/SoundProvider';
 import { PlayerBanner, VersusBanner } from '@/components/PlayerBanner';
 import { MultiplayerGame, MultiplayerQuestion } from '@/lib/multiplayer';
 import { TIME_CONTROLS } from '@/lib/multiplayer';
+import { supabase } from '@/lib/supabase';
 
 export default function MultiplayerGamePage() {
   const params = useParams();
@@ -185,44 +186,68 @@ export default function MultiplayerGamePage() {
     }
   };
 
-  // Poll for opponent progress
+  // Supabase Realtime for game synchronization
   useEffect(() => {
-    if (!isGameActive || !game) return;
+    if (!gameId || !isGameActive) return;
 
-    const pollInterval = setInterval(async () => {
-      try {
-        const response = await fetch(`/api/multiplayer/game/${gameId}`);
-        const gameData = await response.json();
-        
-        if (gameData.questions) {
-          // Count opponent's answered questions
-          const opponentAnsweredCount = gameData.questions.filter((q: { player1Answer: string | null; player2Answer: string | null }) => {
-            const isPlayer1 = game.player1?.id === session?.user?.id;
-            return isPlayer1 ? q.player2Answer !== null : q.player1Answer !== null;
-          }).length;
+    const channel = supabase
+      .channel(`game_play_${gameId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'multiplayer_games',
+          filter: `id=eq.${gameId}`,
+        },
+        async (payload: any) => {
+          console.log('Game real-time update:', payload.new);
           
-          console.log('Opponent progress update:', opponentAnsweredCount);
-          setOpponentProgress(opponentAnsweredCount);
-          
-          // Check if opponent finished
-          if (opponentAnsweredCount >= (game.questions?.length || 0)) {
-            console.log('Opponent has finished all questions!');
-            setOpponentFinished(true);
+          // Update local game state for scores and status
+          setGame(prev => prev ? {
+            ...prev,
+            player1Score: payload.new.player1Score,
+            player2Score: payload.new.player2Score,
+            status: payload.new.status,
+            winner: payload.new.winner
+          } : null);
+
+          if (payload.new.status === 'finished') {
+            router.push(`/multiplayer/result/${gameId}`);
           }
         }
-        
-        // Check if game is already finished on server
-        if (gameData.status === 'finished') {
-          console.log('Game is already finished on server, redirecting...');
-          router.push(`/multiplayer/result/${gameId}`);
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'multiplayer_questions',
+          filter: `gameId=eq.${gameId}`,
+        },
+        async () => {
+          // Re-fetch game to get updated question answers/progress
+          const response = await fetch(`/api/multiplayer/game/${gameId}`);
+          const gameData = await response.json();
+          if (response.ok && gameData.questions) {
+            const isP1 = gameData.player1?.id === session?.user?.id;
+            const opponentAnsweredCount = gameData.questions.filter((q: any) => 
+              isP1 ? q.player2Answer !== null : q.player1Answer !== null
+            ).length;
+            
+            setOpponentProgress(opponentAnsweredCount);
+            if (opponentAnsweredCount >= (gameData.questions?.length || 0)) {
+              setOpponentFinished(true);
+            }
+          }
         }
-      } catch (error) {
-        console.error('Error polling opponent progress:', error);
-      }
-    }, 1000);
+      )
+      .subscribe();
 
-    return () => clearInterval(pollInterval);
-  }, [isGameActive, game, gameId, session?.user?.id, currentQuestion]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [gameId, isGameActive, session?.user?.id, router]);
 
   const handleAbandon = async () => {
     if (!game) return;

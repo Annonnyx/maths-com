@@ -36,3 +36,31 @@ export async function GET(req: NextRequest) {
     }, { status: 500 });
   }
 }
+
+// POST /api/banners - Save user banner selection
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { bannerUrl, selectedBadgeIds } = await req.json();
+
+    const user = await prisma.user.update({
+      where: { email: session.user.email },
+      data: {
+        bannerUrl,
+        selectedBadgeIds: JSON.stringify(selectedBadgeIds)
+      }
+    });
+
+    return NextResponse.json({ success: true, user });
+  } catch (error: any) {
+    console.error('Error saving banner:', error);
+    return NextResponse.json({ 
+      error: 'Failed to save banner',
+      details: error?.message || 'Unknown error'
+    }, { status: 500 });
+  }
+}
