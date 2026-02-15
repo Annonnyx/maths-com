@@ -11,7 +11,7 @@ import {
   Calculator, ChevronRight, Award, BarChart3,
   Zap, Star, History, Users, MessageCircle, Medal
 } from 'lucide-react';
-import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS } from '@/lib/elo';
+import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS, RankClass } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
 
 export default function DashboardPage() {
@@ -220,7 +220,8 @@ export default function DashboardPage() {
                   <div 
                     className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
                     style={{ width: `${(() => {
-                      const threshold = RANK_THRESHOLDS[user.rankClass as any];
+                      const rankClass = user.rankClass as RankClass;
+                      const threshold = RANK_THRESHOLDS[rankClass];
                       if (!threshold || threshold.max === Infinity) return 100;
                       const range = threshold.max - threshold.min;
                       const progress = user.elo - threshold.min;
