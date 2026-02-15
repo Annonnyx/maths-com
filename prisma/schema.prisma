@@ -139,7 +139,6 @@ model Test {
   // Test metadata
   startedAt   DateTime @default(now())
   completedAt DateTime?
-  mode        String   @default("solo") // 'solo' or 'multiplayer'
   
   // Scoring
   totalQuestions Int @default(20)
