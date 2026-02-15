@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { 
   Trophy, BookOpen, ArrowLeft, Clock, Target, 
-  ChevronRight, Calculator, Lightbulb, CheckCircle
+  ChevronRight, Calculator, Lightbulb, CheckCircle,
+  ChevronDown, ChevronUp
 } from 'lucide-react';
 
 const COURSE_CONTENT: Record<string, {
@@ -14,6 +15,8 @@ const COURSE_CONTENT: Record<string, {
     content: string;
     examples: { problem: string; solution: string; explanation: string }[];
     tips: string[];
+    isCollapsible?: boolean;
+    tableData?: { table: number; values: number[]; tip: string }[];
   }[];
 }> = {
   'addition-rapide': {
@@ -89,18 +92,20 @@ const COURSE_CONTENT: Record<string, {
       {
         title: 'Tables de multiplication complètes (2-10)',
         content: 'Mémorisez ces tables essentielles. La pratique régulière vous permettra de les réciter automatiquement.',
-        examples: [
-          { problem: 'Table de 2', solution: '2,4,6,8,10,12,14,16,18,20', explanation: 'Ajoutez 2 à chaque fois : tous les nombres pairs' },
-          { problem: 'Table de 3', solution: '3,6,9,12,15,18,21,24,27,30', explanation: 'Additionnez les chiffres : 12→1+2=3, 15→1+5=6, multiple de 3' },
-          { problem: 'Table de 4', solution: '4,8,12,16,20,24,28,32,36,40', explanation: 'Doublez la table de 2 : 4=2×2, 8=4×2, 12=6×2...' },
-          { problem: 'Table de 5', solution: '5,10,15,20,25,30,35,40,45,50', explanation: 'Finissent toujours par 0 ou 5 : facile à repérer !' },
-          { problem: 'Table de 6', solution: '6,12,18,24,30,36,42,48,54,60', explanation: 'Pairs et multiples de 3 : 6×5=30, facile comme la montre' },
-          { problem: 'Table de 7', solution: '7,14,21,28,35,42,49,56,63,70', explanation: '7×8=56 (5-6-7-8), 7×7=49 (semaine en jours carrée)' },
-          { problem: 'Table de 8', solution: '8,16,24,32,40,48,56,64,72,80', explanation: 'Doublez la table de 4 : les résultats finissent par 0,2,4,6,8' },
-          { problem: 'Table de 9', solution: '9,18,27,36,45,54,63,72,81,90', explanation: 'Les chiffres additionnent à 9 : 18→1+8=9, 27→2+7=9' },
-          { problem: 'Table de 10', solution: '10,20,30,40,50,60,70,80,90,100', explanation: 'Ajoutez un 0 : la plus facile de toutes !' },
-        ],
-        tips: ['Entraînez-vous quotidiennement', 'Commencez par les tables faciles (2,5,10)', 'Utilisez la méthode des doigts pour la table de 9', 'Pour 7×8, souvenez-vous : 5-6-7-8 → 56']
+        examples: [], // On va gérer ça différemment avec un composant spécial
+        tips: ['Entraînez-vous quotidiennement', 'Commencez par les tables faciles (2,5,10)', 'Utilisez la méthode des doigts pour la table de 9', 'Pour 7×8, souvenez-vous : 5-6-7-8 → 56'],
+        isCollapsible: true,
+        tableData: [
+          { table: 2, values: [2,4,6,8,10,12,14,16,18,20], tip: 'Ajoutez 2 à chaque fois : tous les nombres pairs' },
+          { table: 3, values: [3,6,9,12,15,18,21,24,27,30], tip: 'Additionnez les chiffres : 12→1+2=3, 15→1+5=6' },
+          { table: 4, values: [4,8,12,16,20,24,28,32,36,40], tip: 'Doublez la table de 2' },
+          { table: 5, values: [5,10,15,20,25,30,35,40,45,50], tip: 'Finissent toujours par 0 ou 5' },
+          { table: 6, values: [6,12,18,24,30,36,42,48,54,60], tip: 'Pairs et multiples de 3' },
+          { table: 7, values: [7,14,21,28,35,42,49,56,63,70], tip: '7×8=56 (5-6-7-8), 7×7=49' },
+          { table: 8, values: [8,16,24,32,40,48,56,64,72,80], tip: 'Doublez la table de 4' },
+          { table: 9, values: [9,18,27,36,45,54,63,72,81,90], tip: 'Les chiffres additionnent à 9' },
+          { table: 10, values: [10,20,30,40,50,60,70,80,90,100], tip: 'Ajoutez un 0 à la fin' },
+        ]
       },
       {
         title: 'Astuce des tables de 9',
@@ -397,6 +402,99 @@ const COURSES = [
   }
 ];
 
+// Composant pour afficher les tables de multiplication de manière pliable
+function MultiplicationTableSection({ tableData }: { tableData: { table: number; values: number[]; tip: string }[] }) {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [selectedTable, setSelectedTable] = useState<number | null>(null);
+
+  return (
+    <div className="mb-6">
+      {/* Header avec bouton toggle */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl border border-indigo-500/30 hover:border-indigo-500/50 transition-all mb-4"
+      >
+        <div className="flex items-center gap-3">
+          <Calculator className="w-5 h-5 text-indigo-400" />
+          <span className="font-semibold text-white">Tables complètes (2-10)</span>
+          <span className="text-sm text-muted-foreground">({tableData.length} tables)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            {isExpanded ? 'Masquer' : 'Afficher'}
+          </span>
+          {isExpanded ? (
+            <ChevronUp className="w-5 h-5 text-indigo-400" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-indigo-400" />
+          )}
+        </div>
+      </button>
+
+      {/* Contenu pliable */}
+      {isExpanded && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          className="space-y-3"
+        >
+          {tableData.map((table) => (
+            <div
+              key={table.table}
+              className="bg-[#1a1a2e] rounded-xl border border-border overflow-hidden"
+            >
+              {/* Header de la table */}
+              <button
+                onClick={() => setSelectedTable(selectedTable === table.table ? null : table.table)}
+                className="w-full p-4 flex items-center justify-between hover:bg-[#252540] transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400 font-bold text-lg">
+                    {table.table}
+                  </span>
+                  <span className="font-medium text-white">Table de {table.table}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground hidden sm:inline">{table.tip}</span>
+                  {selectedTable === table.table ? (
+                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  )}
+                </div>
+              </button>
+
+              {/* Contenu de la table */}
+              {selectedTable === table.table && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="px-4 pb-4"
+                >
+                  {/* Tableau visuel */}
+                  <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 mb-3">
+                    {table.values.map((value, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-[#0f0f1a] rounded-lg p-2 text-center border border-border hover:border-indigo-500/50 transition-colors"
+                      >
+                        <div className="text-xs text-muted-foreground mb-1">{table.table}×{idx + 1}</div>
+                        <div className="font-bold text-indigo-400">{value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground sm:hidden">{table.tip}</p>
+                </motion.div>
+              )}
+            </div>
+          ))}
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
 export default function CoursesPage() {
   const [selectedCourse, setSelectedCourse] = useState<typeof COURSES[0] | null>(null);
 
@@ -473,24 +571,31 @@ export default function CoursesPage() {
                     <div className="p-6">
                       <p className="text-muted-foreground mb-6 leading-relaxed">{section.content}</p>
 
+                      {/* Multiplication Tables - Collapsible */}
+                      {section.isCollapsible && section.tableData && (
+                        <MultiplicationTableSection tableData={section.tableData} />
+                      )}
+
                       {/* Examples */}
-                      <div className="mb-6">
-                        <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                          <Calculator className="w-4 h-4" />
-                          Exemples
-                        </h3>
-                        <div className="space-y-3">
-                          {section.examples.map((example, exIndex) => (
-                            <div key={exIndex} className="bg-[#1a1a2e] rounded-xl p-4 border border-border">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="font-mono text-lg text-white">{example.problem}</span>
-                                <span className="text-green-400 font-bold text-xl">= {example.solution}</span>
+                      {section.examples.length > 0 && (
+                        <div className="mb-6">
+                          <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <Calculator className="w-4 h-4" />
+                            Exemples
+                          </h3>
+                          <div className="space-y-3">
+                            {section.examples.map((example, exIndex) => (
+                              <div key={exIndex} className="bg-[#1a1a2e] rounded-xl p-4 border border-border">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-mono text-lg text-white">{example.problem}</span>
+                                  <span className="text-green-400 font-bold text-xl">= {example.solution}</span>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{example.explanation}</p>
                               </div>
-                              <p className="text-sm text-muted-foreground">{example.explanation}</p>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Tips */}
                       <div>

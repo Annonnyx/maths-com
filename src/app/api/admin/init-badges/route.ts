@@ -116,23 +116,34 @@ export async function POST(req: NextRequest) {
         include: { badge: true }
       });
 
-      // Award ALL rank badges up to current rank (not just current)
+      // Award ONLY current rank badge (not all previous ones)
       if (user.rankClass && (soloGames > 0 || multiGames > 0)) {
-        const currentRankIndex = RANK_CLASSES.indexOf(user.rankClass as any);
+        const badgeInfo = RANK_BADGES[user.rankClass as keyof typeof RANK_BADGES];
+        if (badgeInfo) {
+          const badge = allRankBadges.find(b => b.name === badgeInfo.name);
+          if (badge) {
+            const hasBadge = userBadges.some(ub => ub.badgeId === badge.id);
+            if (!hasBadge) {
+              await prisma.userBadge.create({
+                data: { userId: user.id, badgeId: badge.id }
+              });
+              awardedCount++;
+            }
+          }
+        }
         
-        for (let i = 0; i <= currentRankIndex; i++) {
-          const rankToAward = RANK_CLASSES[i];
-          const badgeInfo = RANK_BADGES[rankToAward as keyof typeof RANK_BADGES];
-          if (badgeInfo) {
-            const badge = allRankBadges.find(b => b.name === badgeInfo.name);
-            if (badge) {
-              const hasBadge = userBadges.some(ub => ub.badgeId === badge.id);
-              if (!hasBadge) {
-                await prisma.userBadge.create({
-                  data: { userId: user.id, badgeId: badge.id }
-                });
-                awardedCount++;
-              }
+        // Remove badges of higher ranks
+        const currentRankIndex = RANK_CLASSES.indexOf(user.rankClass as any);
+        const higherRanks = RANK_CLASSES.slice(currentRankIndex + 1);
+        
+        for (const higherRank of higherRanks) {
+          const higherBadgeInfo = RANK_BADGES[higherRank as keyof typeof RANK_BADGES];
+          if (higherBadgeInfo) {
+            const higherBadge = allRankBadges.find(b => b.name === higherBadgeInfo.name);
+            if (higherBadge) {
+              await prisma.userBadge.deleteMany({
+                where: { userId: user.id, badgeId: higherBadge.id }
+              });
             }
           }
         }
