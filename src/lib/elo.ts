@@ -13,27 +13,27 @@ export type RankClass = typeof RANK_CLASSES[number];
 
 // Elo thresholds for each rank
 export const RANK_THRESHOLDS: Record<RankClass, { min: number; max: number }> = {
-  'F-': { min: 0, max: 449 },
-  'F': { min: 450, max: 499 },
-  'F+': { min: 500, max: 549 },
-  'E-': { min: 550, max: 599 },
-  'E': { min: 600, max: 649 },
-  'E+': { min: 650, max: 699 },
-  'D-': { min: 700, max: 749 },
-  'D': { min: 750, max: 799 },
-  'D+': { min: 800, max: 849 },
-  'C-': { min: 850, max: 899 },
-  'C': { min: 900, max: 949 },
-  'C+': { min: 950, max: 999 },
-  'B-': { min: 1000, max: 1049 },
-  'B': { min: 1050, max: 1099 },
-  'B+': { min: 1100, max: 1149 },
-  'A-': { min: 1150, max: 1199 },
-  'A': { min: 1200, max: 1249 },
-  'A+': { min: 1250, max: 1299 },
-  'S-': { min: 1300, max: 1399 },
-  'S': { min: 1400, max: 1499 },
-  'S+': { min: 1500, max: Infinity }
+  'F-': { min: 0, max: 499 },
+  'F': { min: 500, max: 599 },
+  'F+': { min: 600, max: 699 },
+  'E-': { min: 700, max: 799 },
+  'E': { min: 800, max: 899 },
+  'E+': { min: 900, max: 999 },
+  'D-': { min: 1000, max: 1099 },
+  'D': { min: 1100, max: 1199 },
+  'D+': { min: 1200, max: 1299 },
+  'C-': { min: 1300, max: 1399 },
+  'C': { min: 1400, max: 1499 },
+  'C+': { min: 1500, max: 1649 },
+  'B-': { min: 1650, max: 1799 },
+  'B': { min: 1800, max: 1949 },
+  'B+': { min: 1950, max: 2099 },
+  'A-': { min: 2100, max: 2299 },
+  'A': { min: 2300, max: 2499 },
+  'A+': { min: 2500, max: 2749 },
+  'S-': { min: 2750, max: 2999 },
+  'S': { min: 3000, max: 3499 },
+  'S+': { min: 3500, max: Infinity }
 };
 
 // Colors for each rank tier
@@ -127,6 +127,7 @@ export interface TestResult {
   totalTimeSeconds: number;
   questionTimes: number[];
   difficulties: number[];
+  isCorrectArray?: boolean[]; // Array indicating which questions were correct
   currentElo: number;
   streak: number;
 }
@@ -141,7 +142,7 @@ export function calculateAdvancedEloChange(result: TestResult): {
     baseChange: number;
   };
 } {
-  const { correctAnswers, totalQuestions, totalTimeSeconds, difficulties, currentElo, streak } = result;
+  const { correctAnswers, totalQuestions, totalTimeSeconds, difficulties, isCorrectArray, currentElo, streak } = result;
   const score = (correctAnswers / totalQuestions) * 100;
   
   // 1. BASE SCORE CALCULATION
@@ -188,8 +189,20 @@ export function calculateAdvancedEloChange(result: TestResult): {
   
   // 4. ACCURACY BONUS for high difficulty questions
   let accuracyBonus = 0;
-  const hardQuestions = difficulties.filter(d => d >= 7).length;
-  const correctHardQuestions = difficulties.filter((d, i) => d >= 7 && i < correctAnswers).length;
+  const hardQuestionIndices = difficulties
+    .map((d, i) => d >= 7 ? i : -1)
+    .filter(i => i !== -1);
+  const hardQuestions = hardQuestionIndices.length;
+  
+  // Use isCorrectArray if provided, otherwise fall back to old logic
+  let correctHardQuestions = 0;
+  if (isCorrectArray && isCorrectArray.length > 0) {
+    correctHardQuestions = hardQuestionIndices.filter(i => isCorrectArray[i]).length;
+  } else {
+    // Fallback: assume first 'correctAnswers' are correct (buggy but backwards compatible)
+    correctHardQuestions = difficulties.filter((d, i) => d >= 7 && i < correctAnswers).length;
+  }
+  
   if (hardQuestions > 0) {
     const hardAccuracy = (correctHardQuestions / hardQuestions) * 100;
     if (hardAccuracy >= 80) {

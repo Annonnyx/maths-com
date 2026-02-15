@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 
 interface Notification {
   id: string;
-  type: 'friend_request' | 'challenge';
+  type: 'friend_request' | 'challenge' | 'message';
   title: string;
   message: string;
   senderId: string;
@@ -71,17 +71,32 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           table: 'messages',
           filter: `receiverId=eq.${session.user.id}`,
         },
-        (payload: any) => {
+        async (payload: any) => {
           const message = payload.new;
+          
+          // Fetch sender info since Supabase realtime doesn't include relations
+          let senderName = 'Quelqu\'un';
+          try {
+            const { data: sender } = await supabase
+              .from('users')
+              .select('username, displayName')
+              .eq('id', message.senderId)
+              .single();
+            if (sender) {
+              senderName = sender.displayName || sender.username || 'Quelqu\'un';
+            }
+          } catch (e) {
+            console.error('Error fetching sender:', e);
+          }
           
           if (message.type === 'friend_request' && settings.friendRequests) {
             const notification: Notification = {
               id: message.id,
               type: 'friend_request',
               title: 'Nouvelle demande d\'ami',
-              message: `${message.sender?.displayName || message.sender?.username || 'Quelqu\'un'} t'envoie une demande d'ami`,
+              message: `${senderName} vous demande en ami`,
               senderId: message.senderId,
-              senderName: message.sender?.displayName || message.sender?.username || 'Quelqu\'un',
+              senderName: senderName,
               createdAt: message.createdAt,
             };
             setNotifications(prev => [notification, ...prev]);
@@ -93,10 +108,24 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               id: message.id,
               type: 'challenge',
               title: 'Nouveau défi !',
-              message: `${message.sender?.displayName || message.sender?.username || 'Quelqu\'un'} te défie en ${metadata.gameType === 'ranked' ? 'classé' : 'amical'}`,
+              message: `${senderName} vous défie en ${metadata.gameType === 'ranked' ? 'classé' : 'amical'}`,
               senderId: message.senderId,
-              senderName: message.sender?.displayName || message.sender?.username || 'Quelqu\'un',
+              senderName: senderName,
               metadata,
+              createdAt: message.createdAt,
+            };
+            setNotifications(prev => [notification, ...prev]);
+          }
+          
+          // Handle regular messages
+          if (message.type === 'message' && settings.friendRequests) {
+            const notification: Notification = {
+              id: message.id,
+              type: 'friend_request',
+              title: `Message de ${senderName}`,
+              message: `${senderName}: ${message.content}`,
+              senderId: message.senderId,
+              senderName: senderName,
               createdAt: message.createdAt,
             };
             setNotifications(prev => [notification, ...prev]);

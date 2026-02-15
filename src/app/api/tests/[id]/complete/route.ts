@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { calculateEloChange, getRankFromElo } from '@/lib/elo';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { AchievementService } from '@/lib/achievement-service';
 
 // POST /api/tests/[id]/complete - Complete a test
 export async function POST(
@@ -72,6 +73,29 @@ export async function POST(
 
     // Calculate Elo change
     const score = Math.round((correctCount / test.totalQuestions) * 100);
+    
+    // Calculate time bonus
+    const baseTime = Math.max(0, 120 - timeTaken); // Base: 120 - 1 per second
+    const roundedBase = Math.ceil(baseTime); // Round up
+    
+    let timeBonus = 0;
+    if (correctCount === 0) {
+      // No correct answers = maximum penalty
+      timeBonus = -roundedBase;
+    } else if (correctCount < 10) {
+      // Malus: negative points
+      timeBonus = -Math.ceil(roundedBase / correctCount);
+    } else {
+      // Bonus: positive points
+      if (correctCount === test.totalQuestions) {
+        // Perfect score: base + 20
+        timeBonus = roundedBase + 20;
+      } else {
+        // Normal bonus: base / (20 - correctCount)
+        timeBonus = Math.ceil(roundedBase / (20 - correctCount));
+      }
+    }
+    
     const eloChange = calculateEloChange(
       correctCount,
       test.totalQuestions,
@@ -114,6 +138,7 @@ export async function POST(
         correctAnswers: correctCount,
         score,
         timeTaken,
+        timeBonus,
         eloAfter: newElo,
         eloChange,
         isPerfect: score === 100,
@@ -148,6 +173,11 @@ export async function POST(
 
     // Update statistics
     await updateStatistics(test.userId, test, score, correctCount);
+
+    // Check and award badges automatically
+    await AchievementService.checkRankAchievement(test.userId, newRank);
+    await AchievementService.checkPerfectTestAchievement(test.userId, score, test.totalQuestions);
+    await AchievementService.checkSoloGamesAchievements(test.userId);
 
     return NextResponse.json(updatedTest);
   } catch (error) {

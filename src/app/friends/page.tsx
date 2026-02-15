@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { usePresence } from '@/hooks/usePresence';
 import { 
   ArrowLeft, Users, UserPlus, MessageCircle, Check, X, 
   Search, Loader2, Mail, Trash2, Send
@@ -24,6 +25,7 @@ interface Friend {
 
 export default function FriendsPage() {
   const { data: session } = useSession();
+  usePresence(); // Heartbeat to keep user online status updated
   const [friends, setFriends] = useState<Friend[]>([]);
   const [pendingRequests, setPendingRequests] = useState<Friend[]>([]);
   const [sentRequests, setSentRequests] = useState<Friend[]>([]);
@@ -35,6 +37,17 @@ export default function FriendsPage() {
     if (session) {
       fetchFriends();
     }
+  }, [session]);
+
+  // Poll friends list every 10 seconds to update online status
+  useEffect(() => {
+    if (!session) return;
+    
+    const interval = setInterval(() => {
+      fetchFriends();
+    }, 10000); // Refresh every 10 seconds
+
+    return () => clearInterval(interval);
   }, [session]);
 
   const fetchFriends = async () => {

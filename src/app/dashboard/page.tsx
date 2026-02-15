@@ -11,7 +11,7 @@ import {
   Calculator, ChevronRight, Award, BarChart3,
   Zap, Star, History, Users, MessageCircle, Medal
 } from 'lucide-react';
-import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
 
 export default function DashboardPage() {
@@ -210,12 +210,22 @@ export default function DashboardPage() {
               <div className="mb-4">
                 <div className="flex justify-between text-sm mb-2">
                   <span>{user.elo} Elo</span>
-                  <span>Prochain rang: {user.bestRankClass}</span>
+                  <span>Prochain rang: {(() => {
+                    const currentRankIndex = RANK_CLASSES.indexOf(user.rankClass as any);
+                    const nextRank = currentRankIndex < RANK_CLASSES.length - 1 ? RANK_CLASSES[currentRankIndex + 1] : null;
+                    return nextRank || 'Max';
+                  })()}</span>
                 </div>
                 <div className="w-full bg-black/30 rounded-full h-3">
                   <div 
                     className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
-                    style={{ width: '60%' }}
+                    style={{ width: `${(() => {
+                      const threshold = RANK_THRESHOLDS[user.rankClass as any];
+                      if (!threshold || threshold.max === Infinity) return 100;
+                      const range = threshold.max - threshold.min;
+                      const progress = user.elo - threshold.min;
+                      return Math.min(100, Math.max(0, (progress / range) * 100));
+                    })()}%` }}
                   />
                 </div>
               </div>

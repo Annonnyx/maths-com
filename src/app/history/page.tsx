@@ -132,14 +132,14 @@ export default function TestHistoryPage() {
                   className="bg-white/5 backdrop-blur-sm rounded-xl p-6 hover:bg-white/10 transition-all cursor-pointer border border-white/10"
                   onClick={() => setSelectedTest(test)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-6">
-                      <div className="text-center">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
+                      <div className="text-center min-w-[60px]">
                         <div className="text-2xl font-bold">{test.score}%</div>
                         <div className="text-sm text-purple-300">{test.correctAnswers}/{test.totalQuestions}</div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-lg font-semibold flex items-center gap-2">
+                      <div className="text-center min-w-[60px]">
+                        <div className="text-lg font-semibold flex items-center gap-1 sm:gap-2">
                           {test.eloChange > 0 ? (
                             <TrendingUp className="w-5 h-5 text-green-400" />
                           ) : test.eloChange < 0 ? (
@@ -149,15 +149,15 @@ export default function TestHistoryPage() {
                         </div>
                         <div className="text-sm text-purple-300">Elo</div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-lg font-semibold flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
+                      <div className="text-center min-w-[60px]">
+                        <div className="text-lg font-semibold flex items-center gap-1 sm:gap-2">
+                          <Clock className="w-4 h-4 flex-shrink-0" />
                           {Math.floor(test.timeTaken / 60)}:{(test.timeTaken % 60).toString().padStart(2, '0')}
                         </div>
                         <div className="text-sm text-purple-300">Temps</div>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right sm:text-right text-left w-full sm:w-auto">
                       <div className="text-sm text-purple-300">
                         {new Date(test.completedAt).toLocaleDateString('fr-FR', {
                           day: 'numeric',
@@ -168,7 +168,7 @@ export default function TestHistoryPage() {
                       </div>
                       {test.isPerfect && (
                         <div className="flex items-center gap-1 text-yellow-400 mt-1">
-                          <Trophy className="w-4 h-4" />
+                          <Trophy className="w-4 h-4 flex-shrink-0" />
                           <span className="text-sm">Parfait!</span>
                         </div>
                       )}

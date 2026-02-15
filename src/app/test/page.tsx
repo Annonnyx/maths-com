@@ -281,6 +281,7 @@ function TestPage() {
         totalTimeSeconds: timePerQuestion.reduce((a, b) => a + b, 0),
         questionTimes: timePerQuestion,
         difficulties: testState.questions.map(q => q.difficulty),
+        isCorrectArray: results.map(r => r.isCorrect),
         currentElo: userElo,
         streak: 0
       });

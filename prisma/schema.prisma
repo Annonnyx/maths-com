@@ -8,7 +8,6 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -140,6 +139,7 @@ model Test {
   // Test metadata
   startedAt   DateTime @default(now())
   completedAt DateTime?
+  mode        String   @default("solo") // 'solo' or 'multiplayer'
   
   // Scoring
   totalQuestions Int @default(20)
@@ -151,6 +151,9 @@ model Test {
   eloBefore Int
   eloAfter  Int
   eloChange Int
+  
+  // Time bonus
+  timeBonus  Int @default(0)
   
   // Perfect score tracking
   isPerfect   Boolean @default(false)

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { RANK_CLASSES, RankClass } from '@/lib/elo';
 
 export class AchievementService {
   // Check and award rank achievements
@@ -28,6 +29,36 @@ export class AchievementService {
         }
       });
       console.log(`Awarded rank badge: ${badge.name} to user ${userId}`);
+    }
+    
+    // Remove badges of higher ranks when ranking down
+    await this.removeHigherRankBadges(userId, newRankClass as RankClass);
+  }
+  
+  // Remove badges of ranks higher than current rank
+  static async removeHigherRankBadges(userId: string, currentRank: RankClass) {
+    const currentRankIndex = RANK_CLASSES.indexOf(currentRank);
+    
+    // Get all rank badges that are higher than current rank
+    const higherRanks = RANK_CLASSES.slice(currentRankIndex + 1);
+    
+    for (const rank of higherRanks) {
+      const badge = await prisma.badge.findFirst({
+        where: {
+          name: `Classe ${rank}`,
+          category: 'rank'
+        }
+      });
+      
+      if (badge) {
+        // Remove the badge if user has it
+        await prisma.userBadge.deleteMany({
+          where: {
+            userId,
+            badgeId: badge.id
+          }
+        });
+      }
     }
   }
 

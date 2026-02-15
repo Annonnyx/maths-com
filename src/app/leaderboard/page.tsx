@@ -312,7 +312,7 @@ export default function LeaderboardPage() {
           </div>
         </div>
 
-        {/* Leaderboard Table */}
+        {/* Leaderboard - Desktop Table / Mobile Cards */}
         <div className="bg-card rounded-2xl border border-border overflow-hidden">
           {loading ? (
             <div className="p-8 text-center">
@@ -325,50 +325,90 @@ export default function LeaderboardPage() {
               <p className="text-muted-foreground">Aucun joueur trouvé</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left p-4 font-semibold">Rang</th>
-                    <th className="text-left p-4 font-semibold">Joueur</th>
-                    <th className="text-right p-4 font-semibold">Elo</th>
-                    <th className="text-right p-4 font-semibold">Win Rate</th>
-                    <th className="text-right p-4 font-semibold">Précision</th>
-                    <th className="text-right p-4 font-semibold">Parties</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaderboard.map((entry, index) => (
-                    <tr key={entry.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                      <td className="p-4">
-                        {getRankIcon(entry.globalRank)}
-                      </td>
-                      <td className="p-4">
-                        <div>
-                          <div className="font-medium">{entry.displayName || entry.username}</div>
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left p-4 font-semibold">Rang</th>
+                      <th className="text-left p-4 font-semibold">Joueur</th>
+                      <th className="text-right p-4 font-semibold">Elo</th>
+                      <th className="text-right p-4 font-semibold">Win Rate</th>
+                      <th className="text-right p-4 font-semibold">Précision</th>
+                      <th className="text-right p-4 font-semibold">Parties</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leaderboard.map((entry, index) => (
+                      <tr key={entry.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                        <td className="p-4">
+                          {getRankIcon(entry.globalRank)}
+                        </td>
+                        <td className="p-4">
+                          <div>
+                            <div className="font-medium truncate max-w-[150px]">{entry.displayName || entry.username}</div>
+                            <div className="text-sm text-muted-foreground">@{entry.username}</div>
+                          </div>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="font-bold">{entry.stats.currentElo}</div>
+                          <div className={`text-sm font-medium ${getRankColor(entry.stats.currentRank)}`}>
+                            {entry.stats.currentRank}
+                          </div>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="font-medium">{entry.stats.winRate.toFixed(1)}%</div>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="font-medium">{entry.stats.accuracy.toFixed(1)}%</div>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="font-medium">{entry.stats.totalGames}</div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="md:hidden">
+                {leaderboard.map((entry, index) => (
+                  <div key={entry.id} className="p-4 border-b border-border hover:bg-muted/50 transition-colors">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0">{getRankIcon(entry.globalRank)}</div>
+                        <div className="min-w-0">
+                          <div className="font-medium truncate">{entry.displayName || entry.username}</div>
                           <div className="text-sm text-muted-foreground">@{entry.username}</div>
                         </div>
-                      </td>
-                      <td className="p-4 text-right">
+                      </div>
+                      <div className="text-right flex-shrink-0">
                         <div className="font-bold">{entry.stats.currentElo}</div>
                         <div className={`text-sm font-medium ${getRankColor(entry.stats.currentRank)}`}>
                           {entry.stats.currentRank}
                         </div>
-                      </td>
-                      <td className="p-4 text-right">
-                        <div className="font-medium">{entry.stats.winRate.toFixed(1)}%</div>
-                      </td>
-                      <td className="p-4 text-right">
-                        <div className="font-medium">{entry.stats.accuracy.toFixed(1)}%</div>
-                      </td>
-                      <td className="p-4 text-right">
-                        <div className="font-medium">{entry.stats.totalGames}</div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-4 mt-3 text-sm">
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground">Win:</span>
+                        <span className="font-medium">{entry.stats.winRate.toFixed(0)}%</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground">Prec:</span>
+                        <span className="font-medium">{entry.stats.accuracy.toFixed(0)}%</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground">Games:</span>
+                        <span className="font-medium">{entry.stats.totalGames}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
 

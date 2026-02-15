@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import AuthProvider from './AuthProvider';
 import { SoundProvider } from './SoundProvider';
 import { NotificationProvider } from './NotificationProvider';
+import { PresenceProvider } from './PresenceProvider';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +12,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         <SoundProvider>
           <NotificationProvider>
-            {children}
+            <PresenceProvider>
+              {children}
+            </PresenceProvider>
           </NotificationProvider>
         </SoundProvider>
       </AuthProvider>
