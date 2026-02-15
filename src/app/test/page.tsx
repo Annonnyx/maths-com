@@ -274,11 +274,25 @@ function TestPage() {
     if (testMode === 'competitive') {
       // Get user Elo from profile or session
       const userElo = (session?.user as any)?.elo || 400;
+      const totalTime = timePerQuestion.reduce((a, b) => a + b, 0);
+      
+      // Calculate time bonus with custom formula (same as server)
+      const baseTime = Math.max(0, 120 - totalTime);
+      let timeBonus = 0;
+      if (correct === 0) {
+        timeBonus = -baseTime;
+      } else if (correct < 10) {
+        timeBonus = -Math.round(baseTime / correct);
+      } else if (correct === testState.questions.length) {
+        timeBonus = baseTime + 20;
+      } else {
+        timeBonus = Math.round(baseTime / (testState.questions.length - correct));
+      }
       
       const eloResult = calculateAdvancedEloChange({
         correctAnswers: correct,
         totalQuestions: testState.questions.length,
-        totalTimeSeconds: timePerQuestion.reduce((a, b) => a + b, 0),
+        totalTimeSeconds: totalTime,
         questionTimes: timePerQuestion,
         difficulties: testState.questions.map(q => q.difficulty),
         isCorrectArray: results.map(r => r.isCorrect),
@@ -287,7 +301,10 @@ function TestPage() {
       });
       
       eloChange = eloResult.eloChange;
-      performance = eloResult.performance;
+      performance = {
+        ...eloResult.performance,
+        speedBonus: timeBonus // Override with custom time bonus
+      };
       tier = getPerformanceTier(eloChange);
     }
     
