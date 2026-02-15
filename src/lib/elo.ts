@@ -163,24 +163,28 @@ export function calculateAdvancedEloChange(result: TestResult): {
     baseChange = 100; // Perfect score = flat 100 base
   }
   
-  // 2. SPEED BONUS/PENALTY
+  // 2. SPEED BONUS/PENALTY - Always applied, even on failure
   // Average time per question: target is 5 seconds for competitive
   const avgTimePerQuestion = totalTimeSeconds / totalQuestions;
   let speedBonus = 0;
-  if (score >= 50) { // Only apply speed bonus if passing score
-    if (avgTimePerQuestion <= 3) {
-      speedBonus = 30; // Lightning fast
-    } else if (avgTimePerQuestion <= 5) {
-      speedBonus = 20; // Very fast
-    } else if (avgTimePerQuestion <= 8) {
-      speedBonus = 10; // Good speed
-    } else if (avgTimePerQuestion <= 12) {
-      speedBonus = 0; // Normal
-    } else if (avgTimePerQuestion <= 20) {
-      speedBonus = -10; // Slow
-    } else {
-      speedBonus = -20; // Too slow
-    }
+  
+  if (avgTimePerQuestion <= 3) {
+    speedBonus = 30; // Lightning fast
+  } else if (avgTimePerQuestion <= 5) {
+    speedBonus = 20; // Very fast
+  } else if (avgTimePerQuestion <= 8) {
+    speedBonus = 10; // Good speed
+  } else if (avgTimePerQuestion <= 12) {
+    speedBonus = 0; // Normal
+  } else if (avgTimePerQuestion <= 20) {
+    speedBonus = -10; // Slow
+  } else {
+    speedBonus = -20; // Too slow - penalty!
+  }
+  
+  // If score is very low, the time penalty is even worse
+  if (score < 50 && avgTimePerQuestion > 15) {
+    speedBonus -= 15; // Additional penalty for being slow AND wrong
   }
   
   // 3. DIFFICULTY BONUS

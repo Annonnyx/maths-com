@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { calculateEloChange, getRankFromElo } from '@/lib/elo';
+import { calculateAdvancedEloChange, getRankFromElo } from '@/lib/elo';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { AchievementService } from '@/lib/achievement-service';
@@ -46,14 +46,18 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Calculate results
+    // Build isCorrectArray and get difficulties
     let correctCount = 0;
     const questionUpdates = [];
-
+    const isCorrectArray: boolean[] = [];
+    const difficulties: number[] = [];
+    
     for (let i = 0; i < test.questions.length; i++) {
       const question = test.questions[i];
       const userAnswer = answers[i] || '';
       const isCorrect = userAnswer.trim() === question.answer.trim();
+      isCorrectArray.push(isCorrect);
+      difficulties.push(question.difficulty || 5);
       
       if (isCorrect) correctCount++;
 
@@ -71,36 +75,40 @@ export async function POST(
     // Execute all question updates
     await Promise.all(questionUpdates);
 
-    // Calculate Elo change
-    const score = Math.round((correctCount / test.totalQuestions) * 100);
-    
-    // Calculate time bonus
-    const baseTime = Math.max(0, 120 - timeTaken); // Base: 120 - 1 per second
-    const roundedBase = Math.ceil(baseTime); // Round up
+    // Calculate time bonus with custom formula
+    // Base = 120 - timeTaken (max 120pts if instant, min 0 if >120s)
+    const baseTime = Math.max(0, 120 - timeTaken);
     
     let timeBonus = 0;
     if (correctCount === 0) {
-      // No correct answers = maximum penalty
-      timeBonus = -roundedBase;
+      // No correct answers = maximum penalty, base becomes negative
+      timeBonus = -baseTime;
     } else if (correctCount < 10) {
-      // Malus: negative points
-      timeBonus = -Math.ceil(roundedBase / correctCount);
+      // Less than 10 correct: NEGATIVE bonus = -(base / correctCount)
+      timeBonus = -Math.round(baseTime / correctCount);
+    } else if (correctCount === test.totalQuestions) {
+      // Perfect 20/20: full base + 20 bonus
+      timeBonus = baseTime + 20;
     } else {
-      // Bonus: positive points
-      if (correctCount === test.totalQuestions) {
-        // Perfect score: base + 20
-        timeBonus = roundedBase + 20;
-      } else {
-        // Normal bonus: base / (20 - correctCount)
-        timeBonus = Math.ceil(roundedBase / (20 - correctCount));
-      }
+      // 10-19 correct: base / (20 - correctCount)
+      // Example: 14 correct → base / 6, 15 correct → base / 5
+      timeBonus = Math.round(baseTime / (test.totalQuestions - correctCount));
     }
+
+    // Calculate Elo change with advanced formula
+    const score = Math.round((correctCount / test.totalQuestions) * 100);
     
-    const eloChange = calculateEloChange(
-      correctCount,
-      test.totalQuestions,
-      test.user.currentStreak
-    );
+    const { eloChange, performance } = calculateAdvancedEloChange({
+      correctAnswers: correctCount,
+      totalQuestions: test.totalQuestions,
+      totalTimeSeconds: timeTaken,
+      questionTimes: test.questions.map(() => timeTaken / test.totalQuestions), // Average distribution
+      difficulties,
+      isCorrectArray,
+      currentElo: test.user.elo,
+      streak: test.user.currentStreak
+    });
+    
     const newElo = Math.max(0, test.user.elo + eloChange);
     const newRank = getRankFromElo(newElo);
 
