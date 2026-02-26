@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+const OFFLINE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
+
 // POST /api/presence - Update user's online status
 export async function POST(req: NextRequest) {
   try {
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Update online status
+    // Update online status and last seen
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -58,6 +60,20 @@ export async function GET(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+
+    // Cleanup: Mark users as offline if they haven't been seen in 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - OFFLINE_THRESHOLD_MS);
+    await prisma.user.updateMany({
+      where: {
+        isOnline: true,
+        lastSeenAt: {
+          lt: fiveMinutesAgo
+        }
+      },
+      data: {
+        isOnline: false
+      }
+    });
 
     // Get all friends with their online status
     const friendships = await prisma.friendship.findMany({

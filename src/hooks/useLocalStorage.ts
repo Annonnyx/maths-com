@@ -67,7 +67,9 @@ export function useUserPreferences() {
       showTimer: true,
       difficulty: 'adaptive' as const,
       friendRequests: true,
-      challenges: true
+      challenges: true,
+      disableGeometry: false, // New option to disable geometry questions
+      preferredClass: null as string | null // Preferred class for training mode
     }
   });
 

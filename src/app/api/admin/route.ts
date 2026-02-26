@@ -3,8 +3,13 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getRankFromElo } from '@/lib/elo';
+import { getClassFromElo, checkClassPromotion, FrenchClass, getUnlockedClasses } from '@/lib/french-classes';
+import crypto from 'crypto';
 
 import { Session } from 'next-auth';
+
+// Store for reset codes (in production, use Redis or similar)
+const resetCodes = new Map<string, { code: string; expiresAt: Date }>();
 
 async function isAdmin(session: Session | null): Promise<boolean> {
   const email = session?.user?.email;
@@ -23,6 +28,11 @@ async function isAdmin(session: Session | null): Promise<boolean> {
   }
 
   return false;
+}
+
+// Generate random secure code
+function generateResetCode(): string {
+  return crypto.randomBytes(16).toString('hex').toUpperCase();
 }
 
 // GET - Récupérer les infos admin
@@ -213,6 +223,194 @@ export async function POST(req: NextRequest) {
       });
 
       return NextResponse.json({ success: true });
+    }
+
+    // Generate reset code for all users ELO reset
+    if (action === 'generate-reset-code') {
+      const code = generateResetCode();
+      const adminEmail = session!.user.email;
+      
+      // Store code with 10 minute expiry
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+      resetCodes.set(adminEmail, { code, expiresAt });
+      
+      // Get admin user
+      const admin = await prisma.user.findUnique({
+        where: { email: adminEmail },
+        select: { id: true }
+      });
+
+      if (!admin) {
+        return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
+      }
+
+      // Send code as system message to admin (from admin to themselves with system marker)
+      await prisma.message.create({
+        data: {
+          senderId: admin.id,
+          receiverId: admin.id,
+          content: `🔐 CODE DE RÉINITIALISATION ELO: ${code}\n\nCe code expire dans 10 minutes. Utilise-le pour confirmer la réinitialisation de l'ELO de tous les joueurs.`,
+          type: 'system'
+        }
+      });
+
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Code de réinitialisation envoyé dans vos messages',
+        expiresAt 
+      });
+    }
+
+    // Reset all users ELO with verification code
+    if (action === 'reset-all-elo') {
+      const { code } = body;
+      const adminEmail = session!.user.email;
+      
+      // Verify code
+      const storedCode = resetCodes.get(adminEmail);
+      
+      if (!storedCode) {
+        return NextResponse.json({ 
+          error: 'Aucun code actif. Générez d\'abord un code de réinitialisation.' 
+        }, { status: 400 });
+      }
+      
+      if (storedCode.code !== code.toUpperCase()) {
+        return NextResponse.json({ 
+          error: 'Code invalide. Vérifiez vos messages.' 
+        }, { status: 400 });
+      }
+      
+      if (new Date() > storedCode.expiresAt) {
+        resetCodes.delete(adminEmail);
+        return NextResponse.json({ 
+          error: 'Code expiré. Générez un nouveau code.' 
+        }, { status: 400 });
+      }
+      
+      // Code valid - proceed with reset
+      resetCodes.delete(adminEmail);
+      
+      // Reset all users ELO
+      const resetResult = await prisma.user.updateMany({
+        data: {
+          elo: 400,
+          rankClass: 'F-',
+          bestElo: 400,
+          bestRankClass: 'F-',
+          multiplayerElo: 400,
+          multiplayerRankClass: 'F-',
+          bestMultiplayerElo: 400,
+          bestMultiplayerRankClass: 'F-'
+        }
+      });
+
+      // Also reset statistics
+      await prisma.statistics.updateMany({
+        data: {
+          totalTests: 0,
+          totalQuestions: 0,
+          totalCorrect: 0,
+          totalTime: 0,
+          averageScore: 0,
+          averageTime: 0,
+          additionTests: 0,
+          additionCorrect: 0,
+          additionTotal: 0,
+          subtractionTests: 0,
+          subtractionCorrect: 0,
+          subtractionTotal: 0,
+          multiplicationTests: 0,
+          multiplicationCorrect: 0,
+          multiplicationTotal: 0,
+          divisionTests: 0,
+          divisionCorrect: 0,
+          divisionTotal: 0,
+          powerTests: 0,
+          powerCorrect: 0,
+          powerTotal: 0,
+          rootTests: 0,
+          rootCorrect: 0,
+          rootTotal: 0,
+          factorizationTests: 0,
+          factorizationCorrect: 0,
+          factorizationTotal: 0,
+          weakPoints: '[]',
+          eloHistory: '[]'
+        }
+      });
+
+      // Reset multiplayer statistics
+      await prisma.multiplayerStatistics.updateMany({
+        data: {
+          totalGames: 0,
+          totalWins: 0,
+          totalLosses: 0,
+          totalDraws: 0,
+          lightningGames: 0,
+          lightningWins: 0,
+          blitzGames: 0,
+          blitzWins: 0,
+          rapidGames: 0,
+          rapidWins: 0,
+          classicalGames: 0,
+          classicalWins: 0,
+          thinkingGames: 0,
+          thinkingWins: 0,
+          averageScore: 0,
+          averageTime: 0,
+          bestStreak: 0,
+          currentStreak: 0,
+          headToHead: '[]'
+        }
+      });
+
+      // Send confirmation to admin
+      const admin = await prisma.user.findUnique({
+        where: { email: adminEmail },
+        select: { id: true }
+      });
+
+      if (admin) {
+        await prisma.message.create({
+          data: {
+            senderId: admin.id,
+            receiverId: admin.id,
+            content: `✅ RÉINITIALISATION COMPLÈTE EFFECTUÉE\n\n${resetResult.count} joueurs ont été réinitialisés.\nTous les ELO sont maintenant à 400 (F-).\nLes statistiques solo et multijoueur ont été remises à zéro.`,
+            type: 'system'
+          }
+        });
+      }
+
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Réinitialisation complète effectuée',
+        usersReset: resetResult.count
+      });
+    }
+
+    // Get user class info (for the new French class system)
+    if (action === 'get-class-info') {
+      const { userId } = body;
+      
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { elo: true, rankClass: true }
+      });
+
+      if (!user) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      }
+
+      const currentClass = getClassFromElo(user.elo);
+      const unlockedClasses = getUnlockedClasses(user.rankClass as any);
+
+      return NextResponse.json({
+        currentClass,
+        unlockedClasses,
+        elo: user.elo,
+        rankClass: user.rankClass
+      });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

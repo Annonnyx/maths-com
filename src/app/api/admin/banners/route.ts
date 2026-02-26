@@ -270,12 +270,24 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Banner not found' }, { status: 404 });
     }
 
-    // Extract filenames from URLs
-    const imageUrl = new URL(banner.imageUrl);
-    const thumbnailUrl = banner.thumbnailUrl ? new URL(banner.thumbnailUrl) : null;
+    // Extract filenames from URLs safely
+    let imagePath: string | null = null;
+    let thumbnailPath: string | null = null;
     
-    const imagePath = imageUrl.pathname.split('/').pop();
-    const thumbnailPath = thumbnailUrl ? thumbnailUrl.pathname.split('/').pop() : null;
+    try {
+      // Handle both absolute URLs and relative paths
+      if (banner.imageUrl.includes('/')) {
+        const parts = banner.imageUrl.split('/');
+        imagePath = parts[parts.length - 1];
+      }
+      
+      if (banner.thumbnailUrl && banner.thumbnailUrl.includes('/')) {
+        const parts = banner.thumbnailUrl.split('/');
+        thumbnailPath = parts[parts.length - 1];
+      }
+    } catch (e) {
+      console.error('Error parsing banner URLs:', e);
+    }
 
     // Delete files from Supabase Storage
     if (imagePath) {
