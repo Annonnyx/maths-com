@@ -22,6 +22,7 @@ const OPERATIONS: { type: OperationType; label: string; icon: string; color: str
   { type: 'power', label: 'Puissance', icon: '^', color: 'from-red-500/20 to-red-600/20' },
   { type: 'root', label: 'Racine', icon: '√', color: 'from-cyan-500/20 to-cyan-600/20' },
   { type: 'factorization', label: 'Factorisation', icon: '∑', color: 'from-pink-500/20 to-pink-600/20' },
+  { type: 'geometry', label: 'Géométrie', icon: '◈', color: 'from-yellow-500/20 to-yellow-600/20' },
 ];
 
 // Map French class to difficulty level (1-10)
@@ -76,13 +77,20 @@ export default function PracticePage() {
       if (classIndex >= 2) ops.push('multiplication');
       if (classIndex >= 4) ops.push('division');
     }
-    // Collège: basics + some advanced
+    // Collège: basics + some advanced + geometry
     else if (classIndex <= 8) {
       ops = [...baseOps, 'percentage', 'fraction'];
+      // Add geometry for 6e and above (unless excluded)
+      if (!excludeGeo && classIndex >= 6) {
+        ops.push('geometry');
+      }
     }
-    // Lycée and above: all operations
+    // Lycée and above: all operations including geometry
     else {
       ops = [...baseOps, ...advancedOps];
+      if (!excludeGeo) {
+        ops.push('geometry');
+      }
     }
     
     return ops;

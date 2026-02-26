@@ -10,7 +10,8 @@ export type OperationType =
   | 'fraction'
   | 'equation'
   | 'mental_math'
-  | 'logic';
+  | 'logic'
+  | 'geometry';
 
 export interface Exercise {
   id: string;
@@ -501,6 +502,8 @@ export function generateExercise(type: OperationType, difficulty: number): Exerc
       return generateMentalMath(difficulty);
     case 'logic':
       return generateLogic(difficulty);
+    case 'geometry':
+      return generateGeometry(difficulty);
     default:
       return generateAddition(difficulty);
   }
@@ -923,6 +926,191 @@ function generateLogic(difficulty: number): Exercise {
     answer: result.answer,
     explanation: result.explanation
   };
+}
+
+// Generate geometry exercise (perimeter, area, volume)
+function generateGeometry(difficulty: number): Exercise {
+  const geometryTypes = ['perimeter', 'area', 'volume', 'angle', 'pythagore'];
+  const type = geometryTypes[randomInt(0, Math.min(geometryTypes.length - 1, difficulty))];
+  
+  switch (type) {
+    case 'perimeter': {
+      // Square, rectangle, triangle, circle
+      const shapes = ['carré', 'rectangle', 'triangle', 'cercle'];
+      const shape = shapes[randomInt(0, Math.min(shapes.length - 1, difficulty))];
+      
+      if (shape === 'carré') {
+        const side = randomInt(3, 5 + difficulty * 2);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Périmètre d'un carré de côté ${side} cm = ?`,
+          answer: (side * 4).toString(),
+          explanation: `Périmètre = 4 × côté = 4 × ${side} = ${side * 4} cm`
+        };
+      } else if (shape === 'rectangle') {
+        const length = randomInt(5, 10 + difficulty * 2);
+        const width = randomInt(3, length - 1);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Périmètre d'un rectangle de ${length} cm × ${width} cm = ?`,
+          answer: (2 * (length + width)).toString(),
+          explanation: `Périmètre = 2 × (longueur + largeur) = 2 × (${length} + ${width}) = ${2 * (length + width)} cm`
+        };
+      } else if (shape === 'triangle') {
+        const a = randomInt(3, 5 + difficulty);
+        const b = randomInt(3, 5 + difficulty);
+        const c = randomInt(3, 5 + difficulty);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Périmètre d'un triangle de côtés ${a}, ${b}, ${c} cm = ?`,
+          answer: (a + b + c).toString(),
+          explanation: `Périmètre = ${a} + ${b} + ${c} = ${a + b + c} cm`
+        };
+      } else {
+        const radius = randomInt(3, 5 + difficulty);
+        const perimeter = Math.round(2 * Math.PI * radius);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Périmètre (circonférence) d'un cercle de rayon ${radius} cm (π≈3,14) = ?`,
+          answer: perimeter.toString(),
+          explanation: `Circonférence = 2 × π × r = 2 × 3,14 × ${radius} ≈ ${perimeter} cm`
+        };
+      }
+    }
+    
+    case 'area': {
+      const shapes = ['carré', 'rectangle', 'triangle', 'cercle'];
+      const shape = shapes[randomInt(0, Math.min(shapes.length - 1, difficulty))];
+      
+      if (shape === 'carré') {
+        const side = randomInt(3, 5 + difficulty * 2);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Aire d'un carré de côté ${side} cm = ?`,
+          answer: (side * side).toString(),
+          explanation: `Aire = côté² = ${side} × ${side} = ${side * side} cm²`
+        };
+      } else if (shape === 'rectangle') {
+        const length = randomInt(5, 10 + difficulty * 2);
+        const width = randomInt(3, length - 1);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Aire d'un rectangle de ${length} cm × ${width} cm = ?`,
+          answer: (length * width).toString(),
+          explanation: `Aire = longueur × largeur = ${length} × ${width} = ${length * width} cm²`
+        };
+      } else if (shape === 'triangle') {
+        const base = randomInt(4, 8 + difficulty);
+        const height = randomInt(3, 6 + difficulty);
+        const area = Math.round((base * height) / 2);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Aire d'un triangle de base ${base} cm et hauteur ${height} cm = ?`,
+          answer: area.toString(),
+          explanation: `Aire = (base × hauteur) / 2 = (${base} × ${height}) / 2 = ${area} cm²`
+        };
+      } else {
+        const radius = randomInt(2, 5 + difficulty);
+        const area = Math.round(Math.PI * radius * radius);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Aire d'un cercle de rayon ${radius} cm (π≈3,14) = ?`,
+          answer: area.toString(),
+          explanation: `Aire = π × r² = 3,14 × ${radius}² ≈ ${area} cm²`
+        };
+      }
+    }
+    
+    case 'volume': {
+      const shapes = ['cube', 'pavé'];
+      const shape = shapes[randomInt(0, Math.min(shapes.length - 1, difficulty - 3))];
+      
+      if (shape === 'cube') {
+        const side = randomInt(3, 5 + difficulty);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Volume d'un cube d'arête ${side} cm = ?`,
+          answer: (side * side * side).toString(),
+          explanation: `Volume = arête³ = ${side}³ = ${side * side * side} cm³`
+        };
+      } else {
+        const length = randomInt(5, 10 + difficulty);
+        const width = randomInt(3, 6 + difficulty);
+        const height = randomInt(2, 5 + difficulty);
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Volume d'un pavé de ${length}×${width}×${height} cm = ?`,
+          answer: (length * width * height).toString(),
+          explanation: `Volume = L × l × h = ${length} × ${width} × ${height} = ${length * width * height} cm³`
+        };
+      }
+    }
+    
+    case 'angle': {
+      // Simple angle calculations
+      const angle1 = randomInt(30, 80);
+      const angle2 = randomInt(30, 80);
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        type: 'geometry',
+        difficulty,
+        question: `Dans un triangle, deux angles font ${angle1}° et ${angle2}°. Le troisième angle = ?`,
+        answer: (180 - angle1 - angle2).toString(),
+        explanation: `Somme des angles = 180°. Troisième angle = 180 - ${angle1} - ${angle2} = ${180 - angle1 - angle2}°`
+      };
+    }
+    
+    case 'pythagore': {
+      // Pythagorean triples
+      const triples = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15]];
+      const triple = triples[randomInt(0, Math.min(triples.length - 1, difficulty))];
+      const [a, b, c] = triple;
+      const askFor = randomInt(0, 2); // 0 = hypotenuse, 1 = side a, 2 = side b
+      
+      if (askFor === 0) {
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Théorème de Pythagore : côtés ${a} et ${b}, hypoténuse = ?`,
+          answer: c.toString(),
+          explanation: `c² = ${a}² + ${b}² = ${a * a} + ${b * b} = ${c * c}, donc c = ${c}`
+        };
+      } else {
+        return {
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'geometry',
+          difficulty,
+          question: `Théorème de Pythagore : hypoténuse ${c}, un côté ${a}, l'autre côté = ?`,
+          answer: b.toString(),
+          explanation: `b² = ${c}² - ${a}² = ${c * c} - ${a * a} = ${b * b}, donc b = ${b}`
+        };
+      }
+    }
+    
+    default:
+      return generateAddition(difficulty);
+  }
 }
 
 
