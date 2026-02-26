@@ -256,6 +256,7 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({ 
         success: true, 
+        code,
         message: 'Code de réinitialisation envoyé dans vos messages',
         expiresAt 
       });

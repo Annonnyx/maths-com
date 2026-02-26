@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Calendar, Clock, Target, Trophy, TrendingUp, Eye, CheckCircle, XCircle, RotateCcw, Play } from 'lucide-react';
 import Link from 'next/link';
 import { getRankFromElo, RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { getClassFromDifficulty, formatClassName } from '@/lib/french-classes';
 
 interface Test {
   id: string;
@@ -283,6 +284,15 @@ export default function TestHistoryPage() {
                           <span className="text-sm text-purple-300">#{question.order + 1}</span>
                           <span className="text-xs text-purple-300">
                             {Math.round(question.timeTaken / 1000)}s
+                          </span>
+                          <span className={`px-2 py-0.5 rounded text-xs ${
+                            question.difficulty >= 8 
+                              ? 'bg-red-500/20 text-red-400' 
+                              : question.difficulty >= 5 
+                                ? 'bg-yellow-500/20 text-yellow-400'
+                                : 'bg-green-500/20 text-green-400'
+                          }`}>
+                            {formatClassName(getClassFromDifficulty(question.difficulty))}
                           </span>
                         </div>
                         

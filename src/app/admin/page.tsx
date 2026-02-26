@@ -94,9 +94,39 @@ export default function AdminPage() {
   // Reset ELO
   const [resetCode, setResetCode] = useState('');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetCodeDisplay, setResetCodeDisplay] = useState('');
 
   // User list
   const [showUserList, setShowUserList] = useState(false);
+
+  // Restore reset state from localStorage on mount
+  useEffect(() => {
+    const savedResetState = localStorage.getItem('adminResetState');
+    if (savedResetState) {
+      try {
+        const parsed = JSON.parse(savedResetState);
+        if (parsed.showResetConfirm) {
+          setShowResetConfirm(true);
+          setResetCodeDisplay(parsed.resetCodeDisplay || '');
+        }
+      } catch (e) {
+        localStorage.removeItem('adminResetState');
+      }
+    }
+  }, []);
+
+  // Save reset state when it changes
+  useEffect(() => {
+    if (showResetConfirm) {
+      localStorage.setItem('adminResetState', JSON.stringify({
+        showResetConfirm: true,
+        resetCodeDisplay: resetCodeDisplay,
+        timestamp: Date.now()
+      }));
+    } else {
+      localStorage.removeItem('adminResetState');
+    }
+  }, [showResetConfirm, resetCodeDisplay]);
 
   useEffect(() => {
     console.log('Admin page - Session:', session);
@@ -513,8 +543,10 @@ export default function AdminPage() {
                       });
                       
                       if (response.ok) {
+                        const data = await response.json();
                         setShowResetConfirm(true);
-                        alert('Code de réinitialisation envoyé dans tes messages !');
+                        setResetCodeDisplay(data.code || '');
+                        alert('Code de réinitialisation généré ! Le code est affiché ci-dessous.');
                       } else {
                         alert('Erreur lors de la génération du code');
                       }
@@ -529,16 +561,43 @@ export default function AdminPage() {
                 </button>
               ) : (
                 <div className="space-y-3">
+                  {/* Code affiché directement */}
+                  <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <p className="text-sm text-yellow-400 mb-1">Code de réinitialisation :</p>
+                    <div className="flex items-center gap-2">
+                      <code className="flex-1 px-3 py-2 bg-black/50 rounded font-mono text-lg tracking-wider text-yellow-300">
+                        {resetCodeDisplay}
+                      </code>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(resetCodeDisplay);
+                          alert('Code copié !');
+                        }}
+                        className="px-3 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 rounded-lg transition-colors"
+                      >
+                        Copier
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Ce code est aussi envoyé dans tes messages. Il reste valide tant que tu ne quittes pas cette page.
+                    </p>
+                  </div>
+                  
                   <input
                     type="text"
                     value={resetCode}
                     onChange={(e) => setResetCode(e.target.value)}
-                    placeholder="Entre le code reçu dans tes messages"
+                    placeholder="Colle le code ici pour confirmer"
                     className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
                   />
                   <div className="flex gap-2">
                     <button
-                      onClick={() => setShowResetConfirm(false)}
+                      onClick={() => {
+                        setShowResetConfirm(false);
+                        setResetCode('');
+                        setResetCodeDisplay('');
+                        localStorage.removeItem('adminResetState');
+                      }}
                       className="flex-1 py-2 bg-card hover:bg-border rounded-lg font-semibold transition-colors"
                     >
                       Annuler
@@ -563,6 +622,8 @@ export default function AdminPage() {
                             alert(`✅ ${data.usersReset} joueurs réinitialisés !`);
                             setShowResetConfirm(false);
                             setResetCode('');
+                            setResetCodeDisplay('');
+                            localStorage.removeItem('adminResetState');
                             loadData();
                           } else {
                             alert('Erreur: ' + (data.error || 'Échec'));

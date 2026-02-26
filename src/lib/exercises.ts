@@ -13,6 +13,12 @@ export type OperationType =
   | 'logic'
   | 'geometry';
 
+import { 
+  FRENCH_CLASSES, 
+  FrenchClass, 
+  getClassFromElo 
+} from './french-classes';
+
 export interface Exercise {
   id: string;
   type: OperationType;
@@ -509,49 +515,37 @@ export function generateExercise(type: OperationType, difficulty: number): Exerc
   }
 }
 
-// Generate a test with mixed questions based on user Elo
+// Generate a test with mixed questions based on user Elo (using French class system)
 export function generateTest(elo: number, count: number = 20): Exercise[] {
   const questions: Exercise[] = [];
-  const availableOperations = getAvailableOperations(elo);
   
-  // Calculate difficulty range based on Elo
-  // Low Elo (400-600): difficulty 1-3
-  // Medium Elo (600-800): difficulty 3-5  
-  // High Elo (800-1000): difficulty 5-7
-  // Very High Elo (1000+): difficulty 7-10
-  let minDifficulty, maxDifficulty;
+  // Get user's current French class based on ELO
+  const currentClass = getClassFromElo(elo);
+  const classIndex = FRENCH_CLASSES.indexOf(currentClass);
   
-  if (elo < 500) {
-    minDifficulty = 1;
-    maxDifficulty = 2;
-  } else if (elo < 600) {
-    minDifficulty = 1;
-    maxDifficulty = 3;
-  } else if (elo < 750) {
-    minDifficulty = 2;
-    maxDifficulty = 4;
-  } else if (elo < 900) {
-    minDifficulty = 3;
-    maxDifficulty = 6;
-  } else if (elo < 1100) {
-    minDifficulty = 4;
-    maxDifficulty = 7;
-  } else if (elo < 1300) {
-    minDifficulty = 5;
-    maxDifficulty = 8;
-  } else {
-    minDifficulty = 6;
-    maxDifficulty = 10;
-  }
+  // Determine which classes to use for questions (current class + 1 below for variety)
+  const availableClasses: FrenchClass[] = [];
+  if (classIndex > 0) availableClasses.push(FRENCH_CLASSES[classIndex - 1]); // One class below
+  availableClasses.push(currentClass); // Current class
+  if (classIndex < FRENCH_CLASSES.length - 1) availableClasses.push(FRENCH_CLASSES[classIndex + 1]); // One above
+  
+  // Get available operations for the current class
+  const availableOperations = getFrenchClassOperations(currentClass);
   
   for (let i = 0; i < count; i++) {
-    // Progressive difficulty within the test
-    const progress = i / count; // 0 to 1
-    const difficultyRange = maxDifficulty - minDifficulty;
-    const difficulty = Math.min(maxDifficulty, Math.floor(minDifficulty + (progress * difficultyRange * 1.5)));
+    // Pick a random class from available (weighted toward current)
+    const questionClass = availableClasses[Math.floor(Math.random() * availableClasses.length)];
+    const questionClassIndex = FRENCH_CLASSES.indexOf(questionClass);
     
-    // Pick random operation from available ones
-    const operation = availableOperations[Math.floor(Math.random() * availableOperations.length)];
+    // Convert class to difficulty (1-10 scale for internal use)
+    // CP=1, CE1=2, CE2=3, CM1=4, CM2=5, 6e=6, 5e=7, 4e=8, 3e=9, 2de+=10
+    const difficulty = Math.min(10, Math.max(1, questionClassIndex + 1));
+    
+    // Get operations for this specific class
+    const classOperations = getFrenchClassOperations(questionClass);
+    
+    // Pick random operation
+    const operation = classOperations[Math.floor(Math.random() * classOperations.length)];
     
     questions.push(generateExercise(operation, difficulty));
   }
@@ -559,14 +553,43 @@ export function generateTest(elo: number, count: number = 20): Exercise[] {
   return questions;
 }
 
-// Generate evaluation test for first-time users (mix of all basic operations)
+// Get available operations for a French class (following school curriculum)
+function getFrenchClassOperations(className: FrenchClass): OperationType[] {
+  const baseOps: OperationType[] = ['addition', 'mental_math'];
+  
+  switch (className) {
+    case 'CP':
+      return ['addition', 'mental_math', 'logic'];
+    case 'CE1':
+      return ['addition', 'subtraction', 'multiplication', 'mental_math', 'logic'];
+    case 'CE2':
+      return ['addition', 'subtraction', 'multiplication', 'division', 'mental_math', 'logic'];
+    case 'CM1':
+      return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'mental_math', 'logic'];
+    case 'CM2':
+      return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'mental_math', 'logic'];
+    case '6e':
+      return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'geometry', 'mental_math', 'logic'];
+    case '5e':
+      return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'equation', 'geometry', 'mental_math', 'logic'];
+    case '4e':
+      return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'equation', 'power', 'geometry', 'mental_math', 'logic'];
+    case '3e':
+      return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'equation', 'power', 'root', 'geometry', 'mental_math', 'logic'];
+    default: // 2de and above
+      return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'equation', 'power', 'root', 'factorization', 'geometry', 'mental_math', 'logic'];
+  }
+}
+
+// Generate evaluation test for first-time users (using French class system - starts at CP level)
 export function generateEvaluationTest(count: number = 20): Exercise[] {
   const questions: Exercise[] = [];
   const operations: OperationType[] = ['addition', 'subtraction', 'multiplication', 'division'];
   
   for (let i = 0; i < count; i++) {
-    // Start easy and progressively get harder
-    const difficulty = Math.min(10, Math.floor(i / 4) + 1);
+    // Progressive difficulty: starts at CP (level 1) and progresses through classes
+    const classIndex = Math.min(FRENCH_CLASSES.length - 1, Math.floor(i / 3));
+    const difficulty = Math.min(10, classIndex + 1);
     const operation = operations[i % 4]; // Rotate through operations
     
     questions.push(generateExercise(operation, difficulty));
@@ -575,24 +598,7 @@ export function generateEvaluationTest(count: number = 20): Exercise[] {
   return questions;
 }
 
-// Get available operations based on Elo
-function getAvailableOperations(elo: number): OperationType[] {
-  const operations: OperationType[] = ['addition', 'mental_math', 'logic'];
-  
-  if (elo >= 450) operations.push('subtraction');
-  if (elo >= 500) operations.push('percentage');
-  if (elo >= 550) operations.push('multiplication');
-  if (elo >= 600) operations.push('fraction');
-  if (elo >= 700) operations.push('division');
-  if (elo >= 800) operations.push('equation');
-  if (elo >= 900) operations.push('power');
-  if (elo >= 1000) operations.push('root');
-  if (elo >= 1100) operations.push('factorization');
-  
-  return operations;
-}
-
-// Generate multiplayer questions with adaptive difficulty
+// Generate multiplayer questions with French class system
 export function generateMultiplayerQuestions(
   player1Elo: number,
   player2Elo: number,
@@ -602,53 +608,32 @@ export function generateMultiplayerQuestions(
   
   const questions: Exercise[] = [];
   
-  // Calculate average Elo for difficulty balancing
+  // Calculate average Elo and determine French class
   const avgElo = (player1Elo + player2Elo) / 2;
-  console.log('Average Elo:', avgElo);
+  const currentClass = getClassFromElo(avgElo);
+  const classIndex = FRENCH_CLASSES.indexOf(currentClass);
   
-  // Get available operations based on average Elo
-  const availableOperations = getAvailableOperations(avgElo);
-  console.log('Available operations:', availableOperations);
+  console.log('Average Elo:', avgElo, 'Class:', currentClass);
   
-  // Calculate difficulty range based on average Elo
-  let minDifficulty, maxDifficulty;
+  // Determine which classes to use for questions
+  const availableClasses: FrenchClass[] = [];
+  if (classIndex > 0) availableClasses.push(FRENCH_CLASSES[classIndex - 1]);
+  availableClasses.push(currentClass);
+  if (classIndex < FRENCH_CLASSES.length - 1) availableClasses.push(FRENCH_CLASSES[classIndex + 1]);
   
-  if (avgElo < 500) {
-    minDifficulty = 1;
-    maxDifficulty = 2;
-  } else if (avgElo < 600) {
-    minDifficulty = 1;
-    maxDifficulty = 3;
-  } else if (avgElo < 750) {
-    minDifficulty = 2;
-    maxDifficulty = 4;
-  } else if (avgElo < 900) {
-    minDifficulty = 3;
-    maxDifficulty = 6;
-  } else if (avgElo < 1100) {
-    minDifficulty = 4;
-    maxDifficulty = 7;
-  } else if (avgElo < 1300) {
-    minDifficulty = 5;
-    maxDifficulty = 8;
-  } else {
-    minDifficulty = 6;
-    maxDifficulty = 10;
-  }
-  
-  console.log('Difficulty range:', { minDifficulty, maxDifficulty });
-  
-  // Generate questions with progressive difficulty
   for (let i = 0; i < count; i++) {
-    // Progressive difficulty within the game
-    const progress = i / count; // 0 to 1
-    const difficultyRange = maxDifficulty - minDifficulty;
-    const difficulty = Math.min(maxDifficulty, Math.floor(minDifficulty + (progress * difficultyRange * 1.5)));
+    // Pick a random class from available
+    const questionClass = availableClasses[Math.floor(Math.random() * availableClasses.length)];
+    const questionClassIndex = FRENCH_CLASSES.indexOf(questionClass);
     
-    // Pick random operation from available ones
-    const operation = availableOperations[Math.floor(Math.random() * availableOperations.length)];
+    // Convert class to difficulty
+    const difficulty = Math.min(10, Math.max(1, questionClassIndex + 1));
     
-    console.log(`Generating question ${i}:`, { operation, difficulty });
+    // Get operations for this class
+    const classOperations = getFrenchClassOperations(questionClass);
+    const operation = classOperations[Math.floor(Math.random() * classOperations.length)];
+    
+    console.log(`Generating question ${i}:`, { operation, difficulty, class: questionClass });
     
     try {
       const exercise = generateExercise(operation, difficulty);
@@ -666,7 +651,7 @@ export function generateMultiplayerQuestions(
   return questions;
 }
 
-// Generate a focused test on specific operation types
+// Generate a focused test on specific operation types (using French class system)
 export function generateFocusedTest(
   types: OperationType[],
   difficulty: number,
@@ -675,24 +660,17 @@ export function generateFocusedTest(
 ): Exercise[] {
   const questions: Exercise[] = [];
   
-  // Adjust difficulty based on Elo
-  let adjustedDifficulty = difficulty;
-  if (elo < 500) {
-    adjustedDifficulty = Math.min(difficulty, 2); // Cap at level 2 for beginners
-  } else if (elo < 600) {
-    adjustedDifficulty = Math.min(difficulty, 3); // Cap at level 3 for low Elo
-  } else if (elo < 750) {
-    adjustedDifficulty = Math.min(difficulty, 4); // Cap at level 4 for medium-low Elo
-  } else if (elo < 900) {
-    adjustedDifficulty = Math.min(difficulty, 6); // Cap at level 6 for medium Elo
-  } else if (elo < 1100) {
-    adjustedDifficulty = Math.min(difficulty, 8); // Cap at level 8 for high Elo
-  }
-  // High Elo players get full difficulty
+  // Get user's French class based on Elo
+  const userClass = getClassFromElo(elo);
+  const classIndex = FRENCH_CLASSES.indexOf(userClass);
+  
+  // Cap difficulty based on user's class (not arbitrary difficulty numbers)
+  const maxAllowedDifficulty = Math.min(10, classIndex + 2); // Allow up to 2 classes above
+  const adjustedDifficulty = Math.min(difficulty, maxAllowedDifficulty);
   
   for (let i = 0; i < count; i++) {
-    // Vary difficulty slightly for progression
-    const variedDifficulty = Math.min(10, Math.max(1, adjustedDifficulty + Math.floor(i / 7) - 1));
+    // Vary difficulty slightly for progression, but stay within user's capabilities
+    const variedDifficulty = Math.min(maxAllowedDifficulty, Math.max(1, adjustedDifficulty + Math.floor(i / 7) - 1));
     
     // Pick random operation from specified types
     const operation = types[Math.floor(Math.random() * types.length)];

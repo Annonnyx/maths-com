@@ -14,6 +14,7 @@ import { useSound } from '@/components/SoundProvider';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
 import { Exercise, generateTest, generateEvaluationTest, generateFocusedTest, getOperationTypesForCourse, validateAnswer } from '@/lib/exercises';
 import { calculateAdvancedEloChange, getPerformanceTier, getRankFromElo, RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { getClassFromDifficulty, formatClassName } from '@/lib/french-classes';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 
 type TestMode = 'competitive' | 'training' | null;
@@ -622,7 +623,7 @@ function TestPage() {
                           ? 'bg-yellow-500/20 text-yellow-400'
                           : 'bg-green-500/20 text-green-400'
                     }`}>
-                      Niv. {testState.questions[testState.currentIndex].difficulty}
+                      {formatClassName(getClassFromDifficulty(testState.questions[testState.currentIndex].difficulty))}
                     </span>
                   </div>
                   <h2 className="text-5xl md:text-6xl font-bold font-mono">
@@ -883,7 +884,7 @@ function TestPage() {
                           <div className="text-right">
                             <span className="text-sm text-gray-500">{result.timeTaken}s</span>
                             <span className="ml-2 px-2 py-0.5 bg-[#1a1a2e] rounded text-xs text-muted-foreground">
-                              Niv.{result.question.difficulty}
+                              {formatClassName(getClassFromDifficulty(result.question.difficulty))}
                             </span>
                           </div>
                         </div>

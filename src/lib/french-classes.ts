@@ -282,6 +282,13 @@ export function getClassProgress(elo: number, currentClass: FrenchClass): number
   return Math.min(100, Math.max(0, (progress / range) * 100));
 }
 
+// Fonction pour convertir une difficulté (1-10) en classe française
+export function getClassFromDifficulty(difficulty: number): FrenchClass {
+  // Difficulty 1-10 maps to class index 0-9 (CP to 2de)
+  const index = Math.max(0, Math.min(difficulty - 1, FRENCH_CLASSES.length - 1));
+  return FRENCH_CLASSES[index];
+}
+
 // Fonction pour formater le nom d'une classe pour l'affichage
 export function formatClassName(className: FrenchClass): string {
   const info = CLASS_INFO[className];
