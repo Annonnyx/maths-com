@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { 
   Trophy, BookOpen, ArrowLeft, Clock, Target, 
   ChevronRight, Calculator, Lightbulb, CheckCircle,
-  ChevronDown, ChevronUp, Lock
+  ChevronDown, ChevronUp, Lock, Search, Triangle,
+  Ruler
 } from 'lucide-react';
 import { COURSES_BY_CLASS, CourseSection } from '@/lib/courses-data';
 import { FrenchClass, FRENCH_CLASSES, formatClassName } from '@/lib/french-classes';
+import TrigonometryCourse from '@/components/TrigonometryCourse';
 
 const CLASS_ICONS: Record<FrenchClass, string> = {
   'CP': '🌱', 'CE1': '🌿', 'CE2': '🍃', 'CM1': '🌳', 'CM2': '🌲',
@@ -134,9 +136,35 @@ function CourseSectionComponent({ section, index }: { section: CourseSection; in
 
 export default function CoursesPage() {
   const [selectedClass, setSelectedClass] = useState<FrenchClass | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showTrigCourse, setShowTrigCourse] = useState(false);
   const userClass = '6e' as FrenchClass;
   const userClassIndex = FRENCH_CLASSES.indexOf(userClass);
   const coursesList = Object.values(COURSES_BY_CLASS);
+
+  // Search functionality
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return coursesList;
+    
+    const query = searchQuery.toLowerCase();
+    return coursesList.filter(course => {
+      // Search in title and description
+      if (course.title.toLowerCase().includes(query) || 
+          course.description.toLowerCase().includes(query)) {
+        return true;
+      }
+      // Search in sections
+      return course.sections.some(section => 
+        section.title.toLowerCase().includes(query) ||
+        section.content.toLowerCase().includes(query) ||
+        section.examples.some(ex => 
+          ex.problem.toLowerCase().includes(query) ||
+          ex.explanation.toLowerCase().includes(query)
+        ) ||
+        section.tips.some(tip => tip.toLowerCase().includes(query))
+      );
+    });
+  }, [searchQuery, coursesList]);
 
   if (selectedClass) {
     const course = COURSES_BY_CLASS[selectedClass];
@@ -210,28 +238,113 @@ export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-background text-white">
       <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
-              <Trophy className="w-6 h-6" /><span className="font-bold">Math.com</span>
-            </Link>
-            <span className="text-muted-foreground">|</span>
-            <span className="text-muted-foreground">Cours par niveau</span>
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
+                <Trophy className="w-6 h-6" /><span className="font-bold">Math.com</span>
+              </Link>
+              <span className="text-muted-foreground">|</span>
+              <span className="text-muted-foreground">Cours par niveau</span>
+            </div>
+          </div>
+          
+          {/* Search Bar */}
+          <div className="relative max-w-xl">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher un cours, une technique, une formule..."
+              className="w-full pl-10 pr-4 py-3 bg-[#1a1a2e] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              >
+                ×
+              </button>
+            )}
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">Cours et Méthodes</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Apprends les techniques de calcul mental adaptées à ton niveau scolaire.</p>
         </motion.div>
+        
+        {/* Special Courses Section */}
+        {!searchQuery && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Triangle className="w-5 h-5 text-pink-400" />
+              Cours Spéciaux
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                onClick={() => setShowTrigCourse(true)}
+                className="p-6 rounded-2xl bg-gradient-to-br from-pink-500/20 to-purple-600/20 border border-pink-500/30 cursor-pointer hover:scale-[1.02] transition-all"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <span className="text-3xl">📐</span>
+                  <span className="px-3 py-1 bg-pink-500/20 text-pink-400 rounded-full text-sm font-semibold">Interactive</span>
+                </div>
+                <h3 className="text-xl font-bold mb-2">Trigonométrie</h3>
+                <p className="text-sm opacity-75 mb-4">Cours complet sur sinus, cosinus et le cercle trigonométrique avec démonstrations interactives.</p>
+                <div className="flex items-center gap-2 text-sm text-pink-400">
+                  <Triangle className="w-4 h-4" />
+                  <span>Sinus & Cosinus • Cercle unité • Triangles</span>
+                </div>
+              </motion.div>
+              
+              <Link href="/dashboard/geometry">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="p-6 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 cursor-pointer hover:scale-[1.02] transition-all h-full"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <span className="text-3xl">📏</span>
+                    <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-sm font-semibold">Atelier</span>
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Atelier de Géométrie</h3>
+                  <p className="text-sm opacity-75 mb-4">Dessinez, construisez et explorez la géométrie comme avec GeoGebra.</p>
+                  <div className="flex items-center gap-2 text-sm text-cyan-400">
+                    <Ruler className="w-4 h-4" />
+                    <span>Figures • Mesures • Constructions</span>
+                  </div>
+                </motion.div>
+              </Link>
+            </div>
+          </div>
+        )}
+        
+        {/* Search Results */}
+        {searchQuery && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-4 text-gray-400">
+              {searchResults.length} résultat{searchResults.length > 1 ? 's' : ''} pour "{searchQuery}"
+            </h2>
+            {searchResults.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <p>Aucun cours trouvé. Essayez avec d'autres termes comme "addition", "table de 7", "pythagore"...</p>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {coursesList.map((course, index) => {
+          {(searchQuery ? searchResults : coursesList).map((course, index) => {
             const frenchClass = course.className as FrenchClass;
             const classIndex = FRENCH_CLASSES.indexOf(frenchClass);
-            const isLocked = classIndex > userClassIndex;
+            const isLocked = classIndex > userClassIndex && !searchQuery;
             const isCurrent = frenchClass === userClass;
 
             return (
@@ -259,6 +372,23 @@ export default function CoursesPage() {
             );
           })}
         </div>
+        
+        {/* Trig Course Modal */}
+        {showTrigCourse && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto">
+            <div className="min-h-screen px-4 py-8">
+              <div className="max-w-4xl mx-auto">
+                <button
+                  onClick={() => setShowTrigCourse(false)}
+                  className="fixed top-4 right-4 p-2 bg-gray-800 hover:bg-gray-700 rounded-full text-white z-50"
+                >
+                  ✕
+                </button>
+                <TrigonometryCourse />
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

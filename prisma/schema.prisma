@@ -91,6 +91,12 @@ model User {
   sentChallenges Challenge[] @relation("Challenger")
   receivedChallenges Challenge[] @relation("Challenged")
   
+  // Discord integration
+  discordId       String?   @unique
+  discordUsername   String?
+  discordLinkedAt   DateTime?
+  discordLinkCode   String?   @unique  // Temporary code for linking
+  
   @@map("users")
 }
 
