@@ -6,10 +6,37 @@ import Link from 'next/link';
 import { 
   Trophy, BookOpen, ArrowLeft, Clock, Target, 
   ChevronRight, Calculator, Lightbulb, CheckCircle,
-  ChevronDown, ChevronUp
+  ChevronDown, ChevronUp, Lock, Play
 } from 'lucide-react';
+import { COURSES_BY_CLASS, ClassCourse, CourseSection } from '@/lib/courses-data';
+import { FrenchClass, FRENCH_CLASSES, formatClassName, getClassFromElo } from '@/lib/french-classes';
 
-const COURSE_CONTENT: Record<string, {
+// Icônes par classe
+const CLASS_ICONS: Record<FrenchClass, string> = {
+  'CP': '🌱', 'CE1': '🌿', 'CE2': '🍃', 'CM1': '🌳', 'CM2': '🌲',
+  '6e': '📚', '5e': '📖', '4e': '📐', '3e': '🎓', '2de': '🏆',
+  '1re': '⭐', 'Tle': '🎯', 'Sup1': '📚', 'Sup2': '📚', 'Sup3': '📚', 'Pro': '💼'
+};
+
+// Couleurs par classe
+const CLASS_COLORS: Record<FrenchClass, string> = {
+  'CP': 'from-green-500/20 to-green-600/20 border-green-500/30',
+  'CE1': 'from-green-500/20 to-emerald-600/20 border-green-500/30',
+  'CE2': 'from-yellow-500/20 to-yellow-600/20 border-yellow-500/30',
+  'CM1': 'from-orange-500/20 to-orange-600/20 border-orange-500/30',
+  'CM2': 'from-cyan-500/20 to-cyan-600/20 border-cyan-500/30',
+  '6e': 'from-red-500/20 to-red-600/20 border-red-500/30',
+  '5e': 'from-pink-500/20 to-pink-600/20 border-pink-500/30',
+  '4e': 'from-purple-500/20 to-purple-600/20 border-purple-500/30',
+  '3e': 'from-indigo-500/20 to-indigo-600/20 border-indigo-500/30',
+  '2de': 'from-blue-500/20 to-blue-600/20 border-blue-500/30',
+  '1re': 'from-violet-500/20 to-violet-600/20 border-violet-500/30',
+  'Tle': 'from-amber-500/20 to-amber-600/20 border-amber-500/30',
+  'Sup1': 'from-rose-500/20 to-rose-600/20 border-rose-500/30',
+  'Sup2': 'from-fuchsia-500/20 to-fuchsia-600/20 border-fuchsia-500/30',
+  'Sup3': 'from-teal-500/20 to-teal-600/20 border-teal-500/30',
+  'Pro': 'from-slate-500/20 to-slate-600/20 border-slate-500/30'
+};
   sections: {
     title: string;
     content: string;
@@ -314,15 +341,50 @@ const COURSE_CONTENT: Record<string, {
 import { getClassFromElo, formatClassName, FrenchClass } from '@/lib/french-classes';
 
 // Map old difficulty (1-8) to French classes
-const DIFFICULTY_TO_CLASS: Record<number, FrenchClass> = {
-  1: 'CP',
-  2: 'CE1',
-  3: 'CE2',
-  4: 'CM1',
-  5: 'CM2',
-  6: '6e',
-  7: '5e',
-  8: '4e'
+// Icônes par classe
+const CLASS_ICONS: Record<FrenchClass, string> = {
+  'CP': '🌱', 'CE1': '🌿', 'CE2': '🍃', 'CM1': '🌳', 'CM2': '🌲',
+  '6e': '📚', '5e': '📖', '4e': '📐', '3e': '🎓', '2de': '🏆',
+  '1re': '⭐', 'Tle': '🎯', 'Sup1': '📚', 'Sup2': '📚', 'Sup3': '📚', 'Pro': '💼'
+};
+
+// Couleurs par classe
+const CLASS_COLORS: Record<FrenchClass, string> = {
+  'CP': 'from-green-500/20 to-green-600/20 border-green-500/30',
+  'CE1': 'from-green-500/20 to-emerald-600/20 border-green-500/30',
+  'CE2': 'from-yellow-500/20 to-yellow-600/20 border-yellow-500/30',
+  'CM1': 'from-orange-500/20 to-orange-600/20 border-orange-500/30',
+  'CM2': 'from-cyan-500/20 to-cyan-600/20 border-cyan-500/30',
+  '6e': 'from-red-500/20 to-red-600/20 border-red-500/30',
+  '5e': 'from-pink-500/20 to-pink-600/20 border-pink-500/30',
+  '4e': 'from-purple-500/20 to-purple-600/20 border-purple-500/30',
+  '3e': 'from-indigo-500/20 to-indigo-600/20 border-indigo-500/30',
+  '2de': 'from-blue-500/20 to-blue-600/20 border-blue-500/30',
+  '1re': 'from-violet-500/20 to-violet-600/20 border-violet-500/30',
+  'Tle': 'from-amber-500/20 to-amber-600/20 border-amber-500/30',
+  'Sup1': 'from-rose-500/20 to-rose-600/20 border-rose-500/30',
+  'Sup2': 'from-fuchsia-500/20 to-fuchsia-600/20 border-fuchsia-500/30',
+  'Sup3': 'from-teal-500/20 to-teal-600/20 border-teal-500/30',
+  'Pro': 'from-slate-500/20 to-slate-600/20 border-slate-500/30'
+};
+
+const CLASS_ICONS: Record<FrenchClass, string> = {
+  'CP': '🌱',
+  'CE1': '🌿',
+  'CE2': '🍃',
+  'CM1': '🌳',
+  'CM2': '🌲',
+  '6e': '📚',
+  '5e': '📖',
+  '4e': '📐',
+  '3e': '🎓',
+  '2de': '🏆',
+  '1re': '⭐',
+  'Tle': '🎯',
+  'Sup1': '📚',
+  'Sup2': '📚',
+  'Sup3': '📚',
+  'Pro': '💼'
 };
 
 const COURSES = [
@@ -551,14 +613,17 @@ export default function CoursesPage() {
             <div className={`p-8 rounded-2xl bg-gradient-to-br ${selectedCourse.color} mb-8`}>
               <div className="flex items-center gap-3 mb-4">
                 <selectedCourse.icon className="w-8 h-8 text-white" />
-                <span className={`px-3 py-1 rounded-full text-sm ${
-                  selectedCourse.frenchClass === 'CP' || selectedCourse.frenchClass === 'CE1' ? 'bg-green-500/30 text-green-300' :
-                  selectedCourse.frenchClass === 'CE2' || selectedCourse.frenchClass === 'CM1' || selectedCourse.frenchClass === 'CM2' ? 'bg-yellow-500/30 text-yellow-300' :
-                  selectedCourse.frenchClass === '6e' || selectedCourse.frenchClass === '5e' ? 'bg-orange-500/30 text-orange-300' :
-                  'bg-red-500/30 text-red-300'
-                }`}>
-                  {formatClassName(selectedCourse.frenchClass)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{CLASS_ICONS[selectedCourse.frenchClass]}</span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                    selectedCourse.frenchClass === 'CP' || selectedCourse.frenchClass === 'CE1' ? 'bg-green-500/30 text-green-300' :
+                    selectedCourse.frenchClass === 'CE2' || selectedCourse.frenchClass === 'CM1' || selectedCourse.frenchClass === 'CM2' ? 'bg-yellow-500/30 text-yellow-300' :
+                    selectedCourse.frenchClass === '6e' || selectedCourse.frenchClass === '5e' ? 'bg-orange-500/30 text-orange-300' :
+                    'bg-red-500/30 text-red-300'
+                  }`}>
+                    {formatClassName(selectedCourse.frenchClass)}
+                  </span>
+                </div>
               </div>
               <h1 className="text-3xl font-bold mb-4">{selectedCourse.title}</h1>
               <p className="text-lg opacity-90 mb-4">{selectedCourse.description}</p>
@@ -727,8 +792,9 @@ export default function CoursesPage() {
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <course.icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">
-                  {formatClassName(course.frenchClass)}
+                <span className="flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">
+                  <span>{CLASS_ICONS[course.frenchClass]}</span>
+                  <span>{formatClassName(course.frenchClass)}</span>
                 </span>
               </div>
               
