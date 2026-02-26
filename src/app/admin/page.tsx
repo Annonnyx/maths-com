@@ -95,6 +95,9 @@ export default function AdminPage() {
   const [resetCode, setResetCode] = useState('');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
+  // User list
+  const [showUserList, setShowUserList] = useState(false);
+
   useEffect(() => {
     console.log('Admin page - Session:', session);
     console.log('Admin page - User email:', session?.user?.email);
