@@ -75,6 +75,10 @@ export async function POST(
     // Execute all question updates
     await Promise.all(questionUpdates);
 
+    // Calculate score - ensure exact integer calculation
+    const rawScore = (correctCount / test.totalQuestions) * 100;
+    const score = Math.min(100, Math.max(0, Math.round(rawScore)));
+    
     // Calculate time bonus with custom formula
     // Base = 120 - timeTaken (max 120pts if instant, min 0 if >120s)
     const baseTime = Math.max(0, 120 - timeTaken);
@@ -96,8 +100,6 @@ export async function POST(
     }
 
     // Calculate Elo change with advanced formula
-    const score = Math.round((correctCount / test.totalQuestions) * 100);
-    
     const { eloChange, performance } = calculateAdvancedEloChange({
       correctAnswers: correctCount,
       totalQuestions: test.totalQuestions,

@@ -259,7 +259,9 @@ function TestPage() {
       };
     });
     
-    const score = Math.round((correct / testState.questions.length) * 100);
+    // Calculate score - ensure exact calculation
+    const rawScore = (correct / testState.questions.length) * 100;
+    const score = Math.min(100, Math.max(0, Math.round(rawScore)));
     
     let eloChange = 0;
     let performance: PerformanceBreakdown = {
