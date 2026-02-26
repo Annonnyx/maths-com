@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { 
   Download, Users, ArrowLeft, Crown, Medal, Save, Trash2, UserPlus, Loader2,
-  Award, Zap, Target, Star, Shield, Upload, Image, Edit2, Eye, EyeOff, Gift
+  Award, Zap, Target, Star, Shield, Upload, Image, Edit2, Eye, EyeOff, Gift, RotateCcw, AlertTriangle
 } from 'lucide-react';
 
 interface Badge {
@@ -91,8 +91,9 @@ export default function AdminPage() {
     isPremium: false
   });
 
-  // User list
-  const [showUserList, setShowUserList] = useState(false);
+  // Reset ELO
+  const [resetCode, setResetCode] = useState('');
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   useEffect(() => {
     console.log('Admin page - Session:', session);
@@ -477,6 +478,104 @@ export default function AdminPage() {
               >
                 Mettre à jour mon Elo
               </button>
+            </div>
+          </motion.div>
+
+          {/* Reset ELO Global */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="p-6 bg-[#12121a] rounded-2xl border border-red-500/30"
+          >
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-red-400">
+              <RotateCcw className="w-5 h-5" />
+              Reset ELO Global
+            </h2>
+            
+            <div className="space-y-4">
+              <p className="text-sm text-gray-400">
+                Réinitialise l&apos;ELO de TOUS les joueurs à 400 (F-). Cette action est irréversible.
+              </p>
+
+              {!showResetConfirm ? (
+                <button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/admin', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ action: 'generate-reset-code' })
+                      });
+                      
+                      if (response.ok) {
+                        setShowResetConfirm(true);
+                        alert('Code de réinitialisation envoyé dans tes messages !');
+                      } else {
+                        alert('Erreur lors de la génération du code');
+                      }
+                    } catch (error) {
+                      alert('Erreur réseau');
+                    }
+                  }}
+                  className="w-full py-2 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  Générer le code de reset
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={resetCode}
+                    onChange={(e) => setResetCode(e.target.value)}
+                    placeholder="Entre le code reçu dans tes messages"
+                    className="w-full px-4 py-2 bg-card border border-border rounded-lg text-foreground"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowResetConfirm(false)}
+                      className="flex-1 py-2 bg-card hover:bg-border rounded-lg font-semibold transition-colors"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (!confirm('⚠️ ES-TU SÛR ? Cette action réinitialisera TOUS les joueurs !')) return;
+                        
+                        try {
+                          const response = await fetch('/api/admin', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ 
+                              action: 'reset-all-elo',
+                              code: resetCode 
+                            })
+                          });
+                          
+                          const data = await response.json();
+                          if (response.ok) {
+                            alert(`✅ ${data.usersReset} joueurs réinitialisés !`);
+                            setShowResetConfirm(false);
+                            setResetCode('');
+                            loadData();
+                          } else {
+                            alert('Erreur: ' + (data.error || 'Échec'));
+                          }
+                        } catch (error) {
+                          alert('Erreur réseau');
+                        }
+                      }}
+                      disabled={!resetCode}
+                      className="flex-1 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-lg font-semibold transition-colors"
+                    >
+                      Confirmer Reset
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
 

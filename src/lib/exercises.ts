@@ -60,16 +60,16 @@ function generateAddition(difficulty: number): Exercise {
       b = randomInt(200, 999);
       break;
     case 8:
-      a = randomInt(100, 9999);
-      b = randomInt(100, 9999);
+      a = randomInt(100, 999);
+      b = randomInt(100, 999);
       break;
     case 9:
-      a = randomInt(1000, 99999);
-      b = randomInt(1000, 99999);
+      a = randomInt(100, 999);
+      b = randomInt(100, 999);
       break;
     case 10:
-      a = randomInt(10000, 999999);
-      b = randomInt(10000, 999999);
+      a = randomInt(100, 999);
+      b = randomInt(100, 999);
       break;
     default:
       a = randomInt(1, 20);
@@ -120,16 +120,16 @@ function generateSubtraction(difficulty: number): Exercise {
       b = randomInt(200, a);
       break;
     case 8:
-      a = randomInt(1000, 5000);
-      b = randomInt(500, a);
+      a = randomInt(100, 500);
+      b = randomInt(100, a);
       break;
     case 9:
-      a = randomInt(2000, 10000);
-      b = randomInt(1000, a);
+      a = randomInt(100, 500);
+      b = randomInt(100, a);
       break;
     case 10:
-      a = randomInt(5000, 50000);
-      b = randomInt(2000, a);
+      a = randomInt(100, 500);
+      b = randomInt(100, a);
       break;
     default:
       a = randomInt(10, 50);

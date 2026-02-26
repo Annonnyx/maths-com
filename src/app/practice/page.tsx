@@ -54,6 +54,39 @@ export default function PracticePage() {
   const [stats, setStats] = useState({ correct: 0, total: 0, streak: 0 });
   const [showSettings, setShowSettings] = useState(true);
   const { playSound } = useSound();
+  const [excludeGeometry, setExcludeGeometry] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('excludeGeometry') === 'true';
+    }
+    return false;
+  });
+
+  // Get available operations for a class (geometry excluded if setting is on)
+  const getOperationsForClass = (className: FrenchClass, excludeGeo: boolean): OperationType[] => {
+    const baseOps: OperationType[] = ['addition', 'subtraction', 'multiplication', 'division'];
+    const advancedOps: OperationType[] = ['power', 'root', 'factorization', 'percentage', 'fraction'];
+    
+    const classIndex = FRENCH_CLASSES.indexOf(className);
+    
+    let ops: OperationType[] = [];
+    
+    // CP-CM2: basics only
+    if (classIndex <= 4) {
+      ops = ['addition', 'subtraction'];
+      if (classIndex >= 2) ops.push('multiplication');
+      if (classIndex >= 4) ops.push('division');
+    }
+    // Collège: basics + some advanced
+    else if (classIndex <= 8) {
+      ops = [...baseOps, 'percentage', 'fraction'];
+    }
+    // Lycée and above: all operations
+    else {
+      ops = [...baseOps, ...advancedOps];
+    }
+    
+    return ops;
+  };
 
   // Get unlocked classes based on user's rank
   const userRank = (session?.user as any)?.rankClass as RankClass || 'F-';
@@ -62,7 +95,13 @@ export default function PracticePage() {
   const generateNewExercise = () => {
     playSound('tick');
     const difficulty = CLASS_TO_DIFFICULTY[selectedClass];
-    const exercise = generateExercise(selectedOperation, difficulty);
+    
+    // Get available operations for this class
+    const availableOps = getOperationsForClass(selectedClass, excludeGeometry);
+    const randomOp = availableOps[Math.floor(Math.random() * availableOps.length)];
+    setSelectedOperation(randomOp);
+    
+    const exercise = generateExercise(randomOp, difficulty);
     setCurrentExercise(exercise);
     setInputValue('');
     setFeedback(null);
@@ -144,32 +183,9 @@ export default function PracticePage() {
                 </Link>
                 <h1 className="text-2xl font-bold">Configuration des exercices</h1>
               </div>
-
-              {/* Operation Selection */}
-              <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4">Type d'opération</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {OPERATIONS.map((op) => (
-                    <button
-                      key={op.type}
-                      onClick={() => {
-                        playSound('click');
-                        setSelectedOperation(op.type);
-                      }}
-                      className={`p-4 rounded-xl border transition-all ${
-                        selectedOperation === op.type
-                          ? 'border-indigo-500 bg-indigo-500/10'
-                          : 'border-border bg-card hover:border-[#3a3a4a]'
-                      }`}
-                    >
-                      <div className={`w-10 h-10 mx-auto mb-2 rounded-lg bg-gradient-to-br ${op.color} flex items-center justify-center text-xl font-bold`}>
-                        {op.icon}
-                      </div>
-                      <p className="text-sm font-medium">{op.label}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                Choisis ta classe pour générer des exercices adaptés
+              </p>
 
               {/* Class Selection */}
               <div className="mb-8">
@@ -202,6 +218,27 @@ export default function PracticePage() {
                 )}
               </div>
 
+              {/* Geometry Toggle */}
+              <div className="mb-8 p-4 bg-card rounded-xl border border-border">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={excludeGeometry}
+                    onChange={(e) => {
+                      setExcludeGeometry(e.target.checked);
+                      localStorage.setItem('excludeGeometry', e.target.checked.toString());
+                    }}
+                    className="w-5 h-5 rounded border-border bg-background text-indigo-500 focus:ring-indigo-500"
+                  />
+                  <div>
+                    <p className="font-medium">Exclure la géométrie</p>
+                    <p className="text-sm text-muted-foreground">
+                      Ne pas inclure les exercices de géométrie (formes, périmètres, aires)
+                    </p>
+                  </div>
+                </label>
+              </div>
+
               {/* Start Button */}
               <button
                 onClick={() => {
@@ -231,12 +268,10 @@ export default function PracticePage() {
                   className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg hover:bg-border transition-all"
                 >
                   <Settings2 className="w-4 h-4" />
-                  <span>Paramètres</span>
+                  <span>Changer de classe</span>
                 </button>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="capitalize">{OPERATIONS.find(o => o.type === selectedOperation)?.label}</span>
-                  <span>|</span>
-                  <span>Classe {selectedClass}</span>
+                <div className="text-sm text-muted-foreground">
+                  Classe {selectedClass}
                 </div>
               </div>
 
