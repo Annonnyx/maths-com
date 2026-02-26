@@ -76,6 +76,8 @@ function TestPage() {
     return false;
   });
 
+  const [eloUpdated, setEloUpdated] = useState(false);
+
   // Apply animations preference
   useEffect(() => {
     if (!userPrefs.animations) {
