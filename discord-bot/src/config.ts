@@ -33,7 +33,8 @@ export const config = {
   
   // IDs des salons Discord
   channels: {
-    leaderboard: getEnvVar('LEADERBOARD_CHANNEL_ID'),
+    leaderboardSolo: getEnvVar('LEADERBOARD_SOLO_CHANNEL_ID'),
+    leaderboardMulti: getEnvVar('LEADERBOARD_MULTI_CHANNEL_ID'),
     ticketCategory: getEnvVar('TICKET_CATEGORY_ID'),
     ticketLog: getEnvVar('TICKET_LOG_CHANNEL_ID'),
     announcements: getEnvVar('ANNOUNCEMENTS_CHANNEL_ID'),
@@ -46,12 +47,26 @@ export const config = {
     top1Multi: getEnvVar('ROLE_TOP1_MULTI'),
     top10Solo: getEnvVar('ROLE_TOP10_SOLO'),
     top10Multi: getEnvVar('ROLE_TOP10_MULTI'),
+    support: getEnvVar('ROLE_SUPPORT'),
+    // Rôles de classe française
+    CP: getEnvVar('ROLE_CP'),
+    CE1: getEnvVar('ROLE_CE1'),
+    CE2: getEnvVar('ROLE_CE2'),
+    CM1: getEnvVar('ROLE_CM1'),
+    CM2: getEnvVar('ROLE_CM2'),
+    '6E': getEnvVar('ROLE_6E'),
+    '5E': getEnvVar('ROLE_5E'),
+    '4E': getEnvVar('ROLE_4E'),
+    '3E': getEnvVar('ROLE_3E'),
+    '2DE': getEnvVar('ROLE_2DE'),
+    '1RE': getEnvVar('ROLE_1RE'),
+    'TLE': getEnvVar('ROLE_TLE'),
     // Rôles badges (à configurer selon les badges du site)
     badges: {
       // Format: badgeId -> roleId
       // Exemple: streak_7: '123456789',
     } as Record<string, string>,
-  },
+  } as Record<string, any>,
   
   // Configuration des tickets
   tickets: {
