@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, PermissionFlagsBits, ChannelType } from 'discord.js';
+import { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, PermissionFlagsBits, ChannelType, ModalSubmitInteraction, ButtonInteraction, ChatInputCommandInteraction } from 'discord.js';
 import { config, COLORS } from '../config.js';
 
 export default {
@@ -6,9 +6,9 @@ export default {
     .setName('ticket')
     .setDescription('Ouvrir un ticket de support'),
   
-  async execute(interaction) {
+  async execute(interaction: ChatInputCommandInteraction) {
     // Vérifier si l'utilisateur a déjà un ticket ouvert
-    const existingTicket = interaction.guild.channels.cache.find(channel => 
+    const existingTicket = interaction.guild?.channels.cache.find(channel => 
       channel.type === ChannelType.GuildText &&
       channel.parentId === config.channels.ticketCategory &&
       channel.topic?.includes(interaction.user.id)
@@ -24,48 +24,49 @@ export default {
     // Créer le modal pour choisir le motif
     const modal = new ModalBuilder()
       .setCustomId(`ticket_modal_${interaction.user.id}`)
-      .setTitle('🎫 Ouvrir un ticket')
-      .addComponents(
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('ticket_subject')
-            .setLabel('Sujet du ticket')
-            .setPlaceholder('Ex: Problème de connexion, Bug, Suggestion...')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true)
-            .setMaxLength(100)
-        ),
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('ticket_description')
-            .setLabel('Description détaillée')
-            .setPlaceholder('Décrivez votre problème en détail...')
-            .setStyle(TextInputStyle.Paragraph)
-            .setRequired(true)
-            .setMaxLength(1000)
-        )
-      );
+      .setTitle('🎫 Ouvrir un ticket');
+
+    const subjectInput = new TextInputBuilder()
+      .setCustomId('ticket_subject')
+      .setLabel('Sujet du ticket')
+      .setPlaceholder('Ex: Problème de connexion, Bug, Suggestion...')
+      .setStyle(TextInputStyle.Short)
+      .setRequired(true)
+      .setMaxLength(100);
+
+    const descriptionInput = new TextInputBuilder()
+      .setCustomId('ticket_description')
+      .setLabel('Description détaillée')
+      .setPlaceholder('Décrivez votre problème en détail...')
+      .setStyle(TextInputStyle.Paragraph)
+      .setRequired(true)
+      .setMaxLength(1000);
+
+    modal.addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(subjectInput),
+      new ActionRowBuilder<TextInputBuilder>().addComponents(descriptionInput)
+    );
 
     await interaction.showModal(modal);
   }
 };
 
 // Gérer la soumission du modal
-export async function handleTicketModal(interaction) {
+export async function handleTicketModal(interaction: ModalSubmitInteraction) {
   const subject = interaction.fields.getTextInputValue('ticket_subject');
   const description = interaction.fields.getTextInputValue('ticket_description');
   const userId = interaction.user.id;
 
   try {
     // Créer le salon de ticket
-    const ticketChannel = await interaction.guild.channels.create({
+    const ticketChannel = await interaction.guild?.channels.create({
       name: `ticket-${interaction.user.username}`,
       type: ChannelType.GuildText,
       parent: config.channels.ticketCategory,
       topic: `Ticket de ${interaction.user.tag} (${userId})`,
       permissionOverwrites: [
         {
-          id: interaction.guild.id,
+          id: interaction.guild!.id,
           deny: [PermissionFlagsBits.ViewChannel],
         },
         {
@@ -90,6 +91,10 @@ export async function handleTicketModal(interaction) {
       ],
     });
 
+    if (!ticketChannel) {
+      throw new Error('Impossible de créer le salon de ticket');
+    }
+
     // Embed de présentation du ticket
     const ticketEmbed = new EmbedBuilder()
       .setTitle(`🎫 Ticket #${ticketChannel.name.split('-')[1]}`)
@@ -103,7 +108,7 @@ export async function handleTicketModal(interaction) {
       .setFooter({ text: 'Utilisez les boutons ci-dessous pour gérer ce ticket' });
 
     // Boutons d'action pour le support
-    const actionRow = new ActionRowBuilder().addComponents(
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(`ticket_close_${userId}`)
         .setLabel('🔒 Fermer le ticket')
@@ -138,8 +143,8 @@ export async function handleTicketModal(interaction) {
       .setDescription(description.substring(0, 200) + (description.length > 200 ? '...' : ''))
       .setTimestamp();
 
-    const logChannel = interaction.guild.channels.cache.get(config.channels.ticketLog);
-    if (logChannel) {
+    const logChannel = interaction.guild?.channels.cache.get(config.channels.ticketLog);
+    if (logChannel && logChannel.isTextBased()) {
       await logChannel.send({ embeds: [logEmbed] });
     }
 
@@ -159,25 +164,30 @@ export async function handleTicketModal(interaction) {
 }
 
 // Gérer la fermeture du ticket
-export async function handleTicketClose(interaction, ticketUserId) {
+export async function handleTicketClose(interaction: ButtonInteraction, ticketUserId: string) {
   try {
     const channel = interaction.channel;
+    
+    if (!channel || !channel.isTextBased()) {
+      throw new Error('Salon invalide');
+    }
     
     // Demander la raison de fermeture
     const modal = new ModalBuilder()
       .setCustomId(`close_ticket_modal_${ticketUserId}`)
-      .setTitle('🔒 Fermer le ticket')
-      .addComponents(
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('close_reason')
-            .setLabel('Raison de la fermeture')
-            .setPlaceholder('Pourquoi fermez-vous ce ticket ?')
-            .setStyle(TextInputStyle.Paragraph)
-            .setRequired(true)
-            .setMaxLength(500)
-        )
-      );
+      .setTitle('🔒 Fermer le ticket');
+
+    const reasonInput = new TextInputBuilder()
+      .setCustomId('close_reason')
+      .setLabel('Raison de la fermeture')
+      .setPlaceholder('Pourquoi fermez-vous ce ticket ?')
+      .setStyle(TextInputStyle.Paragraph)
+      .setRequired(true)
+      .setMaxLength(500);
+
+    modal.addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(reasonInput)
+    );
 
     await interaction.showModal(modal);
   } catch (error) {
@@ -186,11 +196,15 @@ export async function handleTicketClose(interaction, ticketUserId) {
 }
 
 // Confirmer la fermeture du ticket
-export async function confirmTicketClose(interaction, ticketUserId) {
+export async function confirmTicketClose(interaction: ModalSubmitInteraction, ticketUserId: string) {
   const reason = interaction.fields.getTextInputValue('close_reason');
   const channel = interaction.channel;
 
   try {
+    if (!channel || !channel.isTextBased()) {
+      throw new Error('Salon invalide');
+    }
+
     // Embed de fermeture
     const closeEmbed = new EmbedBuilder()
       .setTitle('🔒 Ticket fermé')
@@ -203,7 +217,7 @@ export async function confirmTicketClose(interaction, ticketUserId) {
       .setTimestamp();
 
     // Envoyer l'embed de fermeture dans le salon du ticket
-    await channel.send({ embeds: [closeEmbed] });
+    await (channel as any).send({ embeds: [closeEmbed] });
 
     // Log dans le salon des logs
     const logEmbed = new EmbedBuilder()
@@ -216,13 +230,13 @@ export async function confirmTicketClose(interaction, ticketUserId) {
       )
       .setTimestamp();
 
-    const logChannel = interaction.guild.channels.cache.get(config.channels.ticketLog);
-    if (logChannel) {
+    const logChannel = interaction.guild?.channels.cache.get(config.channels.ticketLog);
+    if (logChannel && logChannel.isTextBased()) {
       await logChannel.send({ embeds: [logEmbed] });
     }
 
     // Supprimer les permissions d'écriture pour tout le monde
-    await channel.permissionOverwrites.edit(channel.guild.id, {
+    await (channel as any).permissionOverwrites.edit(interaction.guild!.id, {
       SendMessages: false,
     });
 
@@ -234,7 +248,7 @@ export async function confirmTicketClose(interaction, ticketUserId) {
     // Supprimer le salon après 5 minutes
     setTimeout(async () => {
       try {
-        await channel.delete('Ticket fermé automatiquement');
+        await (channel as any).delete('Ticket fermé automatiquement');
       } catch (error) {
         console.error('❌ Erreur suppression salon ticket:', error);
       }

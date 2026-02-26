@@ -1,6 +1,6 @@
 import { Events, Client, ActivityType } from 'discord.js';
 import { config } from '../config.js';
-import { ensureBadgeRolesExist } from '../handlers/roleManager.js';
+import { ensureClassRolesExist } from '../handlers/roleManager.js';
 
 export default {
   name: Events.ClientReady,
@@ -17,11 +17,11 @@ export default {
       status: 'online'
     });
     
-    // Vérifier/créer les rôles de badges
+    // Vérifier/créer les rôles de classe
     try {
       const guild = await client.guilds.fetch(config.discord.guildId);
-      await ensureBadgeRolesExist(guild);
-      console.log('✅ Rôles de badges vérifiés');
+      await ensureClassRolesExist(guild);
+      console.log('✅ Rôles de classe vérifiés');
     } catch (error) {
       console.error('❌ Erreur vérification rôles:', error);
     }

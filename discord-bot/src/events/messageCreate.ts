@@ -54,7 +54,9 @@ async function autoModerate(message: Message) {
   for (const word of bannedWords) {
     if (content.includes(word)) {
       await message.delete();
-      await message.channel.send(`${message.author} ⚠️ Votre message a été supprimé pour non-respect des règles.`);
+      if (message.channel.isTextBased()) {
+        await (message.channel as any).send(`${message.author} ⚠️ Votre message a été supprimé pour non-respect des règles.`);
+      }
       break;
     }
   }

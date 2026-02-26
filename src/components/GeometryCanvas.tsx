@@ -77,6 +77,7 @@ export default function GeometryCanvas({
   const [circles, setCircles] = useState<CircleShape[]>([]);
   const [triangles, setTriangles] = useState<TriangleShape[]>([]);
   const [selectedTool, setSelectedTool] = useState<GeometryTool>('select');
+  const [showGridState, setShowGrid] = useState(showGrid);
   const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
   const [tempLine, setTempLine] = useState<{start: Point; end: Point} | null>(null);
@@ -93,7 +94,7 @@ export default function GeometryCanvas({
   const gridHeight = height / scale;
 
   const snapToGrid = (value: number) => {
-    if (!showGrid) return value;
+    if (!showGridState) return value;
     return Math.round(value / gridSize) * gridSize;
   };
 
@@ -312,11 +313,11 @@ export default function GeometryCanvas({
         <div className="w-px h-6 bg-gray-700 mx-2" />
         
         <button
-          onClick={() => setShowGrid(!showGrid)}
-          className={`p-2 rounded-lg transition-all ${showGrid ? 'bg-indigo-500/20' : 'hover:bg-gray-800'}`}
+          onClick={() => setShowGrid(!showGridState)}
+          className={`p-2 rounded-lg transition-all ${showGridState ? 'bg-indigo-500/20' : 'hover:bg-gray-800'}`}
           title="Grille"
         >
-          <Grid3X3 className={`w-5 h-5 ${showGrid ? 'text-indigo-400' : 'text-gray-400'}`} />
+          <Grid3X3 className={`w-5 h-5 ${showGridState ? 'text-indigo-400' : 'text-gray-400'}`} />
         </button>
         
         <button
@@ -357,7 +358,7 @@ export default function GeometryCanvas({
           style={{ touchAction: 'none' }}
         >
           {/* Grid */}
-          {showGrid && (
+          {showGridState && (
             <g opacity={0.3}>
               {Array.from({ length: Math.ceil(gridWidth / gridSize) + 1 }).map((_, i) => (
                 <line

@@ -25,7 +25,8 @@ export async function sendMessageToChannel(
 
 // Publier le classement
 export async function publishLeaderboard(type: 'solo' | 'multi' = 'solo') {
-  const channel = await client.channels.fetch(config.channels.leaderboard);
+  const channelId = type === 'solo' ? config.channels.leaderboardSolo : config.channels.leaderboardMulti;
+  const channel = await client.channels.fetch(channelId);
   
   if (!channel || channel.type !== ChannelType.GuildText) {
     throw new Error('Leaderboard channel not found');

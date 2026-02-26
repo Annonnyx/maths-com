@@ -110,7 +110,7 @@ export default function DiscordAdminPage() {
     }
   };
 
-  if (!session?.user?.isAdmin) {
+  if (!session || !session.user || session.user.rankClass !== 'Admin') {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="text-center">
