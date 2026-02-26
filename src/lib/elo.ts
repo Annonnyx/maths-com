@@ -84,7 +84,7 @@ export function getRankProgress(elo: number, rank: RankClass): number {
   return Math.min(100, Math.max(0, (progress / range) * 100));
 }
 
-// Calculate Elo change based on test performance
+// Calculate Elo change based on test performance - SOLO MODE (harder progression)
 export function calculateEloChange(
   correctAnswers: number,
   totalQuestions: number = 20,
@@ -92,29 +92,35 @@ export function calculateEloChange(
 ): number {
   const score = (correctAnswers / totalQuestions) * 100;
   
-  // Base Elo change based on score
+  // Base Elo change based on score - SOLO IS HARDER NOW
   let eloChange = 0;
   
   if (score < 50) {
-    // Below 10/20 = lose Elo
-    eloChange = -Math.round((50 - score) * 2);
+    // Below 10/20 = lose more Elo in solo
+    eloChange = -Math.round((50 - score) * 3); // Increased penalty
   } else if (score < 60) {
-    // 10-11/20 = minimal gain
+    // 10-11/20 = minimal gain (nerfed)
+    eloChange = Math.round((score - 50) * 1);
+  } else if (score < 70) {
+    // 12-13/20 = small gain
     eloChange = Math.round((score - 50) * 1.5);
   } else if (score < 80) {
-    // 12-15/20 = moderate gain
+    // 14-15/20 = moderate gain
     eloChange = Math.round((score - 50) * 2);
-  } else if (score < 100) {
-    // 16-19/20 = good gain
+  } else if (score < 90) {
+    // 16-17/20 = good gain
     eloChange = Math.round((score - 50) * 2.5);
+  } else if (score < 100) {
+    // 18-19/20 = very good gain
+    eloChange = Math.round((score - 50) * 3);
   } else {
-    // 20/20 = excellent gain + perfect bonus
-    eloChange = Math.round((score - 50) * 3) + 50;
+    // 20/20 = excellent gain + perfect bonus (nerfed from +50 to +30)
+    eloChange = Math.round((score - 50) * 3) + 30;
   }
   
-  // Streak bonus
+  // Streak bonus - REDUCED for solo
   if (currentStreak > 0) {
-    eloChange += Math.min(currentStreak * 5, 50); // Max +50 for streaks
+    eloChange += Math.min(currentStreak * 3, 25); // Max +25 for streaks (was 50)
   }
   
   return eloChange;
@@ -218,19 +224,19 @@ export function calculateAdvancedEloChange(result: TestResult): {
     }
   }
   
-  // 5. STREAK BONUS
-  const streakBonus = Math.min(streak * 8, 80); // Max 80 for long streaks, higher than before
+  // 5. STREAK BONUS - REDUCED FOR SOLO
+  const streakBonus = Math.min(streak * 5, 50); // Max 50 for long streaks (was 80)
   
-  // 6. ELO SCALING (diminishing returns for high Elo)
+  // 6. ELO SCALING (more punishing for high Elo in solo)
   let eloScaling = 1;
   if (currentElo >= 1400) {
-    eloScaling = 0.7; // S tier players get reduced gains
+    eloScaling = 0.6; // S tier players get reduced gains (was 0.7)
   } else if (currentElo >= 1200) {
-    eloScaling = 0.8; // A tier
+    eloScaling = 0.7; // A tier (was 0.8)
   } else if (currentElo >= 1000) {
-    eloScaling = 0.9; // B tier
+    eloScaling = 0.8; // B tier (was 0.9)
   } else if (currentElo < 600) {
-    eloScaling = 1.2; // Beginners get bonus to climb faster
+    eloScaling = 1.1; // Beginners get smaller bonus (was 1.2)
   }
   
   // Calculate final Elo change

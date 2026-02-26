@@ -10,6 +10,9 @@ import {
 import { generateExercise, Exercise, OperationType, validateAnswer } from '@/lib/exercises';
 import { useSound } from '@/components/SoundProvider';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
+import { FrenchClass, FRENCH_CLASSES, CLASS_INFO, getUnlockedClasses } from '@/lib/french-classes';
+import { useSession } from 'next-auth/react';
+import { RankClass } from '@/lib/elo';
 
 const OPERATIONS: { type: OperationType; label: string; icon: string; color: string }[] = [
   { type: 'addition', label: 'Addition', icon: '+', color: 'from-blue-500/20 to-blue-600/20' },
@@ -21,9 +24,30 @@ const OPERATIONS: { type: OperationType; label: string; icon: string; color: str
   { type: 'factorization', label: 'Factorisation', icon: '∑', color: 'from-pink-500/20 to-pink-600/20' },
 ];
 
+// Map French class to difficulty level (1-10)
+const CLASS_TO_DIFFICULTY: Record<FrenchClass, number> = {
+  'CP': 1,
+  'CE1': 2,
+  'CE2': 3,
+  'CM1': 4,
+  'CM2': 5,
+  '6e': 6,
+  '5e': 7,
+  '4e': 8,
+  '3e': 9,
+  '2de': 9,
+  '1re': 10,
+  'Tle': 10,
+  'Sup1': 10,
+  'Sup2': 10,
+  'Sup3': 10,
+  'Pro': 10
+};
+
 export default function PracticePage() {
+  const { data: session } = useSession();
   const [selectedOperation, setSelectedOperation] = useState<OperationType>('addition');
-  const [difficulty, setDifficulty] = useState(3);
+  const [selectedClass, setSelectedClass] = useState<FrenchClass>('CP');
   const [currentExercise, setCurrentExercise] = useState<Exercise | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
@@ -31,8 +55,13 @@ export default function PracticePage() {
   const [showSettings, setShowSettings] = useState(true);
   const { playSound } = useSound();
 
+  // Get unlocked classes based on user's rank
+  const userRank = (session?.user as any)?.rankClass as RankClass || 'F-';
+  const unlockedClasses = getUnlockedClasses(userRank);
+
   const generateNewExercise = () => {
     playSound('tick');
+    const difficulty = CLASS_TO_DIFFICULTY[selectedClass];
     const exercise = generateExercise(selectedOperation, difficulty);
     setCurrentExercise(exercise);
     setInputValue('');
@@ -43,7 +72,7 @@ export default function PracticePage() {
     if (!showSettings) {
       generateNewExercise();
     }
-  }, [selectedOperation, difficulty, showSettings]);
+  }, [selectedOperation, selectedClass, showSettings]);
 
   const submitAnswer = () => {
     if (!currentExercise || !inputValue.trim()) return;
@@ -142,33 +171,35 @@ export default function PracticePage() {
                 </div>
               </div>
 
-              {/* Difficulty Selection */}
+              {/* Class Selection */}
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4">Difficulté</h2>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
+                <h2 className="text-lg font-semibold mb-4">Classe</h2>
+                <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+                  {unlockedClasses.map((className) => (
                     <button
-                      key={level}
+                      key={className}
                       onClick={() => {
                         playSound('click');
-                        setDifficulty(level);
+                        setSelectedClass(className);
                       }}
-                      className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
-                        difficulty === level
+                      className={`py-3 rounded-lg font-semibold transition-all ${
+                        selectedClass === className
                           ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
                           : 'bg-card hover:bg-border'
                       }`}
                     >
-                      {level}
+                      {className}
                     </button>
                   ))}
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {difficulty <= 3 ? 'Facile - Nombres petits, calculs rapides' :
-                   difficulty <= 6 ? 'Moyen - Nombres moyens, quelques retenues' :
-                   difficulty <= 8 ? 'Difficile - Grands nombres, calculs complexes' :
-                   'Expert - Nombres très grands, mental calculation avancé'}
+                  {CLASS_INFO[selectedClass].description}
                 </p>
+                {unlockedClasses.length < FRENCH_CLASSES.length && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    💡 Monte en rang pour débloquer plus de classes !
+                  </p>
+                )}
               </div>
 
               {/* Start Button */}
@@ -205,7 +236,7 @@ export default function PracticePage() {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span className="capitalize">{OPERATIONS.find(o => o.type === selectedOperation)?.label}</span>
                   <span>|</span>
-                  <span>Difficulté {difficulty}</span>
+                  <span>Classe {selectedClass}</span>
                 </div>
               </div>
 

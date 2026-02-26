@@ -311,6 +311,20 @@ const COURSE_CONTENT: Record<string, {
   },
 };
 
+import { getClassFromElo, formatClassName, FrenchClass } from '@/lib/french-classes';
+
+// Map old difficulty (1-8) to French classes
+const DIFFICULTY_TO_CLASS: Record<number, FrenchClass> = {
+  1: 'CP',
+  2: 'CE1',
+  3: 'CE2',
+  4: 'CM1',
+  5: 'CM2',
+  6: '6e',
+  7: '5e',
+  8: '4e'
+};
+
 const COURSES = [
   {
     id: 1,
@@ -318,6 +332,7 @@ const COURSES = [
     slug: 'addition-rapide',
     description: 'Maîtrise les techniques d\'addition mentale pour calculer plus vite',
     difficulty: 1,
+    frenchClass: 'CP' as FrenchClass,
     duration: '15 min',
     icon: Calculator,
     color: 'from-blue-500/20 to-blue-600/20',
@@ -329,6 +344,7 @@ const COURSES = [
     slug: 'soustraction-efficace',
     description: 'Apprends à soustraire rapidement sans calculatrice',
     difficulty: 2,
+    frenchClass: 'CE1' as FrenchClass,
     duration: '20 min',
     icon: Calculator,
     color: 'from-green-500/20 to-green-600/20',
@@ -340,6 +356,7 @@ const COURSES = [
     slug: 'tables-multiplication',
     description: 'Mémorise et maîtrise les tables de multiplication',
     difficulty: 3,
+    frenchClass: 'CE2' as FrenchClass,
     duration: '30 min',
     icon: Target,
     color: 'from-purple-500/20 to-purple-600/20',
@@ -351,6 +368,7 @@ const COURSES = [
     slug: 'division-mentale',
     description: 'Techniques pour diviser rapidement sans papier',
     difficulty: 4,
+    frenchClass: 'CM1' as FrenchClass,
     duration: '25 min',
     icon: Target,
     color: 'from-orange-500/20 to-orange-600/20',
@@ -362,6 +380,7 @@ const COURSES = [
     slug: 'carres-racines',
     description: 'Calcul des carrés et estimation des racines carrées',
     difficulty: 5,
+    frenchClass: 'CM2' as FrenchClass,
     duration: '30 min',
     icon: Lightbulb,
     color: 'from-cyan-500/20 to-cyan-600/20',
@@ -373,6 +392,7 @@ const COURSES = [
     slug: 'puissances',
     description: 'Maîtrise les calculs avec puissances et exposants',
     difficulty: 6,
+    frenchClass: '6e' as FrenchClass,
     duration: '35 min',
     icon: Lightbulb,
     color: 'from-red-500/20 to-red-600/20',
@@ -384,6 +404,7 @@ const COURSES = [
     slug: 'factorisation',
     description: 'Techniques avancées de factorisation mentale',
     difficulty: 7,
+    frenchClass: '5e' as FrenchClass,
     duration: '40 min',
     icon: Lightbulb,
     color: 'from-pink-500/20 to-pink-600/20',
@@ -395,6 +416,7 @@ const COURSES = [
     slug: 'methodes-avancees',
     description: 'Techniques de pro pour le calcul mental ultra-rapide',
     difficulty: 8,
+    frenchClass: '4e' as FrenchClass,
     duration: '45 min',
     icon: Trophy,
     color: 'from-yellow-500/20 to-yellow-600/20',
@@ -705,8 +727,8 @@ export default function CoursesPage() {
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <course.icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm">
-                  Niv. {course.difficulty}
+                <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">
+                  {course.frenchClass}
                 </span>
               </div>
               
