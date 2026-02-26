@@ -306,6 +306,12 @@ export async function POST(req: NextRequest) {
         }
       });
 
+      // Reset all user badges (remove all awarded badges)
+      await prisma.userBadge.deleteMany({});
+
+      // Reset all test history (remove all completed tests)
+      await prisma.test.deleteMany({});
+
       // Also reset statistics
       await prisma.statistics.updateMany({
         data: {

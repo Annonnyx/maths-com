@@ -69,7 +69,12 @@ function TestPage() {
     }[];
   } | null>(null);
   
-  const [eloUpdated, setEloUpdated] = useState(false);
+  const [excludeGeometry, setExcludeGeometry] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('excludeGeometry') === 'true';
+    }
+    return false;
+  });
 
   // Apply animations preference
   useEffect(() => {
@@ -121,7 +126,7 @@ function TestPage() {
       }
     } else {
       // Normal test generation
-      questions = mode === 'competitive' ? generateTest(userElo, 20) : generateEvaluationTest(20);
+      questions = mode === 'competitive' ? generateTest(userElo, 20) : generateEvaluationTest(20, excludeGeometry);
       title = mode === 'competitive' ? 'Test Compétitif' : 'Test d\'entraînement';
     }
     
@@ -492,6 +497,32 @@ function TestPage() {
               </div>
             </motion.button>
           </div>
+
+          {/* Geometry Toggle for Training Mode */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="max-w-md mx-auto mt-8 p-4 bg-card rounded-xl border border-border"
+          >
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={excludeGeometry}
+                onChange={(e) => {
+                  setExcludeGeometry(e.target.checked);
+                  localStorage.setItem('excludeGeometry', e.target.checked.toString());
+                }}
+                className="w-5 h-5 rounded border-border bg-background text-indigo-500 focus:ring-indigo-500"
+              />
+              <div>
+                <p className="font-medium">Exclure la géométrie en entraînement</p>
+                <p className="text-sm text-muted-foreground">
+                  Ne pas inclure les exercices de géométrie (périmètres, aires, volumes)
+                </p>
+              </div>
+            </label>
+          </motion.div>
         </main>
       </div>
     );

@@ -11,7 +11,9 @@ export type OperationType =
   | 'equation'
   | 'mental_math'
   | 'logic'
-  | 'geometry';
+  | 'geometry'
+  | 'delta'
+  | 'quadratic';
 
 import { 
   FRENCH_CLASSES, 
@@ -38,37 +40,37 @@ function generateAddition(difficulty: number): Exercise {
   let a: number, b: number;
   
   switch (difficulty) {
-    case 1:
+    case 1: // CP - very basic automatisms
+      a = randomInt(1, 5);
+      b = randomInt(1, 5);
+      break;
+    case 2: // CE1 - small numbers
       a = randomInt(1, 10);
       b = randomInt(1, 10);
       break;
-    case 2:
-      a = randomInt(5, 20);
-      b = randomInt(5, 20);
+    case 3: // CE2 - complement to 10 focus
+      a = randomInt(1, 10);
+      b = randomInt(1, 10);
       break;
-    case 3:
-      a = randomInt(10, 50);
-      b = randomInt(10, 50);
+    case 4: // CM1 - double digits
+      a = randomInt(10, 20);
+      b = randomInt(10, 20);
       break;
-    case 4:
-      a = randomInt(20, 100);
-      b = randomInt(20, 100);
+    case 5: // CM2 - larger numbers but still manageable
+      a = randomInt(20, 50);
+      b = randomInt(10, 30);
       break;
-    case 5:
+    case 6:
       a = randomInt(50, 200);
       b = randomInt(50, 200);
       break;
-    case 6:
+    case 7:
       a = randomInt(100, 500);
       b = randomInt(100, 500);
       break;
-    case 7:
+    case 8:
       a = randomInt(200, 999);
       b = randomInt(200, 999);
-      break;
-    case 8:
-      a = randomInt(100, 999);
-      b = randomInt(100, 999);
       break;
     case 9:
       a = randomInt(100, 999);
@@ -98,37 +100,37 @@ function generateSubtraction(difficulty: number): Exercise {
   let a: number, b: number;
   
   switch (difficulty) {
-    case 1:
+    case 1: // CP - very basic
+      a = randomInt(2, 10);
+      b = randomInt(1, a);
+      break;
+    case 2: // CE1 - small numbers
       a = randomInt(5, 15);
       b = randomInt(1, a);
       break;
-    case 2:
-      a = randomInt(10, 30);
+    case 3: // CE2 - complement to 10
+      a = randomInt(10, 20);
       b = randomInt(1, a);
       break;
-    case 3:
-      a = randomInt(20, 100);
+    case 4: // CM1 - double digits
+      a = randomInt(20, 50);
       b = randomInt(10, a);
       break;
-    case 4:
-      a = randomInt(50, 200);
+    case 5: // CM2 - manageable numbers
+      a = randomInt(50, 100);
       b = randomInt(20, a);
       break;
-    case 5:
+    case 6:
       a = randomInt(100, 500);
       b = randomInt(50, a);
       break;
-    case 6:
+    case 7:
       a = randomInt(200, 1000);
       b = randomInt(100, a);
       break;
-    case 7:
+    case 8:
       a = randomInt(500, 2000);
       b = randomInt(200, a);
-      break;
-    case 8:
-      a = randomInt(100, 500);
-      b = randomInt(100, a);
       break;
     case 9:
       a = randomInt(100, 500);
@@ -158,25 +160,25 @@ function generateMultiplication(difficulty: number): Exercise {
   let a: number, b: number;
   
   switch (difficulty) {
-    case 1:
+    case 1: // CP - basic tables 2-5
       a = randomInt(2, 5);
-      b = randomInt(2, 10);
+      b = randomInt(1, 5);
       break;
-    case 2:
-      a = randomInt(2, 9);
+    case 2: // CE1 - tables up to 10
+      a = randomInt(2, 10);
+      b = randomInt(1, 10);
+      break;
+    case 3: // CE2 - double digit factors
+      a = randomInt(2, 12);
       b = randomInt(2, 12);
       break;
-    case 3:
-      a = randomInt(5, 12);
-      b = randomInt(5, 12);
+    case 4: // CM1 - larger numbers
+      a = randomInt(5, 15);
+      b = randomInt(2, 10);
       break;
-    case 4:
-      a = randomInt(10, 20);
+    case 5: // CM2 - more complex
+      a = randomInt(5, 20);
       b = randomInt(5, 15);
-      break;
-    case 5:
-      a = randomInt(10, 50);
-      b = randomInt(5, 20);
       break;
     case 6:
       a = randomInt(10, 100);
@@ -218,29 +220,29 @@ function generateDivision(difficulty: number): Exercise {
   let a: number, b: number, result: number;
   
   switch (difficulty) {
-    case 1:
-      result = randomInt(2, 10);
+    case 1: // CP - very basic division
+      result = randomInt(1, 5);
       b = randomInt(2, 5);
       a = result * b;
       break;
-    case 2:
-      result = randomInt(2, 12);
+    case 2: // CE1 - small numbers
+      result = randomInt(1, 10);
       b = randomInt(2, 10);
       a = result * b;
       break;
-    case 3:
+    case 3: // CE2 - tables practice
+      result = randomInt(2, 12);
+      b = randomInt(2, 12);
+      a = result * b;
+      break;
+    case 4: // CM1 - larger dividends
       result = randomInt(5, 20);
-      b = randomInt(3, 12);
+      b = randomInt(3, 10);
       a = result * b;
       break;
-    case 4:
-      result = randomInt(10, 50);
-      b = randomInt(5, 20);
-      a = result * b;
-      break;
-    case 5:
-      result = randomInt(10, 100);
-      b = randomInt(5, 20);
+    case 5: // CM2 - more complex
+      result = randomInt(5, 50);
+      b = randomInt(2, 15);
       a = result * b;
       break;
     case 6:
@@ -510,6 +512,10 @@ export function generateExercise(type: OperationType, difficulty: number): Exerc
       return generateLogic(difficulty);
     case 'geometry':
       return generateGeometry(difficulty);
+    case 'delta':
+      return generateDelta(difficulty);
+    case 'quadratic':
+      return generateQuadratic(difficulty);
     default:
       return generateAddition(difficulty);
   }
@@ -577,20 +583,26 @@ function getFrenchClassOperations(className: FrenchClass): OperationType[] {
     case '3e':
       return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'equation', 'power', 'root', 'geometry', 'mental_math', 'logic'];
     default: // 2de and above
-      return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'equation', 'power', 'root', 'factorization', 'geometry', 'mental_math', 'logic'];
+      return ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'equation', 'power', 'root', 'factorization', 'geometry', 'delta', 'quadratic', 'mental_math', 'logic'];
   }
 }
 
 // Generate evaluation test for first-time users (using French class system - starts at CP level)
-export function generateEvaluationTest(count: number = 20): Exercise[] {
+export function generateEvaluationTest(count: number = 20, excludeGeometry: boolean = false): Exercise[] {
   const questions: Exercise[] = [];
-  const operations: OperationType[] = ['addition', 'subtraction', 'multiplication', 'division'];
   
   for (let i = 0; i < count; i++) {
     // Progressive difficulty: starts at CP (level 1) and progresses through classes
     const classIndex = Math.min(FRENCH_CLASSES.length - 1, Math.floor(i / 3));
+    const currentClass = FRENCH_CLASSES[classIndex];
     const difficulty = Math.min(10, classIndex + 1);
-    const operation = operations[i % 4]; // Rotate through operations
+    
+    // Get available operations for this class, excluding geometry if requested
+    const availableOperations = getFrenchClassOperations(currentClass).filter(op => 
+      !excludeGeometry || op !== 'geometry'
+    );
+    
+    const operation = availableOperations[Math.floor(Math.random() * availableOperations.length)];
     
     questions.push(generateExercise(operation, difficulty));
   }
@@ -925,7 +937,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Périmètre d'un carré de côté ${side} cm = ?`,
           answer: (side * 4).toString(),
-          explanation: `Périmètre = 4 × côté = 4 × ${side} = ${side * 4} cm`
+          explanation: `Imagine un carré : 4 côtés égaux de ${side} cm chacun. Le périmètre total = 4 × ${side} = ${side * 4} cm. 💡 Le périmètre est comme marcher autour du carré.`
         };
       } else if (shape === 'rectangle') {
         const length = randomInt(5, 10 + difficulty * 2);
@@ -936,7 +948,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Périmètre d'un rectangle de ${length} cm × ${width} cm = ?`,
           answer: (2 * (length + width)).toString(),
-          explanation: `Périmètre = 2 × (longueur + largeur) = 2 × (${length} + ${width}) = ${2 * (length + width)} cm`
+          explanation: `Imagine un rectangle : 2 longueurs (${length} cm) + 2 largeurs (${width} cm). Périmètre = 2 × (${length} + ${width}) = 2 × ${length + width} = ${2 * (length + width)} cm. 📏 Comme faire le tour d'un cadre photo.`
         };
       } else if (shape === 'triangle') {
         const a = randomInt(3, 5 + difficulty);
@@ -948,7 +960,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Périmètre d'un triangle de côtés ${a}, ${b}, ${c} cm = ?`,
           answer: (a + b + c).toString(),
-          explanation: `Périmètre = ${a} + ${b} + ${c} = ${a + b + c} cm`
+          explanation: `Pour un triangle : périmètre = somme des 3 côtés. ${a} + ${b} + ${c} = ${a + b + c} cm. 🔺 Comme mesurer le contour d'une tranche de pizza.`
         };
       } else {
         const radius = randomInt(3, 5 + difficulty);
@@ -957,9 +969,9 @@ function generateGeometry(difficulty: number): Exercise {
           id: Math.random().toString(36).substring(2, 11),
           type: 'geometry',
           difficulty,
-          question: `Périmètre (circonférence) d'un cercle de rayon ${radius} cm (π≈3,14) = ?`,
+          question: `Circonférence d'un cercle de rayon ${radius} cm (π≈3,14) = ?`,
           answer: perimeter.toString(),
-          explanation: `Circonférence = 2 × π × r = 2 × 3,14 × ${radius} ≈ ${perimeter} cm`
+          explanation: `Circonférence = 2 × π × rayon. 2 × 3,14 × ${radius} ≈ ${perimeter} cm. 🌀 Imagine rouler une roue de vélo autour du cercle.`
         };
       }
     }
@@ -976,7 +988,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Aire d'un carré de côté ${side} cm = ?`,
           answer: (side * side).toString(),
-          explanation: `Aire = côté² = ${side} × ${side} = ${side * side} cm²`
+          explanation: `Imagine un carré : aire = côté × côté = ${side} × ${side} = ${side * side} cm². □ Comme compter les carreaux dans un échiquier.`
         };
       } else if (shape === 'rectangle') {
         const length = randomInt(5, 10 + difficulty * 2);
@@ -987,7 +999,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Aire d'un rectangle de ${length} cm × ${width} cm = ?`,
           answer: (length * width).toString(),
-          explanation: `Aire = longueur × largeur = ${length} × ${width} = ${length * width} cm²`
+          explanation: `Aire = longueur × largeur = ${length} × ${width} = ${length * width} cm². 📐 Comme calculer l'espace dans une pièce rectangulaire.`
         };
       } else if (shape === 'triangle') {
         const base = randomInt(4, 8 + difficulty);
@@ -999,7 +1011,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Aire d'un triangle de base ${base} cm et hauteur ${height} cm = ?`,
           answer: area.toString(),
-          explanation: `Aire = (base × hauteur) / 2 = (${base} × ${height}) / 2 = ${area} cm²`
+          explanation: `Aire = (base × hauteur) ÷ 2 = (${base} × ${height}) ÷ 2 = ${base * height} ÷ 2 = ${area} cm². 🔺 Comme couper un rectangle en deux triangles identiques.`
         };
       } else {
         const radius = randomInt(2, 5 + difficulty);
@@ -1010,7 +1022,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Aire d'un cercle de rayon ${radius} cm (π≈3,14) = ?`,
           answer: area.toString(),
-          explanation: `Aire = π × r² = 3,14 × ${radius}² ≈ ${area} cm²`
+          explanation: `Aire = π × rayon² = 3,14 × ${radius}² ≈ 3,14 × ${radius * radius} ≈ ${area} cm². ⭕ Comme mesurer l'espace dans une pizza ronde.`
         };
       }
     }
@@ -1027,7 +1039,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Volume d'un cube d'arête ${side} cm = ?`,
           answer: (side * side * side).toString(),
-          explanation: `Volume = arête³ = ${side}³ = ${side * side * side} cm³`
+          explanation: `Volume = arête × arête × arête = ${side}³ = ${side * side * side} cm³. □ Comme empiler des cubes dans une boîte.`
         };
       } else {
         const length = randomInt(5, 10 + difficulty);
@@ -1037,9 +1049,9 @@ function generateGeometry(difficulty: number): Exercise {
           id: Math.random().toString(36).substring(2, 11),
           type: 'geometry',
           difficulty,
-          question: `Volume d'un pavé de ${length}×${width}×${height} cm = ?`,
+          question: `Volume d'un pavé droit de ${length}×${width}×${height} cm = ?`,
           answer: (length * width * height).toString(),
-          explanation: `Volume = L × l × h = ${length} × ${width} × ${height} = ${length * width * height} cm³`
+          explanation: `Volume = longueur × largeur × hauteur = ${length} × ${width} × ${height} = ${length * width * height} cm³. 📦 Comme compter les briques dans une construction.`
         };
       }
     }
@@ -1054,7 +1066,7 @@ function generateGeometry(difficulty: number): Exercise {
         difficulty,
         question: `Dans un triangle, deux angles font ${angle1}° et ${angle2}°. Le troisième angle = ?`,
         answer: (180 - angle1 - angle2).toString(),
-        explanation: `Somme des angles = 180°. Troisième angle = 180 - ${angle1} - ${angle2} = ${180 - angle1 - angle2}°`
+        explanation: `Somme des angles d'un triangle = 180°. Troisième angle = 180° - ${angle1}° - ${angle2}° = ${180 - angle1 - angle2}°. 📐 Comme compléter un puzzle triangulaire.`
       };
     }
     
@@ -1070,18 +1082,18 @@ function generateGeometry(difficulty: number): Exercise {
           id: Math.random().toString(36).substring(2, 11),
           type: 'geometry',
           difficulty,
-          question: `Théorème de Pythagore : côtés ${a} et ${b}, hypoténuse = ?`,
+          question: `Triangle rectangle : côtés ${a} et ${b}, hypoténuse = ?`,
           answer: c.toString(),
-          explanation: `c² = ${a}² + ${b}² = ${a * a} + ${b * b} = ${c * c}, donc c = ${c}`
+          explanation: `Théorème de Pythagore : c² = ${a}² + ${b}² = ${a * a} + ${b * b} = ${c * c}, donc c = ${c}. 📐 Comme mesurer la diagonale d'un écran d'ordinateur.`
         };
       } else {
         return {
           id: Math.random().toString(36).substring(2, 11),
           type: 'geometry',
           difficulty,
-          question: `Théorème de Pythagore : hypoténuse ${c}, un côté ${a}, l'autre côté = ?`,
+          question: `Triangle rectangle : hypoténuse ${c}, un côté ${a}, l'autre côté = ?`,
           answer: b.toString(),
-          explanation: `b² = ${c}² - ${a}² = ${c * c} - ${a * a} = ${b * b}, donc b = ${b}`
+          explanation: `Théorème de Pythagore : b² = ${c}² - ${a}² = ${c * c} - ${a * a} = ${b * b}, donc b = ${b}. 📐 Comme calculer la hauteur d'une échelle contre un mur.`
         };
       }
     }
@@ -1091,6 +1103,88 @@ function generateGeometry(difficulty: number): Exercise {
   }
 }
 
+// Generate delta (discriminant) exercise for quadratic equations
+function generateDelta(difficulty: number): Exercise {
+  let a: number, b: number, c: number;
+  
+  switch (difficulty) {
+    case 1:
+    case 2:
+      a = randomInt(1, 3);
+      b = randomInt(-5, 5);
+      c = randomInt(-5, 5);
+      break;
+    case 3:
+    case 4:
+      a = randomInt(1, 5);
+      b = randomInt(-10, 10);
+      c = randomInt(-10, 10);
+      break;
+    case 5:
+    case 6:
+      a = randomInt(1, 10);
+      b = randomInt(-15, 15);
+      c = randomInt(-15, 15);
+      break;
+    default:
+      a = randomInt(1, 10);
+      b = randomInt(-20, 20);
+      c = randomInt(-20, 20);
+  }
+  
+  const delta = b * b - 4 * a * c;
+  
+  return {
+    id: Math.random().toString(36).substring(2, 11),
+    type: 'delta',
+    difficulty,
+    question: `Calcule le discriminant de l'équation ${a}x² + ${b}x + ${c} = 0`,
+    answer: delta.toString(),
+    explanation: `Δ = b² - 4ac = (${b})² - 4×${a}×${c} = ${b * b} - ${4 * a * c} = ${delta}`
+  };
+}
+
+// Generate quadratic polynomial exercise
+function generateQuadratic(difficulty: number): Exercise {
+  let a: number, b: number, c: number;
+  
+  switch (difficulty) {
+    case 1:
+    case 2:
+      a = randomInt(1, 2);
+      b = randomInt(-3, 3);
+      c = randomInt(-3, 3);
+      break;
+    case 3:
+    case 4:
+      a = randomInt(1, 3);
+      b = randomInt(-5, 5);
+      c = randomInt(-5, 5);
+      break;
+    case 5:
+    case 6:
+      a = randomInt(1, 5);
+      b = randomInt(-8, 8);
+      c = randomInt(-8, 8);
+      break;
+    default:
+      a = randomInt(1, 10);
+      b = randomInt(-15, 15);
+      c = randomInt(-15, 15);
+  }
+  
+  const x = randomInt(1, 5);
+  const result = a * x * x + b * x + c;
+  
+  return {
+    id: Math.random().toString(36).substring(2, 11),
+    type: 'quadratic',
+    difficulty,
+    question: `Calcule ${a}x² + ${b}x + ${c} pour x = ${x}`,
+    answer: result.toString(),
+    explanation: `${a}×${x}² + ${b}×${x} + ${c} = ${a * x * x} + ${b * x} + ${c} = ${result}`
+  };
+}
 
 export function getOperationTypesForCourse(slug: string): OperationType[] | null {
   const mapping: Record<string, OperationType[]> = {
