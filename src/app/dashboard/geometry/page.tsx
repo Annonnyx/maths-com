@@ -100,7 +100,7 @@ export default function GeometryDashboardPage() {
                   </h3>
                   <ul className="text-sm text-gray-400 space-y-1">
                     <li>• Cliquez sur l'outil Point puis sur le canvas</li>
-                    <li• Les points s'aimantent à la grille</li>
+                    <li>• Les points s'aimantent à la grille</li>
                     <li>• Glissez-déposez pour déplacer</li>
                     <li>• Clic droit sur un point pour le nommer</li>
                   </ul>
