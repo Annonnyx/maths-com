@@ -552,12 +552,12 @@ export default function CoursesPage() {
               <div className="flex items-center gap-3 mb-4">
                 <selectedCourse.icon className="w-8 h-8 text-white" />
                 <span className={`px-3 py-1 rounded-full text-sm ${
-                  selectedCourse.difficulty <= 2 ? 'bg-green-500/30 text-green-300' :
-                  selectedCourse.difficulty <= 5 ? 'bg-yellow-500/30 text-yellow-300' :
+                  selectedCourse.frenchClass === 'CP' || selectedCourse.frenchClass === 'CE1' ? 'bg-green-500/30 text-green-300' :
+                  selectedCourse.frenchClass === 'CE2' || selectedCourse.frenchClass === 'CM1' || selectedCourse.frenchClass === 'CM2' ? 'bg-yellow-500/30 text-yellow-300' :
+                  selectedCourse.frenchClass === '6e' || selectedCourse.frenchClass === '5e' ? 'bg-orange-500/30 text-orange-300' :
                   'bg-red-500/30 text-red-300'
                 }`}>
-                  {selectedCourse.difficulty <= 2 ? 'Débutant' :
-                   selectedCourse.difficulty <= 5 ? 'Intermédiaire' : 'Avancé'}
+                  {formatClassName(selectedCourse.frenchClass)}
                 </span>
               </div>
               <h1 className="text-3xl font-bold mb-4">{selectedCourse.title}</h1>
@@ -728,7 +728,7 @@ export default function CoursesPage() {
                   <course.icon className="w-6 h-6 text-white" />
                 </div>
                 <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">
-                  {course.frenchClass}
+                  {formatClassName(course.frenchClass)}
                 </span>
               </div>
               
