@@ -455,6 +455,22 @@ export default function AdminPage() {
               Panel Admin - Ønyx
             </h1>
           </div>
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/admin/discord" 
+              className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <Shield className="w-4 h-4" />
+              Bot Discord
+            </Link>
+            <Link 
+              href="/admin/teachers" 
+              className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <Users className="w-4 h-4" />
+              Professeurs
+            </Link>
+          </div>
         </div>
       </header>
 

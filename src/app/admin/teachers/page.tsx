@@ -12,9 +12,11 @@ import {
   Mail,
   School,
   BookOpen,
+  AlertCircle,
+  ArrowLeft,
+  Shield,
   Filter,
-  MoreVertical,
-  AlertCircle
+  MoreVertical
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -127,30 +129,45 @@ export default function AdminTeachersPage() {
     <div className="min-h-screen bg-[#0a0a0f] text-white">
       {/* Header */}
       <header className="border-b border-gray-800 bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/admin" className="text-gray-400 hover:text-white">
-                ← Retour
-              </Link>
-              <h1 className="text-2xl font-bold flex items-center gap-3">
-                <GraduationCap className="w-8 h-8 text-indigo-400" />
-                Gestion des Enseignants
-              </h1>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="bg-indigo-500/20 px-4 py-2 rounded-lg">
-                <span className="text-indigo-400 font-semibold">{users.filter(u => u.isTeacher).length}</span>
-                <span className="text-gray-400 text-sm ml-2">enseignants</span>
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/admin" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
+              <ArrowLeft className="w-5 h-5" />
+              <span>Retour Admin</span>
+            </Link>
+            <h1 className="text-xl font-bold flex items-center gap-2">
+              <Users className="w-6 h-6 text-blue-400" />
+              Gestion des Professeurs
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/admin" 
+              className="px-4 py-2 bg-gray-600/20 hover:bg-gray-600/30 text-gray-400 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <Crown className="w-4 h-4" />
+              Général
+            </Link>
+            <Link 
+              href="/admin/discord" 
+              className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <Shield className="w-4 h-4" />
+              Bot Discord
+            </Link>
+            <Link 
+              href="/admin/teachers" 
+              className="px-4 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <GraduationCap className="w-4 h-4" />
+              Professeurs
+            </Link>
+            {pendingRequests.length > 0 && (
+              <div className="bg-yellow-500/20 px-4 py-2 rounded-lg">
+                <span className="text-yellow-400 font-semibold">{pendingRequests.length}</span>
+                <span className="text-gray-400 text-sm ml-2">demandes en attente</span>
               </div>
-              {pendingRequests.length > 0 && (
-                <div className="bg-yellow-500/20 px-4 py-2 rounded-lg">
-                  <span className="text-yellow-400 font-semibold">{pendingRequests.length}</span>
-                  <span className="text-gray-400 text-sm ml-2">demandes en attente</span>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </header>
