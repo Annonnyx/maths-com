@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { 
   MessageSquare, 
   Trophy, 
@@ -11,7 +12,11 @@ import {
   RefreshCw,
   CheckCircle,
   AlertCircle,
-  Hash
+  Hash,
+  ArrowLeft,
+  Shield,
+  Users,
+  Crown
 } from 'lucide-react';
 
 interface DiscordStatus {
