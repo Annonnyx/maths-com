@@ -51,7 +51,7 @@ export function AdWrapper({ children, className = "", showAdBlockMessage = true 
           <div className="text-2xl">🚫</div>
           <div>
             <p className="font-semibold text-sm">S'il te plaît, désactive ton ad-blocker !</p>
-            <p className="text-xs mt-1">Les publicités aident à maintenir Maths.com gratuit</p>
+            <p className="text-xs mt-1">Les publicités aident à maintenir maths-app.com gratuit</p>
           </div>
         </div>
       </div>

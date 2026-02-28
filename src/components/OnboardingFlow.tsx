@@ -18,7 +18,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const steps = [
     {
-      title: "Bienvenue sur Math.com !",
+      title: "Bienvenue sur maths-app.com !",
       description: "Le chess.com des maths. Entraîne ton calcul mental et monte dans le classement.",
       icon: Trophy,
       color: "from-yellow-400 to-orange-500"

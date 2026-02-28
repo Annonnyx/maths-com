@@ -173,7 +173,7 @@ function ProfileContent() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
             <Trophy className="w-6 h-6" />
-            <span className="font-bold">Math.com</span>
+            <span className="font-bold">maths-app.com</span>
           </Link>
           
           <div className="flex items-center gap-4">

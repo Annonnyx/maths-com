@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Math.com - L'entraînement au calcul mental",
+  title: "Maths-App.com - L'entraînement au calcul mental",
   description: "Améliore tes capacités de calcul mental avec un système adaptatif, pédagogique et gamifié. Deviens le maître des maths !",
 };
 

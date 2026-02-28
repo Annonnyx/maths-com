@@ -111,7 +111,7 @@ export default function RegisterPage() {
             <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center">
               <Trophy className="w-8 h-8 text-white" />
             </div>
-            <span className="text-2xl font-bold">Math.com</span>
+            <span className="text-2xl font-bold">maths-app.com</span>
           </Link>
           <h1 className="mt-6 text-3xl font-bold">Créer un compte</h1>
           <p className="mt-2 text-muted-foreground">Rejoins la communauté et commence ta progression</p>

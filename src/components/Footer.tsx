@@ -36,7 +36,7 @@ export default function Footer() {
               <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Trophy className="w-5 h-5 text-foreground" />
               </div>
-              <span className="font-bold text-lg">Math.com</span>
+              <span className="font-bold text-lg">maths-app.com</span>
             </Link>
             <p className="text-muted-foreground text-sm mb-4">
               Plateforme d&apos;entraînement au calcul mental gamifiée. Le chess.com des maths !
@@ -126,7 +126,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-500 text-sm">
-            © {currentYear} Math.com. Tous droits réservés.
+            © {currentYear} maths-app.com. Tous droits réservés.
           </p>
           <p className="text-gray-500 text-sm">
             Fait avec ❤️ par{' '}

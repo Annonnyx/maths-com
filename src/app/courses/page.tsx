@@ -178,7 +178,7 @@ export default function CoursesPage() {
               <ArrowLeft className="w-5 h-5" />Retour
             </button>
             <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
-              <Trophy className="w-6 h-6" /><span className="font-bold">Math.com</span>
+              <Trophy className="w-6 h-6" /><span className="font-bold">maths-app.com</span>
             </Link>
           </div>
         </header>
@@ -242,7 +242,7 @@ export default function CoursesPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
-                <Trophy className="w-6 h-6" /><span className="font-bold">Math.com</span>
+                <Trophy className="w-6 h-6" /><span className="font-bold">maths-app.com</span>
               </Link>
               <span className="text-muted-foreground">|</span>
               <span className="text-muted-foreground">Cours par niveau</span>

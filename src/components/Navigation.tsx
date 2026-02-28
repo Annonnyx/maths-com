@@ -36,7 +36,7 @@ export default function Navigation() {
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
                 <span className="text-foreground font-bold text-sm">M</span>
               </div>
-              <span className="font-bold text-xl">Math.com</span>
+              <span className="font-bold text-xl">maths-app.com</span>
             </Link>
 
             {/* Navigation Links */}
@@ -113,7 +113,7 @@ export default function Navigation() {
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
                 <span className="text-foreground font-bold text-sm">M</span>
               </div>
-              <span className="font-bold text-xl">Math.com</span>
+              <span className="font-bold text-xl">maths-app.com</span>
             </Link>
 
             {/* Mobile Menu Button */}

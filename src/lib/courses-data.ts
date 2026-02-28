@@ -596,7 +596,7 @@ export const COURSES_BY_CLASS: Record<string, ClassCourse> = {
           { problem: 'Multiplications 2×2 chiffres', solution: '< 3 secondes', explanation: 'Répétition massive' },
           { problem: 'Racines carrées', solution: 'Parfaites instantanées', explanation: 'Mémorisation 1-100' },
         ],
-        tips: ['Entraîne-toi 30 min/jour minimum', 'Utilise des métronomes pour la vitesse', 'Flash Anzan (soroban)', 'Compétitions en ligne (Math.com !)']
+        tips: ['Entraîne-toi 30 min/jour minimum', 'Utilise des métronomes pour la vitesse', 'Flash Anzan (soroban)', 'Compétitions en ligne (maths-app.com !)']
       }
     ]
   }
