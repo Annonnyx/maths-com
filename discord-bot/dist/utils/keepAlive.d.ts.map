@@ -1,0 +1,1 @@
+{"version":3,"file":"keepAlive.d.ts","sourceRoot":"","sources":["../../src/utils/keepAlive.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAgB,MAAM,YAAY,CAAC;AAElD,qBAAa,gBAAgB;IAIf,OAAO,CAAC,MAAM;IAH1B,OAAO,CAAC,QAAQ,CAA+B;IAC/C,OAAO,CAAC,QAAQ,CAAC,aAAa,CAAiB;gBAE3B,MAAM,EAAE,MAAM;IAIlC,OAAO,CAAC,cAAc;IAqDtB,IAAI;CAOL"}

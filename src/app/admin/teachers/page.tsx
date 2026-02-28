@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { isAdminSession } from '@/lib/admin-auth';
 
 interface User {
   id: string;
@@ -113,7 +114,7 @@ export default function AdminTeachersPage() {
 
   const pendingRequests = requests.filter(r => r.status === 'pending');
 
-  if (!session || !session.user || session.user.rankClass !== 'Admin') {
+  if (!isAdminSession(session)) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="text-center">

@@ -3,15 +3,15 @@ import { join } from 'path';
 import { client } from '../client.js';
 
 export async function loadEvents() {
-  const eventsPath = join(process.cwd(), 'src/events');
+  const eventsPath = join(process.cwd(), 'dist/events');
   
   try {
     const eventFiles = await readdir(eventsPath);
     
     for (const file of eventFiles) {
-      if (!file.endsWith('.ts') && !file.endsWith('.js')) continue;
+      if (!file.endsWith('.js')) continue;
       
-      const eventModule = await import(join(eventsPath, file));
+      const eventModule = await import(`file://${join(eventsPath, file)}`);
       const event = eventModule.default || eventModule;
       
       if (event.name && event.execute) {

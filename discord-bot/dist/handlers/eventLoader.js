@@ -5,13 +5,13 @@ const promises_1 = require("fs/promises");
 const path_1 = require("path");
 const client_js_1 = require("../client.js");
 async function loadEvents() {
-    const eventsPath = (0, path_1.join)(process.cwd(), 'src/events');
+    const eventsPath = (0, path_1.join)(process.cwd(), 'dist/events');
     try {
         const eventFiles = await (0, promises_1.readdir)(eventsPath);
         for (const file of eventFiles) {
-            if (!file.endsWith('.ts') && !file.endsWith('.js'))
+            if (!file.endsWith('.js'))
                 continue;
-            const eventModule = await import((0, path_1.join)(eventsPath, file));
+            const eventModule = await import(`file://${(0, path_1.join)(eventsPath, file)}`);
             const event = eventModule.default || eventModule;
             if (event.name && event.execute) {
                 if (event.once) {

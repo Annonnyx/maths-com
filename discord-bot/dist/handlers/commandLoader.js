@@ -2,35 +2,52 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.loadCommands = loadCommands;
 const discord_js_1 = require("discord.js");
-const client_js_1 = require("../client.js");
 const config_js_1 = require("../config.js");
 const promises_1 = require("fs/promises");
 const path_1 = require("path");
 async function loadCommands() {
     const commands = [];
-    const commandsPath = (0, path_1.join)(process.cwd(), 'src/commands');
+    const commandsPath = (0, path_1.join)(process.cwd(), 'dist/commands');
     try {
         const commandFiles = await (0, promises_1.readdir)(commandsPath);
+        // Charger chaque fichier de commande
         for (const file of commandFiles) {
-            if (!file.endsWith('.ts') && !file.endsWith('.js'))
-                continue;
-            const commandModule = await import((0, path_1.join)(commandsPath, file));
-            const command = commandModule.default || commandModule;
-            if (command.data && command.execute) {
-                client_js_1.client.commands.set(command.data.name, command);
-                commands.push(command.data.toJSON());
-                console.log(`📥 Commande chargée: ${command.data.name}`);
+            if (file.endsWith('.js')) {
+                const commandPath = (0, path_1.join)(commandsPath, file);
+                console.log(`📂 Chargement de la commande: ${file}`);
+                console.log(`🔍 Chemin complet: ${commandPath}`);
+                try {
+                    const command = await import(`file://${commandPath}`);
+                    console.log(`🔍 Export complet:`, Object.keys(command));
+                    console.log(`🔍 Default export:`, command.default);
+                    // Handle nested exports (compiled CommonJS)
+                    const actualCommand = command.default.default || command.default;
+                    console.log(`✅ Commande chargée:`, actualCommand?.data?.name || 'No name');
+                    if (actualCommand && actualCommand.data) {
+                        commands.push(actualCommand);
+                    }
+                    else {
+                        console.warn(`⚠️ La commande ${file} n'a pas de data ou de default export`);
+                    }
+                }
+                catch (importError) {
+                    console.error(`❌ Erreur d'import pour ${file}:`, importError);
+                }
             }
         }
-        // Déployer les commandes sur Discord
-        if (commands.length > 0) {
-            const rest = new discord_js_1.REST({ version: '10' }).setToken(config_js_1.config.discord.token);
-            await rest.put(discord_js_1.Routes.applicationGuildCommands(config_js_1.config.discord.clientId, config_js_1.config.discord.guildId), { body: commands });
-            console.log(`🚀 ${commands.length} commande(s) déployée(s)`);
-        }
+        const commandsData = commands.map(cmd => cmd.data.toJSON());
+        const rest = new discord_js_1.REST({ version: '10' }).setToken(config_js_1.config.discord.token);
+        console.log('📡 Envoi des commandes à Discord...');
+        await rest.put(discord_js_1.Routes.applicationGuildCommands(config_js_1.config.discord.clientId, config_js_1.config.discord.guildId), { body: commandsData });
+        console.log(`✅ ${commandsData.length} commandes slash enregistrées avec succès !`);
+        // Log des commandes chargées
+        commands.forEach(cmd => {
+            console.log(`   📝 ${cmd.data.name}`);
+        });
     }
     catch (error) {
-        console.error('❌ Erreur chargement commandes:', error);
+        console.error('❌ Erreur lors du chargement des commandes:', error);
+        throw error;
     }
 }
 //# sourceMappingURL=commandLoader.js.map

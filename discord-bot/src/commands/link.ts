@@ -28,8 +28,8 @@ export default {
     }
     
     const embed = new EmbedBuilder()
-      .setTitle('🔗 Lier votre compte')
-      .setDescription(`Voici votre code de liaison :\n\n**\`${code}\`**\n\nRendez-vous sur **[Maths-App.com](https://maths-app.com/profile)** dans les paramètres de votre profil et entrez ce code pour lier votre compte Discord.\n\n⏰ Ce code expire dans **10 minutes**.`)
+      .setTitle('🔗 Lier votre compte Discord')
+      .setDescription(`**Code de liaison généré :**\n\n\`\`\`${code}\`\`\`\n\n**📋 Étapes à suivre :**\n1. Allez sur **[Maths-App.com](https://maths-app.com/profile)**\n2. Cliquez sur "Paramètres du profil"\n3. Trouvez la section "Lier compte Discord"\n4. Entrez le code : \`${code}\`\n5. Envoyez-moi ce code en message privé pour finaliser\n\n⏰ Ce code expire dans **10 minutes**.\n\n💡 Une fois lié, vous recevrez automatiquement vos rôles selon votre classe et votre classement !`)
       .setColor(COLORS.info)
       .setFooter({ text: 'Maths-App.com • Lien sécurisé' })
       .setTimestamp();

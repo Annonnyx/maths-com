@@ -29,7 +29,8 @@ async function callDiscordBotAPI(endpoint: string, method: string = 'GET', body?
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
   
-  if (!(session?.user as any)?.isAdmin) {
+  // Vérifier si l'utilisateur est admin (par email)
+  if (!session?.user || session.user.email !== 'noe.barneron@gmail.com') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
@@ -54,7 +55,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   
-  if (!(session?.user as any)?.isAdmin) {
+  // Vérifier si l'utilisateur est admin (par email)
+  if (!session?.user || session.user.email !== 'noe.barneron@gmail.com') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   

@@ -5,37 +5,58 @@ import { readdir } from 'fs/promises';
 import { join } from 'path';
 
 export async function loadCommands() {
-  const commands: SlashCommandBuilder[] = [];
-  const commandsPath = join(process.cwd(), 'src/commands');
+  const commands: any[] = [];
+  const commandsPath = join(process.cwd(), 'dist/commands');
   
   try {
     const commandFiles = await readdir(commandsPath);
     
+    // Charger chaque fichier de commande
     for (const file of commandFiles) {
-      if (!file.endsWith('.ts') && !file.endsWith('.js')) continue;
-      
-      const commandModule = await import(join(commandsPath, file));
-      const command = commandModule.default || commandModule;
-      
-      if (command.data && command.execute) {
-        client.commands.set(command.data.name, command);
-        commands.push(command.data.toJSON());
-        console.log(`📥 Commande chargée: ${command.data.name}`);
+      if (file.endsWith('.js')) {
+        const commandPath = join(commandsPath, file);
+        console.log(`📂 Chargement de la commande: ${file}`);
+        console.log(`🔍 Chemin complet: ${commandPath}`);
+        
+        try {
+          const command = await import(`file://${commandPath}`);
+          console.log(`🔍 Export complet:`, Object.keys(command));
+          console.log(`🔍 Default export:`, command.default);
+          
+          // Handle nested exports (compiled CommonJS)
+          const actualCommand = command.default.default || command.default;
+          console.log(`✅ Commande chargée:`, actualCommand?.data?.name || 'No name');
+          
+          if (actualCommand && actualCommand.data) {
+            commands.push(actualCommand);
+          } else {
+            console.warn(`⚠️ La commande ${file} n'a pas de data ou de default export`);
+          }
+        } catch (importError) {
+          console.error(`❌ Erreur d'import pour ${file}:`, importError);
+        }
       }
     }
     
-    // Déployer les commandes sur Discord
-    if (commands.length > 0) {
-      const rest = new REST({ version: '10' }).setToken(config.discord.token);
-      
-      await rest.put(
-        Routes.applicationGuildCommands(config.discord.clientId, config.discord.guildId),
-        { body: commands }
-      );
-      
-      console.log(`🚀 ${commands.length} commande(s) déployée(s)`);
-    }
+    const commandsData = commands.map(cmd => cmd.data.toJSON());
+    
+    const rest = new REST({ version: '10' }).setToken(config.discord.token);
+
+    console.log('📡 Envoi des commandes à Discord...');
+    await rest.put(
+      Routes.applicationGuildCommands(config.discord.clientId, config.discord.guildId),
+      { body: commandsData }
+    );
+
+    console.log(`✅ ${commandsData.length} commandes slash enregistrées avec succès !`);
+    
+    // Log des commandes chargées
+    commands.forEach(cmd => {
+      console.log(`   📝 ${cmd.data.name}`);
+    });
+    
   } catch (error) {
-    console.error('❌ Erreur chargement commandes:', error);
+    console.error('❌ Erreur lors du chargement des commandes:', error);
+    throw error;
   }
 }

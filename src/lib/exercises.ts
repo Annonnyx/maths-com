@@ -731,7 +731,7 @@ function generatePercentage(difficulty: number): Exercise {
   const scenarios = [
     `${percentage}% de ${base}`,
     `Réduction de ${percentage}% sur ${base}`,
-    `Pourcentage d'augmentation de ${base} de ${percentage}%`
+    `Augmentation de ${percentage}% sur ${base}`
   ];
   
   return {

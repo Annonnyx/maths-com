@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { isAdminSession } from '@/lib/admin-auth';
 import { 
   MessageSquare, 
   Trophy, 
@@ -115,7 +116,7 @@ export default function DiscordAdminPage() {
     }
   };
 
-  if (!session || !session.user || session.user.rankClass !== 'Admin') {
+  if (!isAdminSession(session)) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="text-center">

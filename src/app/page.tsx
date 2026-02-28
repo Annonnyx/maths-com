@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Calculator, Trophy, BookOpen, Target, Zap, TrendingUp, Users, BarChart3 } from 'lucide-react';
 import Footer from '@/components/Footer';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
+import FAQAndReporting from '@/components/FAQAndReporting';
 
 export default function Home() {
   return (
@@ -173,6 +174,11 @@ export default function Home() {
           </motion.div>
         </div>
       </main>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-gradient-to-b from-transparent to-[#0a0a0f]">
+        <FAQAndReporting />
+      </section>
 
       {/* Responsive Side Ads - Desktop/Tablet Only */}
       <HomePageSideAds />

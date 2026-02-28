@@ -45,8 +45,6 @@ export const config = {
   roles: {
     top1Solo: getEnvVar('ROLE_TOP1_SOLO'),
     top1Multi: getEnvVar('ROLE_TOP1_MULTI'),
-    top10Solo: getEnvVar('ROLE_TOP10_SOLO'),
-    top10Multi: getEnvVar('ROLE_TOP10_MULTI'),
     support: getEnvVar('ROLE_SUPPORT'),
     // Rôles de classe française
     CP: getEnvVar('ROLE_CP'),

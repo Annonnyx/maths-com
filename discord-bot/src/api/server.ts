@@ -9,6 +9,8 @@ import {
   replyToTicket 
 } from './discordActions.js';
 import { verifyLinkCode } from '../commands/link.js';
+import { sendLinkDm } from './sendLinkDm.js';
+import { verifyLinkingCode } from './linkVerification.js';
 
 const app = express();
 
@@ -34,33 +36,56 @@ function authMiddleware(req: Request, res: Response, next: Function) {
 
 // Routes API
 
-// Vérifier un code de liaison
-app.post('/api/verify-link', authMiddleware, async (req: Request, res: Response) => {
+// Envoyer un DM de vérification Discord
+app.post('/api/send-link-dm', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const { code, userId, username } = req.body;
-    
-    if (!code) {
-      return res.status(400).json({ error: 'Code required' });
+    const { discordId, code, websiteUsername } = req.body;
+
+    if (!discordId || !code || !websiteUsername) {
+      return res.status(400).json({ error: 'Paramètres manquants' });
     }
+
+    // Utiliser la fonction d'envoi DM
+    const result = await sendLinkDm(discordId, code, websiteUsername);
     
-    const result = verifyLinkCode(code);
-    
-    if (result.valid) {
-      // Envoyer un DM de confirmation à l'utilisateur Discord
-      try {
-        const discordUser = await client.users.fetch(result.discordId!);
-        await discordUser.send({
-          content: `✅ Votre compte Discord a été lié avec succès à **${username}** sur Maths-App.com !\n\nVous allez maintenant recevoir les rôles automatiques selon vos badges et progression.`
-        });
-      } catch (dmError) {
-        console.log('Could not send DM to user');
-      }
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(500).json(result);
     }
-    
-    res.json(result);
   } catch (error) {
-    console.error('Error verifying link code:', error);
-    res.status(500).json({ error: 'Failed to verify code' });
+    console.error('Erreur envoi DM:', error);
+    res.status(500).json({ error: 'Failed to send DM' });
+  }
+});
+
+// Vérifier un code de liaison Discord
+app.put('/api/verify-link', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { discordId, code, discordUsername } = req.body;
+
+    if (!discordId || !code) {
+      return res.status(400).json({ error: 'Discord ID et code requis' });
+    }
+
+    const result = verifyLinkingCode(discordId, code.toUpperCase());
+
+    if (result) {
+      res.json({
+        valid: true,
+        userId: result.userId,
+        discordId,
+        discordUsername: discordUsername || 'Utilisateur Discord'
+      });
+    } else {
+      res.json({
+        valid: false,
+        error: 'Code invalide ou expiré'
+      });
+    }
+  } catch (error) {
+    console.error('Erreur vérification liaison:', error);
+    res.status(500).json({ error: 'Failed to verify link' });
   }
 });
 
