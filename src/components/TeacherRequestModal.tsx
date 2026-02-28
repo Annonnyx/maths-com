@@ -11,7 +11,8 @@ import {
   CheckCircle,
   X,
   ArrowRight,
-  Info
+  Info,
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -69,11 +70,32 @@ export default function TeacherRequestModal({ isOpen, onClose }: TeacherRequestM
     message: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would send to an API
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/teacher-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Erreur lors de l\'envoi');
+      }
+    } catch (err) {
+      setError('Erreur de connexion au serveur');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -194,11 +216,28 @@ export default function TeacherRequestModal({ isOpen, onClose }: TeacherRequestM
               
               <button
                 type="submit"
-                className="w-full py-3 bg-indigo-500 hover:bg-indigo-600 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="w-full py-3 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
               >
-                <Send className="w-4 h-4" />
-                Envoyer la demande
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Envoi en cours...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Envoyer la demande
+                  </>
+                )}
               </button>
+
+              {error && (
+                <div className="flex items-center gap-2 text-red-400 bg-red-500/10 px-4 py-3 rounded-lg">
+                  <AlertCircle className="w-5 h-5" />
+                  {error}
+                </div>
+              )}
             </form>
           ) : (
             <>

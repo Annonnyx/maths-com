@@ -105,6 +105,11 @@ model User {
   // Teacher relations
   teacherRequests TeacherRequest[]
   
+  // Class group relations
+  taughtGroups    ClassGroup[]     @relation("GroupTeacher")
+  groupMemberships ClassGroupMember[]
+  groupMessages   ClassMessage[]
+  
   @@map("users")
 }
 
@@ -485,4 +490,67 @@ model TeacherRequest {
   user        User     @relation(fields: [userId], references: [id])
   
   @@map("teacher_requests")
+}
+
+model FaqSubmission {
+  id          String   @id @default(cuid())
+  type        String   // bug, question, suggestion
+  title       String
+  description String
+  email       String?
+  category    String
+  status      String   @default("pending") // pending, resolved, closed
+  userAgent   String?
+  ip          String?
+  createdAt   DateTime @default(now())
+  
+  @@map("faq_submissions")
+}
+
+model ClassGroup {
+  id          String   @id @default(cuid())
+  name        String
+  teacherId   String
+  description String?
+  isPrivate   Boolean  @default(false)
+  inviteCode  String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  teacher     User     @relation("GroupTeacher", fields: [teacherId], references: [id])
+  members     ClassGroupMember[]
+  messages    ClassMessage[]
+  
+  @@map("class_groups")
+}
+
+model ClassGroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  role      String   @default("student") // teacher, student
+  joinedAt  DateTime @default(now())
+  
+  // Relations
+  group     ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([groupId, userId])
+  @@map("class_group_members")
+}
+
+model ClassMessage {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  content   String
+  type      String   @default("text") // text, system
+  createdAt DateTime @default(now())
+  
+  // Relations
+  group     ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("class_messages")
 }

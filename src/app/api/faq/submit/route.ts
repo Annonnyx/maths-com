@@ -21,32 +21,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Créer un ticket admin pour cette soumission FAQ
-    const ticketId = `faq_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-
-    // Pour l'instant, on stocke dans la base de données des tickets (à créer)
-    // En attendant, on peut utiliser une table temporaire ou les logs
-    // TODO: Créer une table faq_submissions ou utiliser le système de tickets
-
-    // Log pour l'admin (sera visible dans les logs Railway/admin)
-    console.log('📝 Nouvelle soumission FAQ:', {
-      id: ticketId,
-      type: body.type,
-      category: body.category,
-      title: body.title,
-      description: body.description,
-      email: body.email || 'Non fourni',
-      timestamp: new Date().toISOString(),
-      userAgent: request.headers.get('user-agent'),
-      ip: request.headers.get('x-forwarded-for') || 'Unknown'
+    // Créer l'entrée en base de données
+    const submission = await prisma.faqSubmission.create({
+      data: {
+        type: body.type,
+        title: body.title,
+        description: body.description,
+        email: body.email || null,
+        category: body.category,
+        status: 'pending',
+        userAgent: request.headers.get('user-agent') || null,
+        ip: request.headers.get('x-forwarded-for') || null
+      }
     });
 
-    // Ici on pourrait envoyer un email ou créer une notification
-    // Pour l'instant, on confirme juste la réception
+    // Log pour l'admin
+    console.log('✅ Nouvelle soumission FAQ enregistrée:', {
+      id: submission.id,
+      type: body.type,
+      title: body.title,
+      timestamp: submission.createdAt
+    });
 
     return NextResponse.json({
       success: true,
-      ticketId,
+      ticketId: submission.id,
       message: 'Votre demande a été enregistrée. Notre équipe vous répondra bientôt.'
     });
 

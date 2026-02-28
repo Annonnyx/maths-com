@@ -34,6 +34,26 @@ function authMiddleware(req: Request, res: Response, next: Function) {
   next();
 }
 
+// Healthcheck endpoint for Railway (NO AUTH required)
+app.get('/health', (req: Request, res: Response) => {
+  try {
+    const isReady = client.isReady();
+    res.status(200).json({ 
+      status: isReady ? 'ok' : 'starting', 
+      timestamp: new Date().toISOString(),
+      discord: isReady,
+      uptime: process.uptime()
+    });
+  } catch (error) {
+    res.status(200).json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      discord: false,
+      uptime: process.uptime()
+    });
+  }
+});
+
 // Routes API
 
 // Envoyer un DM de vérification Discord

@@ -350,32 +350,25 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [isMember, setIsMember] = useState(false);
 
-  // Mock data - replace with API calls
+  // Load real data from API
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setGroup({
-        id: '1',
-        name: 'Classe de Mme Martin - 4ème A',
-        teacherId: 'teacher1',
-        teacherName: 'Marie Martin',
-        isPrivate: false,
-        createdAt: '2024-02-01',
-        members: [
-          { id: '1', userId: 'teacher1', username: 'mme_martin', displayName: 'Mme Martin', role: 'teacher', joinedAt: '2024-02-01' },
-          { id: '2', userId: 'student1', username: 'alice_m', displayName: 'Alice', role: 'student', joinedAt: '2024-02-02' },
-          { id: '3', userId: 'student2', username: 'bob_d', displayName: 'Bob', role: 'student', joinedAt: '2024-02-02' },
-          { id: '4', userId: 'student3', username: 'charlie_l', displayName: 'Charlie', role: 'student', joinedAt: '2024-02-03' },
-        ],
-        messages: [
-          { id: '1', userId: 'teacher1', username: 'Mme Martin', content: 'Bienvenue dans le groupe ! N\'hésitez pas à poser vos questions.', createdAt: '2024-02-01T10:00:00', type: 'system' },
-          { id: '2', userId: 'student1', username: 'Alice', content: 'Merci ! Quand est le prochain défi ?', createdAt: '2024-02-01T10:05:00', type: 'text' },
-          { id: '3', userId: 'teacher1', username: 'Mme Martin', content: 'Ce vendredi à 14h ! Soyez prêts 😉', createdAt: '2024-02-01T10:10:00', type: 'text' },
-        ]
-      });
-      setIsMember(true);
-    }, 500);
-  }, [groupId]);
+    const fetchGroup = async () => {
+      try {
+        const response = await fetch(`/api/class-groups${groupId ? `/${groupId}` : ''}`);
+        if (response.ok) {
+          const data = await response.json();
+          setGroup(data.group);
+          setIsMember(data.group.members.some((m: any) => m.userId === session?.user?.id));
+        }
+      } catch (error) {
+        console.error('Error fetching group:', error);
+      }
+    };
+    
+    if (session?.user) {
+      fetchGroup();
+    }
+  }, [groupId, session?.user?.id]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -397,9 +390,25 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
     setMessage('');
   };
 
-  const handleJoinGroup = () => {
-    setIsMember(true);
-    // API call to join group
+  const handleJoinGroup = async () => {
+    try {
+      const response = await fetch('/api/class-groups/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteCode: prompt('Entrez le code d\'invitation:') })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setIsMember(true);
+        // Reload group data
+        window.location.reload();
+      } else {
+        alert('Code invalide ou vous êtes déjà membre');
+      }
+    } catch (error) {
+      console.error('Error joining group:', error);
+    }
   };
 
   const handleLeaveGroup = () => {
