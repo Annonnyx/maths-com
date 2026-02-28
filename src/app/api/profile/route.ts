@@ -24,19 +24,6 @@ export async function GET(req: NextRequest) {
           elo: true,
           rankClass: true,
           bestElo: true,
-          bestRankClass: true,
-          hasCompletedOnboarding: true,
-          isOnline: true,
-          lastSeenAt: true,
-          multiplayerElo: true,
-          multiplayerRankClass: true,
-          bestMultiplayerElo: true,
-          bestMultiplayerRankClass: true,
-          multiplayerGames: true,
-          multiplayerWins: true,
-          multiplayerLosses: true,
-          createdAt: true,
-          updatedAt: true,
           statistics: true,
           userBadges: {
             select: {
@@ -65,9 +52,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }
 
+      // Fetch statistics separately
+      const statistics = await prisma.statistics.findUnique({
+        where: { userId: user.id }
+      });
+
       return NextResponse.json({
         user,
-        statistics: user.statistics
+        statistics
       });
     }
 
@@ -78,15 +70,24 @@ export async function GET(req: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: {
-        statistics: true,
-        tests: {
-          orderBy: { completedAt: 'desc' },
-          take: 10,
-          include: {
-            questions: true
-          }
-        }
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        avatarUrl: true,
+        bannerUrl: true,
+        customBannerId: true,
+        selectedBadgeIds: true,
+        elo: true,
+        rankClass: true,
+        bestElo: true,
+        bestRankClass: true,
+        hasCompletedOnboarding: true,
+        isOnline: true,
+        lastSeenAt: true,
+        isTeacher: true,
+        createdAt: true,
+        updatedAt: true
       }
     });
 
@@ -94,47 +95,47 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    // Fetch statistics separately
+    const statistics = await prisma.statistics.findUnique({
+      where: { userId: user.id }
+    });
+
     // Get recent multiplayer games
     const recentGames = await prisma.multiplayerGame.findMany({
       where: {
         OR: [
           { player1Id: user.id },
           { player2Id: user.id }
-        ],
-        status: { in: ['finished', 'playing'] }
-      },
-      include: {
-        player1: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            multiplayerElo: true,
-            multiplayerRankClass: true
-          }
-        },
-        player2: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            multiplayerElo: true,
-            multiplayerRankClass: true
-          }
-        }
+        ]
       },
       orderBy: { createdAt: 'desc' },
-      take: 5
+      take: 5,
+      include: {
+        player1: {
+          select: { username: true }
+        },
+        player2: {
+          select: { username: true }
+        }
+      }
     });
 
-    // Return user data without password
-    const { password, ...userData } = user;
+    // Get recent tests
+    const recentTests = await prisma.test.findMany({
+      where: { userId: user.id },
+      orderBy: { completedAt: 'desc' },
+      take: 10,
+      include: {
+        questions: true
+      }
+    });
+
     
     return NextResponse.json({
-      user: userData,
-      recentTests: user.tests,
+      user: user,
+      statistics,
       recentGames,
-      statistics: user.statistics
+      recentTests
     });
 
   } catch (error) {

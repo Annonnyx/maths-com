@@ -19,6 +19,29 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Maths-App.com - L'entraînement au calcul mental",
   description: "Améliore tes capacités de calcul mental avec un système adaptatif, pédagogique et gamifié. Deviens le maître des maths !",
+  metadataBase: new URL('https://maths-app.com'),
+  openGraph: {
+    title: "Maths-App.com - L'entraînement au calcul mental",
+    description: "Améliore tes capacités de calcul mental avec un système adaptatif, pédagogique et gamifié. Deviens le maître des maths !",
+    url: 'https://maths-app.com',
+    siteName: 'Maths-App.com',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Maths-App.com - Entraînement au calcul mental',
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Maths-App.com - L'entraînement au calcul mental",
+    description: "Améliore tes capacités de calcul mental avec un système adaptatif, pédagogique et gamifié. Deviens le maître des maths !",
+    images: ['/og-image.jpg'],
+  },
 };
 
 export default function RootLayout({
@@ -29,6 +52,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
+        <link rel="canonical" href="https://maths-app.com" />
         <meta name="google-adsense-account" content="ca-pub-5606384371601059" />
         <Script
           async

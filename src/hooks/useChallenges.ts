@@ -20,8 +20,8 @@ export interface Challenge {
     displayName: string | null;
     isOnline: boolean;
     lastSeenAt: string;
-    multiplayerElo: number;
-    multiplayerRankClass: string;
+    elo: number;
+    rankClass: string;
   };
   game?: {
     id: string;

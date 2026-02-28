@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { sendValidationError, sendNotFoundError, sendInternalError } from '@/lib/api-utils';
 
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
     
     if (!email) {
-      return NextResponse.json({ error: 'Email requis' }, { status: 400 });
+      return sendValidationError('Email requis');
     }
 
     const user = await prisma.user.findFirst({
@@ -25,18 +26,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json({ 
-        exists: false,
-        error: 'USER_NOT_FOUND'
-      });
+      return sendValidationError('Utilisateur non trouvé', { exists: false, code: 'USER_NOT_FOUND' });
     }
 
     if (!user.password) {
-      return NextResponse.json({ 
-        exists: true,
-        hasPassword: false,
-        error: 'OAUTH_ACCOUNT'
-      });
+      return sendValidationError('Compte OAuth', { exists: true, hasPassword: false, code: 'OAUTH_ACCOUNT' });
     }
 
     return NextResponse.json({ 
@@ -46,6 +40,6 @@ export async function POST(req: NextRequest) {
     
   } catch (error) {
     console.error('Error checking user:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    return sendInternalError('Erreur lors de la vérification de l\'utilisateur');
   }
 }

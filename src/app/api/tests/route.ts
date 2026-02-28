@@ -78,11 +78,8 @@ export async function POST(req: NextRequest) {
         data: {
           elo: eloAfter,
           rankClass: newRankClass,
-          bestElo: Math.max(user.bestElo, eloAfter),
-          bestRankClass: eloAfter > user.bestElo ? newRankClass : user.bestRankClass,
-          currentStreak: eloChange > 0 ? user.currentStreak + 1 : 0,
-          bestStreak: Math.max(user.bestStreak, eloChange > 0 ? user.currentStreak + 1 : 0),
-          lastTestDate: new Date()
+          bestElo: Math.max(user.bestElo || 0, eloAfter),
+          bestRankClass: eloAfter > (user.bestElo || 0) ? newRankClass : (user.bestRankClass || 'F-')
         }
       });
 

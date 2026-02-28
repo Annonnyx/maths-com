@@ -4,6 +4,10 @@ export declare const config: {
         clientId: string;
         guildId: string;
     };
+    supabase: {
+        url: string;
+        serviceKey: string;
+    };
     api: {
         port: number;
         secret: string;

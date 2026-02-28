@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { 
   Trophy, Target, ArrowLeft, CheckCircle, XCircle, 
-  RotateCcw, Calculator, Settings2
+  RotateCcw, Calculator, Settings2, BookOpen, Clock
 } from 'lucide-react';
 import { generateExercise, Exercise, OperationType, validateAnswer } from '@/lib/exercises';
 import { useSound } from '@/components/SoundProvider';
@@ -13,6 +14,37 @@ import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 import { FrenchClass, FRENCH_CLASSES, CLASS_INFO, getUnlockedClasses } from '@/lib/french-classes';
 import { useSession } from 'next-auth/react';
 import { RankClass } from '@/lib/elo';
+
+// Types pour le mode ciblé
+interface Course {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  relatedTypes: OperationType[];
+  difficulty: number;
+}
+
+interface CoursePracticeSession {
+  courseId: string;
+  courseTitle: string;
+  questions: Exercise[];
+  currentIndex: number;
+  correctAnswers: number;
+  startTime: number;
+  isCompleted: boolean;
+}
+
+interface Stats {
+  correct: number;
+  total: number;
+  streak: number;
+}
+
+interface Feedback {
+  isCorrect: boolean;
+  message: string;
+}
 
 const OPERATIONS: { type: OperationType; label: string; icon: string; color: string }[] = [
   { type: 'addition', label: 'Addition', icon: '+', color: 'from-blue-500/20 to-blue-600/20' },
@@ -45,15 +77,26 @@ const CLASS_TO_DIFFICULTY: Record<FrenchClass, number> = {
   'Pro': 10
 };
 
-export default function PracticePage() {
+function PracticePage() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const courseId = searchParams.get('course_id');
+  
   const [selectedOperation, setSelectedOperation] = useState<OperationType>('addition');
-  const [selectedClass, setSelectedClass] = useState<FrenchClass>('CP');
+  const [difficulty, setDifficulty] = useState(5);
   const [currentExercise, setCurrentExercise] = useState<Exercise | null>(null);
   const [inputValue, setInputValue] = useState('');
-  const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
-  const [stats, setStats] = useState({ correct: 0, total: 0, streak: 0 });
-  const [showSettings, setShowSettings] = useState(true);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [stats, setStats] = useState<Stats>({ correct: 0, total: 0, streak: 0 });
+  const [selectedClass, setSelectedClass] = useState<FrenchClass>('6e');
+  const [showSettings, setShowSettings] = useState(false);
+  const [timeLimit, setTimeLimit] = useState(0); // 0 = no limit
+  
+  // États pour le mode ciblé
+  const [course, setCourse] = useState<Course | null>(null);
+  const [courseSession, setCourseSession] = useState<CoursePracticeSession | null>(null);
+  const [isLoadingCourse, setIsLoadingCourse] = useState(false);
+  
   const { playSound } = useSound();
   const [excludeGeometry, setExcludeGeometry] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -64,59 +107,142 @@ export default function PracticePage() {
 
   // Get available operations for a class (geometry excluded if setting is on)
   const getOperationsForClass = (className: FrenchClass, excludeGeo: boolean): OperationType[] => {
-    const baseOps: OperationType[] = ['addition', 'subtraction', 'multiplication', 'division'];
-    const advancedOps: OperationType[] = ['power', 'root', 'factorization', 'percentage', 'fraction'];
-    
     const classIndex = FRENCH_CLASSES.indexOf(className);
+    let operations = OPERATIONS.map(op => op.type);
     
-    let ops: OperationType[] = [];
-    
-    // CP-CM2: basics only
-    if (classIndex <= 4) {
-      ops = ['addition', 'subtraction'];
-      if (classIndex >= 2) ops.push('multiplication');
-      if (classIndex >= 4) ops.push('division');
-    }
-    // Collège: basics + some advanced + geometry
-    else if (classIndex <= 8) {
-      ops = [...baseOps, 'percentage', 'fraction'];
-      // Add geometry for 6e and above (unless excluded)
-      if (!excludeGeo && classIndex >= 6) {
-        ops.push('geometry');
-      }
-    }
-    // Lycée and above: all operations including geometry
-    else {
-      ops = [...baseOps, ...advancedOps];
-      if (!excludeGeo) {
-        ops.push('geometry');
-      }
+    // Filter based on class level
+    if (classIndex <= 4) { // CP to CM2
+      operations = operations.filter(op => 
+        ['addition', 'subtraction', 'multiplication'].includes(op)
+      );
+    } else if (classIndex <= 7) { // 6e to 5e
+      operations = operations.filter(op => 
+        !['power', 'root', 'factorization', 'delta', 'quadratic'].includes(op)
+      );
     }
     
-    return ops;
+    if (excludeGeo) {
+      operations = operations.filter(op => op !== 'geometry');
+    }
+    
+    return operations;
   };
 
-  // Get unlocked classes based on user's rank
-  const userRank = (session?.user as any)?.rankClass as RankClass || 'F-';
-  const unlockedClasses = getUnlockedClasses(userRank);
+  // Charger les détails du cours si mode ciblé
+  useEffect(() => {
+    if (courseId) {
+      loadCourseDetails(courseId);
+    }
+  }, [courseId]);
 
-  const generateNewExercise = () => {
-    playSound('tick');
-    const difficulty = CLASS_TO_DIFFICULTY[selectedClass];
+  const loadCourseDetails = async (id: string) => {
+    setIsLoadingCourse(true);
+    try {
+      const response = await fetch(`/api/courses/${id}`);
+      if (response.ok) {
+        const courseData = await response.json();
+        setCourse(courseData);
+        
+        // Démarrer une session ciblée
+        startCourseSession(courseData);
+      }
+    } catch (error) {
+      console.error('Error loading course:', error);
+    } finally {
+      setIsLoadingCourse(false);
+    }
+  };
+
+  const startCourseSession = (courseData: Course) => {
+    const questions: Exercise[] = [];
+    const baseDifficulty = courseData.difficulty || 5;
     
-    // Get available operations for this class
-    const availableOps = getOperationsForClass(selectedClass, excludeGeometry);
-    const randomOp = availableOps[Math.floor(Math.random() * availableOps.length)];
-    setSelectedOperation(randomOp);
-    
-    const exercise = generateExercise(randomOp, difficulty);
-    setCurrentExercise(exercise);
+    // Générer 10 questions basées sur les types du cours
+    for (let i = 0; i < 10; i++) {
+      const operationType = courseData.relatedTypes[
+        Math.floor(Math.random() * courseData.relatedTypes.length)
+      ];
+      const questionDifficulty = Math.max(1, Math.min(10, baseDifficulty + Math.floor(Math.random() * 3) - 1));
+      questions.push(generateExercise(operationType, questionDifficulty));
+    }
+
+    setCourseSession({
+      courseId: courseData.id,
+      courseTitle: courseData.title,
+      questions,
+      currentIndex: 0,
+      correctAnswers: 0,
+      startTime: Date.now(),
+      isCompleted: false
+    });
+
+    setCurrentExercise(questions[0]);
     setInputValue('');
     setFeedback(null);
   };
 
+  // Mode libre : générer un nouvel exercice
+  const generateNewExercise = () => {
+    if (courseSession) {
+      // Mode ciblé : passer à la question suivante
+      const nextIndex = courseSession.currentIndex + 1;
+      if (nextIndex < courseSession.questions.length) {
+        setCourseSession({
+          ...courseSession,
+          currentIndex: nextIndex
+        });
+        setCurrentExercise(courseSession.questions[nextIndex]);
+      } else {
+        // Session terminée
+        completeCourseSession();
+      }
+    } else {
+      // Mode libre
+      const difficulty = CLASS_TO_DIFFICULTY[selectedClass];
+      const availableOps = getOperationsForClass(selectedClass, excludeGeometry);
+      const randomOp = availableOps[Math.floor(Math.random() * availableOps.length)];
+      setSelectedOperation(randomOp);
+      
+      const exercise = generateExercise(randomOp, difficulty);
+      setCurrentExercise(exercise);
+    }
+    
+    setInputValue('');
+    setFeedback(null);
+  };
+
+  const completeCourseSession = async () => {
+    if (!courseSession || !session?.user) return;
+
+    const score = Math.round((courseSession.correctAnswers / courseSession.questions.length) * 100);
+    const timeSpent = Math.round((Date.now() - courseSession.startTime) / 1000);
+
+    try {
+      await fetch('/api/course-practice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: session.user.id,
+          courseId: courseSession.courseId,
+          score,
+          questionsCount: courseSession.questions.length,
+          correctAnswers: courseSession.correctAnswers,
+          timeSpentSeconds: timeSpent,
+          difficultyLevel: difficulty
+        })
+      });
+    } catch (error) {
+      console.error('Error saving course practice:', error);
+    }
+
+    setCourseSession({
+      ...courseSession,
+      isCompleted: true
+    });
+  };
+
   useEffect(() => {
-    if (!showSettings) {
+    if (!showSettings && !courseSession) {
       generateNewExercise();
     }
   }, [selectedOperation, selectedClass, showSettings]);
@@ -126,6 +252,15 @@ export default function PracticePage() {
 
     const isCorrect = validateAnswer(currentExercise, inputValue);
     playSound(isCorrect ? 'correct' : 'incorrect');
+    
+    if (courseSession) {
+      // Mode ciblé : mettre à jour les réponses correctes
+      setCourseSession({
+        ...courseSession,
+        correctAnswers: courseSession.correctAnswers + (isCorrect ? 1 : 0)
+      });
+    }
+
     setFeedback({
       isCorrect,
       message: isCorrect 
@@ -150,6 +285,8 @@ export default function PracticePage() {
     }
   };
 
+  const isCourseMode = !!courseId && !!course;
+
   return (
     <div className="min-h-screen bg-background text-white">
       {/* Header */}
@@ -161,9 +298,21 @@ export default function PracticePage() {
               <span className="font-bold">maths-app.com</span>
             </Link>
             <span className="text-gray-500">|</span>
-            <span className="text-muted-foreground">Exercices libres</span>
+            {isCourseMode ? (
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-purple-400" />
+                <span className="text-muted-foreground">Entraînement : {course?.title}</span>
+              </div>
+            ) : (
+              <span className="text-muted-foreground">Exercices libres</span>
+            )}
           </div>
           <div className="flex items-center gap-4">
+            {courseSession && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-purple-500/20 rounded-lg">
+                <span className="text-sm">Question {courseSession.currentIndex + 1}/{courseSession.questions.length}</span>
+              </div>
+            )}
             <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg">
               <Target className="w-5 h-5 text-green-400" />
               <span className="font-semibold">{stats.correct}/{stats.total}</span>
@@ -177,7 +326,148 @@ export default function PracticePage() {
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         <AnimatePresence mode="wait">
-          {showSettings ? (
+          {courseSession?.isCompleted ? (
+            // Session terminée
+            <motion.div
+              key="completed"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center"
+            >
+              <div className="max-w-md mx-auto p-8 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-2xl border border-purple-500/30">
+                <Trophy className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold mb-2">Session terminée !</h2>
+                <p className="text-lg mb-4">
+                  Score : {Math.round((courseSession.correctAnswers / courseSession.questions.length) * 100)}%
+                </p>
+                <p className="text-muted-foreground mb-6">
+                  {courseSession.correctAnswers}/{courseSession.questions.length} réponses correctes
+                </p>
+                <div className="flex gap-4 justify-center">
+                  <button
+                    onClick={() => course && startCourseSession(course)}
+                    className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors"
+                  >
+                    Continuer
+                  </button>
+                  <Link
+                    href={course ? `/courses/${course.slug}` : '/courses'}
+                    className="px-6 py-3 bg-card hover:bg-border rounded-lg font-medium transition-colors"
+                  >
+                    Retour au cours
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          ) : isLoadingCourse ? (
+            // Chargement du cours
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-20"
+            >
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Chargement du cours...</p>
+            </motion.div>
+          ) : currentExercise ? (
+            // Exercice en cours
+            <motion.div
+              key="exercise"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <div className="max-w-2xl mx-auto">
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-full border border-indigo-500/30 mb-4">
+                    <span className="text-indigo-400 font-medium">
+                      {OPERATIONS.find(op => op.type === currentExercise.type)?.label || currentExercise.type}
+                    </span>
+                    <span className="text-gray-400">•</span>
+                    <span className="text-purple-400">Niveau {currentExercise.difficulty}</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#12121a] rounded-2xl border border-border p-8 mb-6">
+                  <div className="text-center mb-8">
+                    <div className="text-4xl font-bold text-white mb-2">
+                      {currentExercise.question}
+                    </div>
+                    <div className="text-gray-400">
+                      {currentExercise.explanation && (
+                        <p className="text-sm mt-2">{currentExercise.explanation}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="max-w-xs mx-auto">
+                    <input
+                      type="text"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Ta réponse..."
+                      className="w-full px-4 py-3 bg-card border border-border rounded-lg text-center text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      autoFocus
+                      disabled={!!feedback}
+                    />
+                  </div>
+
+                  {feedback && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`mt-6 p-4 rounded-lg text-center ${
+                        feedback.isCorrect 
+                          ? 'bg-green-500/20 border border-green-500/30 text-green-400' 
+                          : 'bg-red-500/20 border border-red-500/30 text-red-400'
+                      }`}
+                    >
+                      {feedback.message}
+                    </motion.div>
+                  )}
+
+                  <div className="flex gap-4 justify-center mt-6">
+                    {!feedback ? (
+                      <button
+                        onClick={submitAnswer}
+                        disabled={!inputValue.trim()}
+                        className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold transition-all"
+                      >
+                        Valider
+                      </button>
+                    ) : (
+                      <button
+                        onClick={generateNewExercise}
+                        className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold transition-all"
+                      >
+                        {courseSession && courseSession.currentIndex < courseSession.questions.length - 1 
+                          ? 'Question suivante' 
+                          : courseSession 
+                            ? 'Terminer la session'
+                            : 'Nouvel exercice'
+                        }
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {!isCourseMode && (
+                  <div className="text-center">
+                    <button
+                      onClick={() => setShowSettings(true)}
+                      className="text-muted-foreground hover:text-white transition-colors flex items-center gap-2 mx-auto"
+                    >
+                      <Settings2 className="w-4 h-4" />
+                      Changer les paramètres
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ) : (
+            // Paramètres (mode libre uniquement)
             <motion.div
               key="settings"
               initial={{ opacity: 0, y: 20 }}
@@ -191,200 +481,55 @@ export default function PracticePage() {
                 </Link>
                 <h1 className="text-2xl font-bold">Configuration des exercices</h1>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Choisis ta classe pour générer des exercices adaptés
-              </p>
 
               {/* Class Selection */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-4">Classe</h2>
                 <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
-                  {unlockedClasses.map((className) => (
+                  {FRENCH_CLASSES.map((className) => (
                     <button
                       key={className}
-                      onClick={() => {
-                        playSound('click');
-                        setSelectedClass(className);
-                      }}
-                      className={`py-3 rounded-lg font-semibold transition-all ${
+                      onClick={() => setSelectedClass(className)}
+                      className={`p-3 rounded-lg font-medium transition-all ${
                         selectedClass === className
-                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
-                          : 'bg-card hover:bg-border'
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-card hover:bg-border text-muted-foreground'
                       }`}
                     >
                       {className}
                     </button>
                   ))}
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {CLASS_INFO[selectedClass].description}
-                </p>
-                {unlockedClasses.length < FRENCH_CLASSES.length && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    💡 Monte en rang pour débloquer plus de classes !
-                  </p>
-                )}
               </div>
 
-              {/* Geometry Toggle */}
-              <div className="mb-8 p-4 bg-card rounded-xl border border-border">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={excludeGeometry}
-                    onChange={(e) => {
-                      setExcludeGeometry(e.target.checked);
-                      localStorage.setItem('excludeGeometry', e.target.checked.toString());
-                    }}
-                    className="w-5 h-5 rounded border-border bg-background text-indigo-500 focus:ring-indigo-500"
-                  />
-                  <div>
-                    <p className="font-medium">Exclure la géométrie</p>
-                    <p className="text-sm text-muted-foreground">
-                      Ne pas inclure les exercices de géométrie (formes, périmètres, aires)
-                    </p>
-                  </div>
-                </label>
-              </div>
-
-              {/* Start Button */}
-              <button
-                onClick={() => {
-                  playSound('click');
-                  setShowSettings(false);
-                }}
-                className="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 rounded-xl font-semibold text-lg transition-all glow-primary"
-              >
-                Commencer l'entraînement
-              </button>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="exercise"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="max-w-2xl mx-auto"
-            >
-              {/* Exercise Header */}
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex justify-center">
                 <button
-                  onClick={() => {
-                    playSound('click');
-                    setShowSettings(true);
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg hover:bg-border transition-all"
+                  onClick={() => setShowSettings(false)}
+                  className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-lg font-semibold transition-all"
                 >
-                  <Settings2 className="w-4 h-4" />
-                  <span>Changer de classe</span>
+                  Commencer
                 </button>
-                <div className="text-sm text-muted-foreground">
-                  Classe {selectedClass}
-                </div>
-              </div>
-
-              {/* Exercise Card */}
-              {currentExercise && (
-                <div className="text-center mb-12">
-                  <motion.div
-                    key={currentExercise.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mb-8"
-                  >
-                    <div className="p-8 bg-[#12121a] rounded-2xl border border-border">
-                      <h2 className="text-5xl md:text-6xl font-bold font-mono">
-                        {currentExercise.question}
-                      </h2>
-                    </div>
-                  </motion.div>
-
-                  {/* Input */}
-                  <div className="flex flex-col items-center gap-6">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Ta réponse..."
-                      className="w-full max-w-xs px-6 py-4 bg-card border-2 border-border rounded-xl text-center text-2xl font-mono focus:border-indigo-500 focus:outline-none transition-all"
-                      autoFocus
-                      disabled={!!feedback}
-                    />
-                    
-                    {!feedback ? (
-                      <button
-                        onClick={submitAnswer}
-                        disabled={!inputValue.trim()}
-                        className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold transition-all glow-primary"
-                      >
-                        <CheckCircle className="w-5 h-5" />
-                        Valider
-                      </button>
-                    ) : (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`p-4 rounded-xl ${
-                          feedback.isCorrect 
-                            ? 'bg-green-500/20 border border-green-500/30' 
-                            : 'bg-red-500/20 border border-red-500/30'
-                        }`}
-                      >
-                        <p className={`text-lg font-semibold ${
-                          feedback.isCorrect ? 'text-green-400' : 'text-red-400'
-                        }`}>
-                          {feedback.message}
-                        </p>
-                        {currentExercise.explanation && (
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            {currentExercise.explanation}
-                          </p>
-                        )}
-                      </motion.div>
-                    )}
-
-                    {feedback && (
-                      <button
-                        onClick={generateNewExercise}
-                        className="flex items-center gap-2 px-8 py-3 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border"
-                      >
-                        <RotateCcw className="w-5 h-5" />
-                        Exercice suivant
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Stats */}
-              <div className="mt-12 p-6 bg-[#12121a] rounded-2xl border border-border">
-                <h3 className="text-lg font-semibold mb-4">Statistiques de la session</h3>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <p className="text-2xl font-bold text-green-400">{stats.correct}</p>
-                    <p className="text-sm text-muted-foreground">Correct</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-red-400">{stats.total - stats.correct}</p>
-                    <p className="text-sm text-muted-foreground">Incorrect</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-indigo-400">
-                      {stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0}%
-                    </p>
-                    <p className="text-sm text-muted-foreground">Taux de réussite</p>
-                  </div>
-                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </main>
 
-      {/* Side Ads - Desktop/Tablet Only */}
       <HomePageSideAds />
     </div>
   );
 }
+
+function PracticePageWithSuspense() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+      </div>
+    }>
+      <PracticePage />
+    </Suspense>
+  );
+}
+
+export default PracticePageWithSuspense;

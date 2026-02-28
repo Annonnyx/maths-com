@@ -521,42 +521,11 @@ export function generateExercise(type: OperationType, difficulty: number): Exerc
   }
 }
 
-// Generate a test with mixed questions based on user Elo (using French class system)
+// Generate a test with mixed questions using adaptive algorithm
 export function generateTest(elo: number, count: number = 20): Exercise[] {
-  const questions: Exercise[] = [];
-  
-  // Get user's current French class based on ELO
-  const currentClass = getClassFromElo(elo);
-  const classIndex = FRENCH_CLASSES.indexOf(currentClass);
-  
-  // Determine which classes to use for questions (current class + 1 below for variety)
-  const availableClasses: FrenchClass[] = [];
-  if (classIndex > 0) availableClasses.push(FRENCH_CLASSES[classIndex - 1]); // One class below
-  availableClasses.push(currentClass); // Current class
-  if (classIndex < FRENCH_CLASSES.length - 1) availableClasses.push(FRENCH_CLASSES[classIndex + 1]); // One above
-  
-  // Get available operations for the current class
-  const availableOperations = getFrenchClassOperations(currentClass);
-  
-  for (let i = 0; i < count; i++) {
-    // Pick a random class from available (weighted toward current)
-    const questionClass = availableClasses[Math.floor(Math.random() * availableClasses.length)];
-    const questionClassIndex = FRENCH_CLASSES.indexOf(questionClass);
-    
-    // Convert class to difficulty (1-10 scale for internal use)
-    // CP=1, CE1=2, CE2=3, CM1=4, CM2=5, 6e=6, 5e=7, 4e=8, 3e=9, 2de+=10
-    const difficulty = Math.min(10, Math.max(1, questionClassIndex + 1));
-    
-    // Get operations for this specific class
-    const classOperations = getFrenchClassOperations(questionClass);
-    
-    // Pick random operation
-    const operation = classOperations[Math.floor(Math.random() * classOperations.length)];
-    
-    questions.push(generateExercise(operation, difficulty));
-  }
-  
-  return questions;
+  // Import the new adaptive system
+  const { generateAdaptiveTest } = require('./adaptive-exercises');
+  return generateAdaptiveTest(elo, count);
 }
 
 // Get available operations for a French class (following school curriculum)
@@ -587,80 +556,24 @@ function getFrenchClassOperations(className: FrenchClass): OperationType[] {
   }
 }
 
-// Generate evaluation test for first-time users (using French class system - starts at CP level)
+// Generate evaluation test using adaptive algorithm
 export function generateEvaluationTest(count: number = 20, excludeGeometry: boolean = false): Exercise[] {
-  const questions: Exercise[] = [];
-  
-  for (let i = 0; i < count; i++) {
-    // Progressive difficulty: starts at CP (level 1) and progresses through classes
-    const classIndex = Math.min(FRENCH_CLASSES.length - 1, Math.floor(i / 3));
-    const currentClass = FRENCH_CLASSES[classIndex];
-    const difficulty = Math.min(10, classIndex + 1);
-    
-    // Get available operations for this class, excluding geometry if requested
-    const availableOperations = getFrenchClassOperations(currentClass).filter(op => 
-      !excludeGeometry || op !== 'geometry'
-    );
-    
-    const operation = availableOperations[Math.floor(Math.random() * availableOperations.length)];
-    
-    questions.push(generateExercise(operation, difficulty));
-  }
-  
-  return questions;
+  // Import the new adaptive system
+  const { generateAdaptiveTest } = require('./adaptive-exercises');
+  // Start with a low ELO for evaluation (CP level)
+  return generateAdaptiveTest(100, count);
 }
 
-// Generate multiplayer questions with French class system
+// Generate multiplayer questions using adaptive algorithm
 export function generateMultiplayerQuestions(
   player1Elo: number,
   player2Elo: number,
   count: number = 20
 ): Exercise[] {
-  console.log('generateMultiplayerQuestions called with:', { player1Elo, player2Elo, count });
-  
-  const questions: Exercise[] = [];
-  
-  // Calculate average Elo and determine French class
+  // Import the new adaptive system
+  const { generateAdaptiveTest } = require('./adaptive-exercises');
   const avgElo = (player1Elo + player2Elo) / 2;
-  const currentClass = getClassFromElo(avgElo);
-  const classIndex = FRENCH_CLASSES.indexOf(currentClass);
-  
-  console.log('Average Elo:', avgElo, 'Class:', currentClass);
-  
-  // Determine which classes to use for questions
-  const availableClasses: FrenchClass[] = [];
-  if (classIndex > 0) availableClasses.push(FRENCH_CLASSES[classIndex - 1]);
-  availableClasses.push(currentClass);
-  if (classIndex < FRENCH_CLASSES.length - 1) availableClasses.push(FRENCH_CLASSES[classIndex + 1]);
-  
-  for (let i = 0; i < count; i++) {
-    // Pick a random class from available
-    const questionClass = availableClasses[Math.floor(Math.random() * availableClasses.length)];
-    const questionClassIndex = FRENCH_CLASSES.indexOf(questionClass);
-    
-    // Convert class to difficulty
-    const difficulty = Math.min(10, Math.max(1, questionClassIndex + 1));
-    
-    // Get operations for this class
-    const classOperations = getFrenchClassOperations(questionClass);
-    const operation = classOperations[Math.floor(Math.random() * classOperations.length)];
-    
-    console.log(`Generating question ${i}:`, { operation, difficulty, class: questionClass });
-    
-    try {
-      const exercise = generateExercise(operation, difficulty);
-      questions.push(exercise);
-      console.log(`Successfully generated question ${i}`);
-    } catch (error) {
-      console.error(`Error generating question ${i}:`, error);
-      // Fallback to addition
-      const fallbackExercise = generateExercise('addition', 1);
-      questions.push(fallbackExercise);
-    }
-  }
-  
-  console.log('Generated questions count:', questions.length);
-  return questions;
+  return generateAdaptiveTest(avgElo, count);
 }
 
 // Generate a focused test on specific operation types (using French class system)

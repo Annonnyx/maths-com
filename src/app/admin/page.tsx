@@ -879,7 +879,7 @@ export default function AdminPage() {
                       });
                       if (res.ok) {
                         const data = await res.json();
-                        alert(`${data.totalBadges} badges synchronisés !\n${data.rankBadgesAwarded} badges de rang attribués\n${data.rankBadgesRemoved} badges retirés`);
+                        alert(`${data.totalBadges} badges synchronisés !\n${data.rankBadgesAwarded} badges de rang attribués\n${data.rankBadgesRemoved} badges retirés\n${data.classesUpdated} classes scolaires mises à jour`);
                         loadData();
                       } else {
                         alert('Erreur lors de la synchronisation');
@@ -1018,7 +1018,7 @@ export default function AdminPage() {
                         });
                         if (res.ok) {
                           const data = await res.json();
-                          alert(`${data.totalBadges} badges initialisés !`);
+                          alert(`${data.totalBadges} badges initialisés !\n${data.classesUpdated || 0} classes scolaires calculées`);
                           loadData();
                         } else {
                           alert('Erreur lors de l\'initialisation');

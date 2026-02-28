@@ -139,7 +139,6 @@ export default function CoursesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showTrigCourse, setShowTrigCourse] = useState(false);
   const userClass = '6e' as FrenchClass;
-  const userClassIndex = FRENCH_CLASSES.indexOf(userClass);
   const coursesList = Object.values(COURSES_BY_CLASS);
 
   // Search functionality
@@ -225,7 +224,7 @@ export default function CoursesPage() {
               <Link href={`/test?class=${selectedClass}`} className="flex-1 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 rounded-xl font-semibold text-lg transition-all text-center flex items-center justify-center gap-2">
                 <Trophy className="w-5 h-5" />Tester mes connaissances
               </Link>
-              <Link href="/practice" className="px-6 py-4 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border flex items-center gap-2">
+              <Link href={`/practice?course_id=${course.id}`} className="px-6 py-4 bg-card hover:bg-border rounded-xl font-semibold transition-all border border-border flex items-center gap-2">
                 <Target className="w-5 h-5" />S'entraîner
               </Link>
             </div>
@@ -344,7 +343,6 @@ export default function CoursesPage() {
           {(searchQuery ? searchResults : coursesList).map((course, index) => {
             const frenchClass = course.className as FrenchClass;
             const classIndex = FRENCH_CLASSES.indexOf(frenchClass);
-            const isLocked = classIndex > userClassIndex && !searchQuery;
             const isCurrent = frenchClass === userClass;
 
             return (
@@ -353,10 +351,9 @@ export default function CoursesPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                onClick={() => !isLocked && setSelectedClass(frenchClass)}
-                className={`p-6 rounded-2xl bg-gradient-to-br ${CLASS_COLORS[frenchClass]} border cursor-pointer hover:scale-[1.02] transition-all relative ${isLocked ? 'opacity-60 cursor-not-allowed' : ''} ${isCurrent ? 'ring-2 ring-indigo-500' : ''}`}
+                onClick={() => setSelectedClass(frenchClass)}
+                className={`p-6 rounded-2xl bg-gradient-to-br ${CLASS_COLORS[frenchClass]} border cursor-pointer hover:scale-[1.02] transition-all relative ${isCurrent ? 'ring-2 ring-indigo-500' : ''}`}
               >
-                {isLocked && <div className="absolute inset-0 bg-background/60 flex items-center justify-center backdrop-blur-sm"><Lock className="w-8 h-8" /></div>}
                 {isCurrent && <div className="absolute top-4 right-4"><span className="px-2 py-1 bg-indigo-500 text-white text-xs font-bold rounded-full">Ton niveau</span></div>}
                 <div className="flex items-start justify-between mb-4">
                   <span className="text-3xl">{CLASS_ICONS[frenchClass]}</span>

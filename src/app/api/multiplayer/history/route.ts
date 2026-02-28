@@ -15,8 +15,8 @@ export async function GET(req: NextRequest) {
       select: {
         id: true,
         username: true,
-        multiplayerElo: true,
-        multiplayerRankClass: true
+        elo: true,
+        rankClass: true
       }
     });
 
@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
             id: true,
             username: true,
             displayName: true,
-            multiplayerElo: true,
-            multiplayerRankClass: true
+            elo: true,
+            rankClass: true
           }
         },
         player2: {
@@ -47,8 +47,8 @@ export async function GET(req: NextRequest) {
             id: true,
             username: true,
             displayName: true,
-            multiplayerElo: true,
-            multiplayerRankClass: true
+            elo: true,
+            rankClass: true
           }
         },
         questions: {
@@ -73,8 +73,8 @@ export async function GET(req: NextRequest) {
     // Transform the data for frontend
     const transformedGames = games.map(game => ({
       id: game.id,
-      player1: game.player1!,
-      player2: game.player2 || undefined,
+      player1: (game as any).player1!,
+      player2: (game as any).player2 || undefined,
       gameType: game.gameType as any,
       timeControl: game.timeControl as any,
       status: game.status as any,
@@ -83,10 +83,10 @@ export async function GET(req: NextRequest) {
       finishedAt: game.finishedAt?.toISOString(),
       player1Score: game.player1Score,
       player2Score: game.player2Score || 0,
-      player1Correct: game.questions?.filter((q: any) => q.player1Answer !== null).length || 0,
-      player2Correct: game.questions?.filter((q: any) => q.player2Answer !== null).length || 0,
-      player1Time: game.questions?.reduce((sum: number, q: any) => sum + (q.player1Time || 0), 0),
-      player2Time: game.questions?.reduce((sum: number, q: any) => sum + (q.player2Time || 0), 0),
+      player1Correct: (game as any).questions?.filter((q: any) => q.player1Answer !== null).length || 0,
+      player2Correct: (game as any).questions?.filter((q: any) => q.player2Answer !== null).length || 0,
+      player1Time: (game as any).questions?.reduce((sum: number, q: any) => sum + (q.player1Time || 0), 0),
+      player2Time: (game as any).questions?.reduce((sum: number, q: any) => sum + (q.player2Time || 0), 0),
       questionCount: game.questionCount,
       timeLimit: game.timeLimit,
       difficulty: game.difficulty

@@ -3,14 +3,17 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
+  schemas   = ["public", "auth"]
 }
 
 model User {
+  @@schema("public")
   id            String    @id @default(cuid())
   email         String    @unique
   username      String    @unique
@@ -21,6 +24,8 @@ model User {
   // Profile
   displayName   String?
   avatarUrl     String?
+  classe        String?   // Classe scolaire calculée (CP, CE1, CE2, CM1, CM2, 6ème, 5ème, 4ème, 3ème, 2nde, 1ère, Terminale)
+  birthYear     Int?      // Année de naissance pour calculer la classe
   
   // Banner customization
   bannerUrl     String?   // URL de la bannière personnalisée
@@ -34,6 +39,7 @@ model User {
   isTeacher     Boolean   @default(false)
   school         String?
   subject        String?
+  acceptJoinRequests Boolean @default(true)
   
   // Ranking System
   elo           Int       @default(400)
@@ -44,34 +50,17 @@ model User {
   // First-time setup
   hasCompletedOnboarding Boolean @default(false)
   
-  // Progression tracking
-  additionLevel      Int @default(1)
-  subtractionLevel   Int @default(0)
-  multiplicationLevel Int @default(0)
-  divisionLevel      Int @default(0)
-  powerLevel         Int @default(0)
-  rootLevel          Int @default(0)
-  factorizationLevel Int @default(0)
-  
-  // Streaks
+  // Streak tracking for solo play
   currentStreak Int @default(0)
-  bestStreak    Int @default(0)
-  lastTestDate  DateTime?
-  
-  // Multiplayer ranking system
-  multiplayerElo           Int @default(400)
-  multiplayerRankClass     String @default("F-")
-  bestMultiplayerElo       Int @default(400)
-  bestMultiplayerRankClass String @default("F-")
-  multiplayerGames         Int @default(0)
-  multiplayerWins          Int @default(0)
-  multiplayerLosses        Int @default(0)
+  bestStreak Int @default(0)
+  lastTestDate DateTime?
   
   // Online status
   isOnline     Boolean @default(false)
   lastSeenAt   DateTime @default(now())
   
   // Relations
+  questionHistory QuestionHistory[]
   tests        Test[]
   statistics   Statistics?
   exerciseAttempts ExerciseAttempt[]
@@ -104,7 +93,20 @@ model User {
   
   // Teacher relations
   teacherRequests TeacherRequest[]
+  sentJoinRequests ClassJoinRequest[] @relation("TeacherJoinRequests")
+  receivedJoinRequests ClassJoinRequest[] @relation("StudentJoinRequests")
   
+  // Notification relations
+  notifications Notification[]
+  sentNotifications Notification[] @relation("NotificationSender")
+  
+  // Course practice history
+  coursePracticeHistories CoursePracticeHistory[]
+  
+  // Game session relations
+  hostedSessions    GameSession[] @relation("HostedSessions")
+  gamePlayerships  GamePlayer[] @relation("GamePlayerships")
+
   // Class group relations
   taughtGroups    ClassGroup[]     @relation("GroupTeacher")
   groupMemberships ClassGroupMember[]
@@ -113,8 +115,66 @@ model User {
   @@map("users")
 }
 
+// Game session system for Kahoot-style multiplayer
+model GameSession {
+  @@schema("public")
+  id            String    @id @default(cuid())
+  code          String    @unique @db.VarChar(6)
+  hostId        String
+  status        String    @default("waiting") // waiting, active, finished
+  quizId        String?
+  maxPlayers    Int       @default(20)
+  currentQuestionIndex Int @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  host          User        @relation("HostedSessions", fields: [hostId], references: [id])
+  players       GamePlayer[]
+  kahootQuestions KahootQuestion[]
+
+  @@map("game_sessions")
+}
+
+model GamePlayer {
+  @@schema("public")
+  id            String    @id @default(cuid())
+  sessionId     String
+  userId        String
+  score         Int       @default(0)
+  joinedAt      DateTime  @default(now())
+  isReady       Boolean   @default(false)
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  session       GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user          User        @relation("GamePlayerships", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("game_players")
+}
+
+// Kahoot questions for synchronized group play
+model KahootQuestion {
+  @@schema("public")
+  id            String   @id @default(cuid())
+  sessionId     String
+  question      String
+  answer        String
+  type          String   // operation type
+  difficulty    Int
+  order         Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  session       GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@map("kahoot_questions")
+}
+
 // Badge system
 model Badge {
+  @@schema("public")
   id          String    @id @default(cuid())
   name        String    @unique
   description String
@@ -135,6 +195,7 @@ model Badge {
 
 // User-Badge association
 model UserBadge {
+  @@schema("public")
   id        String   @id @default(cuid())
   userId    String
   badgeId   String
@@ -151,6 +212,7 @@ model UserBadge {
 }
 
 model Test {
+  @@schema("public")
   id          String   @id @default(cuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -184,6 +246,7 @@ model Test {
 }
 
 model Question {
+  @@schema("public")
   id       String @id @default(cuid())
   testId   String
   test     Test   @relation(fields: [testId], references: [id], onDelete: Cascade)
@@ -207,6 +270,7 @@ model Question {
 }
 
 model Statistics {
+  @@schema("public")
   id     String @id @default(cuid())
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -262,6 +326,7 @@ model Statistics {
 }
 
 model ExerciseAttempt {
+  @@schema("public")
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -285,6 +350,7 @@ model ExerciseAttempt {
 
 // Course content for learning
 model Course {
+  @@schema("public")
   id          String @id @default(cuid())
   title       String
   slug        String @unique
@@ -302,11 +368,15 @@ model Course {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
+  // Relations
+  practiceHistories CoursePracticeHistory[]
+  
   @@map("courses")
 }
 
 // Multiplayer friendship system
 model Friendship {
+  @@schema("public")
   id        String   @id @default(cuid())
   user1Id   String
   user2Id   String
@@ -323,6 +393,7 @@ model Friendship {
 
 // Message system for friends and challenges
 model Message {
+  @@schema("public")
   id         String   @id @default(cuid())
   senderId   String
   receiverId String
@@ -340,6 +411,7 @@ model Message {
 
 // Multiplayer games
 model MultiplayerGame {
+  @@schema("public")
   id          String    @id @default(cuid())
   player1Id   String
   player2Id   String?   // null if waiting for opponent
@@ -369,6 +441,7 @@ model MultiplayerGame {
 
 // Questions in multiplayer games
 model MultiplayerQuestion {
+  @@schema("public")
   id            String @id @default(cuid())
   gameId        String
   question      String
@@ -392,6 +465,7 @@ model MultiplayerQuestion {
 
 // Multiplayer statistics (separate from solo stats)
 model MultiplayerStatistics {
+  @@schema("public")
   id     String @id @default(cuid())
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -430,6 +504,7 @@ model MultiplayerStatistics {
 
 // Challenge system for friendly and ranked matches
 model Challenge {
+  @@schema("public")
   id           String   @id @default(cuid())
   challengerId String
   challengedId String
@@ -456,6 +531,7 @@ model Challenge {
 
 // Custom banners for admin uploads
 model CustomBanner {
+  @@schema("public")
   id          String   @id @default(cuid())
   name        String
   description String?
@@ -475,6 +551,7 @@ model CustomBanner {
 }
 
 model TeacherRequest {
+  @@schema("public")
   id          String   @id @default(cuid())
   userId      String
   name        String
@@ -493,6 +570,7 @@ model TeacherRequest {
 }
 
 model FaqSubmission {
+  @@schema("public")
   id          String   @id @default(cuid())
   type        String   // bug, question, suggestion
   title       String
@@ -508,6 +586,7 @@ model FaqSubmission {
 }
 
 model ClassGroup {
+  @@schema("public")
   id          String   @id @default(cuid())
   name        String
   teacherId   String
@@ -526,6 +605,7 @@ model ClassGroup {
 }
 
 model ClassGroupMember {
+  @@schema("public")
   id        String   @id @default(cuid())
   groupId   String
   userId    String
@@ -541,6 +621,7 @@ model ClassGroupMember {
 }
 
 model ClassMessage {
+  @@schema("public")
   id        String   @id @default(cuid())
   groupId   String
   userId    String
@@ -553,4 +634,77 @@ model ClassMessage {
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@map("class_messages")
+}
+
+model QuestionHistory {
+  @@schema("public")
+  id          String   @id @default(cuid())
+  userId      String
+  questionId  String
+  answeredAt  DateTime @default(now())
+  correct     Boolean
+  eloAtMoment Int
+  
+  // Relations
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("question_history")
+}
+
+model ClassJoinRequest {
+  @@schema("public")
+  id          String   @id @default(cuid())
+  studentId   String
+  teacherId   String
+  status      String   @default("pending") // pending, accepted, refused
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  student     User @relation("StudentJoinRequests", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher     User @relation("TeacherJoinRequests", fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  @@map("class_join_requests")
+}
+
+model Notification {
+  @@schema("public")
+  id            String   @id @default(cuid())
+  userId        String
+  type          String   // friend_request, friend_accepted, challenge, message, class_request, class_accepted, teacher_request_approved, discord_linked
+  title         String
+  message       String
+  senderId      String?
+  senderName    String?
+  senderAvatarUrl String?
+  metadata      Json?
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sender        User? @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+  
+  @@map("notifications")
+}
+
+model CoursePracticeHistory {
+  @@schema("public")
+  id                String   @id @default(cuid())
+  userId            String
+  courseId          String
+  score             Int      // 0-100
+  questionsCount    Int
+  correctAnswers    Int
+  timeSpentSeconds  Int
+  difficultyLevel   Int      // 1-10
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course            Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@map("course_practice_history")
 }

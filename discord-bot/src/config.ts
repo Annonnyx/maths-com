@@ -19,6 +19,12 @@ export const config = {
     guildId: getEnvVar('DISCORD_GUILD_ID'),
   },
   
+  // Supabase
+  supabase: {
+    url: getEnvVar('SUPABASE_URL'),
+    serviceKey: getEnvVar('SUPABASE_SERVICE_KEY'),
+  },
+  
   // API (communication avec le site)
   api: {
     port: parseInt(getEnvVar('API_PORT', '3001')),

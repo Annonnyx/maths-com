@@ -173,7 +173,7 @@ export async function checkAndAwardBadges(userId: string) {
     await awardRankBadge(userId, user.rankClass);
 
     // Badge premier victoire multijoueur
-    if (user.multiplayerWins >= 1) {
+    if ((user.multiplayerStatistics?.totalWins || 0) >= 1) {
       await awardAchievementBadge(userId, 'first_win');
     }
 
@@ -191,7 +191,7 @@ export async function checkAndAwardBadges(userId: string) {
     }
 
     // Badge Elo multi
-    if (user.multiplayerElo >= 1000) {
+    if (user.elo >= 1000) {
       await awardAchievementBadge(userId, 'multi_master');
     }
 

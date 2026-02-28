@@ -1,18 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleTicketModal = handleTicketModal;
-exports.handleTicketClose = handleTicketClose;
-exports.confirmTicketClose = confirmTicketClose;
-const discord_js_1 = require("discord.js");
-const config_js_1 = require("../config.js");
-exports.default = {
-    data: new discord_js_1.SlashCommandBuilder()
+import { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, PermissionFlagsBits, ChannelType } from 'discord.js';
+import { config, COLORS } from '../config.js';
+export default {
+    data: new SlashCommandBuilder()
         .setName('ticket')
         .setDescription('Ouvrir un ticket de support'),
     async execute(interaction) {
         // Vérifier si l'utilisateur a déjà un ticket ouvert
-        const existingTicket = interaction.guild?.channels.cache.find(channel => channel.type === discord_js_1.ChannelType.GuildText &&
-            channel.parentId === config_js_1.config.channels.ticketCategory &&
+        const existingTicket = interaction.guild?.channels.cache.find(channel => channel.type === ChannelType.GuildText &&
+            channel.parentId === config.channels.ticketCategory &&
             channel.topic?.includes(interaction.user.id));
         if (existingTicket) {
             return interaction.reply({
@@ -21,29 +16,29 @@ exports.default = {
             });
         }
         // Créer le modal pour choisir le motif
-        const modal = new discord_js_1.ModalBuilder()
+        const modal = new ModalBuilder()
             .setCustomId(`ticket_modal_${interaction.user.id}`)
             .setTitle('🎫 Ouvrir un ticket');
-        const subjectInput = new discord_js_1.TextInputBuilder()
+        const subjectInput = new TextInputBuilder()
             .setCustomId('ticket_subject')
             .setLabel('Sujet du ticket')
             .setPlaceholder('Ex: Problème de connexion, Bug, Suggestion...')
-            .setStyle(discord_js_1.TextInputStyle.Short)
+            .setStyle(TextInputStyle.Short)
             .setRequired(true)
             .setMaxLength(100);
-        const descriptionInput = new discord_js_1.TextInputBuilder()
+        const descriptionInput = new TextInputBuilder()
             .setCustomId('ticket_description')
             .setLabel('Description détaillée')
             .setPlaceholder('Décrivez votre problème en détail...')
-            .setStyle(discord_js_1.TextInputStyle.Paragraph)
+            .setStyle(TextInputStyle.Paragraph)
             .setRequired(true)
             .setMaxLength(1000);
-        modal.addComponents(new discord_js_1.ActionRowBuilder().addComponents(subjectInput), new discord_js_1.ActionRowBuilder().addComponents(descriptionInput));
+        modal.addComponents(new ActionRowBuilder().addComponents(subjectInput), new ActionRowBuilder().addComponents(descriptionInput));
         await interaction.showModal(modal);
     }
 };
 // Gérer la soumission du modal
-async function handleTicketModal(interaction) {
+export async function handleTicketModal(interaction) {
     const subject = interaction.fields.getTextInputValue('ticket_subject');
     const description = interaction.fields.getTextInputValue('ticket_description');
     const userId = interaction.user.id;
@@ -51,31 +46,31 @@ async function handleTicketModal(interaction) {
         // Créer le salon de ticket
         const ticketChannel = await interaction.guild?.channels.create({
             name: `ticket-${interaction.user.username}`,
-            type: discord_js_1.ChannelType.GuildText,
-            parent: config_js_1.config.channels.ticketCategory,
+            type: ChannelType.GuildText,
+            parent: config.channels.ticketCategory,
             topic: `Ticket de ${interaction.user.tag} (${userId})`,
             permissionOverwrites: [
                 {
                     id: interaction.guild.id,
-                    deny: [discord_js_1.PermissionFlagsBits.ViewChannel],
+                    deny: [PermissionFlagsBits.ViewChannel],
                 },
                 {
                     id: userId,
                     allow: [
-                        discord_js_1.PermissionFlagsBits.ViewChannel,
-                        discord_js_1.PermissionFlagsBits.SendMessages,
-                        discord_js_1.PermissionFlagsBits.ReadMessageHistory,
-                        discord_js_1.PermissionFlagsBits.AttachFiles,
+                        PermissionFlagsBits.ViewChannel,
+                        PermissionFlagsBits.SendMessages,
+                        PermissionFlagsBits.ReadMessageHistory,
+                        PermissionFlagsBits.AttachFiles,
                     ],
                 },
                 {
-                    id: config_js_1.config.roles.support,
+                    id: config.roles.support,
                     allow: [
-                        discord_js_1.PermissionFlagsBits.ViewChannel,
-                        discord_js_1.PermissionFlagsBits.SendMessages,
-                        discord_js_1.PermissionFlagsBits.ReadMessageHistory,
-                        discord_js_1.PermissionFlagsBits.AttachFiles,
-                        discord_js_1.PermissionFlagsBits.ManageChannels,
+                        PermissionFlagsBits.ViewChannel,
+                        PermissionFlagsBits.SendMessages,
+                        PermissionFlagsBits.ReadMessageHistory,
+                        PermissionFlagsBits.AttachFiles,
+                        PermissionFlagsBits.ManageChannels,
                     ],
                 },
             ],
@@ -84,21 +79,21 @@ async function handleTicketModal(interaction) {
             throw new Error('Impossible de créer le salon de ticket');
         }
         // Embed de présentation du ticket
-        const ticketEmbed = new discord_js_1.EmbedBuilder()
+        const ticketEmbed = new EmbedBuilder()
             .setTitle(`🎫 Ticket #${ticketChannel.name.split('-')[1]}`)
-            .setColor(config_js_1.COLORS.info)
+            .setColor(COLORS.info)
             .addFields({ name: '👤 Utilisateur', value: `${interaction.user.tag} (${interaction.user.id})`, inline: true }, { name: '📅 Date', value: new Date().toLocaleDateString('fr-FR'), inline: true }, { name: '🏷️ Sujet', value: subject, inline: false })
             .setDescription(description)
             .setFooter({ text: 'Utilisez les boutons ci-dessous pour gérer ce ticket' });
         // Boutons d'action pour le support
-        const actionRow = new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder()
+        const actionRow = new ActionRowBuilder().addComponents(new ButtonBuilder()
             .setCustomId(`ticket_close_${userId}`)
             .setLabel('🔒 Fermer le ticket')
-            .setStyle(discord_js_1.ButtonStyle.Danger)
-            .setEmoji('🔒'), new discord_js_1.ButtonBuilder()
+            .setStyle(ButtonStyle.Danger)
+            .setEmoji('🔒'), new ButtonBuilder()
             .setCustomId(`ticket_claim_${userId}`)
             .setLabel('✋ Prendre en charge')
-            .setStyle(discord_js_1.ButtonStyle.Success)
+            .setStyle(ButtonStyle.Success)
             .setEmoji('✋'));
         // Envoyer l'embed dans le salon du ticket
         await ticketChannel.send({
@@ -107,15 +102,15 @@ async function handleTicketModal(interaction) {
             components: [actionRow]
         });
         // Notifier le rôle support
-        await ticketChannel.send(`<@&${config_js_1.config.roles.support}> Nouveau ticket !`);
+        await ticketChannel.send(`<@&${config.roles.support}> Nouveau ticket !`);
         // Log dans le salon des logs
-        const logEmbed = new discord_js_1.EmbedBuilder()
+        const logEmbed = new EmbedBuilder()
             .setTitle('🎫 Nouveau ticket créé')
-            .setColor(config_js_1.COLORS.success)
+            .setColor(COLORS.success)
             .addFields({ name: '👤 Utilisateur', value: `${interaction.user.tag}`, inline: true }, { name: '📝 Sujet', value: subject, inline: true }, { name: '🔗 Salon', value: `${ticketChannel}`, inline: false })
             .setDescription(description.substring(0, 200) + (description.length > 200 ? '...' : ''))
             .setTimestamp();
-        const logChannel = interaction.guild?.channels.cache.get(config_js_1.config.channels.ticketLog);
+        const logChannel = interaction.guild?.channels.cache.get(config.channels.ticketLog);
         if (logChannel && logChannel.isTextBased()) {
             await logChannel.send({ embeds: [logEmbed] });
         }
@@ -134,24 +129,24 @@ async function handleTicketModal(interaction) {
     }
 }
 // Gérer la fermeture du ticket
-async function handleTicketClose(interaction, ticketUserId) {
+export async function handleTicketClose(interaction, ticketUserId) {
     try {
         const channel = interaction.channel;
         if (!channel || !channel.isTextBased()) {
             throw new Error('Salon invalide');
         }
         // Demander la raison de fermeture
-        const modal = new discord_js_1.ModalBuilder()
+        const modal = new ModalBuilder()
             .setCustomId(`close_ticket_modal_${ticketUserId}`)
             .setTitle('🔒 Fermer le ticket');
-        const reasonInput = new discord_js_1.TextInputBuilder()
+        const reasonInput = new TextInputBuilder()
             .setCustomId('close_reason')
             .setLabel('Raison de la fermeture')
             .setPlaceholder('Pourquoi fermez-vous ce ticket ?')
-            .setStyle(discord_js_1.TextInputStyle.Paragraph)
+            .setStyle(TextInputStyle.Paragraph)
             .setRequired(true)
             .setMaxLength(500);
-        modal.addComponents(new discord_js_1.ActionRowBuilder().addComponents(reasonInput));
+        modal.addComponents(new ActionRowBuilder().addComponents(reasonInput));
         await interaction.showModal(modal);
     }
     catch (error) {
@@ -159,7 +154,7 @@ async function handleTicketClose(interaction, ticketUserId) {
     }
 }
 // Confirmer la fermeture du ticket
-async function confirmTicketClose(interaction, ticketUserId) {
+export async function confirmTicketClose(interaction, ticketUserId) {
     const reason = interaction.fields.getTextInputValue('close_reason');
     const channel = interaction.channel;
     try {
@@ -167,20 +162,20 @@ async function confirmTicketClose(interaction, ticketUserId) {
             throw new Error('Salon invalide');
         }
         // Embed de fermeture
-        const closeEmbed = new discord_js_1.EmbedBuilder()
+        const closeEmbed = new EmbedBuilder()
             .setTitle('🔒 Ticket fermé')
-            .setColor(config_js_1.COLORS.error)
+            .setColor(COLORS.error)
             .addFields({ name: '👤 Fermé par', value: `${interaction.user.tag}`, inline: true }, { name: '📅 Date', value: new Date().toLocaleDateString('fr-FR'), inline: true }, { name: '📝 Raison', value: reason, inline: false })
             .setTimestamp();
         // Envoyer l'embed de fermeture dans le salon du ticket
         await channel.send({ embeds: [closeEmbed] });
         // Log dans le salon des logs
-        const logEmbed = new discord_js_1.EmbedBuilder()
+        const logEmbed = new EmbedBuilder()
             .setTitle('🔒 Ticket fermé')
-            .setColor(config_js_1.COLORS.warning)
+            .setColor(COLORS.warning)
             .addFields({ name: '👤 Fermé par', value: `${interaction.user.tag}`, inline: true }, { name: '📝 Raison', value: reason, inline: false }, { name: '🔗 Salon', value: `${channel}`, inline: true })
             .setTimestamp();
-        const logChannel = interaction.guild?.channels.cache.get(config_js_1.config.channels.ticketLog);
+        const logChannel = interaction.guild?.channels.cache.get(config.channels.ticketLog);
         if (logChannel && logChannel.isTextBased()) {
             await logChannel.send({ embeds: [logEmbed] });
         }
@@ -206,4 +201,3 @@ async function confirmTicketClose(interaction, ticketUserId) {
         console.error('❌ Erreur confirmation fermeture ticket:', error);
     }
 }
-//# sourceMappingURL=ticket-enhanced.js.map

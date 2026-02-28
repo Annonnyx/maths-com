@@ -30,16 +30,16 @@ export interface MultiplayerGame {
     id: string;
     username: string;
     displayName: string | null;
-    multiplayerElo: number;
-    multiplayerRankClass: string;
+    elo: number;
+    rankClass: string;
     isOnline: boolean;
   };
   player2?: {
     id: string;
     username: string;
     displayName: string | null;
-    multiplayerElo: number;
-    multiplayerRankClass: string;
+    elo: number;
+    rankClass: string;
     isOnline: boolean;
   };
   questions?: any[];

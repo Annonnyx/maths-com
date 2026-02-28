@@ -239,11 +239,41 @@ export async function GET(request: Request) {
       }
     });
     
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    
+    // Vérifier si la liaison Discord est trop ancienne (plus de 30 jours)
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const isLinkExpired = user.discordLinkedAt && new Date(user.discordLinkedAt) < thirtyDaysAgo;
+    
+    // Si la liaison est expirée, la supprimer automatiquement
+    if (isLinkExpired) {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+          discordId: null,
+          discordUsername: null,
+          discordLinkedAt: null,
+        }
+      });
+      
+      return NextResponse.json({
+        linked: false,
+        discordId: null,
+        discordUsername: null,
+        linkedAt: null,
+        expired: true,
+        message: 'La liaison Discord a expiré. Veuillez vous reconnecter.'
+      });
+    }
+    
     return NextResponse.json({
-      linked: !!user?.discordId,
-      discordId: user?.discordId,
-      discordUsername: user?.discordUsername,
-      linkedAt: user?.discordLinkedAt,
+      linked: !!user.discordId,
+      discordId: user.discordId,
+      discordUsername: user.discordUsername,
+      linkedAt: user.discordLinkedAt,
+      expired: false
     });
     
   } catch (error) {

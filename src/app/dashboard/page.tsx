@@ -13,12 +13,13 @@ import {
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS, RankClass } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
+import TeacherClassManager from '@/components/TeacherClassManager';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const { profile, isLoading, error } = useUserProfile();
-  const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'history'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'history' | 'class'>('overview');
 
   // Redirect to login if not authenticated (fallback if middleware fails)
   useEffect(() => {
@@ -427,6 +428,18 @@ export default function DashboardPage() {
 
           {/* Right Column */}
           <div className="space-y-6">
+            {/* Teacher Class Section */}
+            {profile?.user?.isTeacher && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="p-6 bg-[#12121a] rounded-2xl border border-border"
+              >
+                <TeacherClassManager />
+              </motion.div>
+            )}
+            
             {/* Ad Sidebar */}
             <AdUnit type="sidebar" className="mb-6 transform scale-75 opacity-70" />
             

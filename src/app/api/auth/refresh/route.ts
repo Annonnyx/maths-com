@@ -15,15 +15,12 @@ export async function POST(req: NextRequest) {
       where: { email: session.user.email },
       select: {
         id: true,
-        email: true,
         username: true,
         displayName: true,
         elo: true,
         rankClass: true,
         bestElo: true,
         bestRankClass: true,
-        currentStreak: true,
-        bestStreak: true,
         hasCompletedOnboarding: true
       }
     });

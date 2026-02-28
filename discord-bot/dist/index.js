@@ -1,28 +1,26 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const client_js_1 = require("./client.js");
-const config_js_1 = require("./config.js");
-const commandLoader_js_1 = require("./handlers/commandLoader.js");
-const eventLoader_js_1 = require("./handlers/eventLoader.js");
-const server_js_1 = require("./api/server.js");
-const cronJobs_js_1 = require("./handlers/cronJobs.js");
+import { client } from './client.js';
+import { config } from './config.js';
+import { loadCommands } from './handlers/commandLoader.js';
+import { loadEvents } from './handlers/eventLoader.js';
+import { startApiServer } from './api/server.js';
+import { startCronJobs } from './handlers/cronJobs.js';
 async function main() {
     console.log('🚀 Démarrage du bot Maths-App...');
     try {
         // Charger les commandes
-        await (0, commandLoader_js_1.loadCommands)();
+        await loadCommands();
         console.log('✅ Commandes chargées');
         // Charger les events
-        await (0, eventLoader_js_1.loadEvents)();
+        await loadEvents();
         console.log('✅ Events chargés');
         // Démarrer le serveur API (pour communiquer avec le site)
-        (0, server_js_1.startApiServer)(config_js_1.config.api.port);
-        console.log(`✅ API démarrée sur le port ${config_js_1.config.api.port}`);
+        startApiServer(config.api.port);
+        console.log(`✅ API démarrée sur le port ${config.api.port}`);
         // Démarrer les cron jobs (classements mensuels, etc.)
-        (0, cronJobs_js_1.startCronJobs)();
+        startCronJobs();
         console.log('✅ Cron jobs démarrés');
         // Connexion à Discord
-        await client_js_1.client.login(config_js_1.config.discord.token);
+        await client.login(config.discord.token);
         console.log('✅ Connecté à Discord');
     }
     catch (error) {
@@ -41,8 +39,7 @@ process.on('uncaughtException', (error) => {
 // Arrêt gracieux
 process.on('SIGINT', async () => {
     console.log('\n👋 Arrêt du bot...');
-    await client_js_1.client.destroy();
+    await client.destroy();
     process.exit(0);
 });
 main();
-//# sourceMappingURL=index.js.map

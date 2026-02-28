@@ -1,0 +1,7 @@
+import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+declare const _default: {
+    data: SlashCommandBuilder;
+    execute(interaction: ChatInputCommandInteraction): Promise<import("discord.js").Message<boolean>>;
+};
+export default _default;
+//# sourceMappingURL=close-ticket.d.ts.map

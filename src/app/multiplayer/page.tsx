@@ -3,16 +3,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Trophy, Users, Clock, Zap, Target, Search, 
-  XCircle, CheckCircle, History, Swords, UserPlus
+  XCircle, CheckCircle, History, Swords, UserPlus, QrCode, Copy
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
 import { AdUnit } from '@/components/AdUnit';
 import { TimeControl, GameType } from '@/lib/multiplayer';
 import { TIME_CONTROLS } from '@/lib/multiplayer';
 import { supabase } from '@/lib/supabase';
+import QRCode from 'qrcode';
 
 interface Game {
   id: string;
@@ -55,6 +57,7 @@ interface Friend {
 export default function MultiplayerPage() {
   const { data: session } = useSession();
   const { playSound } = useSound();
+  const router = useRouter();
   
   const [game, setGame] = useState<Game | null>(null);
   const [searching, setSearching] = useState(false);
@@ -66,6 +69,14 @@ export default function MultiplayerPage() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [showFriends, setShowFriends] = useState(false);
   const [challenging, setChallenging] = useState<string | null>(null);
+  
+  // États pour le système Kahoot
+  const [showCreateGame, setShowCreateGame] = useState(false);
+  const [gameCode, setGameCode] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [createdSession, setCreatedSession] = useState<any>(null);
+  const [lobbyPlayers, setLobbyPlayers] = useState<any[]>([]);
 
   useEffect(() => {
     if (session && showFriends) {
@@ -216,6 +227,80 @@ export default function MultiplayerPage() {
     }
   };
 
+  // Fonctions pour le système Kahoot
+  const createGame = async () => {
+    if (!session?.user?.id) return;
+    
+    setIsCreating(true);
+    try {
+      const response = await fetch('/api/game/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ maxPlayers: 20 })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setCreatedSession(data.session);
+        setGameCode(data.session.code);
+        
+        // Générer le QR code
+        const qrDataUrl = await QRCode.toDataURL(data.joinUrl);
+        setQrCodeUrl(qrDataUrl);
+        
+        // S'abonner aux updates en temps réel du lobby
+        const channel = supabase
+          .channel(`game_session_${data.session.id}`)
+          .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'game_players' },
+            (payload: any) => {
+              if (payload.eventType === 'INSERT') {
+                setLobbyPlayers(prev => [...prev, payload.new]);
+              } else if (payload.eventType === 'UPDATE') {
+                setLobbyPlayers(prev => 
+                  prev.map(p => p.id === payload.new.id ? { ...p, ...payload.new } : p)
+                );
+              }
+            }
+          )
+          .subscribe();
+
+        playSound('click');
+      } else {
+        setError(data.error || 'Erreur lors de la création');
+      }
+    } catch (error) {
+      console.error('Error creating game:', error);
+      setError('Erreur de connexion');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const copyGameCode = () => {
+    navigator.clipboard.writeText(gameCode);
+    playSound('click');
+  };
+
+  const startKahootGame = async () => {
+    if (!createdSession || lobbyPlayers.length < 2) return;
+    
+    try {
+      const response = await fetch('/api/game/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: createdSession.id })
+      });
+      
+      if (response.ok) {
+        window.location.href = `/multiplayer/game/${createdSession.id}`;
+      }
+    } catch (error) {
+      console.error('Error starting game:', error);
+    }
+  };
+
   useEffect(() => {
     const handlePageLeave = () => {
       if (searching) {
@@ -334,7 +419,196 @@ export default function MultiplayerPage() {
 
         <AdUnit type="inline" className="my-6" />
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Mode Kahoot */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl p-8 text-white"
+            >
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Mode Kahoot</h2>
+                  <p className="text-purple-100">Parties en direct avec code</p>
+                </div>
+              </div>
+              
+              <p className="text-purple-100 mb-6">
+                Crée des parties multijoueurs style Kahoot avec codes d'accès uniques. 
+                Parfait pour les salles de classe et les événements !
+              </p>
+
+              <div className="space-y-4">
+                <button
+                  onClick={() => setShowCreateGame(true)}
+                  className="w-full py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
+                >
+                  Créer une partie Kahoot
+                </button>
+                
+                <button
+                  onClick={() => router.push('/multiplayer/join')}
+                  className="w-full py-3 bg-purple-700 hover:bg-purple-800 text-white rounded-lg font-semibold transition-colors"
+                >
+                  Rejoindre avec un code
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Mode 1v1 existant */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl p-8 text-white"
+            >
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Swords className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Mode 1v1</h2>
+                  <p className="text-blue-100">Duels classiques</p>
+                </div>
+              </div>
+              
+              <p className="text-blue-100 mb-6">
+                Affronte d'autres joueurs dans des duels 1v1 chronométrés. 
+                Gagne des points et améliore ton classement !
+              </p>
+
+              <div className="space-y-4">
+                <button
+                  onClick={() => router.push('/multiplayer/random')}
+                  className="w-full py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                >
+                  Joueur aléatoire
+                </button>
+                
+                <button
+                  onClick={() => router.push('/friends')}
+                  className="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold transition-colors"
+                >
+                  Défier un ami
+                </button>
+              </div>
+            </motion.div>
+          </div>
+
+        {/* Section Créer une partie Kahoot */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <div className="bg-gradient-to-br from-purple-500/20 to-indigo-600/20 rounded-2xl border border-purple-500/30 p-8">
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+              <QrCode className="w-8 h-8 text-purple-400" />
+              Créer une partie
+            </h2>
+            
+            {!createdSession ? (
+              <div className="text-center">
+                <p className="text-muted-foreground mb-6">
+                  Crée une partie multijoueur style Kahoot et invite tes amis avec le code !
+                </p>
+                <button
+                  onClick={createGame}
+                  disabled={isCreating || !session}
+                  className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3"
+                >
+                  {isCreating ? (
+                    <>
+                      <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Création en cours...
+                    </>
+                  ) : (
+                    <>
+                      <QrCode className="w-6 h-6" />
+                      Créer une partie
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Code et QR Code */}
+                <div className="text-center p-6 bg-card rounded-xl border border-border">
+                  <h3 className="font-semibold mb-4">Code de la partie</h3>
+                  <div className="text-4xl font-mono font-bold tracking-wider text-purple-400 mb-4">
+                    {gameCode}
+                  </div>
+                  <div className="flex items-center justify-center gap-4 mb-4">
+                    <button
+                      onClick={copyGameCode}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <Copy className="w-4 h-4" />
+                      Copier
+                    </button>
+                    <a
+                      href={`/multiplayer/join?code=${gameCode}`}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <Users className="w-4 h-4" />
+                      Rejoindre
+                    </a>
+                  </div>
+                  
+                  {qrCodeUrl && (
+                    <div className="mt-4">
+                      <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32 mx-auto border-2 border-white rounded-lg" />
+                      <p className="text-sm text-muted-foreground mt-2">Scannez pour rejoindre</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Lobby des joueurs */}
+                <div className="p-6 bg-card rounded-xl border border-border">
+                  <h3 className="font-semibold mb-4">
+                    Lobby ({lobbyPlayers.length}/20 joueurs)
+                  </h3>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {lobbyPlayers.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-4">
+                        En attente de joueurs...
+                      </p>
+                    ) : (
+                      lobbyPlayers.map((player) => (
+                        <div key={player.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-sm font-bold text-white">
+                              {player.user?.username?.charAt(0)?.toUpperCase() || '?'}
+                            </div>
+                            <span>{player.user?.displayName || player.user?.username || 'Joueur'}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">{player.score || 0} pts</span>
+                            {player.is_ready && (
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Bouton Lancer */}
+                <button
+                  onClick={startKahootGame}
+                  disabled={lobbyPlayers.length < 2}
+                  className="w-full py-4 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3"
+                >
+                  <Zap className="w-6 h-6" />
+                  {lobbyPlayers.length < 2 ? `Attendez ${2 - lobbyPlayers.length} joueur(s)...` : 'Lancer la partie'}
+                </button>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <div className="bg-gradient-to-br from-card to-muted rounded-2xl border border-border p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
               <Zap className="w-8 h-8 text-purple-400" />

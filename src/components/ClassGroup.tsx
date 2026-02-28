@@ -56,12 +56,7 @@ interface GroupTestModeProps {
 function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
   const [phase, setPhase] = useState<'waiting' | 'question' | 'leaderboard' | 'results'>('waiting');
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [questions] = useState([
-    { question: '2 × 15 = ?', options: ['25', '30', '28', '32'], correct: 1 },
-    { question: '7² = ?', options: ['45', '49', '56', '42'], correct: 1 },
-    { question: '125 ÷ 5 = ?', options: ['25', '20', '30', '15'], correct: 0 },
-    { question: '3 + 7 × 2 = ?', options: ['20', '17', '13', '23'], correct: 1 },
-  ]);
+  const [questions, setQuestions] = useState<Array<{ question: string; options: string[]; correct: number }>>([]);
   const [scores, setScores] = useState<Record<string, { score: number; answers: number[] }>>(() => {
     const initial: Record<string, { score: number; answers: number[] }> = {};
     members.forEach(m => {
@@ -71,6 +66,35 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
   });
   const [timeLeft, setTimeLeft] = useState(10);
   const [answered, setAnswered] = useState(false);
+
+  // Generate questions using the new generators
+  useEffect(() => {
+    const generateQuestions = async () => {
+      try {
+        const { QuestionGeneratorFactory } = await import('@/lib/question-generators');
+        const generatedQuestions = QuestionGeneratorFactory.generateMixedQuestions(3, 4);
+        
+        const formattedQuestions = generatedQuestions.map(q => ({
+          question: q.question,
+          options: [...q.answers],
+          correct: q.answers.indexOf(q.correct)
+        }));
+
+        setQuestions(formattedQuestions);
+      } catch (error) {
+        console.error('Error generating questions:', error);
+        // Fallback to simple questions
+        setQuestions([
+          { question: '2 × 15 = ?', options: ['25', '30', '28', '32'], correct: 1 },
+          { question: '7² = ?', options: ['45', '49', '56', '42'], correct: 1 },
+          { question: '125 ÷ 5 = ?', options: ['25', '20', '30', '15'], correct: 0 },
+          { question: '3 + 7 × 2 = ?', options: ['20', '17', '13', '23'], correct: 1 },
+        ]);
+      }
+    };
+
+    generateQuestions();
+  }, []);
 
   useEffect(() => {
     if (phase === 'question' && timeLeft > 0 && !answered) {

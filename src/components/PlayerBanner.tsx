@@ -90,7 +90,7 @@ export function PlayerBanner({ player, isOpponent = false, showBadges = true }: 
           {badges.slice(0, 3).map((badge, index) => (
             <div
               key={badge.id}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg animate-pulse"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-lg md:text-xl shadow-lg animate-pulse flex-shrink-0"
               style={{ 
                 backgroundColor: badge.color,
                 animationDelay: `${index * 200}ms`,
@@ -111,8 +111,8 @@ export function PlayerBanner({ player, isOpponent = false, showBadges = true }: 
         </div>
 
         {/* Info */}
-        <div className={`${isOpponent ? 'text-right' : ''}`}>
-          <h3 className="text-xl font-bold text-foreground drop-shadow-md">
+        <div className={`${isOpponent ? 'text-right' : ''} min-w-0 flex-1`}>
+          <h3 className="text-xl font-bold text-foreground drop-shadow-md truncate max-w-[200px]">
             {player.displayName || player.username}
           </h3>
           <div className={`flex items-center gap-2 text-sm text-foreground/90 ${isOpponent ? 'justify-end' : ''}`}>

@@ -1,18 +1,18 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
 declare const _default: {
     data: SlashCommandBuilder;
-    execute(interaction: ChatInputCommandInteraction): Promise<void>;
+    execute(interaction: ChatInputCommandInteraction): Promise<import("discord.js").Message<boolean>>;
 };
 export default _default;
-export declare function verifyLinkCode(code: string): {
+export declare function verifyLinkCode(code: string, supabaseUserId: string): Promise<{
     valid: boolean;
     error: string;
-    discordId?: undefined;
-    discordUsername?: undefined;
+    discordUserId?: undefined;
+    message?: undefined;
 } | {
     valid: boolean;
-    discordId: string;
-    discordUsername: string;
+    discordUserId: any;
+    message: string;
     error?: undefined;
-};
+}>;
 //# sourceMappingURL=link.d.ts.map

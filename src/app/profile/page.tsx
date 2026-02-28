@@ -7,14 +7,17 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useBadges } from '@/hooks/useBadges';
+import { useTeacherRequest } from '@/hooks/useTeacherRequest';
+import JoinClassButton from '@/components/JoinClassButton';
 import { 
   Trophy, User, Settings, Bell, Shield, LogOut, 
   ChevronRight, Edit2, Check, X, RotateCcw, Users, Zap, Target, Crown, Medal,
-  Palette, Image as ImageIcon, Star, Award, Swords, Volume2
+  Palette, Image as ImageIcon, Star, Award, Swords, Volume2, MessageSquare, Clock
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
 import { useTheme } from '@/contexts/ThemeContext';
+import { DiscordLinkModal } from '@/components/DiscordLinkModal';
 
 // Mock user data - will be replaced with API calls
 const DEFAULT_PREFERENCES = {
@@ -30,6 +33,7 @@ function ProfileContent() {
   const { data: session } = useSession();
   const { profile, isLoading, error, refetch } = useUserProfile();
   const { badges, isLoading: badgesLoading } = useBadges(profile?.user?.id);
+  const { request: teacherRequest, isLoading: teacherRequestLoading, error: teacherRequestError, refetch: refetchTeacherRequest } = useTeacherRequest();
   
   // Get tab from URL parameter
   const urlTab = searchParams.get('tab');
@@ -55,6 +59,20 @@ function ProfileContent() {
   // Use real preferences hooks
   const { preferences: userPrefs, setPreferences: setUserPrefs } = useUserPreferences();
   const { theme, toggleTheme } = useTheme();
+  
+  // Discord link state
+  const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
+  const [isDiscordLinked, setIsDiscordLinked] = useState(false);
+
+  // Teacher request form state
+  const [showTeacherRequestForm, setShowTeacherRequestForm] = useState(false);
+  const [teacherFormData, setTeacherFormData] = useState({
+    name: '',
+    school: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmittingTeacherRequest, setIsSubmittingTeacherRequest] = useState(false);
 
   // Initialize banner state from profile data
   useEffect(() => {
@@ -160,6 +178,39 @@ function ProfileContent() {
 
   const user = profile.user;
   const stats = profile.statistics;
+
+  const submitTeacherRequest = async () => {
+    if (!teacherFormData.name || !teacherFormData.school || !teacherFormData.subject) {
+      alert('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+
+    setIsSubmittingTeacherRequest(true);
+    try {
+      const response = await fetch('/api/teacher-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(teacherFormData)
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert('✅ Votre demande a été envoyée avec succès ! Elle sera examinée par notre équipe.');
+        setShowTeacherRequestForm(false);
+        setTeacherFormData({ name: '', school: '', subject: '', message: '' });
+        refetchTeacherRequest();
+      } else {
+        alert('❌ Erreur: ' + (data.error || 'Une erreur est survenue lors de l\'envoi de votre demande.'));
+      }
+    } catch (error) {
+      console.error('Error submitting teacher request:', error);
+      alert('❌ Erreur réseau lors de l\'envoi de votre demande.');
+    } finally {
+      setIsSubmittingTeacherRequest(false);
+    }
+  };
 
   const getRankColor = (rank: string) => {
     const tier = rank.charAt(0);
@@ -495,6 +546,120 @@ function ProfileContent() {
               <p className="text-2xl font-bold text-orange-400">{profile?.user?.bestStreak} 🔥</p>
             </div>
           </div>
+
+          {/* Discord Link Section */}
+          <div className="p-6 bg-card rounded-2xl border border-border">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-indigo-400" />
+              Intégration Discord
+            </h3>
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-indigo-500/20 rounded-full flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5 text-indigo-400" />
+                </div>
+                <div>
+                  <p className="font-medium">
+                    {isDiscordLinked ? 'Compte Discord lié' : 'Lier mon compte Discord'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {isDiscordLinked 
+                      ? 'Ton compte est connecté au serveur Discord' 
+                      : 'Synchronise ton profil avec le Discord'
+                    }
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsDiscordModalOpen(true)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  isDiscordLinked
+                    ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                }`}
+              >
+                {isDiscordLinked ? 'Gérer' : 'Lier'}
+              </button>
+            </div>
+          </div>
+
+          {/* Teacher Request Section */}
+          {!profile?.user?.isTeacher && (
+            <div className="p-6 bg-card rounded-2xl border border-border">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Award className="w-5 h-5 text-green-400" />
+                Devenir professeur
+              </h3>
+              
+              {teacherRequestLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mr-3"></div>
+                  <span className="text-muted-foreground">Chargement...</span>
+                </div>
+              ) : teacherRequest ? (
+                // Show request status
+                <div className="p-4 bg-muted/50 rounded-xl">
+                  {teacherRequest.status === 'pending' && (
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Clock className="w-6 h-6 text-yellow-400" />
+                      </div>
+                      <p className="font-medium text-yellow-400">Demande en attente de validation</p>
+                      <p className="text-sm text-muted-foreground">
+                        Envoyée le {new Date(teacherRequest.createdAt).toLocaleDateString('fr-FR')}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {teacherRequest.status === 'rejected' && (
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <X className="w-6 h-6 text-red-400" />
+                      </div>
+                      <p className="font-medium text-red-400">Demande refusée</p>
+                      <p className="text-sm text-muted-foreground">
+                        Vous pouvez soumettre une nouvelle demande.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">
+                    Devenez professeur pour créer des classes, donner des exercices et suivre vos élèves.
+                  </p>
+                  <button
+                    onClick={() => setShowTeacherRequestForm(true)}
+                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2 mx-auto"
+                  >
+                    <Award className="w-4 h-4" />
+                    Devenir professeur
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Join Class Section */}
+          {!profile?.user?.isTeacher && (
+            <div className="p-6 bg-card rounded-2xl border border-border">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Users className="w-5 h-5 text-indigo-400" />
+                Rejoindre une classe
+              </h3>
+              
+              <JoinClassButton
+                teacherId="demo-teacher-id" // À remplacer avec l'ID du professeur cible
+                teacherName="Professeur Démo" // À remplacer avec le nom du professeur
+                acceptJoinRequests={true} // À remplacer avec la valeur réelle du professeur
+                onJoinRequestSent={() => {
+                  // Action à exécuter après l'envoi de la demande
+                  console.log('Demande d\'adhésion envoyée');
+                }}
+              />
+            </div>
+          )}
+              
 
           {/* Progress Section */}
           <div className="p-6 bg-card rounded-2xl border border-border">
@@ -1276,6 +1441,111 @@ function ProfileContent() {
 
         {/* Admin tab removed - use /admin page instead */}
       </main>
+
+      {/* Discord Link Modal */}
+      {isDiscordModalOpen && (
+        <DiscordLinkModal 
+          isOpen={isDiscordModalOpen} 
+          onClose={() => setIsDiscordModalOpen(false)}
+          onLinkSuccess={() => {
+            setIsDiscordLinked(true);
+            refetch();
+          }}
+        />
+      )}
+
+      {/* Teacher Request Modal */}
+      {showTeacherRequestForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-card rounded-2xl border border-border p-6 max-w-md w-full"
+          >
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Award className="w-5 h-5 text-green-400" />
+              Demande professeur
+            </h3>
+            
+            <form onSubmit={(e) => { e.preventDefault(); submitTeacherRequest(); }} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Nom complet *</label>
+                <input
+                  type="text"
+                  value={teacherFormData.name}
+                  onChange={(e) => setTeacherFormData(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-4 py-2 bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Jean Dupont"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Établissement scolaire *</label>
+                <input
+                  type="text"
+                  value={teacherFormData.school}
+                  onChange={(e) => setTeacherFormData(prev => ({ ...prev, school: e.target.value }))}
+                  className="w-full px-4 py-2 bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Lycée Victor Hugo"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Matière enseignée *</label>
+                <input
+                  type="text"
+                  value={teacherFormData.subject}
+                  onChange={(e) => setTeacherFormData(prev => ({ ...prev, subject: e.target.value }))}
+                  className="w-full px-4 py-2 bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Mathématiques"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Message de motivation</label>
+                <textarea
+                  value={teacherFormData.message}
+                  onChange={(e) => setTeacherFormData(prev => ({ ...prev, message: e.target.value }))}
+                  className="w-full px-4 py-2 bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  rows={4}
+                  placeholder="Expliquez pourquoi vous souhaitez devenir professeur sur Maths-App..."
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowTeacherRequestForm(false)}
+                  className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-muted-foreground rounded-lg font-medium transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingTeacherRequest}
+                  className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  {isSubmittingTeacherRequest ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Award className="w-4 h-4" />
+                      Envoyer la demande
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

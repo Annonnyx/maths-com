@@ -1,49 +1,71 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
-const config_js_1 = require("../config.js");
-// TODO: Connect to database to remove the link
-async function unlinkDiscordAccount(discordId) {
-    // En production: supprimer le lien dans la DB
-    // await db.users.update({ discordId: null }, { where: { discordId } });
-    return true;
-}
-exports.default = {
-    data: new discord_js_1.SlashCommandBuilder()
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { COLORS } from '../config.js';
+import { discordDb } from '../utils/supabase.js';
+import { removeAllMathsAppRoles } from '../utils/roles.js';
+export default {
+    data: new SlashCommandBuilder()
         .setName('unlink')
         .setDescription('Délier votre compte Discord de Maths-App'),
     async execute(interaction) {
         await interaction.deferReply({ ephemeral: true });
         try {
+            const discordUserId = interaction.user.id;
             // Vérifier si l'utilisateur est lié
-            // TODO: Check in database
-            const isLinked = true; // Mock
-            if (!isLinked) {
-                return interaction.editReply({
-                    content: '❌ Votre compte Discord n\'est pas lié à Maths-App.'
-                });
+            const existingLink = await discordDb.getUserLink(discordUserId);
+            if (!existingLink) {
+                const embed = new EmbedBuilder()
+                    .setTitle('❌ Aucun compte lié')
+                    .setDescription('Votre compte Discord n\'est pas lié à Maths-App.com.')
+                    .addFields({ name: '🔗 Pour lier votre compte', value: 'Utilisez la commande `/link` pour générer un code de liaison.', inline: false })
+                    .setColor(COLORS.warning)
+                    .setFooter({ text: 'Maths-App.com' })
+                    .setTimestamp();
+                return interaction.editReply({ embeds: [embed] });
             }
-            // Délier le compte
-            await unlinkDiscordAccount(interaction.user.id);
-            const embed = new discord_js_1.EmbedBuilder()
+            // Retirer tous les rôles Maths-App
+            await removeAllMathsAppRoles(discordUserId);
+            // Désactiver la liaison dans la base de données
+            await discordDb.deactivateUserLink(discordUserId);
+            const embed = new EmbedBuilder()
                 .setTitle('🔗 Compte délié')
                 .setDescription('Votre compte Discord a été délié de Maths-App.com avec succès.')
-                .setColor(config_js_1.COLORS.warning)
+                .setColor(COLORS.success)
                 .addFields({
-                name: 'Note',
+                name: '📊 Actions effectuées',
+                value: '• Suppression de la liaison dans la base de données\n• Retrait de tous les rôles Maths-App\n• Réinitialisation des permissions spéciales',
+                inline: false
+            }, { name: '🔄 Pour relier votre compte',
                 value: 'Vous pouvez relier votre compte à tout moment avec la commande `/link`',
                 inline: false
             })
-                .setFooter({ text: 'Maths-App.com' })
+                .setFooter({ text: 'Maths-App.com • Liaison supprimée' })
                 .setTimestamp();
             await interaction.editReply({ embeds: [embed] });
+            // Optionnel: Envoyer un message de confirmation en DM
+            try {
+                const dmEmbed = new EmbedBuilder()
+                    .setTitle('🔔 Confirmation de déliaison')
+                    .setDescription('Votre compte Discord a été délié de Maths-App.com.\n\nSi vous n\'êtes pas à l\'origine de cette action, veuillez sécuriser votre compte.')
+                    .setColor(COLORS.warning)
+                    .setFooter({ text: 'Maths-App.com • Sécurité' })
+                    .setTimestamp();
+                await interaction.user.send({ embeds: [dmEmbed] });
+            }
+            catch (dmError) {
+                // Ignorer si les DM sont fermés
+                console.log('Could not send DM confirmation (DMs closed)');
+            }
         }
         catch (error) {
             console.error('Error unlinking account:', error);
-            await interaction.editReply({
-                content: '❌ Une erreur est survenue lors du déliage de votre compte.'
-            });
+            const errorEmbed = new EmbedBuilder()
+                .setTitle('❌ Erreur')
+                .setDescription('Une erreur est survenue lors du déliage de votre compte.')
+                .addFields({ name: 'Détails', value: 'Veuillez réessayer plus tard ou contacter un administrateur.', inline: false })
+                .setColor(COLORS.error)
+                .setFooter({ text: 'Maths-App.com' })
+                .setTimestamp();
+            await interaction.editReply({ embeds: [errorEmbed] });
         }
     }
 };
-//# sourceMappingURL=unlink.js.map

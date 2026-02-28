@@ -237,7 +237,7 @@ export class AchievementService {
     // Get top multiplayer player of the month
     const topMultiplayerPlayer = await prisma.user.findFirst({
       orderBy: {
-        multiplayerElo: 'desc'
+        elo: 'desc'
       },
       take: 1
     });

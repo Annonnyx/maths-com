@@ -39,8 +39,8 @@ export async function GET(
             id: true,
             username: true,
             displayName: true,
-            multiplayerElo: true,
-            multiplayerRankClass: true
+            elo: true,
+            rankClass: true
           }
         },
         player2: {
@@ -48,8 +48,8 @@ export async function GET(
             id: true,
             username: true,
             displayName: true,
-            multiplayerElo: true,
-            multiplayerRankClass: true
+            elo: true,
+            rankClass: true
           }
         },
         questions: true

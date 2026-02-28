@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendLinkDm = sendLinkDm;
-const discord_js_1 = require("discord.js");
+import { EmbedBuilder } from 'discord.js';
 // Exporter la fonction pour l'importer dans server.ts
-async function sendLinkDm(discordId, code, websiteUsername) {
+export async function sendLinkDm(discordId, code, websiteUsername) {
     try {
         // Importer dynamiquement le client Discord pour éviter les problèmes de dépendances circulaires
         const { client } = await import('../client.js');
@@ -11,7 +8,7 @@ async function sendLinkDm(discordId, code, websiteUsername) {
             // Récupérer l'utilisateur Discord
             const user = await client.users.fetch(discordId);
             // Créer l'embed de vérification
-            const verifyEmbed = new discord_js_1.EmbedBuilder()
+            const verifyEmbed = new EmbedBuilder()
                 .setTitle('🔗 Vérification de compte Maths-Com')
                 .setColor('#5865F2')
                 .setDescription(`**Salut ${user.username} !**\n\nVous avez demandé à lier votre compte Discord avec votre profil Maths-Com.`)
@@ -67,4 +64,3 @@ async function sendLinkDm(discordId, code, websiteUsername) {
         };
     }
 }
-//# sourceMappingURL=sendLinkDm.js.map

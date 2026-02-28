@@ -38,6 +38,11 @@ interface Conversation {
 }
 
 export function NotificationChecker() {
+  // Éviter l'erreur pendant le SSR
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
   const { data: session } = useSession();
   const { addNotification } = useNotifications();
   const router = useRouter();

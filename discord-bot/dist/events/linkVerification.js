@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
-exports.default = {
-    name: discord_js_1.Events.MessageCreate,
+import { Events, EmbedBuilder } from 'discord.js';
+export default {
+    name: Events.MessageCreate,
     async execute(message) {
         // Ignorer les messages des bots
         if (message.author.bot)
@@ -32,7 +30,7 @@ exports.default = {
             const result = await response.json();
             if (result.valid) {
                 // Code valide - envoyer message de confirmation
-                const successEmbed = new discord_js_1.EmbedBuilder()
+                const successEmbed = new EmbedBuilder()
                     .setTitle('✅ Compte lié avec succès !')
                     .setColor('#00FF00')
                     .setDescription('Votre compte Discord est maintenant lié à votre profil Maths-Com.')
@@ -46,7 +44,7 @@ exports.default = {
             }
             else {
                 // Code invalide
-                const errorEmbed = new discord_js_1.EmbedBuilder()
+                const errorEmbed = new EmbedBuilder()
                     .setTitle('❌ Code invalide')
                     .setColor('#FF0000')
                     .setDescription('Le code que vous avez envoyé n\'est pas valide ou a expiré.')
@@ -60,7 +58,7 @@ exports.default = {
         }
         catch (error) {
             console.error('Erreur vérification liaison Discord:', error);
-            const errorEmbed = new discord_js_1.EmbedBuilder()
+            const errorEmbed = new EmbedBuilder()
                 .setTitle('⚠️ Erreur de vérification')
                 .setColor('#FFA500')
                 .setDescription('Une erreur s\'est produite lors de la vérification de votre code.')
@@ -71,4 +69,3 @@ exports.default = {
         }
     }
 };
-//# sourceMappingURL=linkVerification.js.map

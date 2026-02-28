@@ -1,11 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserRoles = updateUserRoles;
-exports.updateMonthlyTop1 = updateMonthlyTop1;
-exports.updateAllUserRoles = updateAllUserRoles;
-exports.ensureClassRolesExist = ensureClassRolesExist;
-const client_js_1 = require("../client.js");
-const config_js_1 = require("../config.js");
+import { client } from '../client.js';
+import { config } from '../config.js';
 // Mapping des rangs français vers les noms de rôles
 const CLASS_ROLES = {
     'CP': 'ROLE_CP',
@@ -22,25 +16,25 @@ const CLASS_ROLES = {
     'Tle': 'ROLE_TLE'
 };
 // Mettre à jour les rôles d'un utilisateur
-async function updateUserRoles(member, badges, elo, rank, frenchClass) {
+export async function updateUserRoles(member, badges, elo, rank, frenchClass) {
     const rolesToAdd = [];
     const rolesToRemove = [];
     // Rôle Top 1 Solo uniquement
-    const top1SoloRole = await member.guild.roles.fetch(config_js_1.config.roles.top1Solo);
+    const top1SoloRole = await member.guild.roles.fetch(config.roles.top1Solo);
     if (rank === 1) {
-        rolesToAdd.push(config_js_1.config.roles.top1Solo);
+        rolesToAdd.push(config.roles.top1Solo);
     }
     else {
-        rolesToRemove.push(config_js_1.config.roles.top1Solo);
+        rolesToRemove.push(config.roles.top1Solo);
     }
     // Rôle de classe française
     if (frenchClass && CLASS_ROLES[frenchClass]) {
-        const classRoleId = config_js_1.config.roles[CLASS_ROLES[frenchClass]];
+        const classRoleId = config.roles[CLASS_ROLES[frenchClass]];
         if (classRoleId) {
             rolesToAdd.push(classRoleId);
             // Retirer tous les autres rôles de classe
             Object.values(CLASS_ROLES).forEach(roleKey => {
-                const roleId = config_js_1.config.roles[roleKey];
+                const roleId = config.roles[roleKey];
                 if (roleId && roleId !== classRoleId) {
                     rolesToRemove.push(roleId);
                 }
@@ -61,16 +55,16 @@ async function updateUserRoles(member, badges, elo, rank, frenchClass) {
     }
 }
 // Mettre à jour le Top 1 mensuel (retirer l'ancien, donner au nouveau)
-async function updateMonthlyTop1(newTop1UserId) {
+export async function updateMonthlyTop1(newTop1UserId) {
     try {
-        const guild = await client_js_1.client.guilds.fetch(config_js_1.config.discord.guildId);
-        const top1Role = await guild.roles.fetch(config_js_1.config.roles.top1Solo);
+        const guild = await client.guilds.fetch(config.discord.guildId);
+        const top1Role = await guild.roles.fetch(config.roles.top1Solo);
         if (!top1Role) {
             console.error('❌ Rôle Top 1 non trouvé');
             return;
         }
         // Retirer le rôle à tous les membres qui l'ont actuellement
-        const currentTop1Members = guild.members.cache.filter(member => member.roles.cache.has(config_js_1.config.roles.top1Solo));
+        const currentTop1Members = guild.members.cache.filter(member => member.roles.cache.has(config.roles.top1Solo));
         for (const [_, member] of currentTop1Members) {
             await member.roles.remove(top1Role, 'Nouveau Top 1 mensuel');
             console.log(`🏆 Retrait rôle Top 1: ${member.displayName}`);
@@ -87,9 +81,9 @@ async function updateMonthlyTop1(newTop1UserId) {
     }
 }
 // Mettre à jour tous les utilisateurs
-async function updateAllUserRoles() {
+export async function updateAllUserRoles() {
     try {
-        const guild = await client_js_1.client.guilds.fetch(config_js_1.config.discord.guildId);
+        const guild = await client.guilds.fetch(config.discord.guildId);
         // Récupérer les données depuis l'API du site
         // TODO: Implement fetch from website API
         // const response = await fetch(`${config.website.apiUrl}/users/with-discord`);
@@ -108,7 +102,7 @@ async function updateAllUserRoles() {
     }
 }
 // Créer les rôles de classe s'ils n'existent pas
-async function ensureClassRolesExist(guild) {
+export async function ensureClassRolesExist(guild) {
     const classRoleColors = {
         'CP': 0x00ff00, // Vert
         'CE1': 0x32cd32, // Vert lime
@@ -134,7 +128,7 @@ async function ensureClassRolesExist(guild) {
                     hoist: true // Afficher séparément dans la liste
                 });
                 // Stocker l'ID dans la config
-                config_js_1.config.roles[roleKey] = role.id;
+                config.roles[roleKey] = role.id;
                 console.log(`✅ Rôle créé: ${className} (${role.id})`);
             }
             catch (error) {
@@ -142,8 +136,7 @@ async function ensureClassRolesExist(guild) {
             }
         }
         else {
-            config_js_1.config.roles[roleKey] = existingRole.id;
+            config.roles[roleKey] = existingRole.id;
         }
     }
 }
-//# sourceMappingURL=roleManager.js.map

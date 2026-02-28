@@ -1,0 +1,70 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.maths-app.com"
+        }
+      ],
+      "destination": "https://maths-app.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.maths-app.com"
+        }
+      ],
+      "destination": "https://maths-app.com/",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "maths-app.fr"
+        }
+      ],
+      "destination": "https://maths-app.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "maths-app.fr"
+        }
+      ],
+      "destination": "https://maths-app.com/",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.maths-app.fr"
+        }
+      ],
+      "destination": "https://maths-app.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.maths-app.fr"
+        }
+      ],
+      "destination": "https://maths-app.com/",
+      "permanent": true
+    }
+  ]
+}

@@ -1,14 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
-exports.default = {
-    name: discord_js_1.Events.MessageCreate,
+import { Events, ChannelType } from 'discord.js';
+export default {
+    name: Events.MessageCreate,
     async execute(message) {
         // Ignorer les messages des bots
         if (message.author.bot)
             return;
         // Gestion des tickets - Si le message est dans un salon de ticket
-        if (message.channel.type === discord_js_1.ChannelType.GuildText) {
+        if (message.channel.type === ChannelType.GuildText) {
             const channel = message.channel;
             // Vérifier si c'est un salon de ticket (commence par "ticket-")
             if (channel.name.startsWith('ticket-')) {
@@ -56,4 +54,3 @@ async function autoModerate(message) {
         }
     }
 }
-//# sourceMappingURL=messageCreate.js.map

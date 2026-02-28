@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
-const config_js_1 = require("../config.js");
-exports.default = {
-    data: new discord_js_1.SlashCommandBuilder()
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { config } from '../config.js';
+export default {
+    data: new SlashCommandBuilder()
         .setName('test-bot')
         .setDescription('Test complet des fonctionnalités du bot'),
     async execute(interaction) {
@@ -26,7 +24,7 @@ exports.default = {
         }
         // Test 2: API Site
         try {
-            const response = await fetch(`${config_js_1.config.website.apiUrl}/users`, {
+            const response = await fetch(`${config.website.apiUrl}/users`, {
                 method: 'GET',
                 headers: { 'User-Agent': 'Discord-Bot-Test' }
             });
@@ -43,7 +41,7 @@ exports.default = {
         }
         // Test 3: Base de données (via API)
         try {
-            const response = await fetch(`${config_js_1.config.website.apiUrl}/profile`, {
+            const response = await fetch(`${config.website.apiUrl}/profile`, {
                 method: 'GET',
                 headers: { 'User-Agent': 'Discord-Bot-Test' }
             });
@@ -60,9 +58,9 @@ exports.default = {
         }
         // Test 4: Salons Discord essentiels
         try {
-            const soloChannel = await interaction.client.channels.fetch(config_js_1.config.channels.leaderboardSolo);
-            const multiChannel = await interaction.client.channels.fetch(config_js_1.config.channels.leaderboardMulti);
-            const ticketCategory = await interaction.client.channels.fetch(config_js_1.config.channels.ticketCategory);
+            const soloChannel = await interaction.client.channels.fetch(config.channels.leaderboardSolo);
+            const multiChannel = await interaction.client.channels.fetch(config.channels.leaderboardMulti);
+            const ticketCategory = await interaction.client.channels.fetch(config.channels.ticketCategory);
             if (soloChannel && multiChannel && ticketCategory) {
                 tests.push('✅ Salons Discord OK');
                 passedTests++;
@@ -76,9 +74,9 @@ exports.default = {
         }
         // Test 5: Rôles Discord
         try {
-            const guild = await interaction.client.guilds.fetch(config_js_1.config.discord.guildId);
-            const top1Role = await guild.roles.fetch(config_js_1.config.roles.ROLE_TOP1_SOLO);
-            const supportRole = await guild.roles.fetch(config_js_1.config.roles.ROLE_SUPPORT);
+            const guild = await interaction.client.guilds.fetch(config.discord.guildId);
+            const top1Role = await guild.roles.fetch(config.roles.ROLE_TOP1_SOLO);
+            const supportRole = await guild.roles.fetch(config.roles.ROLE_SUPPORT);
             if (top1Role && supportRole) {
                 tests.push('✅ Rôles Discord OK');
                 passedTests++;
@@ -111,7 +109,7 @@ exports.default = {
             tests.push(`⚠️ Uptime Faible (${uptimeMinutes}min)`);
         }
         // Création de l'embed de résultats
-        const testEmbed = new discord_js_1.EmbedBuilder()
+        const testEmbed = new EmbedBuilder()
             .setTitle('🧪 Test Complet du Bot')
             .setColor(passedTests >= 6 ? '#00FF00' : passedTests >= 4 ? '#FFA500' : '#FF0000')
             .setDescription(tests.join('\n'))
@@ -148,4 +146,3 @@ exports.default = {
         await interaction.editReply({ embeds: [testEmbed] });
     }
 };
-//# sourceMappingURL=test-bot.js.map

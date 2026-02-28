@@ -32,6 +32,9 @@ export default function FriendsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'online' | 'pending'>('all');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRemoving, setIsRemoving] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     if (session) {
@@ -100,6 +103,7 @@ export default function FriendsPage() {
 
   const handleRemove = async (friendshipId: string) => {
     try {
+      setIsRemoving(friendshipId);
       const response = await fetch('/api/friends', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -108,9 +112,15 @@ export default function FriendsPage() {
       
       if (response.ok) {
         fetchFriends();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Erreur lors de la suppression');
       }
     } catch (error) {
       console.error('Error removing friend:', error);
+      alert('Erreur lors de la suppression');
+    } finally {
+      setIsRemoving(null);
     }
   };
 
@@ -119,6 +129,7 @@ export default function FriendsPage() {
     if (!searchQuery.trim()) return;
 
     try {
+      setIsAdding(true);
       const response = await fetch('/api/friends', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -137,6 +148,8 @@ export default function FriendsPage() {
     } catch (error) {
       console.error('Error adding friend:', error);
       alert('Erreur lors de l\'envoi');
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -222,10 +235,24 @@ export default function FriendsPage() {
             </div>
             <button
               type="submit"
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl font-semibold transition-colors flex items-center gap-2"
+              disabled={isAdding}
+              className={`px-6 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2 ${
+                isAdding 
+                  ? 'bg-gray-600 cursor-not-allowed' 
+                  : 'bg-green-600 hover:bg-green-700'
+              }`}
             >
-              <Send className="w-4 h-4" />
-              Envoyer
+              {isAdding ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Envoi...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Envoyer
+                </>
+              )}
             </button>
           </form>
         </motion.div>
@@ -398,10 +425,19 @@ export default function FriendsPage() {
                   
                   <button
                     onClick={() => handleRemove(friend.id)}
-                    className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                    disabled={isRemoving === friend.id}
+                    className={`p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100 ${
+                      isRemoving === friend.id 
+                        ? 'text-gray-400 cursor-not-allowed' 
+                        : 'text-gray-500 hover:text-red-400 hover:bg-red-500/10'
+                    }`}
                     title="Supprimer l'ami"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    {isRemoving === friend.id ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-5 h-5" />
+                    )}
                   </button>
                 </motion.div>
               ))

@@ -250,6 +250,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 }
 
 function NotificationToasts() {
+  // Éviter l'erreur pendant le SSR
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
   const { notifications, dismissNotification, markAsRead } = useNotification();
   const unreadNotifications = notifications.filter(n => !n.read).slice(0, 3);
 

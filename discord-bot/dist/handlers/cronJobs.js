@@ -1,21 +1,15 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.startCronJobs = startCronJobs;
-const node_cron_1 = __importDefault(require("node-cron"));
-const config_js_1 = require("../config.js");
-const discordActions_js_1 = require("../api/discordActions.js");
-const roleManager_js_1 = require("./roleManager.js");
-function startCronJobs() {
+import cron from 'node-cron';
+import { config } from '../config.js';
+import { publishLeaderboard } from '../api/discordActions.js';
+import { updateAllUserRoles } from './roleManager.js';
+export function startCronJobs() {
     // Classement mensuel automatique (1er du mois à midi)
-    node_cron_1.default.schedule(config_js_1.config.cron.monthlyLeaderboard, async () => {
+    cron.schedule(config.cron.monthlyLeaderboard, async () => {
         console.log('📅 Publication mensuelle du classement...');
         try {
-            await (0, discordActions_js_1.publishLeaderboard)('solo');
+            await publishLeaderboard('solo');
             await new Promise(resolve => setTimeout(resolve, 5000));
-            await (0, discordActions_js_1.publishLeaderboard)('multi');
+            await publishLeaderboard('multi');
             console.log('✅ Classements publiés');
         }
         catch (error) {
@@ -23,10 +17,10 @@ function startCronJobs() {
         }
     });
     // Vérification des rôles toutes les heures
-    node_cron_1.default.schedule(config_js_1.config.cron.roleCheck, async () => {
+    cron.schedule(config.cron.roleCheck, async () => {
         console.log('🔄 Vérification des rôles...');
         try {
-            await (0, roleManager_js_1.updateAllUserRoles)();
+            await updateAllUserRoles();
             console.log('✅ Rôles mis à jour');
         }
         catch (error) {
@@ -35,4 +29,3 @@ function startCronJobs() {
     });
     console.log('⏰ Cron jobs configurés');
 }
-//# sourceMappingURL=cronJobs.js.map

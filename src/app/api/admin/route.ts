@@ -56,9 +56,7 @@ export async function GET(req: NextRequest) {
           email: true,
           displayName: true,
           elo: true,
-          rankClass: true,
-          multiplayerElo: true,
-          multiplayerRankClass: true
+          rankClass: true
         },
         orderBy: { createdAt: 'desc' },
         take: 100
@@ -75,14 +73,12 @@ export async function GET(req: NextRequest) {
         where: { email: session.user.email },
         select: {
           id: true,
+          username: true,
+          displayName: true,
           elo: true,
           rankClass: true,
-          multiplayerElo: true,
-          multiplayerRankClass: true,
           bestElo: true,
-          bestRankClass: true,
-          bestMultiplayerElo: true,
-          bestMultiplayerRankClass: true
+          bestRankClass: true
         }
       });
       return NextResponse.json({ user });
@@ -150,9 +146,7 @@ export async function POST(req: NextRequest) {
         select: {
           id: true,
           elo: true,
-          rankClass: true,
-          multiplayerElo: true,
-          multiplayerRankClass: true
+          rankClass: true
         }
       });
 
@@ -298,11 +292,7 @@ export async function POST(req: NextRequest) {
           elo: 400,
           rankClass: 'F-',
           bestElo: 400,
-          bestRankClass: 'F-',
-          multiplayerElo: 400,
-          multiplayerRankClass: 'F-',
-          bestMultiplayerElo: 400,
-          bestMultiplayerRankClass: 'F-'
+          bestRankClass: 'F-'
         }
       });
 

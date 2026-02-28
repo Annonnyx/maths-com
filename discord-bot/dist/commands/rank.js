@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
-const config_js_1 = require("../config.js");
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { COLORS } from '../config.js';
 // TODO: Connect to actual database/API
 async function getUserStats(discordId) {
     // Simuler une réponse pour l'instant
@@ -19,8 +17,8 @@ async function getUserStats(discordId) {
         badges: ['streak_7', 'elo_1500', 'perfect_score']
     };
 }
-exports.default = {
-    data: new discord_js_1.SlashCommandBuilder()
+export default {
+    data: new SlashCommandBuilder()
         .setName('rank')
         .setDescription('Afficher votre classement ou celui d\'un autre joueur')
         .addUserOption(option => option
@@ -33,10 +31,10 @@ exports.default = {
         try {
             // Récupérer les stats (en production: depuis l'API)
             const stats = await getUserStats(targetUser.id);
-            const embed = new discord_js_1.EmbedBuilder()
+            const embed = new EmbedBuilder()
                 .setTitle(`📊 Profil de ${stats.username}`)
                 .setThumbnail(targetUser.displayAvatarURL({ size: 256 }))
-                .setColor(config_js_1.COLORS.primary)
+                .setColor(COLORS.primary)
                 .addFields({
                 name: '🎮 Solo',
                 value: `**ELO:** ${stats.elo}\n**Rang:** #${stats.rank}\n**Classe:** ${stats.rankClass.toUpperCase()}`,
@@ -90,4 +88,3 @@ exports.default = {
         }
     }
 };
-//# sourceMappingURL=rank.js.map

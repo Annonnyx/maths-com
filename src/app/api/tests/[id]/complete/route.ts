@@ -18,7 +18,7 @@ export async function POST(
 
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true }
+      select: { id: true, currentStreak: true, lastTestDate: true }
     });
 
     if (!currentUser) {
@@ -108,19 +108,19 @@ export async function POST(
       difficulties,
       isCorrectArray,
       currentElo: test.user.elo,
-      streak: test.user.currentStreak
+      streak: currentUser.currentStreak
     });
     
     const newElo = Math.max(0, test.user.elo + eloChange);
     const newRank = getRankFromElo(newElo);
 
     // Check streak
-    let newStreak = test.user.currentStreak;
+    let newStreak = currentUser.currentStreak;
     let isStreakTest = false;
     
     if (score >= 80) {
       // Check if this is consecutive day
-      const lastTest = test.user.lastTestDate;
+      const lastTest = currentUser.lastTestDate;
       const today = new Date();
       
       if (lastTest) {
@@ -165,19 +165,8 @@ export async function POST(
       data: {
         elo: newElo,
         rankClass: newRank,
-        bestElo: Math.max(test.user.bestElo, newElo),
-        bestRankClass: newElo > test.user.bestElo ? newRank : test.user.bestRankClass,
-        currentStreak: newStreak,
-        bestStreak: Math.max(test.user.bestStreak, newStreak),
-        lastTestDate: new Date(),
-        // Unlock operations based on new Elo
-        additionLevel: newElo >= 400 ? 1 : 0,
-        subtractionLevel: newElo >= 500 ? 1 : 0,
-        multiplicationLevel: newElo >= 600 ? 1 : 0,
-        divisionLevel: newElo >= 750 ? 1 : 0,
-        powerLevel: newElo >= 900 ? 1 : 0,
-        rootLevel: newElo >= 1050 ? 1 : 0,
-        factorizationLevel: newElo >= 1200 ? 1 : 0,
+        bestElo: Math.max(test.user.bestElo || 0, newElo),
+        bestRankClass: newElo > (test.user.bestElo || 0) ? newRank : (test.user.bestRankClass || 'F-')
       }
     });
 

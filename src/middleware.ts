@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('next-auth.session-token')?.value;
@@ -8,11 +9,33 @@ export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   
   // Public routes that don't require auth
-  const publicRoutes = ['/', '/login', '/register', '/leaderboard', '/courses'];
-  const isPublicRoute = publicRoutes.includes(pathname);
+  const publicRoutes = [
+    '/', 
+    '/login', 
+    '/register', 
+    '/leaderboard', 
+    '/courses',
+    '/multiplayer',
+    '/multiplayer/join',
+    '/multiplayer/history',
+    '/contact',
+    '/banner',
+    '/social',
+    '/api/auth/[...nextauth]',
+    '/robots.txt',
+    '/sitemap.xml'
+  ];
+  
+  // Static assets and API routes
+  const isPublicRoute = publicRoutes.includes(pathname) || 
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/robots.txt') ||
+    pathname.startsWith('/sitemap.xml') ||
+    pathname.match(/\.(png|jpg|jpeg|gif|svg|ico|css|js)$/);
   
   // Guest routes - accessible without auth but with limited functionality
-  const guestRoutes = ['/test', '/practice', '/courses'];
+  const guestRoutes = ['/test', '/practice'];
   const isGuestRoute = guestRoutes.some(route => pathname.startsWith(route));
   
   // If not authenticated and trying to access protected route (not guest), redirect to login
@@ -22,9 +45,28 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
   
-  // If authenticated and on login/register, redirect to dashboard
+  // If authenticated and on login/register, redirect based on user role
   if (isAuthenticated && (pathname === '/login' || pathname === '/register')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    try {
+      const decodedToken = getToken({ 
+        req: request,
+        secret: process.env.NEXTAUTH_SECRET 
+      });
+      const userRole = (decodedToken as any)?.role || 'user';
+      
+      // Redirect based on user role
+      let redirectUrl = '/dashboard';
+      if (userRole === 'admin') {
+        redirectUrl = '/admin';
+      } else if (userRole === 'teacher') {
+        redirectUrl = '/dashboard'; // Teachers go to dashboard (could be changed to specific teacher dashboard)
+      }
+      
+      return NextResponse.redirect(new URL(redirectUrl, request.url));
+    } catch (error) {
+      // If token decoding fails, redirect to dashboard
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
   }
   
   return NextResponse.next();
@@ -32,6 +74,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

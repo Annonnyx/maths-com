@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
-const config_js_1 = require("../config.js");
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { COLORS } from '../config.js';
 // TODO: Récupérer depuis l'API du site
 async function getLeaderboard(type) {
     // Mock data pour l'instant
@@ -18,8 +16,8 @@ async function getLeaderboard(type) {
         { rank: 10, username: 'TheoremTamer', elo: 2210, winRate: 68 },
     ];
 }
-exports.default = {
-    data: new discord_js_1.SlashCommandBuilder()
+export default {
+    data: new SlashCommandBuilder()
         .setName('leaderboard')
         .setDescription('Afficher le classement des meilleurs joueurs')
         .addStringOption(option => option
@@ -32,10 +30,10 @@ exports.default = {
         const type = interaction.options.getString('type') || 'solo';
         try {
             const leaderboard = await getLeaderboard(type);
-            const embed = new discord_js_1.EmbedBuilder()
+            const embed = new EmbedBuilder()
                 .setTitle(`${type === 'solo' ? '🎮' : '⚔️'} Classement ${type === 'solo' ? 'Solo' : 'Multijoueur'}`)
                 .setDescription('Les 10 meilleurs joueurs du mois')
-                .setColor(type === 'solo' ? config_js_1.COLORS.gold : config_js_1.COLORS.silver)
+                .setColor(type === 'solo' ? COLORS.gold : COLORS.silver)
                 .setTimestamp()
                 .setFooter({ text: 'Maths-App.com • Classement mensuel' });
             // Construire le classement
@@ -62,4 +60,3 @@ exports.default = {
         }
     }
 };
-//# sourceMappingURL=leaderboard.js.map

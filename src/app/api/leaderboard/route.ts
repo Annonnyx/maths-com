@@ -13,26 +13,22 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
-    const type = searchParams.get('type') || 'multiplayer'; // 'solo' or 'multiplayer'
     const timeFrame = searchParams.get('timeFrame') || 'all'; // 'week', 'month', 'all'
     const scope = searchParams.get('scope') || 'global'; // 'global' or 'friends'
 
     const skip = (page - 1) * limit;
 
-    // Get current user and their friends if needed
+    // Get current user
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: {
-        statistics: true,
-        multiplayerStatistics: true,
-        sentFriendships: scope === 'friends' ? {
-          where: { status: 'accepted' },
-          select: { user2Id: true }
-        } : false,
-        receivedFriendships: scope === 'friends' ? {
-          where: { status: 'accepted' },
-          select: { user1Id: true }
-        } : false
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        elo: true,
+        rankClass: true,
+        bestElo: true,
+        bestRankClass: true
       }
     });
 
@@ -40,36 +36,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Build friends filter if scope is 'friends'
-    let friendsFilter = {};
-    if (scope === 'friends') {
-      const friendIds = [
-        ...currentUser.sentFriendships.map(f => f.user2Id),
-        ...currentUser.receivedFriendships.map(f => f.user1Id)
-      ];
-      
-      if (friendIds.length === 0) {
-        return NextResponse.json({
-          leaderboard: [],
-          pagination: { page, limit, total: 0, totalPages: 0 },
-          userRank: 1,
-          currentUser: {
-            id: currentUser.id,
-            username: currentUser.username,
-            displayName: currentUser.displayName,
-            stats: {
-              currentElo: type === 'multiplayer' ? currentUser.multiplayerElo : currentUser.elo,
-              currentRank: type === 'multiplayer' ? currentUser.multiplayerRankClass : currentUser.rankClass,
-              totalGames: type === 'multiplayer' ? currentUser.multiplayerGames : (currentUser.statistics?.totalTests || 0)
-            }
-          }
-        });
-      }
-      
-      friendsFilter = { id: { in: friendIds } };
-    }
-
-    // Build where clause for time filtering
+    // Build filters
     let dateFilter = {};
     if (timeFrame === 'week') {
       const weekAgo = new Date();
@@ -81,49 +48,78 @@ export async function GET(req: NextRequest) {
       dateFilter = { lastTestDate: { gte: monthAgo } };
     }
 
-    // Get leaderboard data with statistics
-    const [leaderboard, total] = await Promise.all([
-      prisma.user.findMany({
+    let friendsFilter = {};
+    if (scope === 'friends') {
+      // Get user's friends
+      const friendships = await prisma.friendship.findMany({
         where: {
-          ...dateFilter,
-          ...friendsFilter,
-          // Only include users who have played at least one game
           OR: [
-            { statistics: { totalTests: { gt: 0 } } },
-            { multiplayerGames: { gt: 0 } }
-          ]
-        },
-        include: {
-          statistics: true,
-          multiplayerStatistics: true
-        },
-        orderBy: type === 'multiplayer' 
-          ? [{ multiplayerElo: 'desc' }, { multiplayerWins: 'desc' }]
-          : [{ elo: 'desc' }, { statistics: { totalTests: 'desc' } }],
-        skip,
-        take: limit
-      }),
-      prisma.user.count({
-        where: {
-          ...dateFilter,
-          ...friendsFilter,
-          OR: [
-            { statistics: { totalTests: { gt: 0 } } },
-            { multiplayerGames: { gt: 0 } }
-          ]
+            { user1Id: currentUser.id },
+            { user2Id: currentUser.id }
+          ],
+          status: 'accepted'
         }
-      })
-    ]);
+      });
+
+      const friendIds = friendships.map(f => 
+        f.user1Id === currentUser.id ? f.user2Id : f.user1Id
+      );
+
+      if (friendIds.length === 0) {
+        return NextResponse.json({
+          leaderboard: [],
+          pagination: { page, limit, total: 0, totalPages: 0 },
+          userRank: 1,
+          currentUser: {
+            id: currentUser.id,
+            username: currentUser.username,
+            displayName: currentUser.displayName,
+            stats: {
+              currentElo: currentUser.elo,
+              currentRank: currentUser.rankClass,
+              totalGames: 0
+            }
+          }
+        });
+      }
+      
+      friendsFilter = { id: { in: friendIds } };
+    }
+
+    // Get leaderboard data with statistics
+    const leaderboard = await prisma.user.findMany({
+      where: {
+        ...dateFilter,
+        ...friendsFilter,
+        statistics: {
+          totalTests: { gt: 0 }
+        }
+      },
+      include: {
+        statistics: true
+      },
+      orderBy: [
+        { elo: 'desc' }, 
+        { statistics: { totalTests: 'desc' } }
+      ],
+      skip,
+      take: limit
+    });
+
+    const total = await prisma.user.count({
+      where: {
+        ...dateFilter,
+        ...friendsFilter,
+        statistics: {
+          totalTests: { gt: 0 }
+        }
+      }
+    });
 
     // Calculate additional stats
     const leaderboardWithStats = leaderboard.map((user, index) => {
       const globalRank = index + 1;
       
-      // Calculate win rate for multiplayer
-      const winRate = user.multiplayerGames > 0 
-        ? Math.round((user.multiplayerWins / user.multiplayerGames) * 100)
-        : 0;
-
       // Calculate accuracy for solo
       const accuracy = user.statistics?.totalQuestions && user.statistics.totalQuestions > 0
         ? Math.round((user.statistics.totalCorrect / user.statistics.totalQuestions) * 100)
@@ -133,13 +129,12 @@ export async function GET(req: NextRequest) {
         ...user,
         globalRank,
         stats: {
-          winRate,
           accuracy,
-          totalGames: type === 'multiplayer' ? user.multiplayerGames : (user.statistics?.totalTests || 0),
-          currentElo: type === 'multiplayer' ? user.multiplayerElo : user.elo,
-          currentRank: type === 'multiplayer' ? user.multiplayerRankClass : user.rankClass,
-          bestElo: type === 'multiplayer' ? user.bestMultiplayerElo : user.elo,
-          bestRank: type === 'multiplayer' ? user.bestMultiplayerRankClass : user.rankClass
+          totalGames: user.statistics?.totalTests || 0,
+          currentElo: user.elo,
+          currentRank: user.rankClass,
+          bestElo: user.bestElo,
+          bestRank: user.bestRankClass
         }
       };
     });
@@ -150,15 +145,13 @@ export async function GET(req: NextRequest) {
       where: {
         ...dateFilter,
         ...friendsFilter,
-        OR: [
-          { statistics: { totalTests: { gt: 0 } } },
-          { multiplayerGames: { gt: 0 } }
-        ],
-        AND: type === 'multiplayer' 
-          ? [{ multiplayerElo: { gt: currentUser.multiplayerElo } }]
-          : [{ elo: { gt: currentUser.elo } }]
+        statistics: {
+          totalTests: { gt: 0 }
+        },
+        elo: { gt: currentUser.elo }
       }
     });
+
     userRank = userCount + 1;
 
     return NextResponse.json({
@@ -175,17 +168,15 @@ export async function GET(req: NextRequest) {
         username: currentUser.username,
         displayName: currentUser.displayName,
         stats: {
-          currentElo: type === 'multiplayer' ? currentUser.multiplayerElo : currentUser.elo,
-          currentRank: type === 'multiplayer' ? currentUser.multiplayerRankClass : currentUser.rankClass,
-          totalGames: type === 'multiplayer' ? currentUser.multiplayerGames : (currentUser.statistics?.totalTests || 0)
+          currentElo: currentUser.elo,
+          currentRank: currentUser.rankClass,
+          totalGames: 0 // Pas de statistics dans le select
         }
       }
     });
+
   } catch (error) {
-    console.error('Error getting leaderboard:', error);
-    return NextResponse.json(
-      { error: 'Failed to get leaderboard' },
-      { status: 500 }
-    );
+    console.error('Error fetching leaderboard:', error);
+    return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 });
   }
 }

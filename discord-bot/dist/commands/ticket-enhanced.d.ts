@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ModalSubmitInteraction, ButtonInteraction, ChatInputCommandInteraction } from 'discord.js';
 declare const _default: {
     data: SlashCommandBuilder;
-    execute(interaction: ChatInputCommandInteraction): Promise<import("discord.js").InteractionResponse<boolean> | undefined>;
+    execute(interaction: ChatInputCommandInteraction): Promise<import("discord.js").InteractionResponse<boolean>>;
 };
 export default _default;
 export declare function handleTicketModal(interaction: ModalSubmitInteraction): Promise<void>;

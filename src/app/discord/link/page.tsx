@@ -31,9 +31,24 @@ export default function DiscordLinkPage() {
       const response = await fetch('/api/discord/link');
       const data = await response.json();
       
+      if (data.expired) {
+        // Si la liaison est expirée, déconnecter l'utilisateur
+        setResult({ type: 'error', message: data.message });
+        setLinked(false);
+        setDiscordUsername('');
+        // Rediriger vers la page de connexion après 2 secondes
+        setTimeout(() => {
+          window.location.href = '/login?reason=discord_expired';
+        }, 2000);
+        return;
+      }
+      
       if (data.linked) {
         setLinked(true);
         setDiscordUsername(data.discordUsername);
+      } else {
+        setLinked(false);
+        setDiscordUsername('');
       }
     } catch (error) {
       console.error('Error checking link status:', error);

@@ -15,6 +15,7 @@ interface UserProfile {
     bestStreak: number;
     bannerUrl?: string;
     selectedBadgeIds?: string;
+    isTeacher: boolean;
   };
   statistics?: any;
   recentTests?: any[];

@@ -46,14 +46,14 @@ export async function GET(req: NextRequest) {
 
     const topMultiplayerPlayer = await prisma.user.findFirst({
       orderBy: {
-        multiplayerElo: 'desc'
+        elo: 'desc'
       },
       select: {
         id: true,
         username: true,
         displayName: true,
-        multiplayerElo: true,
-        multiplayerRankClass: true
+        elo: true,
+        rankClass: true
       },
       take: 1
     });

@@ -50,7 +50,7 @@ interface TriangleShape {
   fill?: boolean;
 }
 
-export type GeometryTool = 'point' | 'line' | 'segment' | 'circle' | 'triangle' | 'select' | 'measure' | 'delete';
+export type GeometryTool = 'point' | 'line' | 'segment' | 'circle' | 'triangle' | 'select' | 'measure' | 'delete' | 'symmetry' | 'pythagore' | 'vector';
 
 interface GeometryCanvasProps {
   width?: number;
@@ -87,6 +87,9 @@ export default function GeometryCanvas({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [showMeasurements, setShowMeasurements] = useState(true);
+  const [symmetryAxis, setSymmetryAxis] = useState<{x1: number, y1: number, x2: number, y2: number} | null>(null);
+  const [pythagoreTriangle, setPythagoreTriangle] = useState<string[] | null>(null);
+  const [vectors, setVectors] = useState<{id: string, startId: string, endId: string, color: string}[]>([]);
 
   // Grid settings
   const gridSize = 20;
@@ -203,6 +206,78 @@ export default function GeometryCanvas({
           setLines(lines.filter(l => l.startId !== pointToDelete.id && l.endId !== pointToDelete.id));
           setCircles(circles.filter(c => c.centerId !== pointToDelete.id && c.radiusPointId !== pointToDelete.id));
           setTriangles(triangles.filter(t => !t.pointIds.includes(pointToDelete.id)));
+          setVectors(vectors.filter(v => v.startId !== pointToDelete.id && v.endId !== pointToDelete.id));
+        }
+        break;
+        
+      case 'symmetry':
+        const symmetryPoint = points.find(p => 
+          Math.abs(p.x - pos.x) < 10 && Math.abs(p.y - pos.y) < 10
+        );
+        if (symmetryPoint) {
+          if (!symmetryAxis) {
+            // First point - start axis
+            setSymmetryAxis({ x1: symmetryPoint.x, y1: symmetryPoint.y, x2: symmetryPoint.x, y2: symmetryPoint.y });
+          } else if (symmetryAxis.x1 === symmetryAxis.x2 && symmetryAxis.y1 === symmetryAxis.y2) {
+            // Same point - end axis
+            setSymmetryAxis({ ...symmetryAxis, x2: symmetryPoint.x, y2: symmetryPoint.y });
+          } else {
+            // Second point - create symmetric point
+            const midX = (symmetryAxis.x1 + symmetryAxis.x2) / 2;
+            const midY = (symmetryAxis.y1 + symmetryAxis.y2) / 2;
+            const dx = symmetryPoint.x - midX;
+            const dy = symmetryPoint.y - midY;
+            
+            const symmetricPoint: Point = {
+              id: `p${points.length + 1}`,
+              x: midX - dx,
+              y: midY - dy,
+              label: String.fromCharCode(65 + points.length),
+              color: '#10b981'
+            };
+            
+            setPoints([...points, symmetricPoint]);
+            setSymmetryAxis(null);
+            onShapeCreated?.({ type: 'symmetry', point: symmetricPoint });
+          }
+        }
+        break;
+        
+      case 'pythagore':
+        const pythagorePoint = points.find(p => 
+          Math.abs(p.x - pos.x) < 10 && Math.abs(p.y - pos.y) < 10
+        );
+        if (pythagorePoint) {
+          if (!pythagoreTriangle) {
+            setPythagoreTriangle([pythagorePoint.id]);
+          } else if (pythagoreTriangle.length === 1) {
+            setPythagoreTriangle([...pythagoreTriangle, pythagorePoint.id]);
+          } else if (pythagoreTriangle.length === 2) {
+            setPythagoreTriangle([...pythagoreTriangle, pythagorePoint.id]);
+            onShapeCreated?.({ type: 'pythagore', points: [...pythagoreTriangle, pythagorePoint.id] });
+            setPythagoreTriangle(null);
+          }
+        }
+        break;
+        
+      case 'vector':
+        const vectorPoint = points.find(p => 
+          Math.abs(p.x - pos.x) < 10 && Math.abs(p.y - pos.y) < 10
+        );
+        if (vectorPoint) {
+          if (!selectedPoint) {
+            setSelectedPoint(vectorPoint.id);
+          } else if (selectedPoint !== vectorPoint.id) {
+            const newVector = {
+              id: `v${vectors.length + 1}`,
+              startId: selectedPoint,
+              endId: vectorPoint.id,
+              color: '#f59e0b'
+            };
+            setVectors([...vectors, newVector]);
+            setSelectedPoint(null);
+            onShapeCreated?.(newVector);
+          }
         }
         break;
     }
@@ -285,6 +360,9 @@ export default function GeometryCanvas({
     { id: 'line', icon: Ruler, label: 'Droite', color: 'text-violet-400' },
     { id: 'circle', icon: Circle, label: 'Cercle', color: 'text-amber-400' },
     { id: 'triangle', icon: Triangle, label: 'Triangle', color: 'text-emerald-400' },
+    { id: 'vector', icon: Move, label: 'Vecteur', color: 'text-orange-400' },
+    { id: 'symmetry', icon: RotateCcw, label: 'Symétrie', color: 'text-cyan-400' },
+    { id: 'pythagore', icon: Square, label: 'Pythagore', color: 'text-purple-400' },
     { id: 'delete', icon: Trash2, label: 'Effacer', color: 'text-red-400' },
   ] as const;
 
@@ -489,6 +567,199 @@ export default function GeometryCanvas({
             );
           })}
           
+          {/* Vectors */}
+          {vectors.map(vector => {
+            const start = points.find(p => p.id === vector.startId);
+            const end = points.find(p => p.id === vector.endId);
+            if (!start || !end) return null;
+            
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+            
+            return (
+              <g key={vector.id}>
+                {/* Vector line */}
+                <line
+                  x1={start.x}
+                  y1={start.y}
+                  x2={end.x}
+                  y2={end.y}
+                  stroke={vector.color}
+                  strokeWidth={2}
+                  markerEnd="url(#arrowhead)"
+                />
+                
+                {/* Arrow head */}
+                <defs>
+                  <marker
+                    id="arrowhead"
+                    markerWidth="10"
+                    markerHeight="7"
+                    refX="9"
+                    refY="3.5"
+                    orient="auto"
+                  >
+                    <polygon
+                      points="0 0, 10 3.5, 0 7"
+                      fill={vector.color}
+                    />
+                  </marker>
+                </defs>
+                
+                {/* Coordinates display */}
+                {showMeasurements && (
+                  <text
+                    x={(start.x + end.x) / 2 + 10}
+                    y={(start.y + end.y) / 2 - 10}
+                    fill="#f59e0b"
+                    fontSize="12"
+                    fontFamily="monospace"
+                  >
+                    ({dx.toFixed(1)}, {dy.toFixed(1)})
+                  </text>
+                )}
+                
+                {/* Length display */}
+                {showMeasurements && (
+                  <text
+                    x={(start.x + end.x) / 2}
+                    y={(start.y + end.y) / 2 + 20}
+                    fill="#f59e0b"
+                    fontSize="12"
+                    fontFamily="monospace"
+                    textAnchor="middle"
+                  >
+                    |v| = {length.toFixed(1)}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+          
+          {/* Symmetry axis */}
+          {symmetryAxis && (
+            <g>
+              <line
+                x1={symmetryAxis.x1}
+                y1={symmetryAxis.y1}
+                x2={symmetryAxis.x2}
+                y2={symmetryAxis.y2}
+                stroke="#10b981"
+                strokeWidth={2}
+                strokeDasharray="5,5"
+              />
+              <text
+                x={(symmetryAxis.x1 + symmetryAxis.x2) / 2 + 10}
+                y={(symmetryAxis.y1 + symmetryAxis.y2) / 2}
+                fill="#10b981"
+                fontSize="12"
+                fontFamily="monospace"
+              >
+                Axe de symétrie
+              </text>
+            </g>
+          )}
+          
+          {/* Pythagore visualization */}
+          {pythagoreTriangle && pythagoreTriangle.length === 3 && (() => {
+            const p1 = points.find(p => p.id === pythagoreTriangle![0]);
+            const p2 = points.find(p => p.id === pythagoreTriangle![1]);
+            const p3 = points.find(p => p.id === pythagoreTriangle![2]);
+            if (!p1 || !p2 || !p3) return null;
+            
+            // Find the right angle (assuming p2 is the right angle)
+            const a = calculateDistance(p2, p1);
+            const b = calculateDistance(p2, p3);
+            const c = calculateDistance(p1, p3);
+            
+            return (
+              <g>
+                {/* Triangle */}
+                <polygon
+                  points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`}
+                  fill="#8b5cf620"
+                  stroke="#8b5cf6"
+                  strokeWidth={2}
+                />
+                
+                {/* Squares on each side */}
+                {/* Square on side a */}
+                <rect
+                  x={Math.min(p2.x, p1.x)}
+                  y={Math.min(p2.y, p1.y)}
+                  width={Math.abs(p1.x - p2.x)}
+                  height={Math.abs(p1.y - p2.y)}
+                  fill="#22d3ee20"
+                  stroke="#22d3ee"
+                  strokeWidth={1}
+                />
+                
+                {/* Square on side b */}
+                <rect
+                  x={Math.min(p2.x, p3.x)}
+                  y={Math.min(p2.y, p3.y)}
+                  width={Math.abs(p3.x - p2.x)}
+                  height={Math.abs(p3.y - p2.y)}
+                  fill="#10b98120"
+                  stroke="#10b981"
+                  strokeWidth={1}
+                />
+                
+                {/* Square on hypotenuse */}
+                {
+                  (() => {
+                    const hypAngle = Math.atan2(p3.y - p1.y, p3.x - p1.x);
+                    const hypPerpAngle = hypAngle + Math.PI / 2;
+                    const squareSizeHyp = c / Math.sqrt(2);
+                    
+                    return (
+                      <g transform={`translate(${(p1.x + p3.x) / 2}, ${(p1.y + p3.y) / 2}) rotate(${hypPerpAngle * 180 / Math.PI})`}>
+                        <rect
+                          x={-squareSizeHyp / 2}
+                          y={-squareSizeHyp / 2}
+                          width={squareSizeHyp}
+                          height={squareSizeHyp}
+                          fill="#ef444420"
+                          stroke="#ef4444"
+                          strokeWidth={1}
+                        />
+                      </g>
+                    );
+                  })()
+                }
+                
+                {/* Pythagore theorem display */}
+                {showMeasurements && (
+                  <text
+                    x={(p1.x + p2.x + p3.x) / 3}
+                    y={Math.max(p1.y, p2.y, p3.y) + 40}
+                    fill="#f59e0b"
+                    fontSize="14"
+                    fontFamily="monospace"
+                    textAnchor="middle"
+                  >
+                    a² + b² = c²
+                  </text>
+                )}
+                
+                {showMeasurements && (
+                  <text
+                    x={(p1.x + p2.x + p3.x) / 3}
+                    y={Math.max(p1.y, p2.y, p3.y) + 60}
+                    fill="#f59e0b"
+                    fontSize="12"
+                    fontFamily="monospace"
+                    textAnchor="middle"
+                  >
+                    {a.toFixed(1)}² + {b.toFixed(1)}² = {c.toFixed(1)}²
+                  </text>
+                )}
+              </g>
+            );
+          })()}
+          
           {/* Points */}
           {points.map(point => (
             <g 
@@ -556,6 +827,9 @@ export default function GeometryCanvas({
           {selectedTool === 'line' && 'Cliquez sur 2 points pour créer une droite (infinie)'}
           {selectedTool === 'circle' && 'Cliquez sur le centre puis sur un point du rayon'}
           {selectedTool === 'triangle' && 'Cliquez sur 3 points pour créer un triangle'}
+          {selectedTool === 'vector' && 'Cliquez sur 2 points pour créer un vecteur'}
+          {selectedTool === 'symmetry' && 'Cliquez sur 2 points pour définir l\'axe, puis sur un point à symétriser'}
+          {selectedTool === 'pythagore' && 'Cliquez sur 3 points pour visualiser le théorème de Pythagore'}
           {selectedTool === 'select' && 'Cliquez et déplacez les points'}
           {selectedTool === 'delete' && 'Cliquez sur un point pour le supprimer'}
         </p>

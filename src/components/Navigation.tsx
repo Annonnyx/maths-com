@@ -6,13 +6,20 @@ import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { 
   Home, LayoutDashboard, Trophy, Users, BookOpen, 
-  User, LogOut, Menu, X, Settings, Target
+  User, LogOut, Menu, X, Settings, Target, Bell
 } from 'lucide-react';
+import { useNotification } from '@/components/NotificationProvider';
 
 export default function Navigation() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { unreadCount } = useNotification();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Éviter l'erreur pendant le SSR
+  if (typeof window === 'undefined') {
+    return null;
+  }
 
   const isActive = (path: string) => pathname === path;
 
@@ -61,6 +68,19 @@ export default function Navigation() {
             <div className="flex items-center gap-3">
               {session ? (
                 <div className="flex items-center gap-3">
+                  {/* Notifications */}
+                  <Link
+                    href="/notifications"
+                    className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-border rounded-lg transition-all"
+                  >
+                    <Bell className="w-4 h-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                  
                   <Link
                     href="/dashboard"
                     className="flex items-center gap-2 px-3 py-2 bg-border hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-all"
@@ -149,6 +169,21 @@ export default function Navigation() {
               <div className="border-t border-border pt-3 mt-3 space-y-1">
                 {session ? (
                   <>
+                    {/* Notifications */}
+                    <Link
+                      href="/notifications"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-300 hover:text-foreground hover:bg-border transition-all relative"
+                    >
+                      <Bell className="w-4 h-4" />
+                      <span className="text-sm">Notifications</span>
+                      {unreadCount > 0 && (
+                        <span className="absolute top-2 right-2 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
+                      )}
+                    </Link>
+                    
                     <Link
                       href="/dashboard"
                       onClick={() => setIsMobileMenuOpen(false)}

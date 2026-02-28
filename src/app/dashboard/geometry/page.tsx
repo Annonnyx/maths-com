@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import GeometryCanvas from '@/components/GeometryCanvas';
 import TrigonometryCourse from '@/components/TrigonometryCourse';
+import FunctionGraph from '@/components/FunctionGraph';
 
 export default function GeometryDashboardPage() {
   const [activeTab, setActiveTab] = useState<'canvas' | 'trig' | 'functions' | 'help'>('canvas');
@@ -162,6 +163,15 @@ export default function GeometryDashboardPage() {
                   <button className="w-full p-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-left text-sm transition-colors">
                     🔷 Parallélogramme
                   </button>
+                  <button className="w-full p-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-left text-sm transition-colors">
+                    ➡️ Vecteur avec coordonnées
+                  </button>
+                  <button className="w-full p-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-left text-sm transition-colors">
+                    🔄 Symétrie axiale
+                  </button>
+                  <button className="w-full p-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-left text-sm transition-colors">
+                    📐 Théorème de Pythagore
+                  </button>
                 </div>
               </div>
               
@@ -183,12 +193,72 @@ export default function GeometryDashboardPage() {
         )}
         
         {activeTab === 'functions' && (
-          <div className="bg-[#12121a] rounded-2xl border border-gray-800 p-8">
-            <div className="text-center py-12">
-              <FunctionSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-semibold mb-2">Étude de fonctions</h2>
-              <p className="text-gray-400 mb-6">Visualisez les fonctions mathématiques et leurs variations</p>
-              <p className="text-sm text-gray-500">🚧 Cette section est en cours de développement</p>
+          <div className="space-y-6">
+            <FunctionGraph 
+              width={800} 
+              height={500} 
+              showGrid={true} 
+              showAxes={true}
+              showVariationTable={true}
+            />
+            
+            {/* Function Examples */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="bg-[#12121a] rounded-xl p-4 border border-gray-800">
+                <h4 className="font-semibold text-indigo-400 mb-2">Fonction affine</h4>
+                <p className="text-sm text-gray-400 mb-3">f(x) = 2x + 1</p>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <FunctionGraph 
+                    width={300} 
+                    height={200} 
+                    initialFunction="linear"
+                    initialParams={{ a: 2, b: 1 }}
+                    readOnly={true}
+                  />
+                </div>
+              </div>
+              
+              <div className="bg-[#12121a] rounded-xl p-4 border border-gray-800">
+                <h4 className="font-semibold text-green-400 mb-2">Parabole</h4>
+                <p className="text-sm text-gray-400 mb-3">f(x) = x² - 4x + 3</p>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <FunctionGraph 
+                    width={300} 
+                    height={200} 
+                    initialFunction="quadratic"
+                    initialParams={{ a: 1, b: -4, c: 3 }}
+                    readOnly={true}
+                  />
+                </div>
+              </div>
+              
+              <div className="bg-[#12121a] rounded-xl p-4 border border-gray-800">
+                <h4 className="font-semibold text-cyan-400 mb-2">Sinus</h4>
+                <p className="text-sm text-gray-400 mb-3">f(x) = 2sin(x)</p>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <FunctionGraph 
+                    width={300} 
+                    height={200} 
+                    initialFunction="sine"
+                    initialParams={{ a: 2, b: 1 }}
+                    readOnly={true}
+                  />
+                </div>
+              </div>
+              
+              <div className="bg-[#12121a] rounded-xl p-4 border border-gray-800">
+                <h4 className="font-semibold text-yellow-400 mb-2">Exponentielle</h4>
+                <p className="text-sm text-gray-400 mb-3">f(x) = e^x</p>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <FunctionGraph 
+                    width={300} 
+                    height={200} 
+                    initialFunction="exponential"
+                    initialParams={{ a: 1, b: 1 }}
+                    readOnly={true}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -203,6 +273,9 @@ export default function GeometryDashboardPage() {
                   <li>Dessiner des figures géométriques précises</li>
                   <li>Visualiser la trigonométrie interactivement</li>
                   <li>Étudier les fonctions mathématiques</li>
+                  <li>Créer des vecteurs avec coordonnées</li>
+                  <li>Appliquer des symétries axiales</li>
+                  <li>Visualiser le théorème de Pythagore</li>
                   <li>Sauvegarder et partager vos constructions</li>
                 </ul>
               </div>

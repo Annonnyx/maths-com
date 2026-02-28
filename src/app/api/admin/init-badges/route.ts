@@ -21,6 +21,32 @@ async function isAdminEmail(email: string): Promise<boolean> {
   return false;
 }
 
+// Fonction pour calculer la classe scolaire à partir de l'année de naissance
+function calculateSchoolClass(birthYear: number | null | undefined): string | null {
+  if (!birthYear) return null;
+  
+  const currentYear = new Date().getFullYear();
+  const age = currentYear - birthYear;
+  
+  // Logique de calcul de classe basée sur l'âge (simplifiée)
+  if (age < 6) return null; // Trop jeune pour être scolarisé
+  if (age === 6) return "CP";
+  if (age === 7) return "CE1";
+  if (age === 8) return "CE2";
+  if (age === 9) return "CM1";
+  if (age === 10) return "CM2";
+  if (age === 11) return "6ème";
+  if (age === 12) return "5ème";
+  if (age === 13) return "4ème";
+  if (age === 14) return "3ème";
+  if (age === 15) return "2nde";
+  if (age === 16) return "1ère";
+  if (age === 17) return "Terminale";
+  if (age > 17) return "Terminale+"; // Au-delà de Terminale
+  
+  return null;
+}
+
 // POST /api/admin/init-badges - Initialize all default badges and sync user rank badges
 export async function POST(req: NextRequest) {
   try {
@@ -83,10 +109,9 @@ export async function POST(req: NextRequest) {
       select: { 
         id: true, 
         rankClass: true, 
-        multiplayerRankClass: true,
         elo: true,
-        multiplayerElo: true,
-        multiplayerGames: true,
+        birthYear: true,
+        classe: true,
         statistics: {
           select: {
             totalTests: true
@@ -97,7 +122,7 @@ export async function POST(req: NextRequest) {
 
     // Find top 1 users
     const top1SoloUser = users.length > 0 ? users.reduce((max, u) => u.elo > max.elo ? u : max, users[0]) : null;
-    const top1MultiUser = users.length > 0 ? users.reduce((max, u) => u.multiplayerElo > max.multiplayerElo ? u : max, users[0]) : null;
+    const top1MultiUser = top1SoloUser; // Utiliser le même utilisateur pour l'instant
 
     // Get all rank badges
     const allRankBadges = await prisma.badge.findMany({
@@ -105,10 +130,21 @@ export async function POST(req: NextRequest) {
     });
 
     let awardedCount = 0;
+    let classesUpdatedCount = 0;
 
     for (const user of users) {
       const soloGames = user.statistics?.totalTests || 0;
-      const multiGames = user.multiplayerGames || 0;
+      const multiGames = 0; // Pas de champ multiplayerGames pour l'instant
+      
+      // Calculer et mettre à jour la classe scolaire
+      const calculatedClass = calculateSchoolClass(user.birthYear);
+      if (calculatedClass && calculatedClass !== user.classe) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { classe: calculatedClass }
+        });
+        classesUpdatedCount++;
+      }
       
       // Get user's current rank badges
       const userBadges = await prisma.userBadge.findMany({
@@ -191,6 +227,7 @@ export async function POST(req: NextRequest) {
       message: 'Badges synchronized',
       totalBadges: allBadges.length,
       rankBadgesAwarded: awardedCount,
+      classesUpdated: classesUpdatedCount,
       top1Solo: top1SoloUser?.id || null,
       top1Multi: top1MultiUser?.id || null,
       totalUsers: users.length

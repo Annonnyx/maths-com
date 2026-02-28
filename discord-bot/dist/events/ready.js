@@ -1,23 +1,21 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
-const config_js_1 = require("../config.js");
-const roleManager_js_1 = require("../handlers/roleManager.js");
-const keepAlive_js_1 = require("../utils/keepAlive.js");
-exports.default = {
-    name: discord_js_1.Events.ClientReady,
+import { Events, ActivityType, EmbedBuilder } from 'discord.js';
+import { config } from '../config.js';
+import { ensureClassRolesExist } from '../handlers/roleManager.js';
+import { KeepAliveService } from '../utils/keepAlive.js';
+export default {
+    name: Events.ClientReady,
     once: true,
     async execute(client) {
         console.log(`✅ Bot connecté en tant que ${client.user?.tag}`);
         console.log(`🌐 Connecté à ${client.guilds.cache.size} serveurs`);
         console.log(`👥 ${client.users.cache.size} utilisateurs en cache`);
         // Démarrer le keep-alive pour éviter la mise en veille
-        const keepAlive = new keepAlive_js_1.KeepAliveService(client);
+        const keepAlive = new KeepAliveService(client);
         // Status du bot avec activités variées
         const activities = [
-            { name: 'maths-app.com', type: discord_js_1.ActivityType.Playing },
-            { name: `🏆 ${Math.floor(Math.random() * 1000)} joueurs`, type: discord_js_1.ActivityType.Watching },
-            { name: '📚 aider les élèves', type: discord_js_1.ActivityType.Playing }
+            { name: 'maths-app.com', type: ActivityType.Playing },
+            { name: `🏆 ${Math.floor(Math.random() * 1000)} joueurs`, type: ActivityType.Watching },
+            { name: '📚 aider les élèves', type: ActivityType.Playing }
         ];
         const randomActivity = activities[Math.floor(Math.random() * activities.length)];
         client.user?.setPresence({
@@ -25,7 +23,7 @@ exports.default = {
             status: 'online'
         });
         // Message de démarrage détaillé
-        const startEmbed = new discord_js_1.EmbedBuilder()
+        const startEmbed = new EmbedBuilder()
             .setTitle('🤖 Bot Discord - Maths-Com')
             .setColor('#00FF00')
             .setThumbnail(client.user?.displayAvatarURL() || null)
@@ -52,7 +50,7 @@ exports.default = {
         })
             .setTimestamp();
         try {
-            const generalChannel = await client.channels.fetch(config_js_1.config.channels.general).catch(() => null);
+            const generalChannel = await client.channels.fetch(config.channels.general).catch(() => null);
             if (generalChannel && 'send' in generalChannel) {
                 await generalChannel.send({ embeds: [startEmbed] });
                 console.log('📢 Message de démarrage envoyé');
@@ -63,8 +61,8 @@ exports.default = {
         }
         // Vérifier/créer les rôles de classe
         try {
-            const guild = await client.guilds.fetch(config_js_1.config.discord.guildId);
-            await (0, roleManager_js_1.ensureClassRolesExist)(guild);
+            const guild = await client.guilds.fetch(config.discord.guildId);
+            await ensureClassRolesExist(guild);
             console.log('✅ Rôles de classe vérifiés');
         }
         catch (error) {
@@ -72,7 +70,7 @@ exports.default = {
         }
         // Test de connectivité API
         try {
-            const response = await fetch(`${config_js_1.config.website.apiUrl}/users`, {
+            const response = await fetch(`${config.website.apiUrl}/users`, {
                 method: 'GET',
                 headers: { 'User-Agent': 'Discord-Bot-Health-Check' }
             });
@@ -88,9 +86,9 @@ exports.default = {
         }
         // Vérification des salons essentiels
         const essentialChannels = [
-            { name: 'Classement Solo', id: config_js_1.config.channels.leaderboardSolo },
-            { name: 'Classement Multi', id: config_js_1.config.channels.leaderboardMulti },
-            { name: 'Tickets', id: config_js_1.config.channels.ticketCategory }
+            { name: 'Classement Solo', id: config.channels.leaderboardSolo },
+            { name: 'Classement Multi', id: config.channels.leaderboardMulti },
+            { name: 'Tickets', id: config.channels.ticketCategory }
         ];
         console.log('🔍 Vérification salons essentiels...');
         for (const channel of essentialChannels) {
@@ -105,4 +103,3 @@ exports.default = {
         console.log('🎯 Bot pleinement opérationnel et monitoré !');
     }
 };
-//# sourceMappingURL=ready.js.map
