@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // GET /api/class-groups/[id] - Détails d'un groupe spécifique
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,8 +14,10 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const group = await prisma.classGroup.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         teacher: {
           select: { id: true, username: true, displayName: true }
