@@ -3,8 +3,8 @@ import { COLORS } from '../config.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('ticket')
-    .setDescription('Créer un ticket de support'),
+    .setName('ticket-simple')
+    .setDescription('Créer un ticket de support simple'),
   
   async execute(interaction: ChatInputCommandInteraction) {
     // Créer un modal pour le sujet et le message

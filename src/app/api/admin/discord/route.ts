@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { isAdmin } from '@/lib/admin-auth';
 import { prisma } from '@/lib/prisma';
 
 const DISCORD_BOT_API = process.env.DISCORD_BOT_API_URL || 'http://localhost:3001';
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
   
   // Vérifier si l'utilisateur est admin (par email)
-  if (!session?.user || session.user.email !== 'noe.barneron@gmail.com') {
+  if (!session?.user || !(await isAdmin(session.user.email))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   
   // Vérifier si l'utilisateur est admin (par email)
-  if (!session?.user || session.user.email !== 'noe.barneron@gmail.com') {
+  if (!session?.user || !(await isAdmin(session.user.email))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   

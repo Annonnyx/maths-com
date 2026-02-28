@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 exports.default = {
     data: new discord_js_1.SlashCommandBuilder()
-        .setName('ticket')
-        .setDescription('Créer un ticket de support'),
+        .setName('ticket-simple')
+        .setDescription('Créer un ticket de support simple'),
     async execute(interaction) {
         // Créer un modal pour le sujet et le message
         const modal = new discord_js_1.ModalBuilder()

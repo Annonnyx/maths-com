@@ -2,6 +2,18 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from './auth';
 
 /**
+ * Email admin principal (depuis les variables d'environnement)
+ */
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'noe.barneron@gmail.com';
+
+/**
+ * Liste des emails admin (pour configuration future)
+ */
+export const ADMIN_EMAILS = process.env.ADMIN_EMAILS 
+  ? process.env.ADMIN_EMAILS.split(',').map(email => email.trim())
+  : [ADMIN_EMAIL];
+
+/**
  * Vérifie si l'utilisateur est administrateur
  * @param email - Email de l'utilisateur (optionnel)
  * @returns boolean - true si l'utilisateur est admin
@@ -9,12 +21,12 @@ import { authOptions } from './auth';
 export async function isAdmin(email?: string): Promise<boolean> {
   // Si email fourni, vérifier directement
   if (email) {
-    return email === 'noe.barneron@gmail.com';
+    return ADMIN_EMAILS.includes(email);
   }
 
   // Sinon, vérifier depuis la session
   const session = await getServerSession(authOptions);
-  return session?.user?.email === 'noe.barneron@gmail.com';
+  return !!(session?.user?.email) || ADMIN_EMAILS.includes(session?.user?.email || '');
 }
 
 /**
@@ -24,7 +36,7 @@ export async function isAdmin(email?: string): Promise<boolean> {
  * @returns boolean - true si l'utilisateur est admin
  */
 export function isAdminSession(session: any): boolean {
-  return session?.user?.email === 'noe.barneron@gmail.com';
+  return !!(session?.user?.email) || ADMIN_EMAILS.includes(session?.user?.email || '');
 }
 
 /**
@@ -33,14 +45,5 @@ export function isAdminSession(session: any): boolean {
  * @returns boolean - true si accès autorisé
  */
 export function requireAdmin(session: any): boolean {
-  return !!session?.user && session.user.email === 'noe.barneron@gmail.com';
+  return !!(session?.user?.email) || ADMIN_EMAILS.includes(session?.user?.email || '');
 }
-
-// Email admin principal (pour configuration future)
-export const ADMIN_EMAIL = 'noe.barneron@gmail.com';
-
-// Liste des emails admin (pour configuration future)
-export const ADMIN_EMAILS = [
-  'noe.barneron@gmail.com',
-  // Ajouter d'autres admins ici si nécessaire
-];
