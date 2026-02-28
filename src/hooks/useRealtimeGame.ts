@@ -48,11 +48,12 @@ export function useRealtimeGame(gameId: string | null) {
             .eq('id', gameId)
             .single();
           
-          if (data) {
-            setGameState(data);
+          if (data && typeof data === 'object') {
+            const gameData = data as any;
+            setGameState(gameData);
             
             // Handle redirections or game start
-            if (data.status === 'playing' && data.player2Id) {
+            if (gameData.status === 'playing' && gameData.player2Id) {
               // Trigger any local UI changes if needed
             }
           }

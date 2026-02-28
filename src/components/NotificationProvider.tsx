@@ -155,8 +155,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               .select('username, displayName')
               .eq('id', message.senderId)
               .single();
-            if (sender) {
-              senderName = sender.displayName || sender.username || 'Quelqu\'un';
+            if (sender && typeof sender === 'object') {
+              senderName = (sender as any).displayName || (sender as any).username || 'Quelqu\'un';
             }
           } catch (e) {
             console.error('Error fetching sender:', e);
