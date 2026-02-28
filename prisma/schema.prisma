@@ -30,6 +30,11 @@ model User {
   // Admin flag
   isAdmin       Boolean   @default(false)
   
+  // Teacher information
+  isTeacher     Boolean   @default(false)
+  school         String?
+  subject        String?
+  
   // Ranking System
   elo           Int       @default(400)
   rankClass     String    @default("F-")
@@ -96,6 +101,9 @@ model User {
   discordUsername   String?
   discordLinkedAt   DateTime?
   discordLinkCode   String?   @unique  // Temporary code for linking
+  
+  // Teacher relations
+  teacherRequests TeacherRequest[]
   
   @@map("users")
 }
@@ -459,4 +467,22 @@ model CustomBanner {
   users       User[]   @relation("UserBanners")
   
   @@map("custom_banners")
+}
+
+model TeacherRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  email       String
+  school      String
+  subject     String
+  message     String?
+  status      String   @default("pending") // pending, approved, rejected
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id])
+  
+  @@map("teacher_requests")
 }

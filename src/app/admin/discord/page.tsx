@@ -17,7 +17,11 @@ import {
   ArrowLeft,
   Shield,
   Users,
-  Crown
+  Crown,
+  Power,
+  Bot,
+  Play,
+  Square
 } from 'lucide-react';
 
 interface DiscordStatus {
@@ -30,6 +34,7 @@ export default function DiscordAdminPage() {
   const { data: session } = useSession();
   const [botStatus, setBotStatus] = useState<DiscordStatus | null>(null);
   const [loading, setLoading] = useState(false);
+  const [botLoading, setBotLoading] = useState(false);
   const [messageContent, setMessageContent] = useState('');
   const [selectedChannel, setSelectedChannel] = useState('general');
   const [messageType, setMessageType] = useState<'announcement' | 'leaderboard'>('announcement');
@@ -116,6 +121,58 @@ export default function DiscordAdminPage() {
     }
   };
 
+  const handleStartBot = async () => {
+    setBotLoading(true);
+    try {
+      const response = await fetch('/api/admin/discord', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'start-bot' }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setResult({ type: 'success', message: 'Bot démarré avec succès !' });
+        fetchBotStatus(); // Rafraîchir le statut
+      } else {
+        setResult({ type: 'error', message: data.error || 'Erreur lors du démarrage du bot' });
+      }
+    } catch (error) {
+      setResult({ type: 'error', message: 'Erreur de connexion au service bot' });
+    } finally {
+      setBotLoading(false);
+    }
+  };
+
+  const handleStopBot = async () => {
+    setBotLoading(true);
+    try {
+      const response = await fetch('/api/admin/discord', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'stop-bot' }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setResult({ type: 'success', message: 'Bot arrêté avec succès !' });
+        fetchBotStatus(); // Rafraîchir le statut
+      } else {
+        setResult({ type: 'error', message: data.error || 'Erreur lors de l\'arrêt du bot' });
+      }
+    } catch (error) {
+      setResult({ type: 'error', message: 'Erreur de connexion au service bot' });
+    } finally {
+      setBotLoading(false);
+    }
+  };
+
   if (!isAdminSession(session)) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
@@ -185,6 +242,27 @@ export default function DiscordAdminPage() {
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <RefreshCw className={`w-5 h-5 ${botStatus?.status === 'online' ? 'text-green-400' : 'text-red-400'}`} />
             Statut du Bot
+            <div className="ml-auto flex items-center gap-2">
+              {botStatus?.status === 'online' ? (
+                <button
+                  onClick={handleStopBot}
+                  disabled={botLoading}
+                  className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Square className="w-4 h-4" />
+                  {botLoading ? 'Arrêt...' : 'Arrêter'}
+                </button>
+              ) : (
+                <button
+                  onClick={handleStartBot}
+                  disabled={botLoading}
+                  className="px-3 py-1.5 bg-green-600/20 hover:bg-green-600/30 text-green-400 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Play className="w-4 h-4" />
+                  {botLoading ? 'Démarrage...' : 'Démarrer'}
+                </button>
+              )}
+            </div>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-[#1a1a2e] rounded-lg p-4">

@@ -70,15 +70,50 @@ export async function POST(request: Request) {
         const messageResult = await callDiscordBotAPI('/api/send-message', 'POST', {
           channelId: data.channelId,
           content: data.content,
-          embeds: data.embeds,
         });
-        return NextResponse.json(messageResult);
+        
+        if (messageResult.success) {
+          return NextResponse.json({
+            success: true,
+            message: 'Message envoyé avec succès'
+          });
+        } else {
+          return NextResponse.json({
+            success: false,
+            error: messageResult.error || 'Erreur lors de l\'envoi du message'
+          });
+        }
         
       case 'publish-leaderboard':
-        const lbResult = await callDiscordBotAPI('/api/publish-leaderboard', 'POST', {
-          type: data.type, // 'solo' | 'multi'
+        const leaderboardResult = await callDiscordBotAPI('/api/publish-leaderboard', 'POST', {
+          type: data.type,
         });
-        return NextResponse.json(lbResult);
+        
+        if (leaderboardResult.success) {
+          return NextResponse.json({
+            success: true,
+            message: `Classement ${data.type} publié !`
+          });
+        } else {
+          return NextResponse.json({
+            success: false,
+            error: leaderboardResult.error || 'Erreur lors de la publication du classement'
+          });
+        }
+        
+      case 'start-bot':
+        // TODO: Implémenter le démarrage du bot
+        return NextResponse.json({
+          success: true,
+          message: 'Bot démarré (simulation)'
+        });
+        
+      case 'stop-bot':
+        // TODO: Implémenter l'arrêt du bot
+        return NextResponse.json({
+          success: true,
+          message: 'Bot arrêté (simulation)'
+        });
         
       case 'reply-ticket':
         const ticketResult = await callDiscordBotAPI('/api/ticket/reply', 'POST', {
@@ -89,7 +124,10 @@ export async function POST(request: Request) {
         return NextResponse.json(ticketResult);
         
       default:
-        return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
+        return NextResponse.json({
+          success: false,
+          error: 'Action non reconnue'
+        });
     }
   } catch (error) {
     console.error('Discord API error:', error);

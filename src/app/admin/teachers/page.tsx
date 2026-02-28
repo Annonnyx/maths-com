@@ -58,31 +58,57 @@ export default function AdminTeachersPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'users' | 'requests'>('users');
 
-  // Mock data - replace with API calls
+  // Récupérer les vraies données depuis l'API
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setUsers([
-        { id: '1', username: 'john_doe', displayName: 'John Doe', email: 'john@school.com', elo: 1200, rankClass: 'B', isTeacher: true, isAdmin: false, createdAt: '2024-01-15', school: 'Lycée Pasteur', subject: 'Mathématiques' },
-        { id: '2', username: 'jane_smith', displayName: 'Jane Smith', email: 'jane@school.com', elo: 1500, rankClass: 'A', isTeacher: true, isAdmin: false, createdAt: '2024-02-01', school: 'Collège Voltaire', subject: 'Physique' },
-        { id: '3', username: 'student1', displayName: 'Alice Martin', email: 'alice@gmail.com', elo: 800, rankClass: 'D', isTeacher: false, isAdmin: false, createdAt: '2024-03-10' },
-        { id: '4', username: 'student2', displayName: 'Bob Dupont', email: 'bob@gmail.com', elo: 950, rankClass: 'C', isTeacher: false, isAdmin: false, createdAt: '2024-03-15' },
-      ]);
-      
-      setRequests([
-        { id: '1', userId: '5', name: 'Marie Curie', email: 'marie@school.fr', school: 'Lycée Curie', subject: 'Mathématiques', message: 'Je souhaite utiliser Maths-App avec mes classes de Terminale', status: 'pending', createdAt: '2024-02-26' },
-        { id: '2', userId: '6', name: 'Pierre Durand', email: 'pierre@school.fr', school: 'Collège Descartes', subject: 'Sciences', status: 'pending', createdAt: '2024-02-25' },
-      ]);
-      
-      setLoading(false);
-    }, 500);
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin/users');
+        const data = await response.json();
+        
+        if (data.users) {
+          setUsers(data.users.map((user: any) => ({
+            ...user,
+            isTeacher: user.isTeacher || false, // Valeur par défaut
+            school: user.school || null,
+            subject: user.subject || null
+          })));
+        }
+        
+        if (data.requests) {
+          setRequests(data.requests);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleToggleTeacher = async (userId: string, makeTeacher: boolean) => {
-    // API call to update user
-    setUsers(users.map(u => 
-      u.id === userId ? { ...u, isTeacher: makeTeacher } : u
-    ));
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, makeTeacher }),
+      });
+
+      if (response.ok) {
+        // Mettre à jour l'interface localement
+        setUsers(users.map(u => 
+          u.id === userId ? { ...u, isTeacher: makeTeacher } : u
+        ));
+      } else {
+        console.error('Failed to update teacher status');
+      }
+    } catch (error) {
+      console.error('Error updating teacher status:', error);
+    }
   };
 
   const handleApproveRequest = async (requestId: string) => {
