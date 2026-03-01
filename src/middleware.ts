@@ -2,19 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
-  
-  // Only handle specific cases in middleware
-  // Let pages handle their own auth checks to avoid redirect loops
-  
-  // Redirect www to non-www
-  const url = request.nextUrl;
-  if (url.hostname.startsWith('www.')) {
-    url.hostname = url.hostname.replace('www.', '');
-    return NextResponse.redirect(url);
-  }
-  
-  // Add security headers
+  // Add security headers only - no redirects to avoid loops
   const response = NextResponse.next();
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
