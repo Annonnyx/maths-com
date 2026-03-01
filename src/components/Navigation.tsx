@@ -8,12 +8,12 @@ import {
   Home, LayoutDashboard, Trophy, Users, BookOpen, 
   User, LogOut, Menu, X, Settings, Target, Bell
 } from 'lucide-react';
-import { useNotification } from '@/components/NotificationProvider';
+import { useNotifications } from '@/components/NotificationToast';
 
 export default function Navigation() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { unreadCount } = useNotification();
+  const { unreadCount } = useNotifications();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Éviter l'erreur pendant le SSR
