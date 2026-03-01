@@ -18,8 +18,8 @@ model User {
   email         String    @unique
   username      String    @unique
   password      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
   
   // Profile (COMMUN)
   displayName   String?
@@ -29,8 +29,8 @@ model User {
   
   // Banner customization (COMMUN)
   bannerUrl     String?   // URL de la bannière personnalisée
-  selectedBadgeIds String? // JSON array of up to 3 badge IDs to display on banner
-  customBannerId String?  // Reference to custom banner if using one
+  selectedBadgeIds String? @map("selected_badge_ids") // JSON array of up to 3 badge IDs to display on banner
+  customBannerId String?  @map("custom_banner_id")  // Reference to custom banner if using one
   
   // Admin flags (COMMUN)
   isAdmin       Boolean   @default(false)
@@ -42,25 +42,25 @@ model User {
   acceptJoinRequests Boolean @default(true)
   
   // SOLO Ranking System
-  soloElo           Int       @default(400)
-  soloRankClass     String    @default("F-")
-  soloBestElo       Int       @default(400)
-  soloBestRankClass String    @default("F-")
+  soloElo           Int       @default(400) @map("solo_elo")
+  soloRankClass     String    @default("F-") @map("solo_rank_class")
+  soloBestElo       Int       @default(400) @map("solo_best_elo")
+  soloBestRankClass String    @default("F-") @map("solo_best_rank_class")
   
   // MULTIPLAYER Ranking System
-  multiplayerElo           Int       @default(400)
-  multiplayerRankClass     String    @default("F-")
-  multiplayerBestElo       Int       @default(400)
-  multiplayerBestRankClass String    @default("F-")
+  multiplayerElo           Int       @default(400) @map("multiplayer_elo")
+  multiplayerRankClass     String    @default("F-") @map("multiplayer_rank_class")
+  multiplayerBestElo       Int       @default(400) @map("multiplayer_best_elo")
+  multiplayerBestRankClass String    @default("F-") @map("multiplayer_best_rank_class")
   
   // SOLO Streak tracking
-  soloCurrentStreak Int @default(0)
-  soloBestStreak Int @default(0)
-  lastTestDate DateTime?
+  soloCurrentStreak Int @default(0) @map("solo_current_streak")
+  soloBestStreak Int @default(0) @map("solo_best_streak")
+  lastTestDate DateTime? @map("last_test_date")
   
   // Online status (COMMUN)
   isOnline     Boolean @default(false)
-  lastSeenAt   DateTime @default(now())
+  lastSeenAt   DateTime @default(now()) @map("last_seen_at")
   
   // Discord integration (COMMUN)
   discordId       String?   @unique
@@ -125,7 +125,7 @@ model User {
 model SoloStatistics {
   @@schema("public")
   id     String @id @default(cuid())
-  userId String @unique
+  userId String @unique @map("user_id")
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   // Global solo stats
@@ -181,8 +181,8 @@ model SoloStatistics {
 // SOLO Tests (renommé depuis Test)
 model SoloTest {
   @@schema("public")
-  id          String   @id @default(cuid())
-  userId      String
+  id          String   @id @default(cuid()) @map("id")
+  userId      String @map("user_id")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   // Test metadata
@@ -216,8 +216,8 @@ model SoloTest {
 // SOLO Questions (renommé depuis Question)
 model SoloQuestion {
   @@schema("public")
-  id       String @id @default(cuid())
-  testId   String
+  id       String @id @default(cuid()) @map("id")
+  testId     String @map("test_id")
   test     SoloTest   @relation(fields: [testId], references: [id], onDelete: Cascade)
   
   // Question content
@@ -241,9 +241,9 @@ model SoloQuestion {
 // Game session system for Kahoot-style multiplayer (COMMUN)
 model GameSession {
   @@schema("public")
-  id            String    @id @default(cuid())
+  id            String    @id @default(cuid()) @map("id")
   code          String    @unique @db.VarChar(6)
-  hostId        String
+  hostId        String @map("host_id")
   status        String    @default("waiting") // waiting, active, finished
   quizId        String?
   maxPlayers    Int       @default(20)
@@ -255,15 +255,15 @@ model GameSession {
   host          User        @relation("HostedSessions", fields: [hostId], references: [id])
   players       GamePlayer[]
   kahootQuestions KahootQuestion[]
-
+  
   @@map("game_sessions")
 }
 
 model GamePlayer {
   @@schema("public")
-  id            String    @id @default(cuid())
-  sessionId     String
-  userId        String
+  id            String    @id @default(cuid()) @map("id")
+  sessionId     String @map("session_id")
+  userId        String @map("user_id")
   score         Int       @default(0)
   joinedAt      DateTime  @default(now())
   isReady       Boolean   @default(false)
@@ -272,15 +272,15 @@ model GamePlayer {
   // Relations
   session       GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   user          User        @relation("GamePlayerships", fields: [userId], references: [id], onDelete: Cascade)
-
+  
   @@map("game_players")
 }
 
 // Kahoot questions for synchronized group play (COMMUN)
 model KahootQuestion {
   @@schema("public")
-  id            String   @id @default(cuid())
-  sessionId     String
+  id            String   @id @default(cuid()) @map("id")
+  sessionId     String @map("session_id")
   question      String
   answer        String
   type          String   // operation type
@@ -298,7 +298,7 @@ model KahootQuestion {
 // Badge system (COMMUN)
 model Badge {
   @@schema("public")
-  id          String    @id @default(cuid())
+  id          String    @id @default(cuid()) @map("id")
   name        String    @unique
   description String
   icon        String    // Emoji or icon name
@@ -319,9 +319,9 @@ model Badge {
 // User-Badge association (COMMUN)
 model UserBadge {
   @@schema("public")
-  id        String   @id @default(cuid())
-  userId    String
-  badgeId   String
+  id        String   @id @default(cuid()) @map("id")
+  userId    String @map("user_id")
+  badgeId   String @map("badge_id")
   earnedAt  DateTime @default(now())
   awardedById String? // For custom badges awarded by admin
   expiresAt DateTime? // For temporary badges like monthly top 1
@@ -336,8 +336,8 @@ model UserBadge {
 
 model ExerciseAttempt {
   @@schema("public")
-  id        String   @id @default(cuid())
-  userId    String
+  id        String   @id @default(cuid()) @map("id")
+  userId    String @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   // Exercise details
@@ -360,7 +360,7 @@ model ExerciseAttempt {
 // Course content for learning (COMMUN)
 model Course {
   @@schema("public")
-  id          String @id @default(cuid())
+  id          String @id @default(cuid()) @map("id")
   title       String
   slug        String @unique
   description String
@@ -386,9 +386,9 @@ model Course {
 // Multiplayer friendship system
 model Friendship {
   @@schema("public")
-  id        String   @id @default(cuid())
-  user1Id   String
-  user2Id   String
+  id        String   @id @default(cuid()) @map("id")
+  user1Id   String @map("user1_id")
+  user2Id   String @map("user2_id")
   status    String   // pending, accepted, blocked
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -403,9 +403,9 @@ model Friendship {
 // Message system for friends and challenges
 model Message {
   @@schema("public")
-  id         String   @id @default(cuid())
-  senderId   String
-  receiverId String
+  id         String   @id @default(cuid()) @map("id")
+  senderId   String @map("sender_id")
+  receiverId String @map("receiver_id")
   content    String
   type       String   // friend_request, challenge, chat, system
   read       Boolean  @default(false)
@@ -421,8 +421,8 @@ model Message {
 // Multiplayer games
 model MultiplayerGame {
   @@schema("public")
-  id          String    @id @default(cuid())
-  player1Id   String
+  id          String    @id @default(cuid()) @map("id")
+  player1Id   String @map("player1_id")
   player2Id   String?   // null if waiting for opponent
   status      String    // waiting, playing, finished, aborted
   gameType    String    // friendly, ranked, random
@@ -451,8 +451,8 @@ model MultiplayerGame {
 // Questions in multiplayer games
 model MultiplayerQuestion {
   @@schema("public")
-  id            String @id @default(cuid())
-  gameId        String
+  id            String @id @default(cuid()) @map("id")
+  gameId        String @map("game_id")
   question      String
   answer        String
   type          String // operation type
@@ -475,8 +475,8 @@ model MultiplayerQuestion {
 // Multiplayer statistics (separate from solo stats)
 model MultiplayerStatistics {
   @@schema("public")
-  id     String @id @default(cuid())
-  userId String @unique
+  id     String @id @default(cuid()) @map("id")
+  userId String @unique @map("user_id")
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   // Overall multiplayer stats
@@ -514,9 +514,9 @@ model MultiplayerStatistics {
 // Challenge system for friendly and ranked matches
 model Challenge {
   @@schema("public")
-  id           String   @id @default(cuid())
-  challengerId String
-  challengedId String
+  id           String   @id @default(cuid()) @map("id")
+  challengerId String @map("challenger_id")
+  challengedId String @map("challenged_id")
   
   // Game settings
   gameType     String   @default("pending") // 'ranked' or 'friendly'
@@ -541,7 +541,7 @@ model Challenge {
 // Custom banners for admin uploads (COMMUN)
 model CustomBanner {
   @@schema("public")
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("id")
   name        String
   description String?
   imageUrl    String   // Path to uploaded image
@@ -561,8 +561,8 @@ model CustomBanner {
 
 model TeacherRequest {
   @@schema("public")
-  id          String   @id @default(cuid())
-  userId      String
+  id          String   @id @default(cuid()) @map("id")
+  userId      String @map("user_id")
   name        String
   email       String
   school      String
@@ -580,7 +580,7 @@ model TeacherRequest {
 
 model FaqSubmission {
   @@schema("public")
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("id")
   type        String   // bug, question, suggestion
   title       String
   description String
@@ -596,9 +596,9 @@ model FaqSubmission {
 
 model ClassGroup {
   @@schema("public")
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("id")
   name        String
-  teacherId   String
+  teacherId   String @map("teacher_id")
   description String?
   isPrivate   Boolean  @default(false)
   inviteCode  String?  @unique
@@ -615,9 +615,9 @@ model ClassGroup {
 
 model ClassGroupMember {
   @@schema("public")
-  id        String   @id @default(cuid())
-  groupId   String
-  userId    String
+  id        String   @id @default(cuid()) @map("id")
+  groupId   String @map("group_id")
+  userId    String @map("user_id")
   role      String   @default("student") // teacher, student
   joinedAt  DateTime @default(now())
   
@@ -631,9 +631,9 @@ model ClassGroupMember {
 
 model ClassMessage {
   @@schema("public")
-  id        String   @id @default(cuid())
-  groupId   String
-  userId    String
+  id        String   @id @default(cuid()) @map("id")
+  groupId   String @map("group_id")
+  userId    String @map("user_id")
   content   String
   type      String   @default("text") // text, system
   createdAt DateTime @default(now())
@@ -647,9 +647,9 @@ model ClassMessage {
 
 model QuestionHistory {
   @@schema("public")
-  id          String   @id @default(cuid())
-  userId      String
-  questionId  String
+  id          String   @id @default(cuid()) @map("id")
+  userId      String @map("user_id")
+  questionId  String @map("question_id")
   answeredAt  DateTime @default(now())
   correct     Boolean
   eloAtMoment Int
