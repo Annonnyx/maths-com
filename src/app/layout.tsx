@@ -49,11 +49,41 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // JSON-LD structured data for Google SEO
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Maths-App.com',
+    description: 'Entraînement au calcul mental avec système adaptatif et gamifié',
+    url: 'https://maths-app.com',
+    applicationCategory: 'EducationalApplication',
+    operatingSystem: 'Any',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'EUR',
+    },
+    author: {
+      '@type': 'Organization',
+      name: 'Maths-App.com',
+      url: 'https://maths-app.com',
+    },
+  };
+
+  const gaId = process.env.NEXT_PUBLIC_GA_ID || 'G-XXXXXXXXXX';
+
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
         <link rel="canonical" href="https://maths-app.com" />
         <meta name="google-adsense-account" content="ca-pub-5606384371601059" />
+        
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+        
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5606384371601059"
@@ -62,7 +92,7 @@ export default function RootLayout({
         />
         <Script
           async
-          src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+          src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -70,7 +100,7 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-XXXXXXXXXX');
+            gtag('config', '${gaId}');
           `}
         </Script>
       </head>
