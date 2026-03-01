@@ -303,8 +303,8 @@ export default function AdminTeachersPage() {
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold">{user.elo}</span>
-                          <span className="text-sm text-gray-500">({user.rankClass})</span>
+                          <span className="font-semibold">{(user as any).soloElo}</span>
+                          <span className="text-sm text-gray-500">({(user as any).soloRankClass})</span>
                         </div>
                       </td>
                       <td className="p-4">

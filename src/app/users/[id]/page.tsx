@@ -285,8 +285,8 @@ export default function UserProfilePage() {
                   bannerUrl: profile.bannerUrl || undefined,
                   selectedBadgeIds,
                   userBadges: profile.userBadges?.map((ub) => ({ badge: ub.badge })) ?? [],
-                  elo: profile.elo,
-                  rankClass: profile.rankClass,
+                  elo: (profile as any).soloElo,
+                  rankClass: (profile as any).soloRankClass,
                   isOnline: profile.isOnline
                 }}
                 showBadges
@@ -294,7 +294,7 @@ export default function UserProfilePage() {
             </div>
             
             <div className="text-right">
-              <div className="text-3xl font-bold mb-2">{profile.elo} Elo</div>
+              <div className="text-3xl font-bold mb-2">{(profile as any).soloElo} Elo</div>
               {profile.multiplayerElo && (
                 <div className="text-lg text-gray-400">{profile.multiplayerElo} Elo Multi</div>
               )}
@@ -393,7 +393,7 @@ export default function UserProfilePage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Série actuelle</span>
-                <span className="font-semibold">{profile.currentStreak}</span>
+                <span className="font-semibold">{(profile as any).soloCurrentStreak}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Meilleure série</span>

@@ -122,8 +122,8 @@ export default function TeacherClassManager() {
             username: student.username || '',
             displayName: student.displayName || student.username || '',
             avatarUrl: student.avatarUrl,
-            elo: student.elo || 1000,
-            rankClass: student.rankClass || 'Bronze',
+            elo: (student as any).soloElo || 1000,
+            rankClass: (student as any).soloRankClass || 'Bronze',
             joinedAt: req.updated_at
           };
         });
@@ -313,12 +313,12 @@ export default function TeacherClassManager() {
                         {request.student.displayName}
                       </h4>
                       <p className="text-sm text-gray-400">
-                        @{request.student.username} • {request.student.rankClass}
+                        @{request.student.username} • {(request.student as any).soloRankClass}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <TrendingUp className="w-4 h-4 text-indigo-400" />
                         <span className="text-sm text-indigo-400">
-                          ELO: {request.student.elo}
+                          ELO: {(request.student as any).soloElo}
                         </span>
                       </div>
                     </div>
@@ -407,14 +407,14 @@ export default function TeacherClassManager() {
                         <div className="flex items-center gap-2">
                           <Award className="w-4 h-4 text-yellow-400" />
                           <span className="text-sm font-medium text-yellow-400">
-                            {student.rankClass}
+                            {(student as any).soloRankClass}
                           </span>
                         </div>
                         
                         <div className="flex items-center gap-1">
                           <TrendingUp className="w-4 h-4 text-indigo-400" />
                           <span className="text-sm text-indigo-400">
-                            {student.elo}
+                            {(student as any).soloElo}
                           </span>
                         </div>
                       </div>

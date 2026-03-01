@@ -870,7 +870,7 @@ const checkAchievementRequirement = (achievement: Achievement, userStats: any): 
       return userStats.averageAccuracy >= value;
     
     case 'streak':
-      return userStats.currentStreak >= value;
+      return (userStats as any).soloCurrentStreak >= value;
     
     default:
       return false;

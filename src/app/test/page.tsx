@@ -92,7 +92,7 @@ function TestPage() {
     let title = 'Test';
     
     // Get user Elo from session, default to 400
-    const userElo = (session?.user as any)?.elo || 400;
+    const userElo = (session?.user as any)?.soloElo || 400;
     
     // Check for custom error questions from URL
     const errorsParam = searchParams.get('errors');
@@ -283,7 +283,7 @@ function TestPage() {
     
     if (testMode === 'competitive') {
       // Get user Elo from profile or session
-      const userElo = (session?.user as any)?.elo || 400;
+      const userElo = (session?.user as any)?.soloElo || 400;
       const totalTime = timePerQuestion.reduce((a, b) => a + b, 0);
       
       // Calculate time bonus with custom formula (same as server)
@@ -376,7 +376,7 @@ function TestPage() {
         
         if (refreshResponse.ok) {
           const refreshData = await refreshResponse.json();
-          console.log('Session refreshed with new Elo:', refreshData.user.elo);
+          console.log('Session refreshed with new Elo:', refreshData.user.soloElo);
           setEloUpdated(true);
         }
       } catch (refreshError) {

@@ -141,12 +141,12 @@ export default function TestHistoryPage() {
                       </div>
                       <div className="text-center min-w-[60px]">
                         <div className="text-lg font-semibold flex items-center gap-1 sm:gap-2">
-                          {test.eloChange > 0 ? (
+                          {(test as any).eloChange > 0 ? (
                             <TrendingUp className="w-5 h-5 text-green-400" />
-                          ) : test.eloChange < 0 ? (
+                          ) : (test as any).eloChange < 0 ? (
                             <TrendingUp className="w-5 h-5 text-red-400 rotate-180" />
                           ) : null}
-                          {test.eloChange > 0 ? '+' : ''}{test.eloChange}
+                          {(test as any).eloChange > 0 ? '+' : ''}{(test as any).eloChange}
                         </div>
                         <div className="text-sm text-purple-300">Elo</div>
                       </div>

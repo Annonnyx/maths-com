@@ -70,8 +70,8 @@ export default function AdminPage() {
   
   // Elo modification
   const [myElo, setMyElo] = useState({
-    elo: 400,
-    rankClass: 'F-',
+    soloElo: 400,
+    soloRankClass: 'F-',
     multiplayerElo: 400,
     multiplayerRankClass: 'F-',
     bestElo: 400,
@@ -171,7 +171,7 @@ export default function AdminPage() {
         const eloData = await eloRes.json();
         if (eloData.user) {
           setMyElo(eloData.user);
-          setNewElo(eloData.user.elo.toString());
+          setNewElo(eloData.user.soloElo.toString());
           setNewMultiplayerElo(eloData.user.multiplayerElo.toString());
         }
       } else {
@@ -491,8 +491,8 @@ export default function AdminPage() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="p-3 bg-card rounded-lg">
                   <p className="text-gray-400">Elo Solo actuel</p>
-                  <p className="text-xl font-bold">{myElo.elo}</p>
-                  <p className="text-sm text-purple-400">{myElo.rankClass}</p>
+                  <p className="text-xl font-bold">{myElo.soloElo}</p>
+                  <p className="text-sm text-purple-400">{myElo.soloRankClass}</p>
                 </div>
                 <div className="p-3 bg-card rounded-lg">
                   <p className="text-gray-400">Elo Multi actuel</p>
@@ -815,7 +815,7 @@ export default function AdminPage() {
                   <option value="">Choisir un utilisateur</option>
                   {users.map(user => (
                     <option key={user.id} value={user.id}>
-                      {user.username} ({user.elo} Elo)
+                      {user.username} ({(user as any).soloElo} Elo)
                     </option>
                   ))}
                 </select>
@@ -1261,13 +1261,15 @@ export default function AdminPage() {
                       ['ID', 'Username', 'Email', 'Display Name', 'Elo Solo', 'Classe Solo', 'Elo Multi', 'Classe Multi'].join(','),
                       ...users.map(u => [
                         u.id,
-                        u.username,
-                        u.email,
-                        u.displayName || '',
-                        u.elo,
-                        u.rankClass,
-                        u.multiplayerElo,
-                        u.multiplayerRankClass
+                        [
+                          u.username,
+                          u.email,
+                          u.displayName || '',
+                          (u as any).soloElo,
+                          (u as any).soloRankClass,
+                          (u as any).multiplayerElo,
+                          (u as any).multiplayerRankClass
+                        ].join(','),
                       ].join(','))
                     ].join('\n');
                     
@@ -1303,10 +1305,10 @@ export default function AdminPage() {
                       <tr key={user.id} className="border-b border-[#1e1e2e] hover:bg-card">
                         <td className="p-2 font-medium">{user.username}</td>
                         <td className="p-2 text-gray-400">{user.email}</td>
-                        <td className="p-2">{user.elo}</td>
-                        <td className="p-2 text-purple-400">{user.rankClass}</td>
-                        <td className="p-2">{user.multiplayerElo}</td>
-                        <td className="p-2 text-purple-400">{user.multiplayerRankClass}</td>
+                        <td className="p-2">{(user as any).soloElo}</td>
+                        <td className="p-2 text-purple-400">{(user as any).soloRankClass}</td>
+                        <td className="p-2">{(user as any).multiplayerElo}</td>
+                        <td className="p-2 text-purple-400">{(user as any).multiplayerRankClass}</td>
                       </tr>
                     ))}
                   </tbody>

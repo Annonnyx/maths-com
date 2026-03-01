@@ -40,7 +40,7 @@ export class AdaptiveExerciseManager {
         question_id: item.questionId,
         answered_at: new Date(item.answeredAt),
         correct: item.correct,
-        elo_at_moment: item.eloAtMoment
+        elo_at_moment: (item as any).eloAtMoment
       })) || [];
     } catch (error) {
       console.error('Error in loadQuestionHistory:', error);
@@ -63,7 +63,7 @@ export class AdaptiveExerciseManager {
         return 400;
       }
 
-      return data.soloElo;
+      return (data as any).soloElo;
     } catch (error) {
       console.error('Error in getCurrentElo:', error);
       return 400;
@@ -235,7 +235,7 @@ export class AdaptiveExerciseManager {
         .reverse()
         .map((q, index) => ({
           date: q.answered_at.toLocaleDateString(),
-          elo: q.elo_at_moment // Garder tel quel car c'est l'historique
+          elo: (q as any).eloAtMoment // Garder tel quel car c'est l'historique
         }));
 
       return {

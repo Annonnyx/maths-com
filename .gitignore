@@ -55,3 +55,20 @@ prod.db
 
 # Analytics files
 google-analytics.json
+
+# SQL scripts with sensitive data (emails, admin scripts)
+/sql/
+
+# Local env files
+.env.local
+.env.production
+
+# Debug/temp files (guides, scripts, notes)
+GUIDE_*.md
+SCRIPT_*.sql
+debug*.sql
+diagnostic*.sql
+AUDIT_*.md
+CARTOGRAPHIE_*.md
+CORRECTIONS_*.md
+DEBUG_*.md

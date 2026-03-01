@@ -1,4 +1,5 @@
 import { MultiplayerGame, MultiplayerStats, TimeControl, GameType } from './multiplayer';
+import { User } from '@/types';
 import { getRankFromElo } from './elo';
 
 // Calculate Elo change for multiplayer games - NERFED for less volatility
@@ -266,8 +267,8 @@ export function generateMultiplayerQuestions(
 }
 
 // Check if a player is on a winning streak
-export function isOnWinningStreak(stats: MultiplayerStats): boolean {
-  return stats.currentStreak >= 3;
+export function isOnWinningStreak(stats: User): boolean {
+  return stats.soloCurrentStreak >= 3;
 }
 
 // Get streak milestone message

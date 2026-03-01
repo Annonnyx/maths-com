@@ -69,7 +69,7 @@ export function PlayerBanner({ player, isOpponent = false, showBadges = true }: 
       return `bg-gradient-to-r ${gradient}`;
     }
     // Default gradient based on rank
-    const tier = player.rankClass.charAt(0);
+    const tier = (player as any).soloRankClass.charAt(0);
     const gradients: Record<string, string> = {
       'S': 'from-yellow-500 to-orange-600',
       'A': 'from-orange-500 to-red-600',
@@ -116,9 +116,9 @@ export function PlayerBanner({ player, isOpponent = false, showBadges = true }: 
             {player.displayName || player.username}
           </h3>
           <div className={`flex items-center gap-2 text-sm text-foreground/90 ${isOpponent ? 'justify-end' : ''}`}>
-            <span className="font-semibold">{player.elo} Elo</span>
+            <span className="font-semibold">{(player as any).soloElo} Elo</span>
             <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-bold">
-              {player.rankClass}
+              {(player as any).soloRankClass}
             </span>
           </div>
         </div>
