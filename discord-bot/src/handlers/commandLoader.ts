@@ -66,6 +66,8 @@ export async function loadCommands() {
           
           if (actualCommand && actualCommand.data) {
             commands.push(actualCommand);
+            // Stocker dans client.commands pour interactionCreate
+            client.commands.set(actualCommand.data.name, actualCommand);
             console.log(`✅ Commande chargée: ${actualCommand.data.name}`);
           } else {
             console.warn(`⚠️ La commande ${file} n'a pas de data ou de default export`);

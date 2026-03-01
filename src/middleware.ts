@@ -3,7 +3,10 @@ import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('next-auth.session-token')?.value;
+  // Check for both dev and production cookie names
+  const token = request.cookies.get('next-auth.session-token')?.value || 
+                request.cookies.get('__Secure-next-auth.session-token')?.value ||
+                request.cookies.get('__Host-next-auth.session-token')?.value;
   
   const isAuthenticated = !!token;
   const pathname = request.nextUrl.pathname;
