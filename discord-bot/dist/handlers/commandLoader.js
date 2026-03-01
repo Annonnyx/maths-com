@@ -1,4 +1,5 @@
 import { REST, Routes } from 'discord.js';
+import { client } from '../client.js';
 import { config } from '../config.js';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
@@ -43,6 +44,8 @@ export async function loadCommands() {
                     const actualCommand = command.default.default || command.default;
                     if (actualCommand && actualCommand.data) {
                         commands.push(actualCommand);
+                        // Stocker dans client.commands pour interactionCreate
+                        client.commands.set(actualCommand.data.name, actualCommand);
                         console.log(`✅ Commande chargée: ${actualCommand.data.name}`);
                     }
                     else {

@@ -38,24 +38,33 @@ export async function POST(req: NextRequest) {
     // Hash password if provided
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
-    // Create user with statistics
+    // Create user first
     const user = await prisma.user.create({
       data: {
         email,
         username,
         password: hashedPassword,
         displayName: displayName || username,
-        statistics: {
-          create: {
-            weakPoints: JSON.stringify([]),
-            eloHistory: JSON.stringify([{ date: new Date().toISOString(), elo: 400 }])
-          }
-        }
-      },
+      }
+    });
+
+    // Create statistics separately with the correct userId
+    await prisma.statistics.create({
+      data: {
+        userId: user.id,
+        weakPoints: JSON.stringify([]),
+        eloHistory: JSON.stringify([{ date: new Date().toISOString(), elo: 400 }])
+      }
+    });
+
+    // Fetch user with statistics for response
+    const userWithStats = await prisma.user.findUnique({
+      where: { id: user.id },
       include: {
         statistics: true
       }
     });
+
     console.log('[API /users] User created:', user.id);
 
     // Return user without password
