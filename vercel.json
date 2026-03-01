@@ -11,12 +11,6 @@
       "has": [{ "type": "host", "value": "www.maths-app.fr" }],
       "destination": "https://maths-app.com/:path*",
       "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.maths-app.com" }],
-      "destination": "https://maths-app.com/:path*",
-      "permanent": true
     }
   ]
 }
