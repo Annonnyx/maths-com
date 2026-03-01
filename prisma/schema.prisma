@@ -22,24 +22,24 @@ model User {
   updatedAt     DateTime  @updatedAt @map("updated_at")
   
   // Profile (COMMUN)
-  displayName   String?
-  avatarUrl     String?
-  classe        String?   // Classe scolaire calculée (CP, CE1, CE2, CM1, CM2, 6ème, 5ème, 4ème, 3ème, 2nde, 1ère, Terminale)
-  birthYear     Int?      // Année de naissance pour calculer la classe
+  displayName   String?   @map("display_name")
+  avatarUrl     String?   @map("avatar_url")
+  classe        String?   // Classe scolaire calculée
+  birthYear     Int?      @map("birth_year")
   
   // Banner customization (COMMUN)
-  bannerUrl     String?   // URL de la bannière personnalisée
+  bannerUrl     String?   @map("banner_url")
   selectedBadgeIds String? @map("selected_badge_ids") // JSON array of up to 3 badge IDs to display on banner
   customBannerId String?  @map("custom_banner_id")  // Reference to custom banner if using one
   
   // Admin flags (COMMUN)
-  isAdmin       Boolean   @default(false)
+  isAdmin       Boolean   @default(false) @map("is_admin")
   
   // Teacher information (COMMUN)
-  isTeacher     Boolean   @default(false)
+  isTeacher     Boolean   @default(false) @map("is_teacher")
   school         String?
   subject        String?
-  acceptJoinRequests Boolean @default(true)
+  acceptJoinRequests Boolean @default(true) @map("accept_join_requests")
   
   // SOLO Ranking System
   soloElo           Int       @default(400) @map("solo_elo")
@@ -59,14 +59,14 @@ model User {
   lastTestDate DateTime? @map("last_test_date")
   
   // Online status (COMMUN)
-  isOnline     Boolean @default(false)
+  isOnline     Boolean @default(false) @map("is_online")
   lastSeenAt   DateTime @default(now()) @map("last_seen_at")
   
   // Discord integration (COMMUN)
-  discordId       String?   @unique
-  discordUsername   String?
-  discordLinkedAt   DateTime?
-  discordLinkCode   String?   @unique  // Temporary code for linking
+  discordId       String?   @unique @map("discord_id")
+  discordUsername   String? @map("discord_username")
+  discordLinkedAt   DateTime? @map("discord_linked_at")
+  discordLinkCode   String?   @unique @map("discord_link_code")
   
   // Relations
   soloStatistics SoloStatistics?
@@ -116,7 +116,7 @@ model User {
   groupMessages   ClassMessage[]
   
   // First-time setup (COMMUN)
-  hasCompletedOnboarding Boolean @default(false)
+  hasCompletedOnboarding Boolean @default(false) @map("has_completed_onboarding")
 
   @@map("users")
 }
