@@ -77,6 +77,7 @@ export default function RootLayout({
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
         <link rel="canonical" href="https://maths-app.com" />
+        <meta name="google-site-verification" content="g2vjPj5n1HoikGZoKbQOhw71sHveNXrDiNCRMy7ORF8" />
         <meta name="google-adsense-account" content="ca-pub-5606384371601059" />
         
         {/* JSON-LD Structured Data */}
