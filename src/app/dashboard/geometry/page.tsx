@@ -33,50 +33,53 @@ export default function GeometryDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
-      {/* Header */}
-      <header className="border-b border-gray-800 bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      {/* Improved Header */}
+      <header className="border-b border-gray-800 bg-gradient-to-r from-[#12121a] to-[#1a1a2e] backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <Ruler className="w-6 h-6 text-white" />
+              <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <Ruler className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">Atelier de Géométrie</h1>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Atelier de Géométrie</h1>
                 <p className="text-sm text-gray-400">Explore, dessine et apprends les mathématiques visuelles</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
-              <button className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors" title="Sauvegarder">
-                <Save className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium" title="Sauvegarder">
+                <Save className="w-4 h-4 text-indigo-400" />
+                Sauvegarder
               </button>
-              <button className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors" title="Exporter">
-                <Download className="w-5 h-5 text-gray-400" />
+              <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium" title="Exporter">
+                <Download className="w-4 h-4 text-green-400" />
+                Exporter
               </button>
-              <button className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors" title="Partager">
-                <Share2 className="w-5 h-5 text-gray-400" />
+              <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors text-sm font-medium" title="Partager">
+                <Share2 className="w-4 h-4" />
+                Partager
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-800">
+      {/* Improved Tabs */}
+      <div className="border-b border-gray-800 bg-[#0f0f15]">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             {tabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-6 py-4 font-medium transition-all border-b-2 ${
+                className={`flex items-center gap-2 px-6 py-4 font-medium transition-all border-b-2 rounded-t-lg mt-2 ${
                   activeTab === tab.id 
-                    ? 'border-indigo-500 text-indigo-400' 
-                    : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'
+                    ? 'border-indigo-500 text-indigo-400 bg-[#12121a]' 
+                    : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/30'
                 }`}
               >
-                <tab.icon className="w-5 h-5" />
+                <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-indigo-400' : 'text-gray-500'}`} />
                 {tab.label}
               </button>
             ))}

@@ -12,7 +12,8 @@ import JoinClassButton from '@/components/JoinClassButton';
 import { 
   Trophy, User, Settings, Bell, Shield, LogOut, 
   ChevronRight, Edit2, Check, X, RotateCcw, Users, Zap, Target, Crown, Medal,
-  Palette, Image as ImageIcon, Star, Award, Swords, Volume2, MessageSquare, Clock
+  Palette, Image as ImageIcon, Star, Award, Swords, Volume2, MessageSquare, Clock,
+  Share2, Copy
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
@@ -63,6 +64,10 @@ function ProfileContent() {
   // Discord link state
   const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
   const [isDiscordLinked, setIsDiscordLinked] = useState(false);
+
+  // Share profile state
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Teacher request form state
   const [showTeacherRequestForm, setShowTeacherRequestForm] = useState(false);
@@ -289,6 +294,14 @@ function ProfileContent() {
             <div className="text-sm font-semibold">Entraînement</div>
             <div className="text-xs text-muted-foreground">Libre</div>
           </Link>
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="p-4 bg-card rounded-xl border border-border hover:border-indigo-500/50 transition-all group text-left"
+          >
+            <Share2 className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+            <div className="text-sm font-semibold">Partager</div>
+            <div className="text-xs text-muted-foreground">Profil public</div>
+          </button>
         </div>
 
         {/* Tabs Navigation */}
@@ -1543,6 +1556,91 @@ function ProfileContent() {
                 </button>
               </div>
             </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Share Profile Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-card rounded-2xl border border-border p-6 max-w-md w-full"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Share2 className="w-5 h-5 text-indigo-400" />
+                Partager mon profil
+              </h3>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <p className="text-muted-foreground mb-4">
+              Partage ton profil public avec tes amis pour qu&apos;ils puissent voir ta progression !
+            </p>
+            
+            <div className="bg-muted rounded-lg p-4 mb-4">
+              <div className="text-sm text-muted-foreground mb-1">URL de ton profil</div>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-sm bg-card px-3 py-2 rounded border border-border truncate">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/u/${profile?.user?.username}` : `/u/${profile?.user?.username}`}
+                </code>
+                <button
+                  onClick={async () => {
+                    const url = `${window.location.origin}/u/${profile?.user?.username}`;
+                    try {
+                      await navigator.clipboard.writeText(url);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    } catch {
+                      const input = document.createElement('input');
+                      input.value = url;
+                      document.body.appendChild(input);
+                      input.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(input);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }
+                  }}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition-colors flex items-center gap-2"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Copié !
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Copier
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="flex-1 px-4 py-3 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-colors"
+              >
+                Fermer
+              </button>
+              <Link
+                href={`/u/${profile?.user?.username}`}
+                target="_blank"
+                className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition-colors text-center"
+              >
+                Voir le profil public
+              </Link>
+            </div>
           </motion.div>
         </div>
       )}
