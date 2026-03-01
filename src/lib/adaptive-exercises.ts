@@ -392,9 +392,9 @@ function generateDivision(frenchClass: string): Exercise {
       result = randomInt(2, 12);
       divisor = randomInt(2, 12);
       break;
-    case 'CM1': // dividendes plus grands
-      result = randomInt(5, 50);
-      divisor = randomInt(3, 20);
+    case 'CM1': // Tables 2-9 seulement, divisions exactes uniquement
+      result = randomInt(2, 9);
+      divisor = randomInt(2, 9);
       break;
     case 'CM2': // plus complexe
       result = randomInt(10, 100);
@@ -1084,6 +1084,19 @@ export function generateAdaptiveQuestion(
   // Pick random operation from curriculum
   const operation = curriculum.operations[randomInt(0, curriculum.operations.length - 1)];
   
+  // Add variety: 15% chance for multi-ops, parentheses, or word problems (CE1 and above)
+  const varietyRoll = Math.random();
+  if (classIndex >= 1 && varietyRoll < 0.15) {
+    const varietyType = Math.floor(Math.random() * 3);
+    if (varietyType === 0 && classIndex >= 2) {
+      return generateMultiOperations(selectedClass);
+    } else if (varietyType === 1 && classIndex >= 3) {
+      return generateParentheses(selectedClass);
+    } else {
+      return generateWordProblem(selectedClass);
+    }
+  }
+  
   // Generate exercise
   let exercise = generateExerciseForClass(operation, selectedClass);
   
@@ -1142,6 +1155,165 @@ export function calculateEloChange(
   const difficultyBonus = questionDifficulty > 7 ? 5 : 0;
   
   return baseChange + timeBonus + difficultyBonus;
+}
+
+// Generate multi-operations exercise (e.g., 6 + 3 + 76 - 24)
+function generateMultiOperations(frenchClass: string): Exercise {
+  const classIndex = FRENCH_CLASSES.indexOf(frenchClass);
+  let a: number, b: number, c: number, d: number, ops: string[], answer: number;
+  
+  switch (frenchClass) {
+    case 'CP':
+    case 'CE1':
+      a = randomInt(1, 10);
+      b = randomInt(1, 10);
+      c = randomInt(1, 10);
+      ops = ['+', '-'];
+      answer = a + b - c;
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        type: 'mental_math',
+        difficulty: classIndex + 1,
+        question: `${a} ${ops[0]} ${b} ${ops[1]} ${c} = ?`,
+        answer: answer.toString(),
+        explanation: `${a} + ${b} - ${c} = ${a + b} - ${c} = ${answer}`,
+        frenchClass,
+        topic: 'calcul_enchaine'
+      };
+    case 'CE2':
+    case 'CM1':
+      a = randomInt(1, 20);
+      b = randomInt(1, 20);
+      c = randomInt(1, 20);
+      ops = ['+', '+', '-'];
+      answer = a + b + c - randomInt(5, 15);
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        type: 'mental_math',
+        difficulty: classIndex + 1,
+        question: `${a} + ${b} + ${c} - ${a + b + c - answer} = ?`,
+        answer: answer.toString(),
+        explanation: `${a} + ${b} + ${c} - ${a + b + c - answer} = ${a + b + c} - ${a + b + c - answer} = ${answer}`,
+        frenchClass,
+        topic: 'calcul_enchaine'
+      };
+    default:
+      a = randomInt(10, 100);
+      b = randomInt(10, 50);
+      c = randomInt(10, 50);
+      d = randomInt(5, 30);
+      answer = a + b + c - d;
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        type: 'mental_math',
+        difficulty: classIndex + 1,
+        question: `${a} + ${b} + ${c} - ${d} = ?`,
+        answer: answer.toString(),
+        explanation: `${a} + ${b} + ${c} - ${d} = ${a + b + c} - ${d} = ${answer}`,
+        frenchClass,
+        topic: 'calcul_enchaine'
+      };
+  }
+}
+
+// Generate parentheses exercise (e.g., 5 × (45 - 12))
+function generateParentheses(frenchClass: string): Exercise {
+  const classIndex = FRENCH_CLASSES.indexOf(frenchClass);
+  let a: number, b: number, c: number, answer: number;
+  
+  switch (frenchClass) {
+    case 'CM1':
+    case 'CM2':
+      a = randomInt(2, 9);
+      b = randomInt(10, 50);
+      c = randomInt(1, 20);
+      answer = a * (b - c);
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        type: 'mental_math',
+        difficulty: classIndex + 1,
+        question: `${a} × (${b} - ${c}) = ?`,
+        answer: answer.toString(),
+        explanation: `${a} × (${b} - ${c}) = ${a} × ${b - c} = ${answer}`,
+        frenchClass,
+        topic: 'parentheses'
+      };
+    default:
+      a = randomInt(2, 12);
+      b = randomInt(20, 100);
+      c = randomInt(5, 30);
+      answer = a * (b + c);
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        type: 'mental_math',
+        difficulty: classIndex + 1,
+        question: `${a} × (${b} + ${c}) = ?`,
+        answer: answer.toString(),
+        explanation: `${a} × (${b} + ${c}) = ${a} × ${b + c} = ${answer}`,
+        frenchClass,
+        topic: 'parentheses'
+      };
+  }
+}
+
+// Generate word problem (problème contextualisé)
+function generateWordProblem(frenchClass: string): Exercise {
+  const classIndex = FRENCH_CLASSES.indexOf(frenchClass);
+  const objects = ['bananes', 'billes', 'livres', 'cartes', 'bonbons', 'pommes', 'jouets'];
+  const object = objects[randomInt(0, objects.length - 1)];
+  
+  let x: number, y: number, z: number, answer: number, question: string;
+  
+  switch (frenchClass) {
+    case 'CE1':
+      x = randomInt(5, 20);
+      y = randomInt(1, x - 2);
+      answer = x - y;
+      question = `Clément a ${x} ${object}. Il en donne ${y} à son ami. Combien lui en reste-t-il ?`;
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        type: 'logic',
+        difficulty: classIndex + 1,
+        question,
+        answer: answer.toString(),
+        explanation: `${x} - ${y} = ${answer}`,
+        frenchClass,
+        topic: 'probleme_contextuel'
+      };
+    case 'CE2':
+    case 'CM1':
+      x = randomInt(10, 30);
+      y = randomInt(2, 8);
+      z = randomInt(1, y - 1);
+      answer = x - y - z;
+      question = `Clément achète ${x} ${object}, en mange ${y} et en donne ${z} à son ami. Combien lui en reste-t-il ?`;
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        type: 'logic',
+        difficulty: classIndex + 1,
+        question,
+        answer: answer.toString(),
+        explanation: `${x} - ${y} - ${z} = ${x - y} - ${z} = ${answer}`,
+        frenchClass,
+        topic: 'probleme_contextuel'
+      };
+    default:
+      x = randomInt(20, 100);
+      y = randomInt(5, 20);
+      z = randomInt(3, y - 2);
+      answer = x - y - z;
+      question = `Clément a ${x} ${object}. Il en utilise ${y} et en vend ${z}. Combien lui en reste-t-il ?`;
+      return {
+        id: Math.random().toString(36).substring(2, 11),
+        type: 'logic',
+        difficulty: classIndex + 1,
+        question,
+        answer: answer.toString(),
+        explanation: `${x} - ${y} - ${z} = ${x - y} - ${z} = ${answer}`,
+        frenchClass,
+        topic: 'probleme_contextuel'
+      };
+  }
 }
 
 // Export functions for use in other modules

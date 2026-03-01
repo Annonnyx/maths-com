@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import OnboardingFlow from '@/components/OnboardingFlow';
 import { 
   Trophy, Target, Clock, TrendingUp, BookOpen, 
   Calculator, ChevronRight, Award, BarChart3,
@@ -20,6 +21,20 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const { profile, isLoading, error } = useUserProfile();
   const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'history' | 'class'>('overview');
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if user needs onboarding
+  useEffect(() => {
+    if (session?.user && !(session.user as any).hasCompletedOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, [session]);
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    // Navigate to test page with onboarding flag
+    router.push('/test?onboarding=true');
+  };
 
   // Redirect to login if not authenticated (fallback if middleware fails)
   useEffect(() => {
@@ -77,6 +92,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Onboarding Flow for new users */}
+      {showOnboarding && (
+        <OnboardingFlow onComplete={handleOnboardingComplete} />
+      )}
+
       {/* Header */}
       <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">

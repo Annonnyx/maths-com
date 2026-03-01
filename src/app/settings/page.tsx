@@ -119,12 +119,14 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => handlePrefChange('darkMode', !preferences.darkMode)}
-                className={`w-12 h-6 rounded-full transition-all ${
-                  preferences.darkMode ? 'bg-primary' : 'bg-muted'
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
+                  preferences.darkMode ? 'bg-primary' : 'bg-gray-600'
                 }`}
+                role="switch"
+                aria-checked={preferences.darkMode}
               >
-                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                  preferences.darkMode ? 'translate-x-6' : 'translate-x-0.5'
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
+                  preferences.darkMode ? 'translate-x-6' : 'translate-x-1'
                 }`} />
               </button>
             </div>
@@ -139,12 +141,14 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => handlePrefChange('animations', !preferences.animations)}
-                className={`w-12 h-6 rounded-full transition-all ${
-                  preferences.animations ? 'bg-primary' : 'bg-muted'
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
+                  preferences.animations ? 'bg-primary' : 'bg-gray-600'
                 }`}
+                role="switch"
+                aria-checked={preferences.animations}
               >
-                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                  preferences.animations ? 'translate-x-6' : 'translate-x-0.5'
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
+                  preferences.animations ? 'translate-x-6' : 'translate-x-1'
                 }`} />
               </button>
             </div>
@@ -174,12 +178,14 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => handlePrefChange('soundEffects', !preferences.soundEffects)}
-                className={`w-12 h-6 rounded-full transition-all ${
-                  preferences.soundEffects ? 'bg-primary' : 'bg-muted'
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
+                  preferences.soundEffects ? 'bg-primary' : 'bg-gray-600'
                 }`}
+                role="switch"
+                aria-checked={preferences.soundEffects}
               >
-                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                  preferences.soundEffects ? 'translate-x-6' : 'translate-x-0.5'
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
+                  preferences.soundEffects ? 'translate-x-6' : 'translate-x-1'
                 }`} />
               </button>
             </div>
@@ -209,12 +215,14 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => handleNotifChange('friendRequests', !notifSettings.friendRequests)}
-                className={`w-12 h-6 rounded-full transition-all ${
-                  notifSettings.friendRequests ? 'bg-primary' : 'bg-muted'
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
+                  notifSettings.friendRequests ? 'bg-primary' : 'bg-gray-600'
                 }`}
+                role="switch"
+                aria-checked={notifSettings.friendRequests}
               >
-                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                  notifSettings.friendRequests ? 'translate-x-6' : 'translate-x-0.5'
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
+                  notifSettings.friendRequests ? 'translate-x-6' : 'translate-x-1'
                 }`} />
               </button>
             </div>
@@ -229,12 +237,14 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => handleNotifChange('challenges', !notifSettings.challenges)}
-                className={`w-12 h-6 rounded-full transition-all ${
-                  notifSettings.challenges ? 'bg-primary' : 'bg-muted'
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
+                  notifSettings.challenges ? 'bg-primary' : 'bg-gray-600'
                 }`}
+                role="switch"
+                aria-checked={notifSettings.challenges}
               >
-                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                  notifSettings.challenges ? 'translate-x-6' : 'translate-x-0.5'
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
+                  notifSettings.challenges ? 'translate-x-6' : 'translate-x-1'
                 }`} />
               </button>
             </div>
@@ -264,12 +274,14 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => handlePrefChange('showTimer', !preferences.showTimer)}
-                className={`w-12 h-6 rounded-full transition-all ${
-                  preferences.showTimer ? 'bg-primary' : 'bg-muted'
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
+                  preferences.showTimer ? 'bg-primary' : 'bg-gray-600'
                 }`}
+                role="switch"
+                aria-checked={preferences.showTimer}
               >
-                <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                  preferences.showTimer ? 'translate-x-6' : 'translate-x-0.5'
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
+                  preferences.showTimer ? 'translate-x-6' : 'translate-x-1'
                 }`} />
               </button>
             </div>

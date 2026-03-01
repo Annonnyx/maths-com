@@ -16,7 +16,10 @@ import {
   ArrowLeft,
   Shield,
   Filter,
-  MoreVertical
+  MoreVertical,
+  Edit2,
+  Check,
+  X
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -57,6 +60,11 @@ export default function AdminTeachersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'users' | 'requests'>('users');
+  
+  // State for editing username
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [newUsername, setNewUsername] = useState('');
+  const [isSavingUsername, setIsSavingUsername] = useState(false);
 
   // Récupérer les vraies données depuis l'API
   useEffect(() => {
@@ -112,17 +120,86 @@ export default function AdminTeachersPage() {
   };
 
   const handleApproveRequest = async (requestId: string) => {
-    // API call to approve request
-    setRequests(requests.map(r => 
-      r.id === requestId ? { ...r, status: 'approved' } : r
-    ));
+    try {
+      const response = await fetch(`/api/teacher-requests/${requestId}/approve`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        // Mettre à jour l'interface localement
+        setRequests(requests.map(r => 
+          r.id === requestId ? { ...r, status: 'approved' } : r
+        ));
+        // Rafraîchir la liste des utilisateurs pour voir le nouveau statut professeur
+        const usersResponse = await fetch('/api/admin/users');
+        const data = await usersResponse.json();
+        if (data.users) {
+          setUsers(data.users.map((user: any) => ({
+            ...user,
+            isTeacher: user.isTeacher || false,
+            school: user.school || null,
+            subject: user.subject || null
+          })));
+        }
+      } else {
+        console.error('Failed to approve request');
+      }
+    } catch (error) {
+      console.error('Error approving request:', error);
+    }
   };
 
   const handleRejectRequest = async (requestId: string) => {
-    // API call to reject request
-    setRequests(requests.map(r => 
-      r.id === requestId ? { ...r, status: 'rejected' } : r
-    ));
+    try {
+      const response = await fetch(`/api/teacher-requests/${requestId}/reject`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        // Mettre à jour l'interface localement
+        setRequests(requests.map(r => 
+          r.id === requestId ? { ...r, status: 'rejected' } : r
+        ));
+      } else {
+        console.error('Failed to reject request');
+      }
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+    }
+  };
+
+  // Handle username change
+  const handleChangeUsername = async (userId: string) => {
+    if (!newUsername.trim()) return;
+    
+    setIsSavingUsername(true);
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/username`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: newUsername.trim() }),
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        // Update local state
+        setUsers(users.map(u => 
+          u.id === userId ? { ...u, username: newUsername.trim() } : u
+        ));
+        setEditingUserId(null);
+        setNewUsername('');
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erreur lors du changement de nom d\'utilisateur');
+      }
+    } catch (error) {
+      console.error('Error changing username:', error);
+      alert('Erreur réseau');
+    } finally {
+      setIsSavingUsername(false);
+    }
   };
 
   const filteredUsers = users.filter(user => {
@@ -324,16 +401,64 @@ export default function AdminTeachersPage() {
                         </div>
                       </td>
                       <td className="p-4">
-                        <button
-                          onClick={() => handleToggleTeacher(user.id, !user.isTeacher)}
-                          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                            user.isTeacher
-                              ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                              : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                          }`}
-                        >
-                          {user.isTeacher ? 'Retirer prof' : 'Nommer prof'}
-                        </button>
+                        <div className="flex items-center gap-2">
+                          {editingUserId === user.id ? (
+                            <>
+                              <input
+                                type="text"
+                                value={newUsername}
+                                onChange={(e) => setNewUsername(e.target.value)}
+                                placeholder={user.username}
+                                className="px-3 py-1 bg-[#1a1a2e] border border-gray-700 rounded-lg text-sm w-32 focus:border-indigo-500 outline-none"
+                                disabled={isSavingUsername}
+                              />
+                              <button
+                                onClick={() => handleChangeUsername(user.id)}
+                                disabled={isSavingUsername}
+                                className="p-1 text-green-400 hover:bg-green-500/20 rounded-lg disabled:opacity-50"
+                              >
+                                {isSavingUsername ? (
+                                  <div className="w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <Check className="w-4 h-4" />
+                                )}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingUserId(null);
+                                  setNewUsername('');
+                                }}
+                                disabled={isSavingUsername}
+                                className="p-1 text-red-400 hover:bg-red-500/20 rounded-lg"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleToggleTeacher(user.id, !user.isTeacher)}
+                                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                                  user.isTeacher
+                                    ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                                    : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                                }`}
+                              >
+                                {user.isTeacher ? 'Retirer prof' : 'Nommer prof'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingUserId(user.id);
+                                  setNewUsername(user.username);
+                                }}
+                                className="p-2 text-gray-400 hover:text-indigo-400 hover:bg-indigo-500/20 rounded-lg transition-colors"
+                                title="Modifier le nom d'utilisateur"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

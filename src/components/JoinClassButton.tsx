@@ -10,6 +10,7 @@ import {
   UserPlus,
   AlertCircle
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -30,6 +31,7 @@ export default function JoinClassButton({
   acceptJoinRequests,
   onJoinRequestSent 
 }: JoinClassButtonProps) {
+  const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [requestStatus, setRequestStatus] = useState<'none' | 'pending' | 'sent'>('none');
   const [error, setError] = useState<string | null>(null);
@@ -40,21 +42,22 @@ export default function JoinClassButton({
       return;
     }
 
+    if (!session?.user?.id) {
+      setError('Vous devez être connecté pour rejoindre une classe');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setError('Vous devez être connecté pour rejoindre une classe');
-        return;
-      }
+      const userId = session.user.id;
 
       // Vérifier si une demande existe déjà
       const { data: existingRequest } = await supabase
         .from('class_join_requests')
         .select('*')
-        .eq('student_id', user.id)
+        .eq('student_id', userId)
         .eq('teacher_id', teacherId)
         .in('status', ['pending', 'accepted'])
         .single();
@@ -68,7 +71,7 @@ export default function JoinClassButton({
       const { error: insertError } = await supabase
         .from('class_join_requests')
         .insert({
-          student_id: user.id,
+          student_id: userId,
           teacher_id: teacherId,
           status: 'pending'
         });

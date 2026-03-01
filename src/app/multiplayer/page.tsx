@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
 import { AdUnit } from '@/components/AdUnit';
+import LoadingTips from '@/components/LoadingTips';
 import { GameMode, TimeControl, CreateGameConfig, UnifiedGameSession, GAME_MODE_CONFIGS, TIME_CONTROL_CONFIGS } from '@/types/unified-multiplayer';
 import { supabase } from '@/lib/supabase';
 import QRCode from 'qrcode';
@@ -58,6 +59,7 @@ export default function MultiplayerPage() {
   const [questionCount, setQuestionCount] = useState(20);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | 'mixed'>('mixed');
   const [joinCode, setJoinCode] = useState('');
+  const [showQrModal, setShowQrModal] = useState(false);
 
   // Charger les amis
   useEffect(() => {
@@ -132,6 +134,9 @@ export default function MultiplayerPage() {
         const qrDataUrl = await QRCode.toDataURL(data.joinUrl);
         setQrCodeUrl(qrDataUrl);
         
+        // Ouvrir automatiquement la modal QR
+        setShowQrModal(true);
+        
         // S'abonner aux updates du lobby
         const channel = supabase
           .channel(`game_session_${data.session.id}`)
@@ -197,7 +202,7 @@ export default function MultiplayerPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameMode: selectedMode,
+          gameType: selectedMode === 'ranked_1v1' ? 'ranked' : 'friendly',
           timeControl: selectedTimeControl,
           questionCount,
           difficulty
@@ -281,7 +286,14 @@ export default function MultiplayerPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Mode 1v1 */}
             <motion.button
-              onClick={() => setSelectedMode('ranked_1v1')}
+              onClick={() => {
+                setSelectedMode('ranked_1v1');
+                // Reset lobby state when switching modes (BUG 10)
+                setCreatedSession(null);
+                setGameCode('');
+                setQrCodeUrl('');
+                setLobbyPlayers([]);
+              }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className={`p-8 rounded-2xl border-2 transition-all ${
@@ -668,6 +680,8 @@ export default function MultiplayerPage() {
                 <p className="text-muted-foreground">
                   {TIME_CONTROL_CONFIGS[selectedTimeControl].name} • {selectedMode === 'ranked_1v1' ? 'Classé' : 'Amical'}
                 </p>
+                {/* Loading Tips */}
+                <LoadingTips isLoading={searching} className="mt-6" />
               </div>
               <button
                 onClick={() => setSearching(false)}
@@ -676,6 +690,62 @@ export default function MultiplayerPage() {
                 <XCircle className="w-5 h-5" />
                 Annuler la recherche
               </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* QR Modal - Fullscreen */}
+        <AnimatePresence>
+          {showQrModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-card rounded-2xl border border-border p-8 max-w-lg w-full text-center"
+              >
+                <h2 className="text-2xl font-bold mb-2">Rejoindre la partie</h2>
+                <p className="text-muted-foreground mb-6">Montre cet écran à tes joueurs</p>
+                
+                {/* Code en grand */}
+                <div className="text-6xl font-mono font-bold text-purple-400 tracking-wider mb-6">
+                  {gameCode}
+                </div>
+                
+                {/* Bouton copie */}
+                <button
+                  onClick={copyGameCode}
+                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold transition-colors flex items-center gap-2 mx-auto mb-6"
+                >
+                  <Copy className="w-5 h-5" />
+                  Copier le code
+                </button>
+                
+                {/* QR Code en grand */}
+                {qrCodeUrl && (
+                  <div className="mb-6">
+                    <img 
+                      src={qrCodeUrl} 
+                      alt="QR Code" 
+                      className="w-[300px] h-[300px] mx-auto border-4 border-white rounded-xl" 
+                    />
+                    <p className="text-sm text-muted-foreground mt-3">Scanne pour rejoindre</p>
+                  </div>
+                )}
+                
+                {/* Bouton fermer */}
+                <button
+                  onClick={() => setShowQrModal(false)}
+                  className="px-6 py-3 bg-border hover:bg-muted text-white rounded-xl font-semibold transition-colors"
+                >
+                  Fermer
+                </button>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
