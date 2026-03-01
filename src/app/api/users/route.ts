@@ -48,21 +48,30 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Create statistics separately with the correct userId
-    await prisma.statistics.create({
-      data: {
-        userId: user.id,
-        weakPoints: JSON.stringify([]),
-        eloHistory: JSON.stringify([{ date: new Date().toISOString(), elo: 400 }])
+    // Create solo statistics separately
+    await prisma.soloStatistics.create({
+      data: { 
+        userId: user.id, 
+        weakPoints: JSON.stringify([]), 
+        eloHistory: JSON.stringify([{ date: new Date().toISOString(), elo: 400 }]) 
       }
     });
 
-    // Fetch user with statistics for response
-    const userWithStats = await prisma.user.findUnique({
-      where: { id: user.id },
-      include: {
-        statistics: true
+    // Create multiplayer statistics separately
+    await prisma.multiplayerStatistics.create({
+      data: { 
+        userId: user.id,
+        headToHead: JSON.stringify([])
       }
+    });
+
+    // Fetch user with both statistics
+    const userWithStats = await prisma.user.findUnique({ 
+      where: { id: user.id }, 
+      include: { 
+        soloStatistics: true,
+        multiplayerStatistics: true
+      } 
     });
 
     console.log('[API /users] User created:', user.id);
@@ -104,16 +113,20 @@ export async function GET(req: NextRequest) {
         bannerUrl: true,
         customBannerId: true,
         selectedBadgeIds: true,
-        elo: true,
-        rankClass: true,
-        bestElo: true,
-        bestRankClass: true,
+        soloElo: true,
+        soloRankClass: true,
+        soloBestElo: true,
+        soloBestRankClass: true,
+        multiplayerElo: true,
+        multiplayerRankClass: true,
+        multiplayerBestElo: true,
+        multiplayerBestRankClass: true,
         hasCompletedOnboarding: true,
         isOnline: true,
         lastSeenAt: true,
         createdAt: true,
         updatedAt: true,
-        statistics: true,
+        soloStatistics: true,
         userBadges: {
           select: {
             id: true,

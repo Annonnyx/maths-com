@@ -25,7 +25,7 @@ export async function GET(
     const isSelf = currentUser?.id === id;
 
     // Get recent games for the user
-    const games = await prisma.test.findMany({
+    const games = await prisma.soloTest.findMany({
       where: {
         userId: id
       },

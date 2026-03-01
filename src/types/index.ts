@@ -7,24 +7,43 @@ export interface User {
   username: string;
   displayName?: string;
   avatarUrl?: string;
-  elo: number;
-  rankClass: RankClass;
-  bestElo: number;
-  bestRankClass: RankClass;
+  // SOLO Ranking
+  soloElo: number;
+  soloRankClass: RankClass;
+  soloBestElo: number;
+  soloBestRankClass: RankClass;
+  soloCurrentStreak: number;
+  soloBestStreak: number;
+  // MULTIPLAYER Ranking  
+  multiplayerElo: number;
+  multiplayerRankClass: RankClass;
+  multiplayerBestElo: number;
+  multiplayerBestRankClass: RankClass;
+  // Profile
+  classe?: string;
+  birthYear?: number;
+  bannerUrl?: string;
+  selectedBadgeIds?: string;
+  customBannerId?: string;
+  // Admin
+  isAdmin: boolean;
+  isTeacher: boolean;
+  school?: string;
+  subject?: string;
+  acceptJoinRequests: boolean;
+  // Status
   hasCompletedOnboarding: boolean;
-  currentStreak: number;
-  bestStreak: number;
-  additionLevel: number;
-  subtractionLevel: number;
-  multiplicationLevel: number;
-  divisionLevel: number;
-  powerLevel: number;
-  rootLevel: number;
-  factorizationLevel: number;
   lastTestDate?: string;
+  isOnline: boolean;
+  lastSeenAt: string;
+  // Discord
+  discordId?: string;
+  discordUsername?: string;
+  discordLinkedAt?: string;
+  discordLinkCode?: string;
 }
 
-export interface TestResult {
+export interface SoloTestResult {
   id: string;
   startedAt: string;
   completedAt?: string;
@@ -37,10 +56,10 @@ export interface TestResult {
   eloChange: number;
   isPerfect: boolean;
   isStreakTest: boolean;
-  questions: QuestionResult[];
+  questions: SoloQuestionResult[];
 }
 
-export interface QuestionResult {
+export interface SoloQuestionResult {
   id: string;
   type: OperationType;
   difficulty: number;
@@ -53,7 +72,7 @@ export interface QuestionResult {
   order: number;
 }
 
-export interface Statistics {
+export interface SoloStatistics {
   totalTests: number;
   totalQuestions: number;
   totalCorrect: number;
@@ -116,4 +135,76 @@ export interface Course {
   order: number;
   isPublished: boolean;
   relatedTypes?: OperationType[];
+}
+
+// Leaderboard types
+export interface LeaderboardEntry {
+  id: string;
+  username: string;
+  displayName: string | null;
+  globalRank: number;
+  weeklyRank?: number;
+  monthlyRank?: number;
+  stats: {
+    winRate?: number;
+    accuracy?: number;
+    totalGames?: number;
+    currentElo: number;
+    currentRank: string;
+    bestElo: number;
+    bestRank: string;
+  };
+  isOnline: boolean;
+  lastSeenAt: string;
+}
+
+export interface LeaderboardResponse {
+  mode: 'solo' | 'multiplayer';
+  leaderboard: LeaderboardEntry[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  userRank: number | null;
+  currentUser: {
+    id: string;
+    username: string;
+    displayName: string | null;
+    stats: {
+      currentElo: number;
+      currentRank: string;
+      totalGames?: number;
+    };
+  } | null;
+}
+
+// Multiplayer Statistics
+export interface MultiplayerStats {
+  totalGames: number;
+  totalWins: number;
+  totalLosses: number;
+  totalDraws: number;
+  
+  // By time control
+  lightningGames: number;
+  lightningWins: number;
+  blitzGames: number;
+  blitzWins: number;
+  rapidGames: number;
+  rapidWins: number;
+  classicalGames: number;
+  classicalWins: number;
+  thinkingGames: number;
+  thinkingWins: number;
+  
+  // Performance metrics
+  averageScore: number;
+  averageTime: number;
+  multiplayerCurrentStreak: number;
+  multiplayerBestStreak: number;
+  
+  // Head to head records (stored as JSON)
+  headToHead?: { opponentId: string; wins: number; losses: number; draws: number }[];
 }

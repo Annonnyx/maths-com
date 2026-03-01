@@ -17,10 +17,10 @@ export async function POST(req: NextRequest) {
         id: true,
         username: true,
         displayName: true,
-        elo: true,
-        rankClass: true,
-        bestElo: true,
-        bestRankClass: true,
+        soloElo: true,
+        soloRankClass: true,
+        soloBestElo: true,
+        soloBestRankClass: true,
         hasCompletedOnboarding: true
       }
     });

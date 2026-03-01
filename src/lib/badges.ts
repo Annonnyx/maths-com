@@ -162,7 +162,7 @@ export async function checkAndAwardBadges(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        statistics: true,
+        soloStatistics: true,
         multiplayerStatistics: true
       }
     });
@@ -170,7 +170,7 @@ export async function checkAndAwardBadges(userId: string) {
     if (!user) return;
 
     // Badge de rang actuel
-    await awardRankBadge(userId, user.rankClass);
+    await awardRankBadge(userId, user.soloRankClass);
 
     // Badge premier victoire multijoueur
     if ((user.multiplayerStatistics?.totalWins || 0) >= 1) {
@@ -178,20 +178,20 @@ export async function checkAndAwardBadges(userId: string) {
     }
 
     // Badge série de victoires
-    if ((user.multiplayerStatistics?.currentStreak || 0) >= 5) {
+    if ((user.multiplayerStatistics?.multiplayerCurrentStreak || 0) >= 5) {
       await awardAchievementBadge(userId, 'win_streak_5');
     }
-    if ((user.multiplayerStatistics?.bestStreak || 0) >= 10) {
+    if ((user.multiplayerStatistics?.multiplayerBestStreak || 0) >= 10) {
       await awardAchievementBadge(userId, 'win_streak_10');
     }
 
     // Badge Elo solo
-    if (user.elo >= 1000) {
+    if (user.soloElo >= 1000) {
       await awardAchievementBadge(userId, 'math_wizard');
     }
 
     // Badge Elo multi
-    if (user.elo >= 1000) {
+    if (user.multiplayerElo >= 1000) {
       await awardAchievementBadge(userId, 'multi_master');
     }
 

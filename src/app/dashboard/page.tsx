@@ -67,7 +67,7 @@ export default function DashboardPage() {
   }
 
   const user = profile.user;
-  const stats = profile.statistics;
+  const stats = profile.soloStatistics;
   const recentTests = profile.recentTests || [];
 
   const getRankColor = (rank: string) => {
@@ -93,9 +93,9 @@ export default function DashboardPage() {
             </Link>
             <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg">
               <Award className="w-5 h-5 text-yellow-400" />
-              <span className="font-semibold">{user.rankClass}</span>
+              <span className="font-semibold">{user.soloRankClass}</span>
               <span className="text-muted-foreground">|</span>
-              <span className="font-mono">{user.elo} Elo</span>
+              <span className="font-mono">{user.soloElo} Elo</span>
             </div>
           </div>
         </div>
@@ -197,35 +197,35 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className={`p-6 rounded-2xl border ${getRankColor(user.rankClass)}`}
+              className={`p-6 rounded-2xl border ${getRankColor(user.soloRankClass)}`}
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-2xl font-bold mb-1">Classe actuelle</h2>
                   <p className="text-muted-foreground">Progresse pour débloquer de nouvelles opérations</p>
                 </div>
-                <div className="text-4xl font-bold">{user.rankClass}</div>
+                <div className="text-4xl font-bold">{user.soloRankClass}</div>
               </div>
               
               {/* Progress to next rank */}
               <div className="mb-4">
                 <div className="flex justify-between text-sm mb-2">
-                  <span>{user.elo} Elo</span>
+                  <span>{user.soloElo} Elo</span>
                   <span>Prochain rang: {(() => {
-                    const currentRankIndex = RANK_CLASSES.indexOf(user.rankClass as any);
+                    const currentRankIndex = RANK_CLASSES.indexOf(user.soloRankClass as any);
                     const nextRank = currentRankIndex < RANK_CLASSES.length - 1 ? RANK_CLASSES[currentRankIndex + 1] : null;
                     return nextRank || 'Max';
                   })()}</span>
                 </div>
-                <div className="w-full bg-black/30 rounded-full h-3">
+                <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
                   <div 
                     className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
                     style={{ width: `${(() => {
-                      const rankClass = user.rankClass as RankClass;
+                      const rankClass = user.soloRankClass as RankClass;
                       const threshold = RANK_THRESHOLDS[rankClass];
                       if (!threshold || threshold.max === Infinity) return 100;
                       const range = threshold.max - threshold.min;
-                      const progress = user.elo - threshold.min;
+                      const progress = user.soloElo - threshold.min;
                       return Math.min(100, Math.max(0, (progress / range) * 100));
                     })()}%` }}
                   />
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                     <Star className="w-5 h-5 text-yellow-400" />
                     <span className="text-muted-foreground">Meilleure série</span>
                   </div>
-                  <span className="font-bold">{user.bestStreak}</span>
+                  <span className="font-bold">{user.soloBestStreak}</span>
                 </div>
               </div>
             </motion.div>

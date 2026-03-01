@@ -81,13 +81,13 @@ export function useLocalProgress() {
   const [progress, setProgress, isLoaded] = useLocalStorage({
     key: 'mathcom-progress',
     initialValue: {
-      elo: 400,
-      rankClass: 'F-',
+      soloElo: 400,
+      soloRankClass: 'F-',
       totalTests: 0,
       totalCorrect: 0,
       totalQuestions: 0,
-      currentStreak: 0,
-      bestStreak: 0,
+      soloCurrentStreak: 0,
+      soloBestStreak: 0,
       tests: [] as any[]
     }
   });
@@ -100,17 +100,17 @@ export function useLocalProgress() {
     date: string;
   }) => {
     setProgress(prev => {
-      const newElo = Math.max(0, prev.elo + result.eloChange);
-      const newStreak = result.score >= 80 ? prev.currentStreak + 1 : 0;
+      const newElo = Math.max(0, prev.soloElo + result.eloChange);
+      const newStreak = result.score >= 80 ? prev.soloCurrentStreak + 1 : 0;
       
       return {
         ...prev,
-        elo: newElo,
+        soloElo: newElo,
         totalTests: prev.totalTests + 1,
         totalCorrect: prev.totalCorrect + result.correct,
         totalQuestions: prev.totalQuestions + result.total,
-        currentStreak: newStreak,
-        bestStreak: Math.max(prev.bestStreak, newStreak),
+        soloCurrentStreak: newStreak,
+        soloBestStreak: Math.max(prev.soloBestStreak, newStreak),
         tests: [...prev.tests.slice(-49), result] // Keep last 50 tests
       };
     });

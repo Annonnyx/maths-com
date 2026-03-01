@@ -32,28 +32,28 @@ export async function GET(req: NextRequest) {
   try {
     const topSoloPlayer = await prisma.user.findFirst({
       orderBy: {
-        elo: 'desc'
+        soloElo: 'desc'
       },
       select: {
         id: true,
         username: true,
         displayName: true,
-        elo: true,
-        rankClass: true
+        soloElo: true,
+        soloRankClass: true
       },
       take: 1
     });
 
     const topMultiplayerPlayer = await prisma.user.findFirst({
       orderBy: {
-        elo: 'desc'
+        multiplayerElo: 'desc'
       },
       select: {
         id: true,
         username: true,
         displayName: true,
-        elo: true,
-        rankClass: true
+        multiplayerElo: true,
+        multiplayerRankClass: true
       },
       take: 1
     });

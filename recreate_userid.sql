@@ -1,0 +1,1 @@
+ALTER TABLE statistics DROP COLUMN IF EXISTS "userId"; ALTER TABLE statistics ADD COLUMN "userId" TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE; CREATE UNIQUE INDEX IF NOT EXISTS statistics_userId_key ON statistics("userId");

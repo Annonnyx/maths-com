@@ -54,7 +54,7 @@ export class AdaptiveExerciseManager {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('elo')
+        .select('soloElo')
         .eq('id', this.userId)
         .single();
 
@@ -63,7 +63,7 @@ export class AdaptiveExerciseManager {
         return 400;
       }
 
-      return data.elo;
+      return data.soloElo;
     } catch (error) {
       console.error('Error in getCurrentElo:', error);
       return 400;
@@ -235,7 +235,7 @@ export class AdaptiveExerciseManager {
         .reverse()
         .map((q, index) => ({
           date: q.answered_at.toLocaleDateString(),
-          elo: q.elo_at_moment
+          elo: q.elo_at_moment // Garder tel quel car c'est l'historique
         }));
 
       return {

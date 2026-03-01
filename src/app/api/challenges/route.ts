@@ -34,8 +34,8 @@ export async function GET(req: NextRequest) {
             username: true,
             displayName: true,
             avatarUrl: true,
-            elo: true,
-            rankClass: true,
+            soloElo: true,
+            soloRankClass: true,
             isOnline: true,
             lastSeenAt: true
           }
@@ -46,8 +46,8 @@ export async function GET(req: NextRequest) {
             username: true,
             displayName: true,
             avatarUrl: true,
-            elo: true,
-            rankClass: true,
+            soloElo: true,
+            soloRankClass: true,
             isOnline: true,
             lastSeenAt: true
           }
@@ -175,8 +175,8 @@ export async function POST(req: NextRequest) {
             id: true,
             username: true,
             displayName: true,
-            elo: true,
-            rankClass: true
+            soloElo: true,
+            soloRankClass: true
           }
         },
         challenged: {
@@ -184,8 +184,8 @@ export async function POST(req: NextRequest) {
             id: true,
             username: true,
             displayName: true,
-            elo: true,
-            rankClass: true
+            soloElo: true,
+            soloRankClass: true
           }
         }
       }

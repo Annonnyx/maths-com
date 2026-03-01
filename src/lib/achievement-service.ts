@@ -103,7 +103,7 @@ export class AchievementService {
 
   // Check and award solo games milestones
   static async checkSoloGamesAchievements(userId: string) {
-    const stats = await prisma.statistics.findUnique({
+    const stats = await prisma.soloStatistics.findUnique({
       where: { userId }
     });
 
@@ -201,7 +201,7 @@ export class AchievementService {
     // Get top solo player of the month
     const topSoloPlayer = await prisma.user.findFirst({
       orderBy: {
-        elo: 'desc'
+        soloElo: 'desc'
       },
       take: 1
     });
@@ -237,7 +237,7 @@ export class AchievementService {
     // Get top multiplayer player of the month
     const topMultiplayerPlayer = await prisma.user.findFirst({
       orderBy: {
-        elo: 'desc'
+        multiplayerElo: 'desc'
       },
       take: 1
     });
@@ -317,7 +317,7 @@ export class AchievementService {
     });
     
     if (user) {
-      await this.checkRankAchievement(userId, user.rankClass);
+      await this.checkRankAchievement(userId, user.soloRankClass);
     }
   }
 }

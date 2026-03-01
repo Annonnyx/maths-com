@@ -21,10 +21,21 @@ export async function GET(req: NextRequest) {
           bannerUrl: true,
           customBannerId: true,
           selectedBadgeIds: true,
-          elo: true,
-          rankClass: true,
-          bestElo: true,
-          statistics: true,
+          // SOLO Ranking
+          soloElo: true,
+          soloRankClass: true,
+          soloBestElo: true,
+          soloBestRankClass: true,
+          soloCurrentStreak: true,
+          soloBestStreak: true,
+          // MULTIPLAYER Ranking
+          multiplayerElo: true,
+          multiplayerRankClass: true,
+          multiplayerBestElo: true,
+          multiplayerBestRankClass: true,
+          // Statistics
+          soloStatistics: true,
+          multiplayerStatistics: true,
           userBadges: {
             select: {
               id: true,
@@ -53,7 +64,7 @@ export async function GET(req: NextRequest) {
       }
 
       // Fetch statistics separately
-      const statistics = await prisma.statistics.findUnique({
+      const statistics = await prisma.soloStatistics.findUnique({
         where: { userId: user.id }
       });
 
@@ -78,10 +89,10 @@ export async function GET(req: NextRequest) {
         bannerUrl: true,
         customBannerId: true,
         selectedBadgeIds: true,
-        elo: true,
-        rankClass: true,
-        bestElo: true,
-        bestRankClass: true,
+        soloElo: true,
+        soloRankClass: true,
+        soloBestElo: true,
+        soloBestRankClass: true,
         hasCompletedOnboarding: true,
         isOnline: true,
         lastSeenAt: true,
@@ -96,7 +107,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch statistics separately
-    const statistics = await prisma.statistics.findUnique({
+    const statistics = await prisma.soloStatistics.findUnique({
       where: { userId: user.id }
     });
 
@@ -121,7 +132,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Get recent tests
-    const recentTests = await prisma.test.findMany({
+    const recentTests = await prisma.soloTest.findMany({
       where: { userId: user.id },
       orderBy: { completedAt: 'desc' },
       take: 10,
@@ -176,10 +187,10 @@ export async function PATCH(req: NextRequest) {
         username: true,
         displayName: true,
         email: true,
-        elo: true,
-        rankClass: true,
-        bestElo: true,
-        bestRankClass: true,
+        soloElo: true,
+        soloRankClass: true,
+        soloBestElo: true,
+        soloBestRankClass: true,
         bannerUrl: true,
         selectedBadgeIds: true,
       }

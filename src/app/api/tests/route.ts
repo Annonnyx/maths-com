@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     const score = Math.round((correct / questions.length) * 100);
     const timeTaken = Math.round(elapsedTime / 1000); // Convert to seconds
 
-    let eloBefore = user.elo;
+    let eloBefore = user.soloElo;
     let eloAfter = eloBefore;
     let eloChange = 0;
 
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         questionTimes: timePerQuestion,
         difficulties: questions.map((q: any) => q.difficulty),
         currentElo: eloBefore,
-        streak: user.currentStreak
+        streak: user.soloCurrentStreak
       });
 
       eloChange = eloResult.eloChange;
@@ -76,10 +76,10 @@ export async function POST(req: NextRequest) {
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          elo: eloAfter,
-          rankClass: newRankClass,
-          bestElo: Math.max(user.bestElo || 0, eloAfter),
-          bestRankClass: eloAfter > (user.bestElo || 0) ? newRankClass : (user.bestRankClass || 'F-')
+          soloElo: eloAfter,
+          soloRankClass: newRankClass,
+          soloBestElo: Math.max(user.soloBestElo || 0, eloAfter),
+          soloBestRankClass: eloAfter > (user.soloBestElo || 0) ? newRankClass : (user.soloBestRankClass || 'F-')
         }
       });
 
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create test record
-    const test = await prisma.test.create({
+    const test = await prisma.soloTest.create({
       data: {
         userId: user.id,
         completedAt: new Date(),
@@ -114,32 +114,32 @@ export async function POST(req: NextRequest) {
     await AchievementService.checkPerfectTestAchievement(user.id, correct, questions.length);
 
     // Update statistics
-    await prisma.statistics.upsert({
+    await prisma.soloStatistics.upsert({
       where: { userId: user.id },
       create: {
         userId: user.id,
         totalTests: 1,
-        totalQuestions: questions.length,
         totalCorrect: correct,
+        totalQuestions: questions.length,
         totalTime: timeTaken,
         averageScore: score,
         averageTime: timeTaken
       },
       update: {
         totalTests: { increment: 1 },
-        totalQuestions: { increment: questions.length },
         totalCorrect: { increment: correct },
+        totalQuestions: { increment: questions.length },
         totalTime: { increment: timeTaken }
       }
     });
 
     // Recalculate proper averages
-    const stats = await prisma.statistics.findUnique({
+    const stats = await prisma.soloStatistics.findUnique({
       where: { userId: user.id }
     });
 
     if (stats && stats.totalTests > 0) {
-      await prisma.statistics.update({
+      await prisma.soloStatistics.update({
         where: { userId: user.id },
         data: {
           averageScore: (stats.totalCorrect / stats.totalQuestions) * 100,
@@ -203,7 +203,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const tests = await prisma.test.findMany({
+    const tests = await prisma.soloTest.findMany({
       where: { userId },
       include: {
         questions: true

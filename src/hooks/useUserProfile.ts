@@ -7,17 +7,27 @@ interface UserProfile {
     email: string;
     username: string;
     displayName?: string;
-    elo: number;
-    rankClass: string;
-    bestElo: number;
-    bestRankClass: string;
-    currentStreak: number;
-    bestStreak: number;
+    // SOLO Ranking
+    soloElo: number;
+    soloRankClass: string;
+    soloBestElo: number;
+    soloBestRankClass: string;
+    soloCurrentStreak: number;
+    soloBestStreak: number;
+    // MULTIPLAYER Ranking
+    multiplayerElo: number;
+    multiplayerRankClass: string;
+    multiplayerBestElo: number;
+    multiplayerBestRankClass: string;
+    // Profile
     bannerUrl?: string;
     selectedBadgeIds?: string;
     isTeacher: boolean;
+    isOnline: boolean;
+    lastSeenAt: string;
   };
-  statistics?: any;
+  soloStatistics?: any;
+  multiplayerStatistics?: any;
   recentTests?: any[];
   recentGames?: any[];
 }

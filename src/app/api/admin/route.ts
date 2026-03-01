@@ -55,8 +55,8 @@ export async function GET(req: NextRequest) {
           username: true,
           email: true,
           displayName: true,
-          elo: true,
-          rankClass: true
+          soloElo: true,
+          soloRankClass: true
         },
         orderBy: { createdAt: 'desc' },
         take: 100
@@ -75,10 +75,10 @@ export async function GET(req: NextRequest) {
           id: true,
           username: true,
           displayName: true,
-          elo: true,
-          rankClass: true,
-          bestElo: true,
-          bestRankClass: true
+          soloElo: true,
+          soloRankClass: true,
+          soloBestElo: true,
+          soloBestRankClass: true
         }
       });
       return NextResponse.json({ user });
@@ -116,9 +116,9 @@ export async function POST(req: NextRequest) {
       
       if (elo !== undefined) {
         const newElo = parseInt(elo);
-        updateData.elo = newElo;
+        updateData.soloElo = newElo;
         // Auto-calculate rank from ELO
-        updateData.rankClass = getRankFromElo(newElo);
+        updateData.soloRankClass = getRankFromElo(newElo);
       }
       
       if (multiplayerElo !== undefined) {
@@ -130,14 +130,14 @@ export async function POST(req: NextRequest) {
       
       if (bestElo !== undefined) {
         const newBestElo = parseInt(bestElo);
-        updateData.bestElo = newBestElo;
-        updateData.bestRankClass = getRankFromElo(newBestElo);
+        updateData.soloBestElo = newBestElo;
+        updateData.soloBestRankClass = getRankFromElo(newBestElo);
       }
       
       if (bestMultiplayerElo !== undefined) {
         const newBestMultiElo = parseInt(bestMultiplayerElo);
-        updateData.bestMultiplayerElo = newBestMultiElo;
-        updateData.bestMultiplayerRankClass = getRankFromElo(newBestMultiElo);
+        updateData.multiplayerBestElo = newBestMultiElo;
+        updateData.multiplayerBestRankClass = getRankFromElo(newBestMultiElo);
       }
 
       const user = await prisma.user.update({
@@ -145,8 +145,8 @@ export async function POST(req: NextRequest) {
         data: updateData,
         select: {
           id: true,
-          elo: true,
-          rankClass: true
+          soloElo: true,
+          soloRankClass: true
         }
       });
 
@@ -289,10 +289,14 @@ export async function POST(req: NextRequest) {
       // Reset all users ELO
       const resetResult = await prisma.user.updateMany({
         data: {
-          elo: 400,
-          rankClass: 'F-',
-          bestElo: 400,
-          bestRankClass: 'F-'
+          soloElo: 400,
+          soloRankClass: 'F-',
+          soloBestElo: 400,
+          soloBestRankClass: 'F-',
+          multiplayerElo: 400,
+          multiplayerRankClass: 'F-',
+          multiplayerBestElo: 400,
+          multiplayerBestRankClass: 'F-'
         }
       });
 
@@ -300,10 +304,10 @@ export async function POST(req: NextRequest) {
       await prisma.userBadge.deleteMany({});
 
       // Reset all test history (remove all completed tests)
-      await prisma.test.deleteMany({});
+      await prisma.soloTest.deleteMany({});
 
       // Also reset statistics
-      await prisma.statistics.updateMany({
+      await prisma.soloStatistics.updateMany({
         data: {
           totalTests: 0,
           totalQuestions: 0,
@@ -356,8 +360,8 @@ export async function POST(req: NextRequest) {
           thinkingWins: 0,
           averageScore: 0,
           averageTime: 0,
-          bestStreak: 0,
-          currentStreak: 0,
+          multiplayerBestStreak: 0,
+          multiplayerCurrentStreak: 0,
           headToHead: '[]'
         }
       });
@@ -392,21 +396,21 @@ export async function POST(req: NextRequest) {
       
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { elo: true, rankClass: true }
+        select: { soloElo: true, soloRankClass: true }
       });
 
       if (!user) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }
 
-      const currentClass = getClassFromElo(user.elo);
-      const unlockedClasses = getUnlockedClasses(user.rankClass as any);
+      const currentClass = getClassFromElo(user.soloElo);
+      const unlockedClasses = getUnlockedClasses(user.soloRankClass as any);
 
       return NextResponse.json({
         currentClass,
         unlockedClasses,
-        elo: user.elo,
-        rankClass: user.rankClass
+        elo: user.soloElo,
+        rankClass: user.soloRankClass
       });
     }
 

@@ -519,7 +519,7 @@ export default function LeaderboardPage() {
           <div className="text-right">
             <div className="text-sm font-semibold">{profile?.user?.username}</div>
             <div className="text-xs text-muted-foreground">
-              {activeTab === 'multiplayer' ? (profile?.user as any)?.multiplayerElo || 400 : profile?.user?.elo} Elo
+              {activeTab === 'multiplayer' ? (profile?.user as any)?.multiplayerElo || 400 : profile?.user?.soloElo} Elo
             </div>
           </div>
         </div>

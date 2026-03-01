@@ -41,16 +41,16 @@ export async function POST(
           select: {
             id: true,
             username: true,
-            elo: true,
-            rankClass: true
+            multiplayerElo: true,
+            multiplayerRankClass: true
           }
         },
         player2: {
           select: {
             id: true,
             username: true,
-            elo: true,
-            rankClass: true
+            multiplayerElo: true,
+            multiplayerRankClass: true
           }
         },
         questions: true
@@ -133,16 +133,16 @@ export async function POST(
           select: {
             id: true,
             username: true,
-            elo: true,
-            rankClass: true
+            multiplayerElo: true,
+            multiplayerRankClass: true
           }
         },
         player2: {
           select: {
             id: true,
             username: true,
-            elo: true,
-            rankClass: true
+            multiplayerElo: true,
+            multiplayerRankClass: true
           }
         }
       }
@@ -155,15 +155,15 @@ export async function POST(
     // Get current user stats for bestElo
     const player1Stats = await prisma.user.findUnique({
       where: { id: game.player1Id },
-      select: { bestElo: true }
+      select: { multiplayerBestElo: true }
     });
 
     // Update Player 1
     await prisma.user.update({
       where: { id: game.player1Id },
       data: {
-        elo: game.player1Elo + player1EloChange,
-        bestElo: Math.max(game.player1Elo + player1EloChange, player1Stats?.bestElo || 0),
+        multiplayerElo: game.player1Elo + player1EloChange,
+        multiplayerBestElo: Math.max(game.player1Elo + player1EloChange, player1Stats?.multiplayerBestElo || 0),
         isOnline: false,
         lastSeenAt: new Date()
       }
@@ -173,14 +173,14 @@ export async function POST(
     if (game.player2Id && game.player2) {
       const player2Stats = await prisma.user.findUnique({
         where: { id: game.player2Id },
-        select: { bestElo: true }
+        select: { multiplayerBestElo: true }
       });
 
       await prisma.user.update({
         where: { id: game.player2Id },
         data: {
-          elo: (game.player2Elo || 0) + player2EloChange,
-          bestElo: Math.max((game.player2Elo || 0) + player2EloChange, player2Stats?.bestElo || 0),
+          multiplayerElo: (game.player2Elo || 0) + player2EloChange,
+          multiplayerBestElo: Math.max((game.player2Elo || 0) + player2EloChange, player2Stats?.multiplayerBestElo || 0),
           isOnline: false,
           lastSeenAt: new Date()
         }
@@ -235,7 +235,7 @@ async function updateMultiplayerStatistics(
       totalDraws: result === 'draw' ? { increment: 1 } : undefined,
       [timeControlField]: { increment: 1 },
       [winField]: result === 'win' ? { increment: 1 } : undefined,
-      currentStreak: result === 'win' ? { increment: 1 } : { set: 0 },
+      multiplayerCurrentStreak: result === 'win' ? { increment: 1 } : { set: 0 },
       updatedAt: new Date()
     },
     create: {
@@ -246,7 +246,7 @@ async function updateMultiplayerStatistics(
       totalDraws: result === 'draw' ? 1 : 0,
       [timeControlField]: 1,
       [winField]: result === 'win' ? 1 : 0,
-      currentStreak: result === 'win' ? 1 : 0
+      multiplayerCurrentStreak: result === 'win' ? 1 : 0
     }
   });
 }

@@ -15,8 +15,8 @@ export async function GET(req: NextRequest) {
       select: {
         id: true,
         username: true,
-        elo: true,
-        rankClass: true
+        multiplayerElo: true,
+        multiplayerRankClass: true
       }
     });
 
@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
             id: true,
             username: true,
             displayName: true,
-            elo: true,
-            rankClass: true
+            multiplayerElo: true,
+            multiplayerRankClass: true
           }
         },
         player2: {
@@ -47,8 +47,8 @@ export async function GET(req: NextRequest) {
             id: true,
             username: true,
             displayName: true,
-            elo: true,
-            rankClass: true
+            multiplayerElo: true,
+            multiplayerRankClass: true
           }
         },
         questions: {

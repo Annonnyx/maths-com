@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const timeFrame = searchParams.get('timeFrame') || 'all'; // 'week', 'month', 'all'
     const scope = searchParams.get('scope') || 'global'; // 'global' or 'friends'
+    const mode = searchParams.get('mode') || 'solo'; // 'solo' or 'multiplayer'
 
     const skip = (page - 1) * limit;
 
@@ -25,10 +26,16 @@ export async function GET(req: NextRequest) {
         id: true,
         username: true,
         displayName: true,
-        elo: true,
-        rankClass: true,
-        bestElo: true,
-        bestRankClass: true
+        // SOLO Ranking
+        soloElo: true,
+        soloRankClass: true,
+        soloBestElo: true,
+        soloBestRankClass: true,
+        // MULTIPLAYER Ranking
+        multiplayerElo: true,
+        multiplayerRankClass: true,
+        multiplayerBestElo: true,
+        multiplayerBestRankClass: true,
       }
     });
 
@@ -67,16 +74,17 @@ export async function GET(req: NextRequest) {
 
       if (friendIds.length === 0) {
         return NextResponse.json({
+          mode,
           leaderboard: [],
           pagination: { page, limit, total: 0, totalPages: 0 },
-          userRank: 1,
+          userRank: null,
           currentUser: {
             id: currentUser.id,
             username: currentUser.username,
             displayName: currentUser.displayName,
             stats: {
-              currentElo: currentUser.elo,
-              currentRank: currentUser.rankClass,
+              currentElo: mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo,
+              currentRank: mode === 'solo' ? currentUser.soloRankClass : currentUser.multiplayerRankClass,
               totalGames: 0
             }
           }
@@ -86,21 +94,26 @@ export async function GET(req: NextRequest) {
       friendsFilter = { id: { in: friendIds } };
     }
 
+    // Determine which fields to use based on mode
+    const eloField = mode === 'solo' ? 'soloElo' : 'multiplayerElo';
+    const rankClassField = mode === 'solo' ? 'soloRankClass' : 'multiplayerRankClass';
+    const statisticsField = mode === 'solo' ? 'soloStatistics' : 'multiplayerStatistics';
+
     // Get leaderboard data with statistics
     const leaderboard = await prisma.user.findMany({
       where: {
         ...dateFilter,
         ...friendsFilter,
-        statistics: {
+        [statisticsField]: {
           totalTests: { gt: 0 }
         }
       },
       include: {
-        statistics: true
+        [statisticsField]: true
       },
       orderBy: [
-        { elo: 'desc' }, 
-        { statistics: { totalTests: 'desc' } }
+        { [eloField]: 'desc' }, 
+        { [statisticsField]: { totalTests: 'desc' } }
       ],
       skip,
       take: limit
@@ -110,7 +123,7 @@ export async function GET(req: NextRequest) {
       where: {
         ...dateFilter,
         ...friendsFilter,
-        statistics: {
+        [statisticsField]: {
           totalTests: { gt: 0 }
         }
       }
@@ -120,35 +133,30 @@ export async function GET(req: NextRequest) {
     const leaderboardWithStats = leaderboard.map((user, index) => {
       const globalRank = index + 1;
       
-      // Calculate accuracy for solo
-      const accuracy = user.statistics?.totalQuestions && user.statistics.totalQuestions > 0
-        ? Math.round((user.statistics.totalCorrect / user.statistics.totalQuestions) * 100)
-        : 0;
+      // Calculate accuracy for solo (temporairement désactivé car les champs n'existent pas encore)
+      const accuracy = 0; // TODO: Implémenter après migration solo/multi
 
       return {
         ...user,
         globalRank,
         stats: {
           accuracy,
-          totalGames: user.statistics?.totalTests || 0,
-          currentElo: user.elo,
-          currentRank: user.rankClass,
-          bestElo: user.bestElo,
-          bestRank: user.bestRankClass
+          totalGames: 0, // TODO: user.soloStatistics?.totalTests || 0 après migration
+          currentElo: user.soloElo,
+          currentRank: user.soloRankClass,
+          bestElo: user.soloBestElo,
+          bestRank: user.soloBestRankClass
         }
       };
     });
 
-    // Get current user's rank among friends
+    // Get current user's rank among friends (temporairement désactivé)
     let userRank = null;
     const userCount = await prisma.user.count({
       where: {
         ...dateFilter,
         ...friendsFilter,
-        statistics: {
-          totalTests: { gt: 0 }
-        },
-        elo: { gt: currentUser.elo }
+        soloElo: { gt: currentUser.soloElo }
       }
     });
 
@@ -168,8 +176,8 @@ export async function GET(req: NextRequest) {
         username: currentUser.username,
         displayName: currentUser.displayName,
         stats: {
-          currentElo: currentUser.elo,
-          currentRank: currentUser.rankClass,
+          currentElo: currentUser.soloElo,
+          currentRank: currentUser.soloRankClass,
           totalGames: 0 // Pas de statistics dans le select
         }
       }

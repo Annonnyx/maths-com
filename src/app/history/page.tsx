@@ -103,10 +103,10 @@ export default function TestHistoryPage() {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold" style={{ color: RANK_COLORS[profile.user.rankClass] }}>
-              {profile.user.elo} Elo
+            <div className="text-2xl font-bold" style={{ color: RANK_COLORS[profile.user.soloRankClass] }}>
+              {profile.user.soloElo} Elo
             </div>
-            <div className="text-sm text-purple-300">{profile.user.rankClass}</div>
+            <div className="text-sm text-purple-300">{profile.user.soloRankClass}</div>
           </div>
         </div>
 

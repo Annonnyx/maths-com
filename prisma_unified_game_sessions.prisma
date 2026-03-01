@@ -1,0 +1,94 @@
+// MODELE PRISMA UNIFIÉ - GAME SESSIONS ÉTENDUES
+
+// Remplacer le modèle GameSession existant dans schema.prisma par :
+
+model GameSession {
+  @@schema("public")
+  id            String    @id @default(cuid())
+  joinCode      String?   @unique @db.VarChar(6) // nullable pour 1v1
+  hostId        String?   // nullable pour 1v1
+  status        String    @default("waiting") // waiting, active, finished
+  
+  // Mode de jeu unifié
+  gameMode      String    @default("group_quiz") // 'ranked_1v1' | 'casual_1v1' | 'group_quiz'
+  timeControl   String?   @default("custom") // 'bullet' | 'blitz' | 'rapid' | 'classical' | 'custom'
+  timeLimit     Int?      // en secondes, pour modes 1v1
+  timePerQuestion Int?    // en secondes, pour mode groupe
+  maxPlayers    Int       @default(20) // 2 pour 1v1, jusqu'à 30 pour groupe
+  isRanked      Boolean   @default(false)
+  
+  // Configuration du jeu
+  questionCount Int       @default(20)
+  difficulty    String    @default("mixed") // 'easy' | 'medium' | 'hard' | 'mixed'
+  currentQuestionIndex Int @default(0)
+  quizId        String?
+  
+  // Champs 1v1 (nullable pour mode groupe)
+  player1Id     String?
+  player2Id     String?
+  player1Elo    Int?
+  player2Elo    Int?
+  player1Score  Int       @default(0)
+  player2Score  Int       @default(0)
+  winner        String?
+  
+  // Champs groupe (QR code, etc.)
+  qrCodeUrl     String?
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  startedAt     DateTime?
+  finishedAt    DateTime?
+
+  // Relations
+  host          User?     @relation("HostedSessions", fields: [hostId], references: [id])
+  player1       User?     @relation("Player1Games", fields: [player1Id], references: [id])
+  player2       User?     @relation("Player2Games", fields: [player2Id], references: [id])
+  players       GamePlayer[]
+  questions     GameQuestion[]
+
+  @@map("game_sessions")
+}
+
+// Remplacer le modèle KahootQuestion par :
+
+model GameQuestion {
+  @@schema("public")
+  id            String   @id @default(cuid())
+  sessionId     String
+  question      String
+  answer        String
+  type          String   // operation type
+  difficulty    Int
+  order         Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Réponses des joueurs 1v1 (nullable pour mode groupe)
+  player1Answer String?
+  player2Answer String?
+  player1Time   Int?    // en milliseconds
+  player2Time   Int?    // in milliseconds
+  player1Correct Boolean?
+  player2Correct Boolean?
+  
+  // Relations
+  session       GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@map("game_questions")
+}
+
+// Mettre à jour le modèle User pour inclure les nouvelles relations :
+
+model User {
+  // ... autres champs existants ...
+  
+  // Relations mises à jour
+  hostedSessions    GameSession[] @relation("HostedSessions")
+  gamePlayerships  GamePlayer[] @relation("GamePlayerships")
+  player1Games      GameSession[] @relation("Player1Games")
+  player2Games      GameSession[] @relation("Player2Games")
+  
+  // ... autres relations existantes ...
+}

@@ -67,8 +67,8 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           username: user.username,
           displayName: user.displayName,
-          elo: user.elo,
-          rankClass: user.rankClass,
+          soloElo: user.soloElo,
+          soloRankClass: user.soloRankClass,
           hasCompletedOnboarding: user.hasCompletedOnboarding,
         } as any;
       },
@@ -105,23 +105,25 @@ export const authOptions: NextAuthOptions = {
                 username: username,
                 displayName: user.name || username,
                 avatarUrl: user.image,
-                elo: 400,
-                rankClass: 'F-',
+                soloElo: 400,
+                soloRankClass: 'F-',
+                multiplayerElo: 400,
+                multiplayerRankClass: 'F-',
                 hasCompletedOnboarding: false,
               },
             });
             (user as any).id = existingUser.id;
             (user as any).username = existingUser.username;
             (user as any).displayName = existingUser.displayName;
-            (user as any).elo = existingUser.elo;
-            (user as any).rankClass = existingUser.rankClass;
+            (user as any).soloElo = existingUser.soloElo;
+            (user as any).soloRankClass = existingUser.soloRankClass;
             (user as any).hasCompletedOnboarding = existingUser.hasCompletedOnboarding;
           } else {
             (user as any).id = existingUser.id;
             (user as any).username = existingUser.username;
             (user as any).displayName = existingUser.displayName;
-            (user as any).elo = existingUser.elo;
-            (user as any).rankClass = existingUser.rankClass;
+            (user as any).soloElo = existingUser.soloElo;
+            (user as any).soloRankClass = existingUser.soloRankClass;
             (user as any).hasCompletedOnboarding = existingUser.hasCompletedOnboarding;
           }
           return true;
@@ -139,8 +141,8 @@ export const authOptions: NextAuthOptions = {
         token.email = (user as any).email;
         token.username = (user as any).username;
         token.displayName = (user as any).displayName;
-        token.elo = (user as any).elo;
-        token.rankClass = (user as any).rankClass;
+        token.soloElo = (user as any).soloElo;
+        token.soloRankClass = (user as any).soloRankClass;
         token.hasCompletedOnboarding = (user as any).hasCompletedOnboarding;
       }
       return token;
@@ -152,8 +154,8 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email;
         session.user.username = token.username;
         session.user.displayName = token.displayName;
-        session.user.elo = token.elo;
-        session.user.rankClass = token.rankClass;
+        session.user.soloElo = token.soloElo;
+        session.user.soloRankClass = token.soloRankClass;
         session.user.hasCompletedOnboarding = token.hasCompletedOnboarding;
       }
       return session;

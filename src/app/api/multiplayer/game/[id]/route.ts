@@ -19,7 +19,7 @@ export async function GET(
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true, elo: true }
+      select: { id: true, multiplayerElo: true }
     });
 
     if (!user) {
@@ -40,8 +40,8 @@ export async function GET(
             id: true,
             username: true,
             displayName: true,
-            elo: true,
-            rankClass: true,
+            multiplayerElo: true,
+            multiplayerRankClass: true,
             isOnline: true
           }
         },
@@ -50,8 +50,8 @@ export async function GET(
             id: true,
             username: true,
             displayName: true,
-            elo: true,
-            rankClass: true,
+            multiplayerElo: true,
+            multiplayerRankClass: true,
             isOnline: true
           }
         },

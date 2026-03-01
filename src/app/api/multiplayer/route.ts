@@ -19,8 +19,8 @@ export async function POST(req: NextRequest) {
         id: true,
         username: true,
         displayName: true,
-        elo: true,
-        rankClass: true,
+        multiplayerElo: true,
+        multiplayerRankClass: true,
         isOnline: true
       }
     });
@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
             id: true,
             username: true,
             displayName: true,
-            elo: true,
-            rankClass: true,
+            multiplayerElo: true,
+            multiplayerRankClass: true,
             isOnline: true
           }
         }
@@ -94,13 +94,13 @@ export async function POST(req: NextRequest) {
     if (waitingGame) {
       // Join existing game
       console.log('Joining existing game:', waitingGame.id);
-      console.log('Player1 Elo:', waitingGame.player1.elo);
-      console.log('Player2 Elo:', user.elo);
+      console.log('Player1 Elo:', waitingGame.player1.multiplayerElo);
+      console.log('Player2 Elo:', user.multiplayerElo);
       
       try {
         const questions = generateMultiplayerQuestions(
-          waitingGame.player1.elo,
-          user.elo,
+          waitingGame.player1.multiplayerElo,
+          user.multiplayerElo,
           questionCount || 20
         );
         
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
           where: { id: waitingGame.id },
           data: {
             player2Id: user.id,
-            player2Elo: user.elo,
+            player2Elo: user.multiplayerElo,
             status: 'playing',
             startedAt: new Date(),
             questions: {
@@ -131,8 +131,8 @@ export async function POST(req: NextRequest) {
                 id: true,
                 username: true,
                 displayName: true,
-                elo: true,
-                rankClass: true,
+                multiplayerElo: true,
+                multiplayerRankClass: true,
                 isOnline: true
               }
             },
@@ -141,8 +141,8 @@ export async function POST(req: NextRequest) {
                 id: true,
                 username: true,
                 displayName: true,
-                elo: true,
-                rankClass: true,
+                multiplayerElo: true,
+                multiplayerRankClass: true,
                 isOnline: true
               }
             },
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
       const newGame = await prisma.multiplayerGame.create({
         data: {
           player1Id: user.id,
-          player1Elo: user.elo,
+          player1Elo: user.multiplayerElo,
           status: 'waiting',
           gameType,
           timeControl,
@@ -188,8 +188,8 @@ export async function POST(req: NextRequest) {
               id: true,
               username: true,
               displayName: true,
-              elo: true,
-              rankClass: true,
+              multiplayerElo: true,
+              multiplayerRankClass: true,
               isOnline: true
             }
           }

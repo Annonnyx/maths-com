@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { QuestionGeneratorFactory } from '@/lib/question-generators';
 
-// POST /api/game/kahoot/[sessionId]/start - Démarrer une session Kahoot avec questions synchronisées
+// POST /api/game/group/[sessionId]/start - Démarrer une session de groupe avec questions synchronisées
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
@@ -43,7 +43,7 @@ export async function POST(
       include: { user: true }
     });
 
-    const avgElo = players.reduce((sum, player) => sum + (player.user.elo || 600), 0) / players.length;
+    const avgElo = players.reduce((sum, player) => sum + (player.user.multiplayerElo || 400), 0) / players.length;
     const difficulty = Math.max(1, Math.min(10, Math.round(avgElo / 100)));
 
     // Générer 10 questions synchronisées
@@ -86,7 +86,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Error starting Kahoot game:', error);
+    console.error('Error starting group game:', error);
     return NextResponse.json({ error: 'Failed to start game' }, { status: 500 });
   }
 }

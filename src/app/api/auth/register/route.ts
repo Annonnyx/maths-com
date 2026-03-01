@@ -53,16 +53,16 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         displayName: username,
-        elo: 400,
-        rankClass: 'F-',
-        bestElo: 400,
-        bestRankClass: 'F-',
+        soloElo: 400,
+        soloRankClass: 'F-',
+        soloBestElo: 400,
+        soloBestRankClass: 'F-',
         hasCompletedOnboarding: false,
       },
     });
 
     // Create initial statistics
-    await prisma.statistics.create({
+    await prisma.soloStatistics.create({
       data: {
         userId: user.id,
         totalTests: 0,

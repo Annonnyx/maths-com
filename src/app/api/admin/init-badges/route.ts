@@ -108,11 +108,11 @@ export async function POST(req: NextRequest) {
     const users = await prisma.user.findMany({
       select: { 
         id: true, 
-        rankClass: true, 
-        elo: true,
+        soloRankClass: true, 
+        soloElo: true,
         birthYear: true,
         classe: true,
-        statistics: {
+        soloStatistics: {
           select: {
             totalTests: true
           }
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Find top 1 users
-    const top1SoloUser = users.length > 0 ? users.reduce((max, u) => u.elo > max.elo ? u : max, users[0]) : null;
+    const top1SoloUser = users.length > 0 ? users.reduce((max, u) => u.soloElo > max.soloElo ? u : max, users[0]) : null;
     const top1MultiUser = top1SoloUser; // Utiliser le même utilisateur pour l'instant
 
     // Get all rank badges
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
     let classesUpdatedCount = 0;
 
     for (const user of users) {
-      const soloGames = user.statistics?.totalTests || 0;
+      const soloGames = user.soloStatistics?.totalTests || 0;
       const multiGames = 0; // Pas de champ multiplayerGames pour l'instant
       
       // Calculer et mettre à jour la classe scolaire
@@ -153,8 +153,8 @@ export async function POST(req: NextRequest) {
       });
 
       // Award ONLY current rank badge (not all previous ones)
-      if (user.rankClass && (soloGames > 0 || multiGames > 0)) {
-        const badgeInfo = RANK_BADGES[user.rankClass as keyof typeof RANK_BADGES];
+      if (user.soloRankClass && (soloGames > 0 || multiGames > 0)) {
+        const badgeInfo = RANK_BADGES[user.soloRankClass as keyof typeof RANK_BADGES];
         if (badgeInfo) {
           const badge = allRankBadges.find(b => b.name === badgeInfo.name);
           if (badge) {
@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
         }
         
         // Remove badges of higher ranks
-        const currentRankIndex = RANK_CLASSES.indexOf(user.rankClass as any);
+        const currentRankIndex = RANK_CLASSES.indexOf(user.soloRankClass as any);
         const higherRanks = RANK_CLASSES.slice(currentRankIndex + 1);
         
         for (const higherRank of higherRanks) {

@@ -18,7 +18,7 @@ export async function POST(
 
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true, currentStreak: true, lastTestDate: true }
+      select: { id: true, soloCurrentStreak: true, lastTestDate: true }
     });
 
     if (!currentUser) {
@@ -30,7 +30,7 @@ export async function POST(
     const { answers, timeTaken } = body;
 
     // Get test with questions
-    const test = await prisma.test.findUnique({
+    const test = await prisma.soloTest.findUnique({
       where: { id: testId },
       include: {
         questions: true,
@@ -62,7 +62,7 @@ export async function POST(
       if (isCorrect) correctCount++;
 
       questionUpdates.push(
-        prisma.question.update({
+        prisma.soloQuestion.update({
           where: { id: question.id },
           data: {
             userAnswer,
@@ -107,15 +107,15 @@ export async function POST(
       questionTimes: test.questions.map(() => timeTaken / test.totalQuestions), // Average distribution
       difficulties,
       isCorrectArray,
-      currentElo: test.user.elo,
-      streak: currentUser.currentStreak
+      currentElo: test.user.soloElo,
+      streak: currentUser.soloCurrentStreak
     });
     
-    const newElo = Math.max(0, test.user.elo + eloChange);
+    const newElo = Math.max(0, test.user.soloElo + eloChange);
     const newRank = getRankFromElo(newElo);
 
     // Check streak
-    let newStreak = currentUser.currentStreak;
+    let newStreak = currentUser.soloCurrentStreak;
     let isStreakTest = false;
     
     if (score >= 80) {
@@ -141,7 +141,7 @@ export async function POST(
     }
 
     // Update test
-    const updatedTest = await prisma.test.update({
+    const updatedTest = await prisma.soloTest.update({
       where: { id: testId },
       data: {
         completedAt: new Date(),
@@ -163,10 +163,13 @@ export async function POST(
     await prisma.user.update({
       where: { id: test.userId },
       data: {
-        elo: newElo,
-        rankClass: newRank,
-        bestElo: Math.max(test.user.bestElo || 0, newElo),
-        bestRankClass: newElo > (test.user.bestElo || 0) ? newRank : (test.user.bestRankClass || 'F-')
+        soloElo: newElo,
+        soloRankClass: newRank,
+        soloBestElo: Math.max(test.user.soloBestElo || 0, newElo),
+        soloBestRankClass: newElo > (test.user.soloBestElo || 0) ? newRank : (test.user.soloBestRankClass || 'F-'),
+        soloCurrentStreak: newStreak,
+        soloBestStreak: Math.max(newStreak, currentUser.soloCurrentStreak),
+        lastTestDate: new Date()
       }
     });
 
@@ -191,7 +194,7 @@ async function updateStatistics(
   score: number,
   correctCount: number
 ) {
-  const existingStats = await prisma.statistics.findUnique({
+  const existingStats = await prisma.soloStatistics.findUnique({
     where: { userId }
   });
 
@@ -206,7 +209,7 @@ async function updateStatistics(
     const newAverageScore = ((existingStats.averageScore * existingStats.totalTests) + score) / newTotalTests;
     const newAverageTime = ((existingStats.averageTime * existingStats.totalTests) + test.timeTaken) / newTotalTests;
 
-    await prisma.statistics.update({
+    await prisma.soloStatistics.update({
       where: { userId },
       data: {
         totalTests: newTotalTests,
@@ -223,7 +226,7 @@ async function updateStatistics(
     });
   } else {
     // Create new statistics
-    await prisma.statistics.create({
+    await prisma.soloStatistics.create({
       data: {
         userId,
         totalTests: 1,
