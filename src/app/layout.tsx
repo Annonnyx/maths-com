@@ -70,7 +70,8 @@ export default function RootLayout({
     },
   };
 
-  const gaId = process.env.NEXT_PUBLIC_GA_ID || 'G-XXXXXXXXXX';
+  // Google Analytics IDs - .com: G-2ZFLNCSYLF, .fr: G-KYRWPP3PG8
+  const gaId = process.env.NEXT_PUBLIC_GA_ID || 'G-2ZFLNCSYLF';
 
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
