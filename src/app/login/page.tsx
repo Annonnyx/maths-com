@@ -59,6 +59,15 @@ function LoginPageContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showFormAnyway, setShowFormAnyway] = useState(false);
+
+  // Timeout to show form anyway if session check takes too long
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFormAnyway(true);
+    }, 2000); // Show form after 2 seconds regardless
+    return () => clearTimeout(timer);
+  }, []);
 
   // Si déjà connecté, rediriger vers dashboard
   useEffect(() => {
@@ -67,8 +76,8 @@ function LoginPageContent() {
     }
   }, [status, session]);
 
-  // Afficher un loader pendant la vérification de session
-  if (status === 'loading') {
+  // Afficher un loader pendant la vérification de session (max 2 sec)
+  if (status === 'loading' && !showFormAnyway) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
         <div className="text-center">
