@@ -136,7 +136,8 @@ export default function OnboardingTestPage() {
   };
 
   const handleContinue = () => {
-    router.push('/dashboard');
+    // Forcer le rafraîchissement complet pour mettre à jour la session
+    window.location.href = '/dashboard';
   };
 
   if (isGenerating) {

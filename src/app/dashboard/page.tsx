@@ -25,10 +25,18 @@ export default function DashboardPage() {
 
   // Check if user needs onboarding
   useEffect(() => {
-    if (session?.user && !(session.user as any).hasCompletedOnboarding) {
+    // Vérifier d'abord la session, puis le profil (base de données)
+    const needsOnboarding = session?.user && (
+      !(session.user as any).hasCompletedOnboarding || 
+      (profile && !profile.hasCompletedOnboarding)
+    );
+    
+    if (needsOnboarding) {
       setShowOnboarding(true);
+    } else {
+      setShowOnboarding(false);
     }
-  }, [session]);
+  }, [session, profile]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
