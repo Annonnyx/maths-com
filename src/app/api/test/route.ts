@@ -10,7 +10,14 @@ export async function GET(req: NextRequest) {
         NODE_ENV: process.env.NODE_ENV,
         NEXTAUTH_URL: process.env.NEXTAUTH_URL,
         DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
-        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'SET' : 'NOT_SET'
+        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'SET' : 'NOT_SET',
+        VERCEL_URL: process.env.VERCEL_URL ? 'SET' : 'NOT_SET',
+        URL: process.env.URL ? 'SET' : 'NOT_SET'
+      },
+      headers: {
+        host: req.headers.get('host'),
+        'x-forwarded-host': req.headers.get('x-forwarded-host'),
+        'x-forwarded-proto': req.headers.get('x-forwarded-proto'),
       }
     });
   } catch (error) {

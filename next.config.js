@@ -23,6 +23,7 @@ const nextConfig = {
   // Variables d'environnement exposées au client
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
   
   // Turbopack config (vide pour utiliser les défauts Next.js 16)
