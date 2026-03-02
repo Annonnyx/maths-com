@@ -53,6 +53,13 @@ const nextConfig = {
         net: false,
         tls: false,
       };
+      
+      // Exclure explicitement Prisma du bundle client
+      config.externals = {
+        ...config.externals,
+        '@prisma/client': 'prisma',
+        'prisma': 'prisma',
+      };
     }
     return config;
   },
