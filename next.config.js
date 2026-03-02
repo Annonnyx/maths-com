@@ -5,7 +5,6 @@ const nextConfig = {
   
   // Optimisation des images
   images: {
-    domains: ['localhost', 'ton-domaine.com'],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 jours
     remotePatterns: [

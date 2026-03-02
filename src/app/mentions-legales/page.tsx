@@ -74,7 +74,6 @@ export default function MentionsLegalesPage() {
                 <p className="text-foreground">Particulier – adresse postale non communiquée (disponible sur demande motivée)</p>
               </div>
             </div>
-            </div>
 
             <h2 className="text-2xl font-bold mb-4">Directeur de la Publication</h2>
             <div className="space-y-4">
@@ -92,7 +91,6 @@ export default function MentionsLegalesPage() {
                 <p className="text-muted-foreground"><strong>Coordonnées</strong></p>
                 <p className="text-foreground">Identiques à celles de l'éditeur</p>
               </div>
-            </div>
             </div>
 
             <h2 className="text-2xl font-bold mb-4">Hébergeur</h2>
@@ -123,7 +121,6 @@ export default function MentionsLegalesPage() {
                 </a>
               </div>
             </div>
-            </div>
 
             <h2 className="text-2xl font-bold mb-4">Base de Données</h2>
             <div className="space-y-4">
@@ -148,7 +145,6 @@ export default function MentionsLegalesPage() {
                   https://supabase.com
                 </a>
               </div>
-            </div>
             </div>
 
             <h2 className="text-2xl font-bold mb-4">Propriété Intellectuelle</h2>
