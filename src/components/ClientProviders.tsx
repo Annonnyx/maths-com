@@ -19,9 +19,11 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     return (
       <ThemeProvider>
         <AuthProvider>
-          <SoundProvider>
-            {children}
-          </SoundProvider>
+          <NotificationProvider>
+            <SoundProvider>
+              {children}
+            </SoundProvider>
+          </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>
     );
@@ -30,13 +32,13 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   return (
     <ThemeProvider>
       <AuthProvider>
-        <SoundProvider>
-          <NotificationProvider>
+        <NotificationProvider>
+          <SoundProvider>
             <NotificationChecker />
             <Navigation />
             {children}
-          </NotificationProvider>
-        </SoundProvider>
+          </SoundProvider>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );

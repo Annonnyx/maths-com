@@ -146,22 +146,32 @@ export default function AdminPage() {
       const badgesRes = await fetch('/api/badges', { credentials: 'include' });
       console.log('Badges API status:', badgesRes.status);
       if (badgesRes.ok) {
-        const badgesData = await badgesRes.json();
-        setBadges(badgesData.badges || []);
+        try {
+          const badgesData = await badgesRes.json();
+          setBadges(badgesData?.badges || []);
+        } catch (parseError) {
+          console.error('Error parsing badges data:', parseError);
+          setBadges([]);
+        }
       } else {
-        const error = await badgesRes.json();
-        console.error('Badges API error:', error);
+        console.error('Badges API failed:', badgesRes.statusText);
+        setBadges([]);
       }
 
       // Load users
       const usersRes = await fetch('/api/admin?action=users', { credentials: 'include' });
       console.log('Users API status:', usersRes.status);
       if (usersRes.ok) {
-        const usersData = await usersRes.json();
-        setUsers(usersData.users || []);
+        try {
+          const usersData = await usersRes.json();
+          setUsers(usersData?.users || []);
+        } catch (parseError) {
+          console.error('Error parsing users data:', parseError);
+          setUsers([]);
+        }
       } else {
-        const error = await usersRes.json();
-        console.error('Users API error:', error);
+        console.error('Users API failed:', usersRes.statusText);
+        setUsers([]);
       }
 
       // Load my Elo
@@ -183,14 +193,28 @@ export default function AdminPage() {
       const bannersRes = await fetch('/api/admin/banners', { credentials: 'include' });
       console.log('Banners API status:', bannersRes.status);
       if (bannersRes.ok) {
-        const bannersData = await bannersRes.json();
-        setBanners(bannersData.banners || []);
+        try {
+          const bannersData = await bannersRes.json();
+          setBanners(bannersData?.banners || []);
+        } catch (parseError) {
+          console.error('Error parsing banners data:', parseError);
+          setBanners([]);
+        }
       } else {
-        const error = await bannersRes.json();
-        console.error('Banners API error:', error);
+        try {
+          const error = await bannersRes.json();
+          console.error('Banners API error:', error);
+        } catch (parseError) {
+          console.error('Error parsing banners error:', parseError);
+        }
+        setBanners([]);
       }
     } catch (error) {
       console.error('Error loading data:', error);
+      // Assurer que tous les états sont définis
+      setBadges([]);
+      setUsers([]);
+      setBanners([]);
     } finally {
       setLoading(false);
     }

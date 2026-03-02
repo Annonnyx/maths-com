@@ -543,8 +543,13 @@ export default function MultiplayerPage() {
                   
                   {qrCodeUrl && (
                     <div>
-                      <img src={qrCodeUrl} alt="QR Code" className="w-24 h-24 mx-auto border-2 border-white rounded-lg" />
-                      <p className="text-xs text-muted-foreground mt-2">Scannez pour rejoindre</p>
+                      <img 
+                        src={qrCodeUrl} 
+                        alt="QR Code" 
+                        className="w-24 h-24 mx-auto border-2 border-white rounded-lg cursor-pointer hover:scale-105 transition-transform" 
+                        onClick={() => setShowQrModal(true)}
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">Cliquez pour agrandir</p>
                     </div>
                   )}
                 </div>
