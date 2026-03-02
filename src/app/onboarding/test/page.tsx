@@ -9,7 +9,7 @@ import {
   ArrowRight, Calculator, Sparkles, Star, Send
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
-import { Exercise, generateAdaptiveOnboardingTest, validateAnswer } from '@/lib/exercises';
+import { Exercise, generateEvaluationTest, validateAnswer } from '@/lib/exercises';
 import { calculateInitialElo } from '@/lib/elo';
 import { getClassFromElo, formatClassName } from '@/lib/french-classes';
 import { getClassFromDifficulty } from '@/lib/french-classes';
@@ -20,8 +20,6 @@ interface OnboardingState {
   answers: string[];
   timePerQuestion: number[];
   startTime: number;
-  currentLevel: number; // 1-10 adaptatif
-  correctStreak: number;
   isComplete: boolean;
 }
 
@@ -36,8 +34,6 @@ export default function OnboardingTestPage() {
     answers: [],
     timePerQuestion: [],
     startTime: Date.now(),
-    currentLevel: 5, // Commence au milieu (CE2)
-    correctStreak: 0,
     isComplete: false
   });
   
@@ -55,7 +51,7 @@ export default function OnboardingTestPage() {
 
     const generateInitialTest = async () => {
       try {
-        const questions = await generateAdaptiveOnboardingTest(5); // 5 questions initiales
+        const questions = generateEvaluationTest(30); // 30 questions avec système existant
         setState(prev => ({ ...prev, questions, startTime: Date.now() }));
         setIsGenerating(false);
       } catch (error) {
@@ -84,15 +80,6 @@ export default function OnboardingTestPage() {
     // Mettre à jour l'état
     const newAnswers = [...state.answers, currentAnswer.trim()];
     const newTimes = [...state.timePerQuestion, timeTaken];
-    const newStreak = correct ? state.correctStreak + 1 : 0;
-    
-    // Adapter le niveau pour la prochaine question
-    let newLevel = state.currentLevel;
-    if (correct && newStreak >= 2) {
-      newLevel = Math.min(10, state.currentLevel + 1); // Augmenter la difficulté
-    } else if (!correct && state.correctStreak === 0) {
-      newLevel = Math.max(1, state.currentLevel - 1); // Baisser la difficulté
-    }
 
     setTimeout(() => {
       if (state.currentIndex >= state.questions.length - 1) {
@@ -104,9 +91,7 @@ export default function OnboardingTestPage() {
           ...prev,
           currentIndex: prev.currentIndex + 1,
           answers: newAnswers,
-          timePerQuestion: newTimes,
-          currentLevel: newLevel,
-          correctStreak: newStreak
+          timePerQuestion: newTimes
         }));
         setCurrentAnswer('');
         setShowFeedback(false);
@@ -124,8 +109,8 @@ export default function OnboardingTestPage() {
       const accuracy = correctCount / finalAnswers.length;
       const avgTime = finalTimes.reduce((a, b) => a + b, 0) / finalTimes.length;
       
-      // Calculer l'ELO initial basé sur la performance et le niveau atteint
-      const baseElo = calculateInitialElo(state.currentLevel, accuracy, avgTime);
+      // Calculer l'ELO initial basé sur la performance (niveau moyen 5)
+      const baseElo = calculateInitialElo(5, accuracy, avgTime);
       
       // Déterminer la classe scolaire
       const schoolClass = getClassFromElo(baseElo);
@@ -233,10 +218,6 @@ export default function OnboardingTestPage() {
             <div className="flex items-center gap-1">
               <Target className="w-4 h-4" />
               <span>Question {state.currentIndex + 1}/{state.questions.length}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Sparkles className="w-4 h-4" />
-              <span>Niveau {state.currentLevel}/10</span>
             </div>
           </div>
           
