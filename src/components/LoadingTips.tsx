@@ -114,18 +114,21 @@ export default function LoadingTips({ isLoading, className = '' }: LoadingTipsPr
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (!isLoading) return;
+    if (!isLoading) {
+      setProgress(0);
+      return;
+    }
 
     // Change tip every 6 seconds
     const tipInterval = setInterval(() => {
       setCurrentTipIndex(prev => (prev + 1) % loadingTips.length);
-      setProgress(0);
+      setProgress(0); // Reset progress when tip changes
     }, 6000);
 
     // Progress animation
     const progressInterval = setInterval(() => {
       setProgress(prev => {
-        if (prev >= 100) return 0;
+        if (prev >= 100) return 100; // Stop at 100, don't reset to 0
         return prev + 2; // 50 steps over 5 seconds
       });
     }, 100);
