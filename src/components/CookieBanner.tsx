@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Settings, Shield, Cookie } from 'lucide-react';
 import { getConsent, setConsent, hasConsent, CookiePreferences } from '@/lib/cookies-consent';
+import ToggleSwitch from '@/components/ToggleSwitch';
 
 interface CookieBannerProps {
   className?: string;
@@ -161,21 +162,10 @@ export default function CookieBanner({ className = '' }: CookieBannerProps) {
                           </p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => togglePreference('analytics')}
-                        disabled={true} // Les nécessaires sont toujours activés
-                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
-                        style={{
-                          backgroundColor: preferences.analytics ? 'rgb(34 197 94)' : 'rgb(107 114 128)'
-                        }}
-                      >
-                        <span
-                          className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                          style={{
-                            transform: preferences.analytics ? 'translateX(1.25rem)' : 'translateX(0.125rem)'
-                          }}
-                        />
-                      </button>
+                      <ToggleSwitch
+                        checked={preferences.analytics}
+                        onChange={(checked) => setPreferences(prev => ({ ...prev, analytics: checked }))}
+                      />
                     </div>
 
                     {/* Cookies publicitaires */}
@@ -189,20 +179,10 @@ export default function CookieBanner({ className = '' }: CookieBannerProps) {
                           </p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => togglePreference('advertising')}
-                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
-                        style={{
-                          backgroundColor: preferences.advertising ? 'rgb(34 197 94)' : 'rgb(107 114 128)'
-                        }}
-                      >
-                        <span
-                          className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                          style={{
-                            transform: preferences.advertising ? 'translateX(1.25rem)' : 'translateX(0.125rem)'
-                          }}
-                        />
-                      </button>
+                      <ToggleSwitch
+                        checked={preferences.advertising}
+                        onChange={(checked) => setPreferences(prev => ({ ...prev, advertising: checked }))}
+                      />
                     </div>
                   </div>
 

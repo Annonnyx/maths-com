@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { ArrowLeft, Cookie, Settings, Shield, Trash2, Check, X } from 'lucide-react';
 import { useCookieConsent } from '@/hooks/useCookieConsent';
 import { getConsent } from '@/lib/cookies-consent';
+import ToggleSwitch from '@/components/ToggleSwitch';
 
 export default function CookiesPage() {
   const { consent, updateConsent, revokeAllConsent, isAdvertisingAllowed, isAnalyticsAllowed } = useCookieConsent();
@@ -222,20 +223,10 @@ export default function CookiesPage() {
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => togglePreference('analytics')}
-                  className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
-                  style={{
-                    backgroundColor: preferences.analytics ? 'rgb(34 197 94)' : 'rgb(107 114 128)'
-                  }}
-                >
-                  <span
-                    className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                    style={{
-                      transform: preferences.analytics ? 'translateX(1.25rem)' : 'translateX(0.125rem)'
-                    }}
-                  />
-                </button>
+                <ToggleSwitch
+                  checked={preferences.analytics}
+                  onChange={(checked) => setPreferences(prev => ({ ...prev, analytics: checked }))}
+                />
               </div>
 
               {/* Cookies publicitaires */}
@@ -249,20 +240,10 @@ export default function CookiesPage() {
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => togglePreference('advertising')}
-                  className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
-                  style={{
-                    backgroundColor: preferences.advertising ? 'rgb(34 197 94)' : 'rgb(107 114 128)'
-                  }}
-                >
-                  <span
-                    className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                    style={{
-                      transform: preferences.advertising ? 'translateX(1.25rem)' : 'translateX(0.125rem)'
-                    }}
-                  />
-                </button>
+                <ToggleSwitch
+                  checked={preferences.advertising}
+                  onChange={(checked) => setPreferences(prev => ({ ...prev, advertising: checked }))}
+                />
               </div>
             </div>
 
