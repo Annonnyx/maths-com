@@ -4,7 +4,7 @@ import { isAdmin } from '@/lib/admin-auth';
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     // Check if user is admin
@@ -16,7 +16,7 @@ export async function PUT(
       );
     }
 
-    const { userId } = params;
+    const { userId } = await params;
     const { username } = await req.json();
 
     if (!username || typeof username !== 'string') {

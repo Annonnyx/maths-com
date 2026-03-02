@@ -3,10 +3,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
-    const { username } = params;
+    const { username } = await params;
 
     const user = await prisma.user.findUnique({
       where: { username },
@@ -47,9 +47,8 @@ export async function GET(
     const stats = soloStats ? {
       totalTests: soloStats.totalTests,
       totalQuestions: soloStats.totalQuestions,
-      correctAnswers: soloStats.correctAnswers,
+      correctAnswers: soloStats.totalCorrect,
       averageTime: soloStats.averageTime,
-      bestStreak: soloStats.bestStreak,
     } : null;
 
     const badges = userBadges.map(ub => ({
@@ -57,7 +56,6 @@ export async function GET(
       name: ub.badge.name,
       description: ub.badge.description,
       icon: ub.badge.icon,
-      tier: ub.badge.tier,
     }));
 
     return NextResponse.json({
