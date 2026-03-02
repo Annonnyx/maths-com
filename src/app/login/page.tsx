@@ -24,7 +24,13 @@ function OAuthButton({
   
   const handleClick = async () => {
     setIsLoading(true);
-    await signIn(provider, { callbackUrl: '/dashboard' });
+    try {
+      await signIn(provider, { callbackUrl: '/dashboard' });
+    } catch (error) {
+      console.error(`OAuth ${provider} error:`, error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

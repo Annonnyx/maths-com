@@ -18,11 +18,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/profile/:path*',
-    '/admin/:path*',
-    '/play/:path*',
+    '/((?!api/auth|_next/static|_next/image|favicon.ico|robots.txt).*)'
   ]
-  // ⚠️ NE PAS ajouter : '/', '/login', '/register', 
-  // '/api/:path*', '/_next/:path*'
 }
