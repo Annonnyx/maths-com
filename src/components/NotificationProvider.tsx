@@ -255,7 +255,12 @@ function NotificationToasts() {
     return null;
   }
 
-  const { notifications, dismissNotification, markAsRead } = useNotification();
+  const context = useContext(NotificationContext);
+  if (!context) {
+    return null;
+  }
+  
+  const { notifications, dismissNotification, markAsRead } = context;
   const unreadNotifications = notifications.filter(n => !n.read).slice(0, 3);
 
   return (
