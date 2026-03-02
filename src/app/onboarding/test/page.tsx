@@ -6,11 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { 
   Brain, Trophy, Target, Clock, CheckCircle, 
-  ArrowRight, Calculator, Sparkles, Star
+  ArrowRight, Calculator, Sparkles, Star, Send
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
 import { Exercise, generateAdaptiveOnboardingTest, validateAnswer } from '@/lib/exercises';
-import { calculateInitialElo, getClassFromElo, formatClassName } from '@/lib/elo';
+import { calculateInitialElo } from '@/lib/elo';
+import { getClassFromElo, formatClassName } from '@/lib/french-classes';
 import { getClassFromDifficulty } from '@/lib/french-classes';
 
 interface OnboardingState {
@@ -142,7 +143,7 @@ export default function OnboardingTestPage() {
 
       if (response.ok) {
         setState(prev => ({ ...prev, isComplete: true }));
-        playSound('achievement');
+        playSound('achievement' as any); // Temporaire, à corriger selon les types disponibles
       }
     } catch (error) {
       console.error('Error completing onboarding:', error);
@@ -261,16 +262,16 @@ export default function OnboardingTestPage() {
             <div className="text-center mb-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-muted rounded-full text-sm mb-4">
                 <Calculator className="w-4 h-4" />
-                <span>{currentQuestion.operation}</span>
+                <span>{currentQuestion.type}</span>
               </div>
               
               <div className="text-4xl font-bold mb-2">
                 {currentQuestion.question}
               </div>
               
-              {currentQuestion.context && (
+              {currentQuestion.explanation && (
                 <p className="text-muted-foreground text-sm mt-2">
-                  {currentQuestion.context}
+                  {currentQuestion.explanation}
                 </p>
               )}
             </div>
