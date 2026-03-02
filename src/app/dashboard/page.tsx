@@ -25,10 +25,10 @@ export default function DashboardPage() {
 
   // Check if user needs onboarding
   useEffect(() => {
-    // Vérifier d'abord la session, puis le profil (base de données)
+    // Ne montrer l'onboarding que si TOUS les deux indiquent que ce n'est pas complété
     const needsOnboarding = session?.user && (
-      !(session.user as any).hasCompletedOnboarding || 
-      (profile?.user && !profile.user.hasCompletedOnboarding)
+      !(session.user as any).hasCompletedOnboarding && 
+      (!profile?.user || !profile.user.hasCompletedOnboarding)
     );
     
     if (needsOnboarding) {
