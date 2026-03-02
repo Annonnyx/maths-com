@@ -176,10 +176,12 @@ function TestPage() {
     const isCorrect = validateAnswer(currentQ, inputValue.trim());
     playSound(isCorrect ? 'correct' : 'incorrect');
     
-    const questionStartTime = testState.timePerQuestion[testState.currentIndex] 
-      ? testState.timePerQuestion[testState.currentIndex] + testState.startTime
-      : Date.now();
-    const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000);
+    // Calculer le temps pris pour cette question
+    const now = Date.now();
+    const questionStartTime = testState.timePerQuestion[testState.currentIndex] > 0
+      ? now - (testState.timePerQuestion[testState.currentIndex] * 1000) // Convertir ms en s et soustraire du temps total
+      : testState.startTime + elapsedTime;
+    const timeTaken = Math.floor((now - questionStartTime) / 1000);
     
     const newAnswers = [...testState.answers];
     newAnswers[testState.currentIndex] = inputValue.trim();
