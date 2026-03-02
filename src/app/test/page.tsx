@@ -177,9 +177,8 @@ function TestPage() {
     playSound(isCorrect ? 'correct' : 'incorrect');
     
     const questionStartTime = testState.timePerQuestion[testState.currentIndex] 
-      ? testState.startTime + testState.timePerQuestion.slice(0, testState.currentIndex).reduce((a, b) => a + b, 0) * 1000
-      : testState.startTime;
-    
+      ? testState.timePerQuestion[testState.currentIndex] + testState.startTime
+      : Date.now();
     const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000);
     
     const newAnswers = [...testState.answers];
@@ -188,41 +187,41 @@ function TestPage() {
     const newTimePerQuestion = [...testState.timePerQuestion];
     newTimePerQuestion[testState.currentIndex] = timeTaken;
     
-    const newAttempts = testMode === 'training' 
-      ? [...(testState.attempts || [])]
-      : undefined;
-    if (newAttempts) {
-      newAttempts[testState.currentIndex] = (newAttempts[testState.currentIndex] || 0) + 1;
-    }
-
-    if (testMode === 'training' && !isCorrect) {
+    if (testMode === 'training') {
       setTestState({
         ...testState,
         answers: newAnswers,
         timePerQuestion: newTimePerQuestion,
-        attempts: newAttempts,
-        showAnswer: true
+        showAnswer: true,
+        currentIndex: testState.currentIndex + 1
       });
+      setInputValue('');
+      
+      // Passage automatique après 1.5 secondes en mode entraînement
+      setTimeout(() => {
+        if (testState.currentIndex < testState.questions.length - 1) {
+          continueToNext();
+        }
+      }, 1500);
     } else {
       if (testState.currentIndex < testState.questions.length - 1) {
         setTestState({
           ...testState,
           answers: newAnswers,
           timePerQuestion: newTimePerQuestion,
-          attempts: newAttempts,
           showAnswer: false,
           currentIndex: testState.currentIndex + 1
         });
         setInputValue('');
       } else {
+        // Test terminé
         setTestState({
           ...testState,
           answers: newAnswers,
           timePerQuestion: newTimePerQuestion,
-          attempts: newAttempts,
           isComplete: true
         });
-        calculateAndShowResults(newAnswers, newTimePerQuestion, newAttempts);
+        calculateAndShowResults(newAnswers, newTimePerQuestion, testState.attempts);
       }
     }
   };
@@ -392,7 +391,7 @@ function TestPage() {
       if (testMode === 'training' && testState?.showAnswer) {
         continueToNext();
       } else {
-        submitAnswer();
+        submitAnswer(); // Soumettre la réponse avec Entrée
       }
     }
   };
@@ -703,14 +702,13 @@ function TestPage() {
                   <div className="flex flex-col items-center gap-6">
                     <input
                       type="text"
-                      inputMode="numeric"
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Ta réponse..."
                       className={`w-full max-w-xs px-6 py-4 bg-card border-2 rounded-xl text-center text-2xl font-mono focus:outline-none transition-all ${
                         testMode === 'competitive'
-                          ? 'border-border focus:border-red-500'
+                          ? 'bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600'
                           : 'border-border focus:border-blue-500'
                       }`}
                       autoFocus

@@ -25,6 +25,7 @@ interface UserProfile {
     isTeacher: boolean;
     isOnline: boolean;
     lastSeenAt: string;
+    hasCompletedOnboarding: boolean;
   };
   soloStatistics?: any;
   multiplayerStatistics?: any;

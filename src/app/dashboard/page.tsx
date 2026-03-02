@@ -28,7 +28,7 @@ export default function DashboardPage() {
     // Vérifier d'abord la session, puis le profil (base de données)
     const needsOnboarding = session?.user && (
       !(session.user as any).hasCompletedOnboarding || 
-      (profile && !profile.hasCompletedOnboarding)
+      (profile?.user && !profile.user.hasCompletedOnboarding)
     );
     
     if (needsOnboarding) {
