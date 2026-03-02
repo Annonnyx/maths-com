@@ -292,3 +292,34 @@ export function isOperationUnlocked(elo: number, operation: string): boolean {
   const unlocked = getUnlockedOperations(elo);
   return unlocked.includes(operation);
 }
+
+// Calculate initial ELO based on onboarding performance
+export function calculateInitialElo(finalLevel: number, accuracy: number, avgTime: number): number {
+  // Base ELO according to final level (1-10)
+  const levelEloMap: Record<number, number> = {
+    1: 300,  // CP
+    2: 400,  // CE1
+    3: 500,  // CE2
+    4: 600,  // CM1
+    5: 700,  // CM2
+    6: 800,  // 6ème
+    7: 900,  // 5ème
+    8: 1000, // 4ème
+    9: 1100, // 3ème
+    10: 1200 // 2nde et plus
+  };
+  
+  let baseElo = levelEloMap[finalLevel] || 500;
+  
+  // Accuracy bonus (0-100%)
+  const accuracyBonus = Math.round((accuracy - 0.5) * 200); // -100 to +100
+  
+  // Time bonus (faster = higher ELO)
+  // Average time per question in seconds, lower is better
+  const timeBonus = avgTime < 5 ? 50 : avgTime < 10 ? 25 : avgTime < 15 ? 0 : -25;
+  
+  const finalElo = baseElo + accuracyBonus + timeBonus;
+  
+  // Clamp between reasonable bounds
+  return Math.max(200, Math.min(1500, finalElo));
+}

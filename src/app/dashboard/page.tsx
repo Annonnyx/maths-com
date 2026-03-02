@@ -32,8 +32,8 @@ export default function DashboardPage() {
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
-    // Navigate to test page with onboarding flag
-    router.push('/test?onboarding=true');
+    // Navigate to onboarding test page
+    router.push('/onboarding/test');
   };
 
   // Redirect to login if not authenticated (fallback if middleware fails)

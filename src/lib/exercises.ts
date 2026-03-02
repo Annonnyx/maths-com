@@ -1117,3 +1117,48 @@ export function getOperationTypesForCourse(slug: string): OperationType[] | null
   };
   return mapping[slug] || null;
 }
+
+// Generate adaptive onboarding test
+export function generateAdaptiveOnboardingTest(count: number = 5): Exercise[] {
+  const questions: Exercise[] = [];
+  
+  // Commencer avec un niveau moyen (difficulté 5 = CE2)
+  let currentDifficulty = 5;
+  
+  for (let i = 0; i < count; i++) {
+    // Types d'opérations progressifs selon le niveau
+    let operationType: OperationType;
+    
+    if (currentDifficulty <= 2) {
+      // CP/CE1 : additions et soustractions simples
+      operationType = Math.random() > 0.5 ? 'addition' : 'subtraction';
+    } else if (currentDifficulty <= 4) {
+      // CE2 : début multiplications et divisions simples
+      const ops = ['addition', 'subtraction', 'multiplication'];
+      operationType = ops[Math.floor(Math.random() * ops.length)] as OperationType;
+    } else if (currentDifficulty <= 6) {
+      // CM1/CM2 : toutes opérations de base
+      const ops = ['addition', 'subtraction', 'multiplication', 'division'];
+      operationType = ops[Math.floor(Math.random() * ops.length)] as OperationType;
+    } else if (currentDifficulty <= 8) {
+      // 6ème/5ème : opérations complexes
+      const ops = ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction'];
+      operationType = ops[Math.floor(Math.random() * ops.length)] as OperationType;
+    } else {
+      // 4ème et plus : tout y compris équations
+      const ops = ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'equation', 'power'];
+      operationType = ops[Math.floor(Math.random() * ops.length)] as OperationType;
+    }
+    
+    try {
+      const question = generateExercise(operationType, currentDifficulty);
+      questions.push(question);
+    } catch (error) {
+      console.error(`Error generating question for onboarding:`, error);
+      // Fallback to addition if error
+      questions.push(generateExercise('addition', Math.min(currentDifficulty, 3)));
+    }
+  }
+  
+  return questions;
+}
