@@ -104,9 +104,11 @@ function LoginPageContent() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    console.log("🔍 Début de la tentative de connexion...");
 
     try {
       // Vérifier d'abord si l'utilisateur existe
+      console.log("📧 Vérification de l'email:", formData.email);
       const checkResponse = await fetch('/api/auth/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -114,8 +116,10 @@ function LoginPageContent() {
       });
 
       const checkData = await checkResponse.json();
+      console.log("✅ Résultat check utilisateur:", checkData);
 
       if (!checkData.exists) {
+        console.log("❌ Email n'existe pas");
         setError('Ce mail/pseudo n\'existe pas');
         playSound('incorrect');
         setIsLoading(false);
@@ -123,6 +127,7 @@ function LoginPageContent() {
       }
 
       if (checkData.error === 'OAUTH_ACCOUNT') {
+        console.log("❌ Compte OAuth");
         setError('Ce compte utilise Google/Discord. Connecte-toi via OAuth.');
         playSound('incorrect');
         setIsLoading(false);
@@ -130,6 +135,7 @@ function LoginPageContent() {
       }
 
       // User existe avec password, essayer le login
+      console.log("🔑 Tentative de connexion NextAuth...");
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
@@ -137,16 +143,22 @@ function LoginPageContent() {
         callbackUrl,
       });
 
+      console.log("📊 Résultat signIn:", result);
+
       if (result?.error) {
+        console.log("❌ Erreur de connexion:", result.error);
         setError('Le mot de passe ne correspond pas');
         playSound('incorrect');
       } else {
+        console.log("✅ Connexion réussie, redirection vers:", callbackUrl);
         window.location.href = callbackUrl;
       }
-    } catch {
+    } catch (error) {
+      console.error("💥 Erreur catch globale:", error);
       setError('Une erreur est survenue');
       playSound('incorrect');
     } finally {
+      console.log("🏁 Fin de la tentative de connexion");
       setIsLoading(false);
     }
   };
