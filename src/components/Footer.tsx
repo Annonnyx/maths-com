@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Trophy, MessageCircle, Mail, Instagram } from 'lucide-react';
+import { Trophy, MessageCircle, Mail, Instagram, Cookie, FileText, Shield, Users } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -18,11 +18,15 @@ export default function Footer() {
     support: [
       { label: 'Aide', href: '#' },
       { label: 'FAQ', href: '#' },
-      { label: 'Contact', href: 'mailto:ballisos.contact@gmail.com' },
+      { label: 'Contact', href: 'mailto:Annonyx.contact@gmail.com' },
     ],
     legal: [
-      { label: 'Confidentialité', href: '#' },
-      { label: 'Conditions', href: '#' },
+      { label: 'CGU', href: '/cgu', icon: FileText },
+      { label: 'Confidentialité', href: '/confidentialite', icon: Shield },
+      { label: 'Mentions légales', href: '/mentions-legales' },
+      { label: 'Protection mineurs', href: '/mineurs', icon: Users },
+      { label: 'Transferts de données', href: '/transferts-donnees' },
+      { label: 'Gérer mes cookies', href: '/cookies', icon: Cookie },
     ],
   };
 
@@ -41,8 +45,8 @@ export default function Footer() {
             <p className="text-muted-foreground text-sm mb-4">
               Plateforme d&apos;entraînement au calcul mental gamifiée. Le chess.com des maths !
             </p>
-            <p className="text-sm text-gray-500 mb-4">
-              Créé par <span className="text-indigo-400 font-medium">Ballisos Studio</span>
+            <p className="text-muted-foreground text-sm mb-4">
+              Créé par <span className="text-indigo-400 font-medium">Noé BARNERON</span>
             </p>
             <div className="flex gap-4">
               <a 
@@ -50,23 +54,23 @@ export default function Footer() {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-[#5865F2] hover:text-[#5865F2]/80 transition-colors"
-                title="Discord Ballisos"
+                title="Discord Maths-app"
               >
                 <MessageCircle className="w-5 h-5" />
               </a>
               <a 
-                href="https://www.instagram.com/ballisos_official/" 
+                href="https://www.instagram.com/maths_app_com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-[#E4405F] hover:text-[#E4405F]/80 transition-colors"
-                title="Instagram Ballisos"
+                title="Instagram Maths-app"
               >
                 <Instagram className="w-5 h-5" />
               </a>
               <a 
-                href="mailto:ballisos.contact@gmail.com" 
+                href="mailto:Annonyx.contact@gmail.com" 
                 className="text-muted-foreground hover:text-foreground transition-colors"
-                title="Email Ballisos"
+                title="Email Maths-app"
               >
                 <Mail className="w-5 h-5" />
               </a>
@@ -113,8 +117,9 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                    className="text-muted-foreground hover:text-foreground text-sm transition-colors flex items-center gap-2"
                   >
+                    {link.icon && <link.icon className="w-3 h-3" />}
                     {link.label}
                   </Link>
                 </li>
@@ -125,19 +130,11 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">
+          <p className="text-muted-foreground text-sm">
             © {currentYear} maths-app.com. Tous droits réservés.
           </p>
-          <p className="text-gray-500 text-sm">
-            Fait avec ❤️ par{' '}
-            <a 
-              href="https://www.instagram.com/ballisos_official/"
-              target="_blank"
-              rel="noopener noreferrer" 
-              className="text-indigo-400 hover:text-indigo-300"
-            >
-              Ballisos Studio
-            </a>
+          <p className="text-muted-foreground text-sm">
+            Conforme RGPD et CNIL - Version v1.0
           </p>
         </div>
       </div>
