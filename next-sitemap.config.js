@@ -1,6 +1,12 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: 'https://maths-app.com',
+  additionalSitemaps: [
+    {
+      siteUrl: 'https://www.maths-app.fr',
+      sitemapFileName: 'sitemap-fr.xml'
+    }
+  ],
   generateRobotsTxt: false, // Nous avons déjà notre propre robots.txt
   changefreq: 'daily',
   priority: 1.0,
