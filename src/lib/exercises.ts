@@ -611,6 +611,18 @@ export function validateAnswer(exercise: Exercise, userAnswer: string): boolean 
   const normalizedUserAnswer = userAnswer.trim().replace(/\s/g, '');
   const normalizedCorrectAnswer = exercise.answer.trim().replace(/\s/g, '');
   
+  // Pour les réponses numériques, normaliser en supprimant les zéros superflus
+  // et en gérant les décimales
+  const isNumericAnswer = !isNaN(parseFloat(normalizedUserAnswer)) && !isNaN(parseFloat(normalizedCorrectAnswer));
+  
+  if (isNumericAnswer) {
+    const userNum = parseFloat(normalizedUserAnswer);
+    const correctNum = parseFloat(normalizedCorrectAnswer);
+    
+    // Comparaison numérique avec tolérance pour les décimales
+    return Math.abs(userNum - correctNum) < 0.0001;
+  }
+  
   return normalizedUserAnswer === normalizedCorrectAnswer;
 }
 
