@@ -131,7 +131,8 @@ export default function MultiplayerPage() {
         setGameCode(data.session.joinCode);
         
         // Générer le QR code
-        const qrDataUrl = await QRCode.toDataURL(data.joinUrl);
+        console.log('🔗 Join URL:', data.joinUrl);
+        const qrDataUrl = await QRCode.toDataURL(data.joinUrl || '');
         setQrCodeUrl(qrDataUrl);
         
         // Ouvrir automatiquement la modal QR
