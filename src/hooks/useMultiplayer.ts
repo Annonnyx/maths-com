@@ -246,7 +246,7 @@ export function useMultiplayer() {
     if (!session?.user?.email) return;
 
     try {
-      const params = new URLSearchParams({ page: page.toString() });
+      const params = new URLSearchParams({ page: (page || 1).toString() });
       if (type) params.append('type', type);
 
       const response = await fetch(`/api/messages?${params}`);

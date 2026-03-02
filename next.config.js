@@ -59,6 +59,14 @@ const nextConfig = {
         ...config.externals,
         '@prisma/client': 'prisma',
         'prisma': 'prisma',
+        '.prisma/client': 'prisma',
+      };
+      
+      // Exclure les fichiers Prisma du bundle
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@prisma/client': false,
+        'prisma': false,
       };
     }
     return config;
