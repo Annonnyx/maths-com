@@ -50,7 +50,7 @@ export default function PublicProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`/api/users/by-username/${username}/public`);
+        const response = await fetch(`/api/users/username/${username}/public`);
         if (!response.ok) {
           if (response.status === 404) {
             setError('Utilisateur non trouvé');
