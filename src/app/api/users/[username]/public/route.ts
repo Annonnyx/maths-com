@@ -9,10 +9,10 @@ import { prisma } from '@/lib/prisma';
 // GET /api/users/[username]/public - Récupérer le profil public d'un utilisateur
 export async function GET(
   req: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
-    const { username } = params;
+    const { username } = await params;
 
     if (!username) {
       return NextResponse.json(
