@@ -37,15 +37,43 @@ export default function NotificationsPage() {
     return null;
   }
 
-  const { notifications, markAsRead, dismissNotification, clearAll } = useNotification();
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const [isLoading, setIsLoading] = useState(false);
 
-  const filteredNotifications = notifications.filter(n => 
+  // Utiliser le hook avec try-catch pour éviter l'erreur
+  let notificationHook: any = null;
+  try {
+    notificationHook = useNotification();
+  } catch (error) {
+    console.warn('NotificationProvider not available, using fallback');
+    // Fallback: charger les notifications manuellement
+    useEffect(() => {
+      const loadNotifications = async () => {
+        try {
+          const response = await fetch('/api/notifications');
+          if (response.ok) {
+            const data = await response.json();
+            setNotifications(data.notifications || []);
+          }
+        } catch (error) {
+          console.error('Error loading notifications:', error);
+        }
+      };
+      loadNotifications();
+    }, []);
+  }
+
+  const notificationsList = notificationHook?.notifications || notifications;
+  const markAsRead = notificationHook?.markAsRead || (() => {});
+  const dismissNotification = notificationHook?.dismissNotification || (() => {});
+  const clearAll = notificationHook?.clearAll || (() => {});
+
+  const filteredNotifications = notificationsList.filter((n: any) => 
     filter === 'all' ? true : !n.read
   );
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notificationsList.filter((n: any) => !n.read).length;
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -68,15 +96,15 @@ export default function NotificationsPage() {
     }
   };
 
-  const getNotificationLink = (notification: NotificationItem) => {
-    switch (notification.type) {
+  const getNotificationLink = (notificationItem: any) => {
+    switch (notificationItem.type) {
       case 'friend_request':
       case 'friend_accepted':
         return '/friends';
       case 'challenge':
-        return `/multiplayer${notification.metadata?.challengeId ? `/game/${notification.metadata.challengeId}` : ''}`;
+        return `/multiplayer${notificationItem.metadata?.challengeId ? `/game/${notificationItem.metadata.challengeId}` : ''}`;
       case 'message':
-        return `/messages?friend=${notification.senderId}`;
+        return `/messages?friend=${notificationItem.senderId}`;
       case 'class_request':
       case 'class_accepted':
         return '/dashboard';
@@ -107,7 +135,7 @@ export default function NotificationsPage() {
   };
 
   const handleMarkAllAsRead = async () => {
-    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+    const unreadIds = notificationsList.filter((n: any) => !n.read).map((n: any) => n.id);
     if (unreadIds.length === 0) return;
 
     setIsLoading(true);
@@ -123,7 +151,7 @@ export default function NotificationsPage() {
       });
       
       // Mettre à jour l'état local
-      unreadIds.forEach(id => markAsRead(id));
+      unreadIds.forEach((id: string) => markAsRead(id));
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
     } finally {
@@ -257,7 +285,7 @@ export default function NotificationsPage() {
               </p>
             </motion.div>
           ) : (
-            filteredNotifications.map((notification, index) => {
+            filteredNotifications.map((notification: any, index: number) => {
               // Convertir Notification vers NotificationItem en gérant le cas read: undefined
               const notificationItem: NotificationItem = {
                 ...notification,
