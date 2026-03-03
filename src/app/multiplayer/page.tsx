@@ -161,9 +161,13 @@ export default function MultiplayerPage() {
         const gameCode = data.session.joinCode || data.joinCode;
         setGameCode(gameCode);
         
+        // Initialiser les joueurs avec l'hôte
+        setLobbyPlayers(data.players || []);
+        
         console.log('📝 Session data:', data.session);
         console.log('🎯 Join code from response:', data.joinCode);
         console.log('🔑 Session join code:', data.session?.joinCode);
+        console.log('👥 Initial players:', data.players);
         
         // Générer l'URL de rejoindre
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://maths-app.com';

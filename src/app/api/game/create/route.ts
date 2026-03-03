@@ -103,10 +103,25 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      session: gameSession,
+      session: {
+        ...gameSession,
+        joinCode: gameSession.code, // Mapper code vers joinCode
+        gameMode: 'group_quiz',
+        maxPlayers,
+        questionCount,
+        difficulty,
+        timePerQuestion: timePerQuestion,
+        currentQuestionIndex: 0,
+        isRanked: false,
+        player1Score: 0,
+        player2Score: 0,
+        createdAt: gameSession.createdAt,
+        updatedAt: gameSession.updatedAt
+      },
       hostPlayer,
       joinUrl,
-      joinCode
+      joinCode,
+      players: [hostPlayer] // Inclure les joueurs initiaux
     });
 
   } catch (error) {
