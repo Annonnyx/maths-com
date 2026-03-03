@@ -86,6 +86,8 @@ export const authOptions: NextAuthOptions = {
             displayName: user.displayName,
             soloElo: user.soloElo,
             soloRankClass: user.soloRankClass,
+            multiplayerElo: user.multiplayerElo,
+            multiplayerRankClass: user.multiplayerRankClass,
             hasCompletedOnboarding: user.hasCompletedOnboarding,
           } as any;
         } catch (error) {
@@ -167,6 +169,8 @@ export const authOptions: NextAuthOptions = {
         token.displayName = (user as any).displayName;
         token.soloElo = (user as any).soloElo;
         token.soloRankClass = (user as any).soloRankClass;
+        token.multiplayerElo = (user as any).multiplayerElo;
+        token.multiplayerRankClass = (user as any).multiplayerRankClass;
         token.hasCompletedOnboarding = (user as any).hasCompletedOnboarding;
         console.log('✅ Token updated with user data');
       }
@@ -183,6 +187,8 @@ export const authOptions: NextAuthOptions = {
         session.user.displayName = token.displayName;
         session.user.soloElo = token.soloElo;
         session.user.soloRankClass = token.soloRankClass;
+        session.user.multiplayerElo = token.multiplayerElo;
+        session.user.multiplayerRankClass = token.multiplayerRankClass;
         session.user.hasCompletedOnboarding = token.hasCompletedOnboarding;
         console.log('✅ Session updated');
       }
