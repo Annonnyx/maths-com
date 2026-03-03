@@ -29,11 +29,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingUser) {
-      let errorMessage = 'Email or username already exists';
+      let errorMessage = 'Cet email ou nom d\'utilisateur existe déjà';
       if (existingUser.email === email) {
-        errorMessage = 'Email already exists';
+        errorMessage = 'Cet email est déjà utilisé';
       } else if (existingUser.username === username) {
-        errorMessage = 'Username already exists';
+        errorMessage = 'Ce nom d\'utilisateur est déjà pris';
       }
       
       console.log('[API /users] User already exists:', { 

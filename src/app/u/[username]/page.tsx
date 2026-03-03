@@ -27,7 +27,7 @@ interface PublicProfile {
     totalQuestions: number;
     correctAnswers: number;
     averageTime: number;
-    bestStreak: number;
+    averageScore: number;
   } | null;
   badges: {
     id: string;
@@ -222,8 +222,8 @@ export default function PublicProfilePage() {
               
               <div className="bg-muted rounded-xl p-4 text-center">
                 <Zap className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold">{profile.stats?.bestStreak || 0}</div>
-                <div className="text-xs text-muted-foreground">Meilleure série</div>
+                <div className="text-2xl font-bold">{profile.stats?.averageScore ? Math.round(profile.stats.averageScore) : 0}%</div>
+                <div className="text-xs text-muted-foreground">Score moyen</div>
               </div>
             </div>
 
