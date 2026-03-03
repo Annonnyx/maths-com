@@ -78,8 +78,8 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Find waiting game
-    const waitingGame = await prisma.multiplayerGame.findFirst({
+    // Find waiting game with closest ELO match
+    const waitingGames = await prisma.multiplayerGame.findMany({
       where: {
         status: 'waiting',
         player2Id: null,
@@ -98,7 +98,35 @@ export async function POST(req: NextRequest) {
             isOnline: true
           }
         }
-      }
+      },
+      orderBy: [
+        // Priorité 1: Différence d'ELO la plus petite
+        {
+          player1: {
+            multiplayerElo: 'asc'
+          }
+        }
+      ]
+    });
+
+    // Calculer la différence d'ELO pour chaque partie en attente
+    const gamesWithEloDiff = waitingGames.map(game => ({
+      ...game,
+      eloDiff: Math.abs(game.player1.multiplayerElo - user.multiplayerElo)
+    }));
+
+    // Trier par différence d'ELO (la plus petite en premier)
+    gamesWithEloDiff.sort((a, b) => a.eloDiff - b.eloDiff);
+
+    // Prendre la partie avec l'ELO le plus proche
+    const waitingGame = gamesWithEloDiff[0];
+
+    console.log('🎯 Matchmaking results:', {
+      totalWaitingGames: waitingGames.length,
+      selectedGameEloDiff: waitingGame?.eloDiff,
+      player1Elo: waitingGame?.player1.multiplayerElo,
+      player2Elo: user.multiplayerElo,
+      eloRange: waitingGame ? `${Math.min(waitingGame.player1.multiplayerElo, user.multiplayerElo)} - ${Math.max(waitingGame.player1.multiplayerElo, user.multiplayerElo)}` : 'N/A'
     });
 
     if (waitingGame) {

@@ -412,8 +412,8 @@ export default function MultiplayerPage() {
                     onClick={() => setSelectedMode('ranked_1v1')}
                     className={`p-4 rounded-xl border-2 transition-all ${
                       selectedMode === 'ranked_1v1'
-                        ? 'border-primary bg-blue-500/20'
-                        : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-blue-500/10'
+                        ? 'border-blue-500 bg-blue-500/20'
+                        : 'border-[#3a3a4a] hover:border-blue-500/50 hover:bg-blue-500/10'
                     }`}
                   >
                     <Trophy className="w-6 h-6 mb-2 mx-auto text-yellow-400" />
@@ -424,8 +424,8 @@ export default function MultiplayerPage() {
                     onClick={() => setSelectedMode('casual_1v1')}
                     className={`p-4 rounded-xl border-2 transition-all ${
                       selectedMode === 'casual_1v1'
-                        ? 'border-primary bg-blue-500/20'
-                        : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-blue-500/10'
+                        ? 'border-blue-500 bg-blue-500/20'
+                        : 'border-[#3a3a4a] hover:border-blue-500/50 hover:bg-blue-500/10'
                     }`}
                   >
                     <Users className="w-6 h-6 mb-2 mx-auto text-blue-400" />
@@ -445,8 +445,8 @@ export default function MultiplayerPage() {
                       onClick={() => setSelectedTimeControl(key as TimeControl)}
                       className={`p-4 rounded-xl border-2 transition-all ${
                         selectedTimeControl === key
-                          ? 'border-primary bg-blue-500/20'
-                          : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-blue-500/10'
+                          ? 'bg-blue-500/20 text-white'
+                          : 'bg-[#1e1e2e] hover:bg-blue-500/10 text-muted-foreground hover:text-white'
                       }`}
                     >
                       <div className="text-lg mb-1">{config.name}</div>
@@ -499,8 +499,8 @@ export default function MultiplayerPage() {
                       onClick={() => setTimePerQuestion(time)}
                       className={`p-3 rounded-xl border-2 transition-all ${
                         timePerQuestion === time
-                          ? 'border-primary bg-purple-500/20'
-                          : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-purple-500/10'
+                          ? 'border-purple-500 bg-purple-500/20'
+                          : 'border-[#3a3a4a] hover:border-purple-500/50 hover:bg-purple-500/10'
                       }`}
                     >
                       <div className="font-semibold">{time}s</div>
@@ -519,8 +519,8 @@ export default function MultiplayerPage() {
                       onClick={() => setQuestionCount(count)}
                       className={`p-3 rounded-xl border-2 transition-all ${
                         questionCount === count
-                          ? 'border-primary bg-purple-500/20'
-                          : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-purple-500/10'
+                          ? 'border-green-500 bg-green-500/20'
+                          : 'border-[#3a3a4a] hover:border-green-500/50 hover:bg-green-500/10'
                       }`}
                     >
                       <div className="font-semibold">{count}</div>
@@ -545,7 +545,7 @@ export default function MultiplayerPage() {
                       className={`p-3 rounded-xl border-2 transition-all ${
                         difficulty === diff.value
                           ? `border-${diff.color === 'green' ? 'green' : diff.color === 'blue' ? 'blue' : diff.color === 'red' ? 'red' : 'purple'}-500 bg-${diff.color === 'green' ? 'green' : diff.color === 'blue' ? 'blue' : diff.color === 'red' ? 'red' : 'purple'}-500/20`
-                          : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-purple-500/10'
+                          : 'border-[#3a3a4a] hover:border-gray-500/50 hover:bg-gray-500/10'
                       }`}
                     >
                       <div className="font-semibold">{diff.label}</div>
