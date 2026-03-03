@@ -182,12 +182,10 @@ export default function MultiplayerPage() {
         const qrDataUrl = await QRCode.toDataURL(joinUrl);
         setQrCodeUrl(qrDataUrl);
         
-        // Rediriger vers le lobby de l'hôte
-        router.push(`/multiplayer/lobby/${data.session.id}`);
+        // Ouvrir automatiquement la modal QR
+        setShowQrModal(true);
         
-        return; // Arrêter ici pour ne pas exécuter le reste du code
-        
-        // S'abonner aux updates du lobby
+        // S'abonner aux updates du lobby en temps réel
         const channel = supabase
           .channel(`game_session_${data.session.id}`)
           .on('postgres_changes', 
@@ -669,12 +667,16 @@ export default function MultiplayerPage() {
 
               {/* Bouton lancer */}
               <button
-                onClick={startGroupGame}
-                disabled={lobbyPlayers.length < 2}
+                onClick={() => {
+                  if (createdSession) {
+                    router.push(`/multiplayer/lobby/${createdSession.id}`);
+                  }
+                }}
+                disabled={lobbyPlayers.length < 1}
                 className="w-full mt-6 py-4 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3"
               >
                 <Play className="w-6 h-6" />
-                {lobbyPlayers.length < 2 ? `Attendez ${2 - lobbyPlayers.length} joueur(s)...` : 'Lancer la partie'}
+                {lobbyPlayers.length < 1 ? 'Créez d\'abord une partie...' : 'Lancer la partie'}
               </button>
             </motion.div>
           )}
@@ -829,13 +831,26 @@ export default function MultiplayerPage() {
                   </div>
                 )}
                 
-                {/* Bouton fermer */}
-                <button
-                  onClick={() => setShowQrModal(false)}
-                  className="px-6 py-3 bg-border hover:bg-muted text-white rounded-xl font-semibold transition-colors"
-                >
-                  Fermer
-                </button>
+                {/* Boutons d'action */}
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setShowQrModal(false)}
+                    className="px-6 py-3 bg-border hover:bg-muted text-white rounded-xl font-semibold transition-colors"
+                  >
+                    Fermer
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (createdSession) {
+                        router.push(`/multiplayer/lobby/${createdSession.id}`);
+                      }
+                    }}
+                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Play className="w-5 h-5" />
+                    Lancer la partie
+                  </button>
+                </div>
               </motion.div>
             </motion.div>
           )}
