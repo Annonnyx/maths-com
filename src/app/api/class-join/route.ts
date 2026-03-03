@@ -15,10 +15,10 @@ export async function POST(request: NextRequest) {
     // Vérifier si l'utilisateur est un étudiant
     const profile = await prisma.user.findUnique({
       where: { id: token.id! },
-      select: { role: true }
+      select: { isTeacher: true }
     });
 
-    if (profile?.role === 'teacher') {
+    if (profile?.isTeacher) {
       return NextResponse.json({ error: 'Les professeurs ne peuvent pas rejoindre de classe' }, { status: 403 });
     }
 

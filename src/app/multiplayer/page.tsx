@@ -525,6 +525,31 @@ export default function MultiplayerPage() {
                 </div>
               </div>
 
+              {/* Difficulté */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-muted-foreground mb-3">Difficulté</label>
+                <div className="grid grid-cols-4 gap-3">
+                  {[
+                    { value: 'easy', label: 'CP', color: 'green' },
+                    { value: 'medium', label: 'Collège', color: 'blue' },
+                    { value: 'hard', label: 'Lycée', color: 'red' },
+                    { value: 'mixed', label: 'Mixte', color: 'purple' }
+                  ].map((diff) => (
+                    <button
+                      key={diff.value}
+                      onClick={() => setDifficulty(diff.value as 'easy' | 'medium' | 'hard' | 'mixed')}
+                      className={`p-3 rounded-xl border-2 transition-all ${
+                        difficulty === diff.value
+                          ? `border-${diff.color === 'green' ? 'green' : diff.color === 'blue' ? 'blue' : diff.color === 'red' ? 'red' : 'purple'}-500 bg-${diff.color === 'green' ? 'green' : diff.color === 'blue' ? 'blue' : diff.color === 'red' ? 'red' : 'purple'}-500/20`
+                          : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-purple-500/10'
+                      }`}
+                    >
+                      <div className="font-semibold">{diff.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Création ou rejoindre */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
