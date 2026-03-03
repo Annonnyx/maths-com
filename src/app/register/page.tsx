@@ -75,7 +75,7 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || 'Une erreur est survenue');
+        setError(data.error || 'Une erreur est survenue');
         playSound('incorrect');
       } else {
         playSound('complete');

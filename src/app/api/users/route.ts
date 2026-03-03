@@ -29,8 +29,22 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingUser) {
+      let errorMessage = 'Email or username already exists';
+      if (existingUser.email === email) {
+        errorMessage = 'Email already exists';
+      } else if (existingUser.username === username) {
+        errorMessage = 'Username already exists';
+      }
+      
+      console.log('[API /users] User already exists:', { 
+        email, 
+        username, 
+        existingEmail: existingUser.email, 
+        existingUsername: existingUser.username 
+      });
+      
       return NextResponse.json(
-        { error: 'Email or username already exists' },
+        { error: errorMessage },
         { status: 400 }
       );
     }
