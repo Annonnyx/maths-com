@@ -23,11 +23,14 @@ function OAuthButton({
   const [isLoading, setIsLoading] = useState(false);
   
   const handleClick = async () => {
+    console.log(`🖱️ Clique sur bouton ${provider} détecté`);
     setIsLoading(true);
     try {
+      console.log(`🚀 Lancement signIn pour ${provider}...`);
       await signIn(provider, { callbackUrl: '/dashboard' });
+      console.log(`✅ signIn ${provider} lancé avec succès`);
     } catch (error) {
-      console.error(`OAuth ${provider} error:`, error);
+      console.error(`❌ OAuth ${provider} error:`, error);
     } finally {
       setIsLoading(false);
     }

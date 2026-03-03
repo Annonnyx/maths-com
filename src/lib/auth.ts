@@ -5,7 +5,19 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import DiscordProvider from 'next-auth/providers/discord';
 
+// Debug des variables d'environnement
+const isDev = process.env.NODE_ENV === 'development';
+const nextAuthUrl = isDev ? 'http://localhost:3000' : (process.env.NEXTAUTH_URL || 'https://maths-app.com');
+
+console.log('🔧 Environment:', isDev ? 'DEVELOPMENT' : 'PRODUCTION');
+console.log('🔧 NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'DEFINED' : 'MISSING');
+console.log('🔧 NEXTAUTH_URL:', nextAuthUrl);
+console.log('🔧 GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'DEFINED' : 'MISSING');
+console.log('🔧 DISCORD_CLIENT_ID:', process.env.DISCORD_CLIENT_ID ? 'DEFINED' : 'MISSING');
+
 export const authOptions: NextAuthOptions = {
+  debug: process.env.NODE_ENV === 'development',
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? [
