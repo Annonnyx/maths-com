@@ -167,7 +167,7 @@ export default function MultiplayerPage() {
         
         // Générer l'URL de rejoindre
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://maths-app.com';
-        const joinUrl = data.joinUrl || `${baseUrl}/multiplayer/join?code=${gameCode}`;
+        const joinUrl = `${baseUrl}/multiplayer/join?code=${gameCode}`;
         
         // Générer le QR code
         console.log('🔗 Join URL:', joinUrl);

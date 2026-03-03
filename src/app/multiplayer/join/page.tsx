@@ -58,6 +58,13 @@ function JoinGameContent() {
           setGameSession(data.session);
           setIsJoined(true);
           
+          // Charger les joueurs existants
+          const playersResponse = await fetch(`/api/multiplayer/game/${data.session.id}`);
+          if (playersResponse.ok) {
+            const playersData = await playersResponse.json();
+            setPlayers(playersData.players || []);
+          }
+          
           // S'abonner aux updates en temps réel
           const channel = supabase
             .channel(`game_session_${data.session.id}`)
@@ -111,8 +118,33 @@ function JoinGameContent() {
         setGameSession(data.session);
         setIsJoined(true);
         
-        // Rediriger vers la page multiplayer avec l'ID de session
-        router.push(`/multiplayer?session=${data.session.id}`);
+        // Charger les joueurs existants
+        const playersResponse = await fetch(`/api/multiplayer/game/${data.session.id}`);
+        if (playersResponse.ok) {
+          const playersData = await playersResponse.json();
+          setPlayers(playersData.players || []);
+        }
+        
+        // S'abonner aux updates en temps réel
+        const channel = supabase
+          .channel(`game_session_${data.session.id}`)
+          .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'game_players' },
+            (payload: any) => {
+              if (payload.eventType === 'INSERT') {
+                setPlayers(prev => [...prev, payload.new]);
+              } else if (payload.eventType === 'UPDATE') {
+                setPlayers(prev => 
+                  prev.map(p => p.id === payload.new.id ? { ...p, ...payload.new } : p)
+                );
+              }
+            }
+          )
+          .subscribe();
+
+        return () => {
+          supabase.removeChannel(channel);
+        };
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Code invalide');
@@ -179,6 +211,9 @@ function JoinGameContent() {
                               {player.user.username.charAt(0).toUpperCase()}
                             </div>
                             <span>{player.user.displayName || player.user.username}</span>
+                            {player.user_id === gameSession.host_id && (
+                              <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">Hôte</span>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">{player.score || 0} pts</span>
@@ -191,12 +226,24 @@ function JoinGameContent() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => router.push(`/multiplayer/game/${gameSession.id}`)}
-                    className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-colors"
-                  >
-                    Aller à la partie
-                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    {session?.user?.id === gameSession.host_id && (
+                      <button
+                        onClick={() => router.push(`/multiplayer/game/${gameSession.id}`)}
+                        className="py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-colors"
+                        disabled={players.length < 2}
+                      >
+                        {players.length < 2 ? 'Attente de joueurs...' : 'Lancer la partie'}
+                      </button>
+                    )}
+                    
+                    <button
+                      onClick={() => router.push('/multiplayer')}
+                      className="py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition-colors"
+                    >
+                      Quitter
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

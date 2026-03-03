@@ -181,8 +181,8 @@ export default function AdminPage() {
         const eloData = await eloRes.json();
         if (eloData.user) {
           setMyElo(eloData.user);
-          setNewElo(eloData.user.soloElo.toString());
-          setNewMultiplayerElo(eloData.user.multiplayerElo.toString());
+          setNewElo((eloData.user.soloElo || 0).toString());
+          setNewMultiplayerElo((eloData.user.multiplayerElo || 0).toString());
         }
       } else {
         const error = await eloRes.json();
@@ -362,7 +362,7 @@ export default function AdminPage() {
     formData.append('file', file);
     formData.append('name', bannerFormData.name);
     formData.append('description', bannerFormData.description);
-    formData.append('isPremium', bannerFormData.isPremium.toString());
+    formData.append('isPremium', (bannerFormData.isPremium || false).toString());
 
     try {
       const response = await fetch('/api/admin/banners', {

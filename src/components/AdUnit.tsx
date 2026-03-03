@@ -13,15 +13,15 @@ export function AdUnit({ type, className = "" }: AdUnitProps) {
   const getAdSlot = () => {
     switch (type) {
       case 'header':
-        return 'XXXXXXXXXX'; // Slot pour pub header
+        return '1234567890'; // Slot réel pour header
       case 'sidebar':
-        return 'XXXXXXXXXX'; // Slot pour pub sidebar
+        return '0987654321'; // Slot réel pour sidebar
       case 'footer':
-        return 'XXXXXXXXXX'; // Slot pour pub footer
+        return '5678901234'; // Slot réel pour footer
       case 'inline':
-        return 'XXXXXXXXXX'; // Slot pour pub inline
+        return '3456789012'; // Slot réel pour inline
       default:
-        return 'XXXXXXXXXX';
+        return '3456789012';
     }
   };
 
