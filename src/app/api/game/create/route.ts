@@ -74,6 +74,27 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    // Ajouter l'hôte comme premier joueur
+    const hostPlayer = await prisma.gamePlayer.create({
+      data: {
+        sessionId: gameSession.id,
+        userId: session.user.id,
+        score: 0,
+        isReady: true // L'hôte est prêt par défaut
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            multiplayerElo: true,
+            multiplayerRankClass: true
+          }
+        }
+      }
+    });
+
     // Générer l'URL de rejoindre si mode groupe
     let joinUrl = null;
     if (joinCode) {
@@ -83,6 +104,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       session: gameSession,
+      hostPlayer,
       joinUrl,
       joinCode
     });

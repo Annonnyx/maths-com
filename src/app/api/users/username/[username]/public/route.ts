@@ -107,6 +107,8 @@ export async function GET(
       soloRankClass: user.soloRankClass,
       multiplayerElo: user.multiplayerElo,
       multiplayerRankClass: user.multiplayerRankClass,
+      isTeacher: user.isTeacher,
+      isAdmin: user.isAdmin,
       createdAt: user.createdAt,
       stats,
       badges

@@ -384,15 +384,33 @@ export default function PublicProfilePage() {
               <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-xl p-4 border border-indigo-500/30">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
-                    <h3 className="font-semibold">Rejoins maths-app.com !</h3>
-                    <p className="text-sm text-muted-foreground">Entraîne ton calcul mental et défie tes amis.</p>
+                    {session ? (
+                      <>
+                        <h3 className="font-semibold">Prêt à défier tes amis ?</h3>
+                        <p className="text-sm text-muted-foreground">Lance une partie de calcul mental et deviens le meilleur !</p>
+                      </>
+                    ) : (
+                      <>
+                        <h3 className="font-semibold">Rejoins maths-app.com !</h3>
+                        <p className="text-sm text-muted-foreground">Entraîne ton calcul mental et défie tes amis.</p>
+                      </>
+                    )}
                   </div>
-                  <Link
-                    href="/register"
-                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold transition-colors whitespace-nowrap"
-                  >
-                    S&apos;inscrire gratuitement
-                  </Link>
+                  {session ? (
+                    <Link
+                      href="/multiplayer"
+                      className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold transition-colors whitespace-nowrap"
+                    >
+                      Jouer maintenant
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/register"
+                      className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold transition-colors whitespace-nowrap"
+                    >
+                      S&apos;inscrire gratuitement
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
