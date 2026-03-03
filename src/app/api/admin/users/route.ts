@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
         email: true,
         soloElo: true,
         soloRankClass: true,
+        isTeacher: true,
         isAdmin: true,
         createdAt: true,
       },
@@ -56,15 +57,15 @@ export async function PUT(request: NextRequest) {
 
     const { userId, makeTeacher } = await request.json();
 
-    // TODO: Activer quand les champs seront ajoutés à la BDD
-    // const updatedUser = await prisma.user.update({
-    //   where: { id: userId },
-    //   data: { isTeacher: makeTeacher }
-    // });
+    // Mettre à jour le statut professeur
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { isTeacher: makeTeacher }
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Teacher status update not implemented yet'
+      user: updatedUser
     });
 
   } catch (error) {
