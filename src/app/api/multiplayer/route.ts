@@ -8,11 +8,18 @@ import { TIME_CONTROLS } from '@/lib/multiplayer';
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("🎮 Début de la création de partie multijoueur");
+    
     const session = await getServerSession(authOptions);
+    console.log("🔍 Session trouvée:", session ? "OUI" : "NON");
+    console.log("👤 Session user:", session?.user);
+    
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.log("❌ Session non trouvée - pas d'email");
+      return NextResponse.json({ error: 'Session non trouvée' }, { status: 401 });
     }
 
+    console.log("📧 Recherche utilisateur avec email:", session.user.email);
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: {
@@ -25,7 +32,10 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    console.log("👤 Utilisateur trouvé:", user ? "OUI" : "NON");
+
     if (!user) {
+      console.log("❌ Utilisateur non trouvé en base");
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 

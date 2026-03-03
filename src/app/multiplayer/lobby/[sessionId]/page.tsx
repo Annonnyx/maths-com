@@ -71,7 +71,7 @@ export default function GameLobbyPage() {
     const fetchGameData = async () => {
       try {
         // Récupérer la session de jeu
-        const sessionResponse = await fetch(`/api/multiplayer/game/${sessionId}`);
+        const sessionResponse = await fetch(`/api/multiplayer/game/session/${sessionId}`);
         if (!sessionResponse.ok) {
           setError('Session non trouvée');
           return;
