@@ -106,6 +106,34 @@ export default function MultiplayerPage() {
     }
   };
 
+  // Inviter un ami au groupe
+  const inviteFriendToGroup = async (friendId: string) => {
+    if (!createdSession || !gameCode) return;
+    
+    try {
+      const response = await fetch('/api/friends/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          friendId,
+          message: `Rejoins ma partie multijoueur ! Code: ${gameCode}`,
+          gameCode: gameCode
+        })
+      });
+      
+      if (response.ok) {
+        playSound('complete');
+        alert('Invitation envoyée !');
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Erreur lors de l\'invitation');
+      }
+    } catch (error) {
+      console.error('Error inviting friend:', error);
+      alert('Erreur lors de l\'envoi de l\'invitation');
+    }
+  };
+
   // Créer une partie groupe
   const createGroupGame = async () => {
     if (!session?.user?.id) return;
@@ -576,9 +604,18 @@ export default function MultiplayerPage() {
 
                 {/* Liste des joueurs */}
                 <div className="p-6 bg-card rounded-xl border border-border">
-                  <h4 className="font-semibold mb-4">
-                    Joueurs ({lobbyPlayers.length}/30)
-                  </h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-semibold">
+                      Joueurs ({lobbyPlayers.length}/30)
+                    </h4>
+                    <button
+                      onClick={() => setShowFriends(true)}
+                      className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Inviter
+                    </button>
+                  </div>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {lobbyPlayers.length === 0 ? (
                       <p className="text-center text-muted-foreground py-4">
@@ -626,7 +663,9 @@ export default function MultiplayerPage() {
               className="bg-card rounded-2xl border border-border overflow-hidden"
             >
               <div className="p-4 border-b border-border">
-                <h3 className="font-semibold">Sélectionne un ami à défier</h3>
+                <h3 className="font-semibold">
+                  {createdSession ? 'Invite des amis' : 'Sélectionne un ami à défier'}
+                </h3>
               </div>
               <div className="max-h-64 overflow-y-auto">
                 {friends.length === 0 ? (
@@ -660,11 +699,11 @@ export default function MultiplayerPage() {
                         </div>
                       </div>
                       <button
-                        onClick={() => challengeFriend(friend.user.id)}
+                        onClick={() => createdSession ? inviteFriendToGroup(friend.user.id) : challengeFriend(friend.user.id)}
                         className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
                       >
-                        <Swords className="w-4 h-4" />
-                        Défier
+                        {createdSession ? <UserPlus className="w-4 h-4" /> : <Swords className="w-4 h-4" />}
+                        {createdSession ? 'Inviter' : 'Défier'}
                       </button>
                     </div>
                   ))
