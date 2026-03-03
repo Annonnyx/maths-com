@@ -182,8 +182,10 @@ export default function MultiplayerPage() {
         const qrDataUrl = await QRCode.toDataURL(joinUrl);
         setQrCodeUrl(qrDataUrl);
         
-        // Ouvrir automatiquement la modal QR
-        setShowQrModal(true);
+        // Rediriger vers le lobby de l'hôte
+        router.push(`/multiplayer/lobby/${data.session.id}`);
+        
+        return; // Arrêter ici pour ne pas exécuter le reste du code
         
         // S'abonner aux updates du lobby
         const channel = supabase

@@ -58,6 +58,10 @@ function JoinGameContent() {
           setGameSession(data.session);
           setIsJoined(true);
           
+          // Rediriger vers le lobby
+          router.push(`/multiplayer/lobby/${data.session.id}`);
+          return;
+          
           // Charger les joueurs existants
           const playersResponse = await fetch(`/api/multiplayer/game/${data.session.id}`);
           if (playersResponse.ok) {
