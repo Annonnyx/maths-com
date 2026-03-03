@@ -1,6 +1,3 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from './auth';
-
 /**
  * Email admin principal (depuis les variables d'environnement)
  */
@@ -24,9 +21,10 @@ export async function isAdmin(email?: string): Promise<boolean> {
     return ADMIN_EMAILS.includes(email);
   }
 
-  // Sinon, vérifier depuis la session
-  const session = await getServerSession(authOptions);
-  return !!(session?.user?.email) || ADMIN_EMAILS.includes(session?.user?.email || '');
+  // Pour le côté client, on ne peut pas utiliser getServerSession
+  // Cette fonction ne doit être utilisée que côté serveur
+  console.warn('isAdmin() should only be used server-side');
+  return false;
 }
 
 /**
