@@ -111,8 +111,8 @@ function JoinGameContent() {
         setGameSession(data.session);
         setIsJoined(true);
         
-        // Rediriger vers la page de jeu
-        router.push(`/multiplayer/game/${data.session.id}`);
+        // Rediriger vers la page multiplayer avec l'ID de session
+        router.push(`/multiplayer?session=${data.session.id}`);
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Code invalide');

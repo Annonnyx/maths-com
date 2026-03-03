@@ -126,13 +126,32 @@ export default function MultiplayerPage() {
       
       const data = await response.json();
       
+      console.log('🎮 Game creation response:', data);
+      
       if (data.success) {
         setCreatedSession(data.session);
-        setGameCode(data.session.joinCode);
+        const gameCode = data.session.joinCode || data.joinCode;
+        setGameCode(gameCode);
+        
+        console.log('📝 Session data:', data.session);
+        console.log('🎯 Join code from response:', data.joinCode);
+        console.log('🔑 Session join code:', data.session?.joinCode);
+        
+        // Générer l'URL de rejoindre
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://maths-app.com';
+        const joinUrl = data.joinUrl || `${baseUrl}/multiplayer/join?code=${gameCode}`;
         
         // Générer le QR code
-        console.log('🔗 Join URL:', data.joinUrl);
-        const qrDataUrl = await QRCode.toDataURL(data.joinUrl || '');
+        console.log('🔗 Join URL:', joinUrl);
+        console.log('🎮 Final Game Code:', gameCode);
+        console.log('🌐 Base URL:', baseUrl);
+        
+        if (!joinUrl || joinUrl === 'undefined') {
+          console.error('❌ Invalid join URL detected!');
+          return;
+        }
+        
+        const qrDataUrl = await QRCode.toDataURL(joinUrl);
         setQrCodeUrl(qrDataUrl);
         
         // Ouvrir automatiquement la modal QR
