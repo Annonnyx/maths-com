@@ -45,21 +45,21 @@ export const authOptions: NextAuthOptions = {
 
         try {
           console.log('🔍 Recherche utilisateur...');
+          // Vérifier si c'est un email ou un username
+          const isEmail = credentials.email.includes('@');
+          
           const user = await Promise.race([
             prisma.user.findFirst({
-              where: {
-                OR: [
-                  { email: credentials.email },
-                  { username: credentials.email }
-                ]
-              },
+              where: isEmail ? 
+                { email: credentials.email } : 
+                { username: credentials.email }
             }),
             new Promise((_, reject) => 
               setTimeout(() => reject(new Error('DB timeout')), 10000)
             )
           ]) as any;
 
-          console.log('👤 Utilisateur trouvé:', user ? 'OUI' : 'NON');
+          console.log('👤 Utilisateur trouvé:', user ? 'OUI' : 'NON', 'Type:', isEmail ? 'email' : 'username');
 
           if (!user || !user.password) {
             console.log('❌ Utilisateur sans mot de passe');
