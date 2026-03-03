@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, Trophy } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
-import AgeVerificationModal from '@/components/AgeVerificationModal';
 
 // OAuth Button Component
 function OAuthButton({ 
@@ -67,7 +66,6 @@ function LoginPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showFormAnyway, setShowFormAnyway] = useState(false);
-  const [showAgeVerification, setShowAgeVerification] = useState(false);
 
   // Timeout to show form anyway if session check takes too long
   useEffect(() => {
@@ -77,17 +75,10 @@ function LoginPageContent() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Si déjà connecté, vérifier l'âge avant de rediriger
+  // Si déjà connecté, rediriger vers dashboard
   useEffect(() => {
     if (status === 'authenticated' && session) {
-      // Vérifier si l'utilisateur a déjà validé son âge (à implémenter en base de données)
-      // Pour l'instant, on affiche toujours le modal pour les connexions OAuth
-      const isOAuth = !session.user.password; // Si pas de mot de passe, c'est OAuth
-      if (isOAuth) {
-        setShowAgeVerification(true);
-      } else {
-        window.location.href = '/dashboard';
-      }
+      window.location.href = '/dashboard';
     }
   }, [status, session]);
 
@@ -103,21 +94,15 @@ function LoginPageContent() {
     );
   }
 
-  // Si déjà connecté avec OAuth, afficher le modal
+  // Si déjà connecté, afficher redirection
   if (status === 'authenticated' && session) {
     return (
-      <>
-        <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>Préparation de votre espace...</p>
-          </div>
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Redirection...</p>
         </div>
-        <AgeVerificationModal 
-          isOpen={showAgeVerification}
-          onClose={() => setShowAgeVerification(false)}
-        />
-      </>
+      </div>
     );
   }
 
@@ -322,12 +307,6 @@ function LoginPageContent() {
           </Link>
         </div>
       </motion.div>
-      
-      {/* Age Verification Modal */}
-      <AgeVerificationModal 
-        isOpen={showAgeVerification}
-        onClose={() => setShowAgeVerification(false)}
-      />
     </div>
   );
 }
