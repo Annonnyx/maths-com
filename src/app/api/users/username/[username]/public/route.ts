@@ -40,6 +40,8 @@ export async function GET(
         multiplayerRankClass: true,
         multiplayerBestElo: true,
         multiplayerBestRankClass: true,
+        isTeacher: true,
+        isAdmin: true,
         hasCompletedOnboarding: true,
         isOnline: true,
         lastSeenAt: true,

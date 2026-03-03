@@ -1,40 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getToken } from 'next-auth/jwt';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
     const { teacherId } = await request.json();
     
-    // Vérifier l'authentification
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    // Vérifier l'authentification avec NextAuth
+    const token = await getToken({ req: request });
+    if (!token) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
     // Vérifier si l'utilisateur est un étudiant
-    const { data: profile } = await supabase
-      .from('users')
-      .select('isTeacher')
-      .eq('id', user.id)
-      .single();
+    const profile = await prisma.user.findUnique({
+      where: { id: token.id! },
+      select: { role: true }
+    });
 
-    if (profile?.isTeacher) {
+    if (profile?.role === 'teacher') {
       return NextResponse.json({ error: 'Les professeurs ne peuvent pas rejoindre de classe' }, { status: 403 });
     }
 
     // Vérifier si une demande existe déjà
-    const { data: existingRequest } = await supabase
-      .from('class_join_requests')
-      .select('*')
-      .eq('student_id', user.id)
-      .eq('teacher_id', teacherId)
-      .in('status', ['pending', 'accepted'])
-      .single();
+    const existingRequest = await prisma.classJoinRequest.findFirst({
+      where: {
+        studentId: token.id!,
+        teacherId: teacherId,
+        status: { in: ['pending', 'accepted'] }
+      }
+    });
 
     if (existingRequest) {
       return NextResponse.json({ 
@@ -46,33 +41,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier si le professeur accepte les demandes
-    const { data: teacherProfile } = await supabase
-      .from('users')
-      .select('accept_join_requests')
-      .eq('id', teacherId)
-      .single();
+    const teacherProfile = await prisma.user.findUnique({
+      where: { id: teacherId },
+      select: { acceptJoinRequests: true }
+    });
 
-    if (!teacherProfile?.accept_join_requests) {
+    if (!teacherProfile?.acceptJoinRequests) {
       return NextResponse.json({ 
         error: 'Ce professeur n\'accepte pas les nouvelles demandes' 
       }, { status: 403 });
     }
 
     // Créer la demande
-    const { data: joinRequest, error: insertError } = await supabase
-      .from('class_join_requests')
-      .insert({
-        student_id: user.id,
-        teacher_id: teacherId,
+    const joinRequest = await prisma.classJoinRequest.create({
+      data: {
+        studentId: token.id!,
+        teacherId: teacherId,
         status: 'pending'
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      console.error('Error creating join request:', insertError);
-      return NextResponse.json({ error: 'Erreur lors de la création de la demande' }, { status: 500 });
-    }
+      }
+    });
 
     return NextResponse.json({ 
       success: true,
@@ -94,19 +81,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'teacherId requis' }, { status: 400 });
     }
 
-    // Vérifier l'authentification
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    // Vérifier l'authentification avec NextAuth
+    const token = await getToken({ req: request });
+    if (!token) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
     // Vérifier le statut de la demande
-    const { data: joinRequest } = await supabase
-      .from('class_join_requests')
-      .select('*')
-      .eq('student_id', user.id)
-      .eq('teacher_id', teacherId)
-      .single();
+    const joinRequest = await prisma.classJoinRequest.findFirst({
+      where: {
+        studentId: token.id!,
+        teacherId: teacherId
+      }
+    });
 
     return NextResponse.json({ 
       hasRequest: !!joinRequest,

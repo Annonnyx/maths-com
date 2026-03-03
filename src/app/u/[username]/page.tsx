@@ -7,9 +7,10 @@ import Link from 'next/link';
 import { 
   Trophy, User, Medal, Target, Zap, Swords, 
   ChevronLeft, Share2, Copy, CheckCircle, Award,
-  TrendingUp, Clock, BarChart3
+  TrendingUp, Clock, BarChart3, UserPlus, Users, GraduationCap
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES } from '@/lib/elo';
+import { useSession } from 'next-auth/react';
 
 interface PublicProfile {
   id: string;
@@ -21,6 +22,8 @@ interface PublicProfile {
   soloRankClass: string;
   multiplayerElo: number;
   multiplayerRankClass: string;
+  isTeacher: boolean;
+  isAdmin: boolean;
   createdAt: string;
   stats: {
     totalTests: number;
@@ -46,6 +49,10 @@ export default function PublicProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isFriend, setIsFriend] = useState(false);
+  const [friendLoading, setFriendLoading] = useState(false);
+  
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -61,6 +68,11 @@ export default function PublicProfilePage() {
         }
         const data = await response.json();
         setProfile(data.profile);
+        
+        // Vérifier si c'est un ami
+        if (session?.user?.id) {
+          checkFriendship(data.profile.id);
+        }
       } catch (err) {
         setError('Erreur de connexion');
       } finally {
@@ -71,7 +83,40 @@ export default function PublicProfilePage() {
     if (username) {
       fetchProfile();
     }
-  }, [username]);
+  }, [username, session?.user?.id]);
+
+  const checkFriendship = async (profileId: string) => {
+    try {
+      const response = await fetch('/api/friends');
+      if (response.ok) {
+        const friends = await response.json();
+        setIsFriend(friends.some((friend: any) => friend.user.id === profileId));
+      }
+    } catch (error) {
+      console.error('Error checking friendship:', error);
+    }
+  };
+
+  const handleAddFriend = async () => {
+    if (!session?.user?.id || !profile) return;
+    
+    setFriendLoading(true);
+    try {
+      const response = await fetch('/api/friends', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ friendId: profile.id })
+      });
+      
+      if (response.ok) {
+        setIsFriend(true);
+      }
+    } catch (error) {
+      console.error('Error adding friend:', error);
+    } finally {
+      setFriendLoading(false);
+    }
+  };
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -185,10 +230,45 @@ export default function PublicProfilePage() {
               
               {/* Name & Rank */}
               <div className="flex-1 mb-2">
-                <h1 className="text-2xl font-bold">
-                  {profile.displayName || profile.username}
-                </h1>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-bold">
+                    {profile.displayName || profile.username}
+                  </h1>
+                  {profile.isTeacher && (
+                    <div className="px-2 py-1 bg-purple-500/20 border border-purple-500 rounded-lg flex items-center gap-1">
+                      <GraduationCap className="w-4 h-4 text-purple-400" />
+                      <span className="text-xs text-purple-400 font-semibold">Professeur</span>
+                    </div>
+                  )}
+                </div>
                 <p className="text-muted-foreground">@{profile.username}</p>
+                
+                {/* Bouton d'amitié */}
+                {session?.user?.id && session.user.id !== profile.id && (
+                  <div className="mt-3">
+                    <button
+                      onClick={() => handleAddFriend()}
+                      disabled={friendLoading || isFriend}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
+                        isFriend 
+                          ? 'bg-green-600 text-white'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {isFriend ? (
+                        <>
+                          <Users className="w-4 h-4" />
+                          Ami
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4" />
+                          {friendLoading ? 'Ajout...' : 'Ajouter en ami'}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
               
               {/* Rank Badge */}
