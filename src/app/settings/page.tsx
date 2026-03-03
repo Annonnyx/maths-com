@@ -7,6 +7,7 @@ import {
   ArrowLeft, Bell, Users, Swords, Volume2, Palette, 
   Check, Moon, Zap, Target, Shield
 } from 'lucide-react';
+import ToggleSwitch from '@/components/ToggleSwitch';
 
 // Local storage hooks that work without contexts
 function useLocalNotifSettings() {
@@ -117,18 +118,10 @@ export default function SettingsPage() {
                   <p className="text-sm text-muted-foreground">Activer le thème sombre</p>
                 </div>
               </div>
-              <button
-                onClick={() => handlePrefChange('darkMode', !preferences.darkMode)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
-                  preferences.darkMode ? 'bg-primary' : 'bg-gray-600'
-                }`}
-                role="switch"
-                aria-checked={preferences.darkMode}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
-                  preferences.darkMode ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
+              <ToggleSwitch
+                checked={preferences.darkMode}
+                onChange={(checked) => handlePrefChange('darkMode', checked)}
+              />
             </div>
 
             <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
@@ -139,18 +132,10 @@ export default function SettingsPage() {
                   <p className="text-sm text-muted-foreground">Activer les animations fluides</p>
                 </div>
               </div>
-              <button
-                onClick={() => handlePrefChange('animations', !preferences.animations)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
-                  preferences.animations ? 'bg-primary' : 'bg-gray-600'
-                }`}
-                role="switch"
-                aria-checked={preferences.animations}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
-                  preferences.animations ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
+              <ToggleSwitch
+                checked={preferences.animations}
+                onChange={(checked) => handlePrefChange('animations', checked)}
+              />
             </div>
           </div>
         </section>
@@ -176,18 +161,10 @@ export default function SettingsPage() {
                   <p className="text-sm text-muted-foreground">Sons lors des interactions</p>
                 </div>
               </div>
-              <button
-                onClick={() => handlePrefChange('soundEffects', !preferences.soundEffects)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
-                  preferences.soundEffects ? 'bg-primary' : 'bg-gray-600'
-                }`}
-                role="switch"
-                aria-checked={preferences.soundEffects}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
-                  preferences.soundEffects ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
+              <ToggleSwitch
+                checked={preferences.soundEffects}
+                onChange={(checked) => handlePrefChange('soundEffects', checked)}
+              />
             </div>
           </div>
         </section>
@@ -213,18 +190,10 @@ export default function SettingsPage() {
                   <p className="text-sm text-muted-foreground">Notifier quand quelqu&apos;un t&apos;envoie une demande</p>
                 </div>
               </div>
-              <button
-                onClick={() => handleNotifChange('friendRequests', !notifSettings.friendRequests)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
-                  notifSettings.friendRequests ? 'bg-primary' : 'bg-gray-600'
-                }`}
-                role="switch"
-                aria-checked={notifSettings.friendRequests}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
-                  notifSettings.friendRequests ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
+              <ToggleSwitch
+                checked={notifSettings.friendRequests}
+                onChange={(checked) => handleNotifChange('friendRequests', checked)}
+              />
             </div>
 
             <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
@@ -235,18 +204,10 @@ export default function SettingsPage() {
                   <p className="text-sm text-muted-foreground">Notifier quand quelqu&apos;un te défie</p>
                 </div>
               </div>
-              <button
-                onClick={() => handleNotifChange('challenges', !notifSettings.challenges)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
-                  notifSettings.challenges ? 'bg-primary' : 'bg-gray-600'
-                }`}
-                role="switch"
-                aria-checked={notifSettings.challenges}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
-                  notifSettings.challenges ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
+              <ToggleSwitch
+                checked={notifSettings.challenges}
+                onChange={(checked) => handleNotifChange('challenges', checked)}
+              />
             </div>
           </div>
         </section>
@@ -272,18 +233,10 @@ export default function SettingsPage() {
                   <p className="text-sm text-muted-foreground">Chronomètre visible pendant les tests</p>
                 </div>
               </div>
-              <button
-                onClick={() => handlePrefChange('showTimer', !preferences.showTimer)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
-                  preferences.showTimer ? 'bg-primary' : 'bg-gray-600'
-                }`}
-                role="switch"
-                aria-checked={preferences.showTimer}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition duration-200 ease-in-out ${
-                  preferences.showTimer ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
+              <ToggleSwitch
+                checked={preferences.showTimer}
+                onChange={(checked) => handlePrefChange('showTimer', checked)}
+              />
             </div>
           </div>
         </section>

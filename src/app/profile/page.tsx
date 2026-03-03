@@ -18,6 +18,7 @@ import {
 import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
 import { useTheme } from '@/contexts/ThemeContext';
+import ToggleSwitch from '@/components/ToggleSwitch';
 import { DiscordLinkModal } from '@/components/DiscordLinkModal';
 
 // Mock user data - will be replaced with API calls
@@ -1304,16 +1305,10 @@ function ProfileContent() {
                       <p className="text-xs text-muted-foreground">Activer le thème sombre</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={toggleTheme}
-                    className={`w-12 h-6 rounded-full transition-all ${
-                      theme === 'dark' ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                      theme === 'dark' ? 'translate-x-6' : 'translate-x-0.5'
-                    }`} />
-                  </button>
+                  <ToggleSwitch
+                    checked={theme === 'dark'}
+                    onChange={toggleTheme}
+                  />
                 </div>
 
                 {/* Animations Toggle */}
@@ -1325,16 +1320,10 @@ function ProfileContent() {
                       <p className="text-xs text-muted-foreground">Activer les animations</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => setUserPrefs(prev => ({ ...prev, animations: !prev.animations }))}
-                    className={`w-12 h-6 rounded-full transition-all ${
-                      userPrefs.animations ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                      userPrefs.animations ? 'translate-x-6' : 'translate-x-0.5'
-                    }`} />
-                  </button>
+                  <ToggleSwitch
+                    checked={userPrefs.animations}
+                    onChange={(checked) => setUserPrefs(prev => ({ ...prev, animations: checked }))}
+                  />
                 </div>
               </div>
             </div>
@@ -1355,16 +1344,10 @@ function ProfileContent() {
                       <p className="text-xs text-muted-foreground">Notifier quand quelqu&apos;un t&apos;envoie une demande</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => setUserPrefs(prev => ({ ...prev, friendRequests: !prev.friendRequests }))}
-                    className={`w-12 h-6 rounded-full transition-all ${
-                      userPrefs.friendRequests ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                      userPrefs.friendRequests ? 'translate-x-6' : 'translate-x-0.5'
-                    }`} />
-                  </button>
+                  <ToggleSwitch
+                    checked={userPrefs.friendRequests}
+                    onChange={(checked) => setUserPrefs(prev => ({ ...prev, friendRequests: checked }))}
+                  />
                 </div>
 
                 {/* Challenges Toggle */}
@@ -1376,16 +1359,10 @@ function ProfileContent() {
                       <p className="text-xs text-muted-foreground">Notifier quand quelqu&apos;un te défie</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => setUserPrefs(prev => ({ ...prev, challenges: !prev.challenges }))}
-                    className={`w-12 h-6 rounded-full transition-all ${
-                      userPrefs.challenges ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                      userPrefs.challenges ? 'translate-x-6' : 'translate-x-0.5'
-                    }`} />
-                  </button>
+                  <ToggleSwitch
+                    checked={userPrefs.challenges}
+                    onChange={(checked) => setUserPrefs(prev => ({ ...prev, challenges: checked }))}
+                  />
                 </div>
               </div>
             </div>
@@ -1406,16 +1383,10 @@ function ProfileContent() {
                       <p className="text-xs text-muted-foreground">Sons lors des réponses</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => setUserPrefs(prev => ({ ...prev, soundEffects: !prev.soundEffects }))}
-                    className={`w-12 h-6 rounded-full transition-all ${
-                      userPrefs.soundEffects ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                      userPrefs.soundEffects ? 'translate-x-6' : 'translate-x-0.5'
-                    }`} />
-                  </button>
+                  <ToggleSwitch
+                    checked={userPrefs.soundEffects}
+                    onChange={(checked) => setUserPrefs(prev => ({ ...prev, soundEffects: checked }))}
+                  />
                 </div>
               </div>
             </div>
@@ -1436,16 +1407,10 @@ function ProfileContent() {
                       <p className="text-xs text-muted-foreground">Chronomètre visible pendant les tests</p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => setUserPrefs(prev => ({ ...prev, showTimer: !prev.showTimer }))}
-                    className={`w-12 h-6 rounded-full transition-all ${
-                      userPrefs.showTimer ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  >
-                    <div className={`w-5 h-5 bg-white rounded-full transition-all ${
-                      userPrefs.showTimer ? 'translate-x-6' : 'translate-x-0.5'
-                    }`} />
-                  </button>
+                  <ToggleSwitch
+                    checked={userPrefs.showTimer}
+                    onChange={(checked) => setUserPrefs(prev => ({ ...prev, showTimer: checked }))}
+                  />
                 </div>
               </div>
             </div>
