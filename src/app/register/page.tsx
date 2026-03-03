@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isOver15, setIsOver15] = useState(false);
 
   const validatePassword = (password: string) => {
     const minLength = password.length >= 8;
@@ -38,6 +39,13 @@ export default function RegisterPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    if (!isOver15) {
+      setError('Vous devez certifier avoir plus de 15 ans pour vous inscrire');
+      playSound('incorrect');
+      setIsLoading(false);
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
@@ -234,9 +242,32 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Age Certification */}
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isOver15}
+                  onChange={(e) => setIsOver15(e.target.checked)}
+                  className="mt-1 w-4 h-4 text-indigo-500 bg-card border-border rounded focus:ring-indigo-500 focus:ring-2"
+                  required
+                />
+                <span className="text-sm text-muted-foreground leading-relaxed">
+                  Je certifie être âgé(e) de plus de 15 ans et avoir lu et accepté les{' '}
+                  <Link href="/cgu" className="text-indigo-400 hover:text-indigo-300 underline">
+                    conditions générales d'utilisation
+                  </Link>
+                  {' '}et la{' '}
+                  <Link href="/confidentialite" className="text-indigo-400 hover:text-indigo-300 underline">
+                    politique de confidentialité
+                  </Link>
+                </span>
+              </label>
+            </div>
+
             <button
               type="submit"
-              disabled={isLoading || !allValid}
+              disabled={isLoading || !allValid || !isOver15}
               className="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
