@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://www.maths-app.com/sitemap-www.xml</loc>
+    <lastmod>2026-03-03</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://maths-app.com/sitemap-no-www.xml</loc>
+    <lastmod>2026-03-03</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.maths-app.fr/sitemap-www-fr.xml</loc>
+    <lastmod>2026-03-03</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://maths-app.fr/sitemap-no-www-fr.xml</loc>
+    <lastmod>2026-03-03</lastmod>
+  </sitemap>
+</sitemapindex>
