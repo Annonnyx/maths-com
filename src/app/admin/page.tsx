@@ -1540,12 +1540,13 @@ export default function AdminPage() {
                     </button>
                   </div>
                 </div>
-              )}
-            </div>
-          </motion.div>
+              </div>
+            )}
+          </div>
+        </motion.div>
 
-          {/* Delete User Account */}
-          <motion.div
+      {/* Delete User Account */}
+      <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
@@ -1606,6 +1607,17 @@ export default function AdminPage() {
                     });
 
                     const data = await response.json();
+
+                    if (response.ok) {
+                      alert(`✅ Compte de ${users.find(u => u.id === deleteUserId)?.username} supprimé avec succès !`);
+                      setDeleteUserId('');
+                      setDeletePassword('');
+                      loadData();
+                    } else {
+                      alert(`❌ Erreur: ${data.error || 'Échec de la suppression'}`);
+                    }
+                  } catch (error) {
+                    console.error('Error deleting user:', error);
                     alert('❌ Erreur réseau lors de la suppression');
                   }
                 }}
@@ -1616,9 +1628,8 @@ export default function AdminPage() {
                 Supprimer le compte
               </button>
             </div>
-          </motion.div>
-        </div>
-      </main>
+      </motion.div>
+    </main>
     </div>
   );
 };

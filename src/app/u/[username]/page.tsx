@@ -7,7 +7,8 @@ import Link from 'next/link';
 import { 
   Home, LayoutDashboard, Trophy, Users, BookOpen, 
   User, LogOut, Menu, X, Settings, Target, Bell, GraduationCap, Trash2,
-  ChevronLeft, Share2, CheckCircle, Clock, TrendingUp, Award, Zap, BarChart3
+  ChevronLeft, Share2, CheckCircle, Clock, TrendingUp, Award, Zap, BarChart3,
+  UserPlus, Medal, Swords
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES } from '@/lib/elo';
 import { useSession } from 'next-auth/react';
@@ -248,7 +249,7 @@ export default function PublicProfilePage() {
                 )}
                 
                 {/* Admin Delete Button */}
-                {session?.user?.isAdmin && session.user.id !== profile.id && (
+                {(session?.user as any)?.isAdmin && session?.user?.id !== profile.id && (
                   <div className="mt-3">
                     <button
                       onClick={() => {

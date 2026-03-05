@@ -30,11 +30,11 @@ export default function Navigation() {
     { name: 'Multijoueur', href: '/multiplayer', icon: Users },
     { name: 'Cours', href: '/courses', icon: BookOpen },
     // Bouton conditionnel pour les classes
-    ...(session?.user?.isTeacher || (session?.user as any)?.isAdmin ? [
+    ...(session?.user && ((session.user as any).isTeacher || (session.user as any).isAdmin) ? [
       { name: 'Mes classes', href: '/class-management', icon: GraduationCap }
-    ] : [
+    ] : session?.user ? [
       { name: 'Ma classe', href: '/class-management', icon: GraduationCap }
-    ]),
+    ] : []),
     { name: 'Classement', href: '/leaderboard', icon: Trophy },
   ];
 

@@ -71,47 +71,8 @@ export async function DELETE(req: NextRequest) {
         }
       });
 
-      // Delete user's game history
-      await tx.gameHistory.deleteMany({
-        where: { userId }
-      });
-
-      // Delete user's challenges
-      await tx.challenge.deleteMany({
-        where: {
-          OR: [
-            { challengerId: userId },
-            { opponentId: userId }
-          ]
-        }
-      });
-
-      // Delete user's class join requests
-      await tx.classJoinRequest.deleteMany({
-        where: { userId }
-      });
-
-      // Remove user from classes
-      const userClasses = await tx.classModel.findMany({
-        where: { teacherId: userId }
-      });
-
-      for (const userClass of userClasses) {
-        await tx.classModel.update({
-          where: { id: userClass.id },
-          data: {
-            teacherId: null
-          }
-        });
-      }
-
       // Delete user's badges
       await tx.userBadge.deleteMany({
-        where: { userId }
-      });
-
-      // Delete user's banner selections
-      await tx.userBanner.deleteMany({
         where: { userId }
       });
 
