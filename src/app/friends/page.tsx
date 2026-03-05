@@ -422,12 +422,12 @@ export default function FriendsPage() {
                         {user.isOnline && (
                           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         )}
-                        <button
-                          onClick={() => window.open(`/u/${user.username}`, '_blank')}
+                        <Link
+                          href={`/u/${user.username}`}
                           className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
                         >
                           Profil
-                        </button>
+                        </Link>
                         <button
                           onClick={() => handleChallengeUser(user.id, user.username)}
                           className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-lg transition-colors"

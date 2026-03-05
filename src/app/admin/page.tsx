@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { 
   Download, Users, ArrowLeft, Crown, Medal, Save, Trash2, UserPlus, Loader2,
-  Award, Zap, Target, Star, Shield, Upload, Image, Edit2, Eye, EyeOff, Gift, RotateCcw, AlertTriangle
+  Award, Zap, Target, Star, Shield, Upload, Image, Edit2, Eye, EyeOff, Gift, RotateCcw, AlertTriangle,
+  MessageSquare
 } from 'lucide-react';
 
 interface Badge {
@@ -1628,6 +1629,25 @@ export default function AdminPage() {
                 Supprimer le compte
               </button>
             </div>
+      </motion.div>
+
+      {/* FAQ Submissions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="p-6 bg-[#12121a] rounded-2xl border border-blue-500/30"
+      >
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-400">
+          <MessageSquare className="w-5 h-5" />
+          Signalements & Questions
+        </h2>
+        
+        <div className="text-center py-8">
+          <MessageSquare className="w-12 h-12 mx-auto text-gray-500 mb-2" />
+          <p className="text-gray-400">Les signalements apparaîtront ici</p>
+          <p className="text-xs text-gray-500 mt-2">API prête - Section à développer</p>
+        </div>
       </motion.div>
     </main>
     </div>

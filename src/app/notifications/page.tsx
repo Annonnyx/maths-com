@@ -37,19 +37,23 @@ export default function NotificationsPage() {
     return null;
   }
 
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [filter, setFilter] = useState<'all' | 'unread'>('all');
-  const [isLoading, setIsLoading] = useState(false);
-
   // Utiliser le hook avec try-catch pour éviter l'erreur
   let notificationHook: any = null;
   try {
     notificationHook = useNotification();
   } catch (error) {
     console.warn('NotificationProvider not available, using fallback');
-    // Fallback: charger les notifications manuellement
-    useEffect(() => {
+  }
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Charger les notifications manuellement si le hook n'est pas disponible
+  useEffect(() => {
+    if (!notificationHook) {
       const loadNotifications = async () => {
+        setIsLoading(true);
         try {
           const response = await fetch('/api/notifications');
           if (response.ok) {
@@ -58,15 +62,34 @@ export default function NotificationsPage() {
           }
         } catch (error) {
           console.error('Error loading notifications:', error);
+          setNotifications([]);
+        } finally {
+          setIsLoading(false);
         }
       };
       loadNotifications();
-    }, []);
-  }
+    }
+  }, [notificationHook]);
 
   const notificationsList = notificationHook?.notifications || notifications;
-  const markAsRead = notificationHook?.markAsRead || (() => {});
-  const dismissNotification = notificationHook?.dismissNotification || (() => {});
+  const markAsRead = notificationHook?.markAsRead || ((id: string) => {
+    fetch(`/api/notifications/${id}/read`, { method: 'POST' })
+      .then(() => {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+      })
+      .catch(error => {
+        console.error('Error marking notification as read:', error);
+      });
+  });
+  const dismissNotification = notificationHook?.dismissNotification || ((id: string) => {
+    fetch(`/api/notifications/${id}`, { method: 'DELETE' })
+      .then(() => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+      })
+      .catch(error => {
+        console.error('Error dismissing notification:', error);
+      });
+  });
   const clearAll = notificationHook?.clearAll || (() => {});
 
   const filteredNotifications = notificationsList.filter((n: any) => 
