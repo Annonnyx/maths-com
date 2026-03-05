@@ -170,7 +170,7 @@ export default function FriendsPage() {
   };
 
   const searchUsers = async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) return;
 
     setIsSearching(true);
     try {
@@ -187,7 +187,15 @@ export default function FriendsPage() {
       
       if (response.ok) {
         const data = await response.json();
-        setSearchResults(data.users || []);
+        const users = data.users || [];
+        // Filter results to only show relevant matches
+        const filteredUsers = users.filter((user: any) => 
+          searchType === 'id' ? true : (
+            user.username.toLowerCase().includes(query.toLowerCase()) ||
+            user.displayName?.toLowerCase().includes(query.toLowerCase())
+          )
+        );
+        setSearchResults(filteredUsers);
         setShowSearchResults(true);
       } else {
         setSearchResults([]);

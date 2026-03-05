@@ -69,10 +69,15 @@ export default function Home() {
               </Link>
               <Link
                 href="/practice"
-                className="px-8 py-4 bg-card hover:bg-muted rounded-xl transition-all font-semibold text-lg border border-border flex items-center justify-center gap-2"
               >
-                <Target className="w-5 h-5" />
-                Exercices libres
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 bg-card hover:bg-muted rounded-xl transition-all font-semibold text-lg border border-border flex items-center justify-center gap-2"
+                >
+                  <Target className="w-5 h-5" />
+                  Exercices libres
+                </motion.div>
               </Link>
             </motion.div>
           </div>

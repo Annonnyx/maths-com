@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { 
   Home, LayoutDashboard, Trophy, Users, BookOpen, 
-  User, LogOut, Menu, X, Settings, Target, Bell
+  User, LogOut, Menu, X, Settings, Target, Bell, GraduationCap
 } from 'lucide-react';
 import { useNotifications } from '@/components/NotificationToast';
 
@@ -29,6 +29,7 @@ export default function Navigation() {
     { name: 'Tests', href: '/test', icon: Target },
     { name: 'Multijoueur', href: '/multiplayer', icon: Users },
     { name: 'Cours', href: '/courses', icon: BookOpen },
+    { name: 'Classes', href: '/class-management', icon: GraduationCap },
     { name: 'Classement', href: '/leaderboard', icon: Trophy },
   ];
 

@@ -114,13 +114,13 @@ export default function ClassManagementPage() {
     }
   };
 
-  if (!session?.user || !(session.user as any).isTeacher) {
+  if (!session?.user || (!(session.user as any).isTeacher && !(session.user as any).isAdmin)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <GraduationCap className="w-16 h-16 mx-auto mb-4 text-gray-500" />
           <h1 className="text-2xl font-bold text-white mb-2">Accès réservé</h1>
-          <p className="text-gray-400">Cette page est réservée aux professeurs</p>
+          <p className="text-gray-400">Cette page est réservée aux professeurs et administrateurs</p>
         </div>
       </div>
     );

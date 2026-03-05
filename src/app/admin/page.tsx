@@ -451,7 +451,7 @@ export default function AdminPage() {
 
   // Player search functions
   const searchPlayers = async (query: string) => {
-    if (!query.trim()) {
+    if (!query.trim() || query.trim().length < 2) {
       setSearchResults([]);
       return;
     }
@@ -461,7 +461,13 @@ export default function AdminPage() {
       const response = await fetch(`/api/admin/users?search=${encodeURIComponent(query)}`);
       if (response.ok) {
         const data = await response.json();
-        setSearchResults(data.users || []);
+        const users = data.users || [];
+        // Filter results to only show relevant matches
+        const filteredUsers = users.filter((user: any) => 
+          user.username.toLowerCase().includes(query.toLowerCase()) ||
+          user.displayName?.toLowerCase().includes(query.toLowerCase())
+        );
+        setSearchResults(filteredUsers);
       } else {
         setSearchResults([]);
       }
