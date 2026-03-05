@@ -22,6 +22,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if username starts with #
+    if (username.startsWith('#')) {
+      return NextResponse.json(
+        { message: 'Le nom d\'utilisateur ne peut pas commencer par #' },
+        { status: 400 }
+      );
+    }
+
     if (password.length < 8) {
       return NextResponse.json(
         { message: 'Le mot de passe doit contenir au moins 8 caractères' },

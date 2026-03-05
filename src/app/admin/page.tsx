@@ -98,6 +98,14 @@ export default function AdminPage() {
 
   // User list
   const [showUserList, setShowUserList] = useState(false);
+  
+  // Player search
+  const [playerSearchQuery, setPlayerSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<User | null>(null);
+  const [newUsername, setNewUsername] = useState('');
+  const [updatingUsername, setUpdatingUsername] = useState(false);
 
   // Restore reset state from localStorage on mount
   useEffect(() => {
@@ -440,6 +448,68 @@ export default function AdminPage() {
       </div>
     );
   }
+
+  // Player search functions
+  const searchPlayers = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const response = await fetch(`/api/admin/users?search=${encodeURIComponent(query)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSearchResults(data.users || []);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Error searching players:', error);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const updatePlayerUsername = async () => {
+    if (!selectedPlayer || !newUsername.trim()) return;
+
+    setUpdatingUsername(true);
+    try {
+      const response = await fetch(`/api/admin/users/${selectedPlayer.id}/username`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: newUsername.trim() })
+      });
+
+      if (response.ok) {
+        alert('Pseudonyme mis à jour avec succès !');
+        setSelectedPlayer(null);
+        setNewUsername('');
+        // Refresh search results
+        searchPlayers(playerSearchQuery);
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erreur lors de la mise à jour');
+      }
+    } catch (error) {
+      console.error('Error updating username:', error);
+      alert('Erreur lors de la mise à jour');
+    } finally {
+      setUpdatingUsername(false);
+    }
+  };
+
+  // Search with debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      searchPlayers(playerSearchQuery);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [playerSearchQuery]);
 
   if (loading) {
     return (
@@ -1341,6 +1411,120 @@ export default function AdminPage() {
             )}
           </motion.div>
         </div>
+
+        {/* Player Search Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="p-6 bg-[#12121a] rounded-2xl border border-border"
+        >
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-400" />
+            Recherche de joueur
+          </h2>
+          
+          <div className="space-y-4">
+            <div>
+              <input
+                type="text"
+                value={playerSearchQuery}
+                onChange={(e) => setPlayerSearchQuery(e.target.value)}
+                placeholder="Rechercher un joueur par pseudonyme ou ID..."
+                className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-gray-500"
+              />
+            </div>
+
+            {searchLoading && (
+              <div className="text-center py-4">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+              </div>
+            )}
+
+            {searchResults.length > 0 && (
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {searchResults.map((player) => (
+                  <div
+                    key={player.id}
+                    className="flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:border-indigo-500 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
+                        {player.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="font-semibold">{player.displayName || player.username}</div>
+                        <div className="text-sm text-gray-400">@{player.username}</div>
+                        <div className="text-xs text-gray-500">ID: {player.id}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <div className="text-sm font-semibold">{player.elo}</div>
+                        <div className="text-xs text-purple-400">{player.rankClass}</div>
+                      </div>
+                      <button
+                        onClick={() => window.open(`/u/${player.username}`, '_blank')}
+                        className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors"
+                      >
+                        Voir profil
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedPlayer(player);
+                          setNewUsername(player.username);
+                        }}
+                        className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors"
+                      >
+                        Modifier pseudo
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {selectedPlayer && (
+              <div className="p-4 bg-card rounded-lg border border-purple-500/50">
+                <h3 className="font-semibold mb-3">Modifier le pseudonyme</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Joueur</label>
+                    <div className="text-sm">{selectedPlayer.displayName || selectedPlayer.username} (@{selectedPlayer.username})</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Nouveau pseudonyme</label>
+                    <input
+                      type="text"
+                      value={newUsername}
+                      onChange={(e) => setNewUsername(e.target.value)}
+                      placeholder="Nouveau pseudonyme"
+                      className="w-full px-3 py-2 bg-[#1a1a2e] border border-gray-700 rounded-lg text-white"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={updatePlayerUsername}
+                      disabled={updatingUsername || !newUsername.trim()}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg transition-colors"
+                    >
+                      {updatingUsername ? 'Mise à jour...' : 'Mettre à jour'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedPlayer(null);
+                        setNewUsername('');
+                      }}
+                      className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
       </main>
     </div>
   );

@@ -35,6 +35,14 @@ export async function PUT(
       );
     }
 
+    // Check if username starts with #
+    if (username.startsWith('#')) {
+      return NextResponse.json(
+        { error: 'Username cannot start with #' },
+        { status: 400 }
+      );
+    }
+
     // Check if username is already taken
     const existingUser = await prisma.user.findFirst({
       where: {

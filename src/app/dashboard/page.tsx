@@ -10,7 +10,8 @@ import OnboardingFlow from '@/components/OnboardingFlow';
 import { 
   Trophy, Target, Clock, TrendingUp, BookOpen, 
   Calculator, ChevronRight, Award, BarChart3,
-  Zap, Star, History, Users, MessageCircle, Medal
+  Zap, Star, History, Users, MessageCircle, Medal,
+  GraduationCap
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS, RankClass } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
@@ -326,43 +327,46 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <div className="space-y-3">
-                {recentTests.slice(0, 5).map((test: any) => (
-                  <div
-                    key={test.id}
-                    className="flex items-center justify-between p-4 bg-card rounded-xl"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        test.score >= 80 ? 'bg-green-500/20' : test.score >= 60 ? 'bg-yellow-500/20' : 'bg-red-500/20'
-                      }`}>
-                        <span className={`font-bold ${
-                          test.score >= 80 ? 'text-green-400' : test.score >= 60 ? 'text-yellow-400' : 'text-red-400'
+                {recentTests.slice(0, 5).map((test: any) => {
+                  const score = Math.round((test.correctAnswers / test.totalQuestions) * 100);
+                  return (
+                    <div
+                      key={test.id}
+                      className="flex items-center justify-between p-4 bg-card rounded-xl"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                          score >= 80 ? 'bg-green-500/20' : score >= 60 ? 'bg-yellow-500/20' : 'bg-red-500/20'
                         }`}>
-                          {test.score}%
-                        </span>
+                          <span className={`font-bold ${
+                            score >= 80 ? 'text-green-400' : score >= 60 ? 'text-yellow-400' : 'text-red-400'
+                          }`}>
+                            {score}%
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-semibold">{test.correctAnswers}/{test.totalQuestions} correct</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(test.completedAt).toLocaleDateString('fr-FR', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold">{test.correctAnswers}/{test.totalQuestions} correct</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(test.completedAt).toLocaleDateString('fr-FR', {
-                            day: 'numeric',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </p>
+                      <div className="text-right">
+                        <div className={`font-bold ${
+                          test.eloChange > 0 ? 'text-green-400' : test.eloChange < 0 ? 'text-red-400' : 'text-muted-foreground'
+                        }`}>
+                          {test.eloChange > 0 ? '+' : ''}{test.eloChange}
+                        </div>
+                        <p className="text-sm text-muted-foreground">Elo</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className={`font-bold ${
-                        test.eloChange > 0 ? 'text-green-400' : test.eloChange < 0 ? 'text-red-400' : 'text-muted-foreground'
-                      }`}>
-                        {test.eloChange > 0 ? '+' : ''}{test.eloChange}
-                      </div>
-                      <p className="text-sm text-muted-foreground">Elo</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {recentTests.length === 0 && (
                   <p className="text-muted-foreground text-center py-4">Aucun test encore</p>
                 )}
@@ -464,6 +468,18 @@ export default function DashboardPage() {
                 transition={{ delay: 0.4 }}
                 className="p-6 bg-[#12121a] rounded-2xl border border-border"
               >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-purple-400" />
+                    Gestion de classe
+                  </h3>
+                  <Link
+                    href="/class-management"
+                    className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    Voir tout →
+                  </Link>
+                </div>
                 <TeacherClassManager />
               </motion.div>
             )}

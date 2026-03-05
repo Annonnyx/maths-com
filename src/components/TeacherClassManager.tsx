@@ -46,7 +46,11 @@ interface ClassStudent {
   joinedAt: string;
 }
 
-export default function TeacherClassManager() {
+interface TeacherClassManagerProps {
+  expanded?: boolean;
+}
+
+export default function TeacherClassManager({ expanded = false }: TeacherClassManagerProps) {
   const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
   const [classStudents, setClassStudents] = useState<ClassStudent[]>([]);
   const [acceptJoinRequests, setAcceptJoinRequests] = useState(true);
@@ -204,29 +208,29 @@ export default function TeacherClassManager() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${expanded ? 'max-w-full' : ''}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold flex items-center gap-3">
-          <Users className="w-6 h-6 text-indigo-400" />
+        <h2 className={`${expanded ? 'text-3xl' : 'text-2xl'} font-bold flex items-center gap-3`}>
+          <Users className={`text-indigo-400 ${expanded ? 'w-8 h-8' : 'w-6 h-6'}`} />
           Gestion de Classe
         </h2>
         
         <div className="flex items-center gap-3">
           <button
             onClick={loadTeacherData}
-            className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+            className={`p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors ${expanded ? 'p-3' : ''}`}
             title="Actualiser"
           >
-            <RefreshCw className="w-5 h-5 text-gray-400" />
+            <RefreshCw className={`text-gray-400 ${expanded ? 'w-6 h-6' : 'w-5 h-5'}`} />
           </button>
           
           <button
             onClick={toggleAcceptJoinRequests}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+            className={`flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors ${expanded ? 'px-6 py-3 text-base' : ''}`}
           >
-            <Settings className="w-4 h-4 text-gray-400" />
-            <span className="text-sm">
+            <Settings className={`text-gray-400 ${expanded ? 'w-5 h-5' : 'w-4 h-4'}`} />
+            <span className={`${expanded ? 'text-base' : 'text-sm'}`}>
               {acceptJoinRequests ? 'Accepter les demandes' : 'Refuser les demandes'}
             </span>
           </button>
@@ -234,14 +238,14 @@ export default function TeacherClassManager() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-800">
+      <div className={`flex gap-1 border-b border-gray-800 ${expanded ? 'text-lg' : ''}`}>
         <button
           onClick={() => setActiveTab('requests')}
           className={`flex items-center gap-2 px-4 py-2 font-medium transition-all border-b-2 ${
             activeTab === 'requests' 
               ? 'border-indigo-500 text-indigo-400' 
               : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'
-          }`}
+          } ${expanded ? 'px-6 py-3 text-base' : ''}`}
         >
           <Users className="w-4 h-4" />
           Demandes d'élèves

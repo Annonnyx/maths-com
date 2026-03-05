@@ -35,6 +35,11 @@ export default function FriendsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  
+  // Search results
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   useEffect(() => {
     if (session) {
@@ -128,6 +133,12 @@ export default function FriendsPage() {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
+    // Check if search starts with # for ID search
+    if (searchQuery.startsWith('#')) {
+      await searchUsers();
+      return;
+    }
+
     try {
       setIsAdding(true);
       const response = await fetch('/api/friends', {
@@ -142,6 +153,94 @@ export default function FriendsPage() {
         setSearchQuery('');
         fetchFriends();
         alert('Demande d\'ami envoyée !');
+      } else {
+        // If user not found, search for similar usernames
+        if (data.error?.includes('not found') || data.error?.includes('introuvable')) {
+          await searchUsers();
+        } else {
+          alert(data.error || 'Erreur lors de l\'envoi');
+        }
+      }
+    } catch (error) {
+      console.error('Error adding friend:', error);
+      alert('Erreur lors de l\'envoi');
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const searchUsers = async () => {
+    if (!searchQuery.trim()) return;
+
+    setIsSearching(true);
+    try {
+      let query = searchQuery.trim();
+      let searchType = 'username';
+      
+      // If starts with #, search by ID
+      if (query.startsWith('#')) {
+        query = query.substring(1);
+        searchType = 'id';
+      }
+      
+      const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}&type=${searchType}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setSearchResults(data.users || []);
+        setShowSearchResults(true);
+      } else {
+        setSearchResults([]);
+        setShowSearchResults(true);
+      }
+    } catch (error) {
+      console.error('Error searching users:', error);
+      setSearchResults([]);
+      setShowSearchResults(true);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleChallengeUser = async (userId: string, username: string) => {
+    try {
+      const response = await fetch('/api/challenges', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          targetUserId: userId,
+          message: `Défi de ${session?.user?.username}!`
+        })
+      });
+      
+      if (response.ok) {
+        alert(`Défi envoyé à ${username} !`);
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Erreur lors de l\'envoi du défi');
+      }
+    } catch (error) {
+      console.error('Error challenging user:', error);
+      alert('Erreur lors de l\'envoi du défi');
+    }
+  };
+
+  const handleAddFriendFromSearch = async (userId: string, username: string) => {
+    try {
+      setIsAdding(true);
+      const response = await fetch('/api/friends', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(`Demande d'ami envoyée à ${username} !`);
+        fetchFriends();
+        // Remove from search results
+        setSearchResults(prev => prev.filter(user => user.id !== userId));
       } else {
         alert(data.error || 'Erreur lors de l\'envoi');
       }
@@ -256,6 +355,110 @@ export default function FriendsPage() {
             </button>
           </form>
         </motion.div>
+
+        {/* Search Results */}
+        {showSearchResults && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#1e1e2e] rounded-xl p-4 border border-gray-700"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-white">
+                Résultats de recherche "{searchQuery}"
+              </h3>
+              <button
+                onClick={() => {
+                  setShowSearchResults(false);
+                  setSearchResults([]);
+                  setSearchQuery('');
+                }}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {isSearching ? (
+              <div className="text-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
+                <p className="text-gray-400 mt-2">Recherche...</p>
+              </div>
+            ) : searchResults.length > 0 ? (
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {searchResults.map((user) => {
+                  const isAlreadyFriend = friends.some(f => f.user.id === user.id);
+                  const hasPendingRequest = pendingRequests.some(p => p.user.id === user.id) || 
+                                         sentRequests.some(s => s.user.id === user.id);
+                  
+                  return (
+                    <div key={user.id} className="flex items-center justify-between p-3 bg-[#2a2a3e] rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
+                          {user.username.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-white">
+                            {user.displayName || user.username}
+                          </div>
+                          <div className="text-sm text-gray-400">@{user.username}</div>
+                          <div className="text-xs text-gray-500">Elo: {user.soloElo || 400}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {user.isOnline && (
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        )}
+                        <button
+                          onClick={() => window.open(`/u/${user.username}`, '_blank')}
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+                        >
+                          Profil
+                        </button>
+                        <button
+                          onClick={() => handleChallengeUser(user.id, user.username)}
+                          className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-lg transition-colors"
+                        >
+                          Défier
+                        </button>
+                        {!isAlreadyFriend && !hasPendingRequest && user.id !== session?.user?.id && (
+                          <button
+                            onClick={() => handleAddFriendFromSearch(user.id, user.username)}
+                            disabled={isAdding}
+                            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
+                          >
+                            {isAdding ? '...' : 'Ajouter'}
+                          </button>
+                        )}
+                        {isAlreadyFriend && (
+                          <span className="px-3 py-1 bg-green-600/20 text-green-400 text-sm rounded-lg">
+                            Ami
+                          </span>
+                        )}
+                        {hasPendingRequest && (
+                          <span className="px-3 py-1 bg-yellow-600/20 text-yellow-400 text-sm rounded-lg">
+                            En attente
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+                <p className="text-gray-400">Aucun utilisateur trouvé</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  {searchQuery.startsWith('#') 
+                    ? 'Aucun utilisateur avec cet ID trouvé' 
+                    : 'Essaye avec un autre pseudonyme ou utilise #ID pour chercher par ID'
+                  }
+                </p>
+              </div>
+            )}
+          </motion.div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6">

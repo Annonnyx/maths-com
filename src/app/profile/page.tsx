@@ -21,6 +21,19 @@ import { useTheme } from '@/contexts/ThemeContext';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import { DiscordLinkModal } from '@/components/DiscordLinkModal';
 
+// Helper function to format time ago
+function getTimeAgo(date: string | Date): string {
+  const now = new Date();
+  const past = new Date(date);
+  const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'Il y a quelques instants';
+  if (diffInSeconds < 3600) return `Il y a ${Math.floor(diffInSeconds / 60)} min`;
+  if (diffInSeconds < 86400) return `Il y a ${Math.floor(diffInSeconds / 3600)}h`;
+  if (diffInSeconds < 604800) return `Il y a ${Math.floor(diffInSeconds / 86400)}j`;
+  return `Il y a ${Math.floor(diffInSeconds / 604800)} sem`;
+}
+
 // Mock user data - will be replaced with API calls
 const DEFAULT_PREFERENCES = {
   soundEffects: true,
@@ -552,7 +565,7 @@ function ProfileContent() {
             <div className="p-4 bg-card rounded-xl border border-border">
               <p className="text-muted-foreground text-sm">Précision</p>
               <p className="text-2xl font-bold text-green-400">
-                {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
+                {stats ? Math.round((stats.correctAnswers / Math.max(stats.totalQuestions, 1)) * 100) : 0}%
               </p>
             </div>
             <div className="p-4 bg-card rounded-xl border border-border">
@@ -700,31 +713,45 @@ function ProfileContent() {
           <div className="p-6 bg-card rounded-2xl border border-border">
             <h3 className="text-xl font-bold mb-4">Activité récente</h3>
             <div className="space-y-3">
-              {[
-                { action: 'Test complété', detail: 'Score: 90%', time: 'Il y a 2 heures' },
-                { action: 'Test échoué', detail: 'Score: 65%', time: 'Il y a 1 heure' },
-                { action: 'Test réussi', detail: 'Score: 85%', time: 'Il y a 30 min' },
-                { action: 'Test parfait', detail: 'Score: 100%', time: 'Il y a 5 min' }
-              ].map((activity, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      activity.action.includes('parfait') ? 'bg-green-500/20' : activity.action.includes('échoué') ? 'bg-red-500/20' : 'bg-yellow-500/20'
-                    }`}>
-                      <span className="text-xs font-bold">
-                        {activity.action.includes('parfait') ? '✓' : activity.action.includes('échoué') ? '✗' : '⚡'}
-                      </span>
+              {profile?.recentTests && profile.recentTests.length > 0 ? (
+                profile.recentTests.slice(0, 5).map((test: any, index: number) => {
+                  const score = Math.round((test.correctAnswers / test.totalQuestions) * 100);
+                  const timeAgo = getTimeAgo(test.completedAt);
+                  const isPerfect = score === 100;
+                  const isGood = score >= 80;
+                  const isFailed = score < 60;
+                  
+                  return (
+                    <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          isPerfect ? 'bg-green-500/20' : isFailed ? 'bg-red-500/20' : isGood ? 'bg-yellow-500/20' : 'bg-blue-500/20'
+                        }`}>
+                          <span className="text-xs font-bold">
+                            {isPerfect ? '✓' : isFailed ? '✗' : '⚡'}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="font-medium text-sm">
+                            {isPerfect ? 'Test parfait' : isGood ? 'Test réussi' : isFailed ? 'Test échoué' : 'Test complété'}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Score: {score}% • {test.totalQuestions} questions • {Math.round(test.duration / 1000)}s
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {timeAgo}
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-medium text-sm">{activity.action}</div>
-                      <div className="text-xs text-muted-foreground">{activity.detail}</div>
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {activity.time}
-                  </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Aucune activité récente</p>
+                  <p className="text-sm mt-2">Commence un test pour voir ton activité ici !</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

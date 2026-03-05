@@ -234,14 +234,18 @@ export default function PublicProfilePage() {
                   <h1 className="text-2xl font-bold">
                     {profile.displayName || profile.username}
                   </h1>
-                  {profile.isTeacher && (
+                </div>
+                <p className="text-muted-foreground">@{profile.username}</p>
+                
+                {/* Teacher Badge */}
+                {profile.isTeacher && (
+                  <div className="mt-2 inline-flex">
                     <div className="px-2 py-1 bg-purple-500/20 border border-purple-500 rounded-lg flex items-center gap-1">
                       <GraduationCap className="w-4 h-4 text-purple-400" />
                       <span className="text-xs text-purple-400 font-semibold">Professeur</span>
                     </div>
-                  )}
-                </div>
-                <p className="text-muted-foreground">@{profile.username}</p>
+                  </div>
+                )}
                 
                 {/* Bouton d'amitié */}
                 {session?.user?.id && session.user.id !== profile.id && (
