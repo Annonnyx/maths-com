@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { 
   ArrowLeft, MessageSquare, AlertTriangle, Bug, HelpCircle, CheckCircle, 
-  Clock, User, Filter, Search, Eye, EyeOff, Trash2, Check, X
+  Clock, User, Filter, Search, Eye, EyeOff, Trash2, Check, X, Send
 } from 'lucide-react';
 
 interface Report {
@@ -332,7 +332,7 @@ export default function ReportsPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {report.status === 'pending' && (
                         <>
                           <button
@@ -375,6 +375,15 @@ export default function ReportsPage() {
                             Rejeter
                           </button>
                         </>
+                      )}
+                      {report.email && (
+                        <Link
+                          href={`/messages?to=${encodeURIComponent(report.email)}`}
+                          className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
+                        >
+                          <Send className="w-3 h-3" />
+                          Message
+                        </Link>
                       )}
                       <button
                         onClick={() => deleteReport(report.id)}

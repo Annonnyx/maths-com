@@ -48,24 +48,42 @@ export default function ClassManagementPage() {
   const loadClassData = async () => {
     setIsLoading(true);
     try {
-      // Simuler le chargement des données
-      // Dans la vraie implémentation, charger depuis l'API
-      setTimeout(() => {
+      // Charger les classes depuis l'API
+      const response = await fetch('/api/class-groups');
+      if (response.ok) {
+        const data = await response.json();
+        const userClasses = data.groups || [];
+        
+        // Calculer les statistiques
+        const totalStudents = userClasses.reduce((sum: number, group: any) => sum + (group._count?.members || 0), 0);
+        
         setClassStats({
-          totalStudents: 0, // Pas de classe au début
-          activeToday: 0,
-          averageElo: 0,
-          totalTests: 0,
-          averageScore: 0,
+          totalStudents,
+          activeToday: 0, // À implémenter plus tard
+          averageElo: 0, // À implémenter plus tard
+          totalTests: 0, // À implémenter plus tard
+          averageScore: 0, // À implémenter plus tard
           topPerformer: null
         });
         setRecentActivity([]);
         setStudents([]);
-        setMyClasses([]); // Prof commence sans classe
-        setIsLoading(false);
-      }, 1000);
+        setMyClasses(userClasses.map((group: any) => ({
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          level: group.level,
+          subject: group.subject,
+          maxStudents: group.maxStudents,
+          isPrivate: group.isPrivate,
+          studentCount: group._count?.members || 0,
+          createdAt: group.createdAt
+        })));
+      } else {
+        console.error('Failed to load classes');
+      }
     } catch (error) {
       console.error('Error loading class data:', error);
+    } finally {
       setIsLoading(false);
     }
   };

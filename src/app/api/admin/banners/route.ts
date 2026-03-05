@@ -88,6 +88,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Vérifier si Supabase est configuré
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return NextResponse.json({ 
+        error: 'Supabase not configured',
+        details: 'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY'
+      }, { status: 500 });
+    }
+
     const formData = await req.formData();
     const file = formData.get('file') as File;
     const name = formData.get('name') as string;
