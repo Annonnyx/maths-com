@@ -24,13 +24,13 @@ const ToggleSwitch = forwardRef<HTMLButtonElement, ToggleSwitchProps>(
         aria-checked={checked}
         disabled={disabled}
         onClick={() => !disabled && onChange && onChange(!checked)}
-        className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+        className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
           checked ? 'bg-green-500' : 'bg-gray-400'
         } ${className}`}
       >
         <span
-          className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform duration-200 ease-in-out ${
-            checked ? 'translate-x-9' : 'translate-x-1'
+          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform duration-200 ease-in-out ${
+            checked ? 'translate-x-8' : 'translate-x-1'
           }`}
         />
       </button>

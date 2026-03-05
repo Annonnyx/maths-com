@@ -3,6 +3,14 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+async function isAdminEmail(email: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { isAdmin: true }
+  });
+  return user?.isAdmin || false;
+}
+
 // DELETE /api/admin/faq-submissions/[id] - Supprimer une soumission
 export async function DELETE(
   request: NextRequest,
@@ -10,18 +18,8 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    if (!session?.user?.email || !(await isAdminEmail(session.user.email))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Vérifier si l'utilisateur est admin
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { isAdmin: true }
-    });
-
-    if (!user?.isAdmin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
     const { id } = await context.params;
