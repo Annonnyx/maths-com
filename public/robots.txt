@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Sitemap: https://maths-app.com/sitemap.xml
+# Sitemap universel - s'adapte automatiquement au domaine
+Sitemap: /sitemap.xml

@@ -1,11 +1,12 @@
 import { NextRequest } from 'next/server';
 
-export async function GET(req: NextRequest) {
-  const host = req.headers.get('host');
-  const protocol = req.headers.get('x-forwarded-proto') || 'https';
+export async function GET(request: NextRequest) {
+  const hostname = request.headers.get('host') || '';
+  const protocol = request.headers.get('x-forwarded-proto') || 'https';
   
-  // Générer directement le sitemap universel sans faire de fetch
-  const baseUrl = `${protocol}://${host}`;
+  // Déterminer le domaine de base
+  const baseUrl = `${protocol}://${hostname}`;
+  
   const currentDate = new Date().toISOString().split('T')[0];
   
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
