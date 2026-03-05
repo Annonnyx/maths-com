@@ -101,6 +101,8 @@ export const authOptions: NextAuthOptions = {
             multiplayerElo: user.multiplayerElo,
             multiplayerRankClass: user.multiplayerRankClass,
             hasCompletedOnboarding: user.hasCompletedOnboarding,
+            isTeacher: user.isTeacher,
+            isAdmin: user.isAdmin,
           } as any;
         } catch (error) {
           console.error('💥 Authorize error:', error);
@@ -184,6 +186,8 @@ export const authOptions: NextAuthOptions = {
         token.multiplayerElo = (user as any).multiplayerElo;
         token.multiplayerRankClass = (user as any).multiplayerRankClass;
         token.hasCompletedOnboarding = (user as any).hasCompletedOnboarding;
+        token.isTeacher = (user as any).isTeacher;
+        token.isAdmin = (user as any).isAdmin;
         console.log('✅ Token updated with user data');
       }
       return token;
@@ -202,6 +206,8 @@ export const authOptions: NextAuthOptions = {
         session.user.multiplayerElo = token.multiplayerElo;
         session.user.multiplayerRankClass = token.multiplayerRankClass;
         session.user.hasCompletedOnboarding = token.hasCompletedOnboarding;
+        session.user.isTeacher = token.isTeacher;
+        session.user.isAdmin = token.isAdmin;
         console.log('✅ Session updated');
       }
       return session;
