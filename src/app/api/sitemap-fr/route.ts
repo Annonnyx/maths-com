@@ -4,7 +4,7 @@ import { join } from 'path';
 
 export async function GET() {
   try {
-    const filePath = join(process.cwd(), 'public', 'sitemap-com.xml');
+    const filePath = join(process.cwd(), 'public', 'sitemap-fr.xml');
     const fileContent = await readFile(filePath, 'utf-8');
     
     return new NextResponse(fileContent, {
@@ -16,7 +16,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Error serving sitemap-com.xml:', error);
+    console.error('Error serving sitemap-fr:', error);
     return NextResponse.json(
       { error: 'Sitemap not found' },
       { status: 404 }

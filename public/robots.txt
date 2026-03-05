@@ -2,8 +2,8 @@ User-agent: *
 Allow: /
 Disallow: /api/
 # Sitemaps pour les domaines .com
-Sitemap: https://maths-app.com/sitemap-com.xml
-Sitemap: https://www.maths-app.com/sitemap-com.xml
+Sitemap: https://maths-app.com/api/sitemap-com
+Sitemap: https://www.maths-app.com/api/sitemap-com
 # Sitemaps pour les domaines .fr  
-Sitemap: https://maths-app.fr/sitemap-fr.xml
-Sitemap: https://www.maths-app.fr/sitemap-fr.xml
+Sitemap: https://maths-app.fr/api/sitemap-fr
+Sitemap: https://www.maths-app.fr/api/sitemap-fr
