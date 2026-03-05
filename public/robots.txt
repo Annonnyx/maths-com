@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-# Sitemap universel - s'adapte automatiquement au domaine
-Sitemap: /sitemap.xml
+# Sitemaps pour les domaines .com
+Sitemap: https://maths-app.com/sitemap-com.xml
+Sitemap: https://www.maths-app.com/sitemap-com.xml
+# Sitemaps pour les domaines .fr  
+Sitemap: https://maths-app.fr/sitemap-fr.xml
+Sitemap: https://www.maths-app.fr/sitemap-fr.xml

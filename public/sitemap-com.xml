@@ -1,426 +1,411 @@
-import { NextRequest } from 'next/server';
-
-export async function GET(req: NextRequest) {
-  const currentDate = new Date().toISOString().split('T')[0];
-  
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://maths-app.com/</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://maths-app.com/login</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/login</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://maths-app.com/register</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/register</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://maths-app.com/dashboard</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/dashboard</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://maths-app.com/multiplayer</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/multiplayer</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://maths-app.com/practice</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/practice</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://maths-app.com/leaderboard</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/leaderboard</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://maths-app.com/friends</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/friends</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://maths-app.com/profile</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/profile</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://maths-app.com/settings</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/settings</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://maths-app.com/courses</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/courses</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://maths-app.com/test</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/test</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://maths-app.com/history</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/history</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://maths-app.com/notifications</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/notifications</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://maths-app.com/social</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/social</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://maths-app.com/class-management</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/class-management</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://maths-app.com/cgu</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/cgu</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://maths-app.com/confidentialite</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/confidentialite</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://maths-app.com/mentions-legales</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/mentions-legales</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://maths-app.com/cookies</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/cookies</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://maths-app.com/contact</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/contact</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://maths-app.com/faq</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/faq</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://maths-app.com/tickets</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/tickets</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://maths-app.com/transferts-donnees</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/transferts-donnees</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://maths-app.com/mineurs</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/mineurs</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://maths-app.com/onboarding/test</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/onboarding/test</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://maths-app.com/banner</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/banner</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://maths-app.com/class-groups</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/class-groups</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://maths-app.com/messages</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/messages</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://maths-app.com/discord/link</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/discord/link</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://maths-app.com/admin</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/admin</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://maths-app.com/admin/discord</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/admin/discord</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://maths-app.com/admin/teachers</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/admin/teachers</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://maths-app.com/admin/faq</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.maths-app.com/admin/faq</loc>
-    <lastmod>${currentDate}</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
-</urlset>`;
-
-  return new Response(sitemap, {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600, s-maxage=86400',
-      'X-Content-Type-Options': 'nosniff',
-    },
-  });
-}
+</urlset>
