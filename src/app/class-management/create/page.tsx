@@ -25,17 +25,6 @@ const levels = [
   { value: 'Term', label: 'Terminale' },
 ];
 
-const subjects = [
-  { value: 'maths', label: 'Mathématiques' },
-  { value: 'physique', label: 'Physique-Chimie' },
-  { value: 'svt', label: 'SVT' },
-  { value: 'français', label: 'Français' },
-  { value: 'histoire', label: 'Histoire-Géographie' },
-  { value: 'anglais', label: 'Anglais' },
-  { value: 'espagnol', label: 'Espagnol' },
-  { value: 'allemand', label: 'Allemand' },
-];
-
 export default function CreateClassPage() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -44,7 +33,7 @@ export default function CreateClassPage() {
     name: '',
     description: '',
     level: '',
-    subject: '',
+    subject: 'maths', // Toujours maths
     maxStudents: 30,
     isPrivate: false,
   });
@@ -160,37 +149,27 @@ export default function CreateClassPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Matière *</label>
-                    <select
-                      required
-                      value={classData.subject}
-                      onChange={(e) => setClassData(prev => ({ ...prev, subject: e.target.value }))}
-                      className="w-full px-4 py-2 bg-[#2a2a3a] border border-border rounded-lg focus:border-purple-500 focus:outline-none"
-                    >
-                      <option value="">Sélectionner une matière</option>
-                      {subjects.map((subject) => (
-                        <option key={subject.value} value={subject.value}>
-                          {subject.label}
-                        </option>
-                      ))}
-                    </select>
+                    <label className="block text-sm font-medium mb-2">Matière</label>
+                    <div className="w-full px-4 py-2 bg-[#2a2a3a] border border-border rounded-lg text-gray-400">
+                      Mathématiques
+                    </div>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Nombre maximum d'élèves: {classData.maxStudents}
+                    Nombre maximum d'élèves: {classData.maxStudents === 0 ? 'Illimité' : classData.maxStudents}
                   </label>
                   <input
                     type="range"
-                    min="5"
+                    min="0"
                     max="50"
                     value={classData.maxStudents}
                     onChange={(e) => setClassData(prev => ({ ...prev, maxStudents: parseInt(e.target.value) }))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-gray-400 mt-1">
-                    <span>5</span>
+                    <span>Illimité</span>
                     <span>50</span>
                   </div>
                 </div>
@@ -220,7 +199,7 @@ export default function CreateClassPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isLoading || !classData.name || !classData.level || !classData.subject}
+                  disabled={isLoading || !classData.name || !classData.level}
                   className="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center gap-2"
                 >
                   {isLoading ? (

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { 
-  Users, User, UserPlus, Clock, Target, Award, Crown, BarChart3, TrendingUp, Settings, GraduationCap, RefreshCw, Plus
+  Users, User, UserPlus, Clock, Target, Award, Crown, BarChart3, TrendingUp, Settings, GraduationCap, RefreshCw, Plus, ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import TeacherClassManager from '@/components/TeacherClassManager';
@@ -29,6 +30,7 @@ interface ClassActivity {
 
 export default function ClassManagementPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'students' | 'requests' | 'analytics' | 'settings' | 'classes'>('classes');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -50,44 +52,16 @@ export default function ClassManagementPage() {
       // Dans la vraie implémentation, charger depuis l'API
       setTimeout(() => {
         setClassStats({
-          totalStudents: 24,
-          activeToday: 18,
-          averageElo: 1250,
-          totalTests: 156,
-          averageScore: 78,
-          topPerformer: {
-            name: 'Alice Martin',
-            elo: 1450,
-            rank: 'A-'
-          }
+          totalStudents: 0, // Pas de classe au début
+          activeToday: 0,
+          averageElo: 0,
+          totalTests: 0,
+          averageScore: 0,
+          topPerformer: null
         });
-
-        setRecentActivity([
-          {
-            id: '1',
-            studentName: 'Alice Martin',
-            action: 'Test complété',
-            details: 'Score: 95% - Niveau Expert',
-            timestamp: 'Il y a 10 min',
-            type: 'test'
-          },
-          {
-            id: '2',
-            studentName: 'Bob Bernard',
-            action: 'Nouveau badge',
-            details: 'Expert en Multiplication',
-            timestamp: 'Il y a 25 min',
-            type: 'achievement'
-          },
-          {
-            id: '3',
-            studentName: 'Claire Dubois',
-            action: 'Connexion',
-            details: 'Session quotidienne',
-            timestamp: 'Il y a 1h',
-            type: 'login'
-          }
-        ]);
+        setRecentActivity([]);
+        setStudents([]);
+        setMyClasses([]); // Prof commence sans classe
         setIsLoading(false);
       }, 1000);
     } catch (error) {
@@ -137,6 +111,12 @@ export default function ClassManagementPage() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.back()}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 <GraduationCap className="w-6 h-6 text-purple-400" />
                 Gestion de classe
@@ -427,10 +407,25 @@ export default function ClassManagementPage() {
                     <BarChart3 className="w-5 h-5 text-blue-400" />
                     Analytiques de classe
                   </h3>
-                  <div className="text-center py-12">
-                    <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                    <p className="text-gray-400">Graphiques et statistiques détaillées bientôt disponibles</p>
-                  </div>
+                  {myClasses.length === 0 ? (
+                    <div className="text-center py-12">
+                      <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                      <p className="text-gray-400">Créez une classe pour voir les analytiques</p>
+                      <Link
+                        href="/class-management/create"
+                        className="inline-flex px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors items-center gap-2 mt-4"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Créer une classe
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                      <p className="text-gray-400">Les analytiques seront disponibles prochainement</p>
+                      <p className="text-sm text-gray-500 mt-2">Statistiques détaillées sur la progression de vos élèves</p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -447,10 +442,27 @@ export default function ClassManagementPage() {
                     <Settings className="w-5 h-5 text-gray-400" />
                     Paramètres de classe
                   </h3>
-                  <div className="text-center py-12">
-                    <Settings className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                    <p className="text-gray-400">Paramètres avancés bientôt disponibles</p>
-                  </div>
+                  {myClasses.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Settings className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                      <p className="text-gray-400">Créez une classe pour accéder aux paramètres</p>
+                      <Link
+                        href="/class-management/create"
+                        className="inline-flex px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors items-center gap-2 mt-4"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Créer une classe
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="text-center py-12">
+                        <Settings className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                        <p className="text-gray-400">Paramètres avancés bientôt disponibles</p>
+                        <p className="text-sm text-gray-500 mt-2">Personnalisation des classes et permissions</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
