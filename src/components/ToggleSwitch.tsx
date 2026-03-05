@@ -24,7 +24,7 @@ const ToggleSwitch = forwardRef<HTMLButtonElement, ToggleSwitchProps>(
         aria-checked={checked}
         disabled={disabled}
         onClick={() => !disabled && onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+        className={`relative inline-flex h-6 w-14 items-center rounded-full transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
         style={{
           backgroundColor: checked ? '#10b981' : '#6b7280',
           boxShadow: checked ? '0 0 0 1px rgba(16, 185, 129, 0.2)' : '0 0 0 1px rgba(107, 114, 128, 0.2)',
@@ -34,7 +34,7 @@ const ToggleSwitch = forwardRef<HTMLButtonElement, ToggleSwitchProps>(
         <span
           className="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-300 ease-out shadow-sm"
           style={{
-            transform: checked ? 'translateX(1.25rem)' : 'translateX(0.125rem)',
+            transform: checked ? 'translateX(2rem)' : 'translateX(0.125rem)',
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
             willChange: 'transform'
           }}
