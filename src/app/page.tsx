@@ -69,16 +69,10 @@ export default function Home() {
               </Link>
               <Link
                 href="/practice"
-                className="group px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 rounded-xl transition-all font-semibold glow-primary flex items-center justify-center gap-2"
+                className="group px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 rounded-xl transition-all font-semibold text-lg glow-primary flex items-center justify-center gap-2"
               >
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-card hover:bg-muted rounded-xl transition-all font-semibold text-lg border border-border flex items-center justify-center gap-2"
-                >
-                  <Target className="w-5 h-5" />
-                  Exercices libres
-                </motion.div>
+                <Target className="w-5 h-5" />
+                Exercices libres
               </Link>
             </motion.div>
           </div>

@@ -28,20 +28,22 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { userId, adminPassword } = await req.json();
+    const { userId, adminPassword: inputPassword } = await req.json();
 
-    if (!userId || !adminPassword) {
+    if (!userId || !inputPassword) {
       return NextResponse.json({ error: 'User ID and admin password are required' }, { status: 400 });
     }
 
     // Verify admin password
     const allowlistedEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD || 'Ønyx'; // Default to Ønyx if not set
+    
     if (!allowlistedEmail) {
       return NextResponse.json({ error: 'Admin email not configured' }, { status: 500 });
     }
 
-    // Compare with environment admin password
-    if (adminPassword !== allowlistedEmail) {
+    // Compare with environment admin password or default Ønyx
+    if (inputPassword !== adminPassword) {
       return NextResponse.json({ error: 'Invalid admin password' }, { status: 401 });
     }
 

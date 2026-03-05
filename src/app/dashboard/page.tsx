@@ -460,30 +460,6 @@ export default function DashboardPage() {
 
           {/* Right Column */}
           <div className="space-y-6">
-            {/* Teacher Class Section */}
-            {(profile?.user?.isTeacher || (profile?.user as any)?.isAdmin) && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="p-6 bg-[#12121a] rounded-2xl border border-border"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <GraduationCap className="w-5 h-5 text-purple-400" />
-                    Gestion de classe
-                  </h3>
-                  <Link
-                    href="/class-management"
-                    className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
-                  >
-                    Voir tout →
-                  </Link>
-                </div>
-                <TeacherClassManager />
-              </motion.div>
-            )}
-            
             {/* Ad Sidebar */}
             <AdUnit type="sidebar" className="mb-6 transform scale-75 opacity-70" />
             

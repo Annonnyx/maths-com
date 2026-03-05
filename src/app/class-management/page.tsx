@@ -114,6 +114,10 @@ export default function ClassManagementPage() {
     }
   };
 
+  console.log('🔍 Session user:', session?.user);
+  console.log('🔍 isTeacher:', (session?.user as any)?.isTeacher);
+  console.log('🔍 isAdmin:', (session?.user as any)?.isAdmin);
+
   if (!session?.user || (!(session.user as any).isTeacher && !(session.user as any).isAdmin)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -121,6 +125,7 @@ export default function ClassManagementPage() {
           <GraduationCap className="w-16 h-16 mx-auto mb-4 text-gray-500" />
           <h1 className="text-2xl font-bold text-white mb-2">Accès réservé</h1>
           <p className="text-gray-400">Cette page est réservée aux professeurs et administrateurs</p>
+          <p className="text-gray-500 text-sm mt-2">Debug: isTeacher={String((session?.user as any)?.isTeacher)}, isAdmin={String((session?.user as any)?.isAdmin)}</p>
         </div>
       </div>
     );
