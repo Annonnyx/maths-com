@@ -99,6 +99,10 @@ export default function AdminPage() {
   // User list
   const [showUserList, setShowUserList] = useState(false);
   
+  // Delete user account
+  const [deleteUserId, setDeleteUserId] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
+  
   // Player search
   const [playerSearchQuery, setPlayerSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
@@ -458,14 +462,23 @@ export default function AdminPage() {
 
     setSearchLoading(true);
     try {
-      const response = await fetch(`/api/admin/users?search=${encodeURIComponent(query)}`);
+      // Nettoyer la requête pour enlever le @ si présent
+      let searchQuery = query.trim();
+      let searchType = 'username';
+      
+      if (searchQuery.startsWith('@')) {
+        searchQuery = searchQuery.substring(1);
+        searchType = 'username';
+      }
+
+      const response = await fetch(`/api/admin/users?search=${encodeURIComponent(searchQuery)}`);
       if (response.ok) {
         const data = await response.json();
         const users = data.users || [];
         // Filter results to only show relevant matches
         const filteredUsers = users.filter((user: any) => 
-          user.username.toLowerCase().includes(query.toLowerCase()) ||
-          user.displayName?.toLowerCase().includes(query.toLowerCase())
+          user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.displayName?.toLowerCase().includes(searchQuery.toLowerCase())
         );
         setSearchResults(filteredUsers);
       } else {
@@ -1436,7 +1449,7 @@ export default function AdminPage() {
                 type="text"
                 value={playerSearchQuery}
                 onChange={(e) => setPlayerSearchQuery(e.target.value)}
-                placeholder="Rechercher un joueur par pseudonyme ou ID..."
+                placeholder="Rechercher un joueur par pseudonyme, @username ou ID..."
                 className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-gray-500"
               />
             </div>
@@ -1527,11 +1540,97 @@ export default function AdminPage() {
                     </button>
                   </div>
                 </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Delete User Account */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="p-6 bg-[#12121a] rounded-2xl border border-red-500/30"
+          >
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-red-400">
+              <Trash2 className="w-5 h-5" />
+              Supprimer un compte
+            </h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">Utilisateur à supprimer</label>
+                <select
+                  value={deleteUserId}
+                  onChange={(e) => setDeleteUserId(e.target.value)}
+                  className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground"
+                >
+                  <option value="">Sélectionner un utilisateur</option>
+                  {users.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.username} ({user.email})
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
-          </div>
-        </motion.div>
+
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">Votre mot de passe administrateur</label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Entrez votre mot de passe pour confirmation"
+                  className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground"
+                />
+              </div>
+
+              <button
+                onClick={async () => {
+                  if (!deleteUserId || !deletePassword.trim()) {
+                    alert('Veuillez sélectionner un utilisateur et entrer votre mot de passe');
+                    return;
+                  }
+
+                  if (!confirm(`⚠️ SUPPRESSION DÉFINITIVE\n\nÊtes-vous ABSOLUMENT sûr de vouloir supprimer le compte de ${users.find(u => u.id === deleteUserId)?.username} ?\n\nCette action est IRRÉVERSIBLE et supprimera :\n- Toutes les données du compte\n- L\'historique des parties\n- Les amis\n- Les badges\n- La progression\n\nToutes les données associées !`)) {
+                    return;
+                  }
+
+                  try {
+                    const response = await fetch('/api/admin/delete-user', {
+                      method: 'DELETE',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ 
+                        userId: deleteUserId,
+                        adminPassword: deletePassword 
+                      })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                      alert(`✅ Compte de ${users.find(u => u.id === deleteUserId)?.username} supprimé avec succès !`);
+                      setDeleteUserId('');
+                      setDeletePassword('');
+                      // Rafraîchir la liste des utilisateurs
+                      loadData();
+                    } else {
+                      alert(`❌ Erreur: ${data.error || 'Échec de la suppression'}`);
+                    }
+                  } catch (error) {
+                    console.error('Error deleting user:', error);
+                    alert('❌ Erreur réseau lors de la suppression');
+                  }
+                }}
+                disabled={!deleteUserId || !deletePassword.trim()}
+                className="w-full py-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Supprimer le compte
+              </button>
+            </div>
+          </motion.div>
+        </div>
       </main>
     </div>
   );
-}
+};

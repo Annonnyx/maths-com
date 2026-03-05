@@ -5,9 +5,9 @@ import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { 
-  Trophy, User, Medal, Target, Zap, Swords, 
-  ChevronLeft, Share2, Copy, CheckCircle, Award,
-  TrendingUp, Clock, BarChart3, UserPlus, Users, GraduationCap
+  Home, LayoutDashboard, Trophy, Users, BookOpen, 
+  User, LogOut, Menu, X, Settings, Target, Bell, GraduationCap, Trash2,
+  ChevronLeft, Share2, CheckCircle, Clock, TrendingUp, Award, Zap, BarChart3
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES } from '@/lib/elo';
 import { useSession } from 'next-auth/react';
@@ -247,6 +247,47 @@ export default function PublicProfilePage() {
                   </div>
                 )}
                 
+                {/* Admin Delete Button */}
+                {session?.user?.isAdmin && session.user.id !== profile.id && (
+                  <div className="mt-3">
+                    <button
+                      onClick={() => {
+                        if (!confirm(`⚠️ SUPPRESSION DE COMPTE ADMIN\n\nÊtes-vous sûr de vouloir supprimer le compte de ${profile.username} ?\n\nCette action est IRRÉVERSIBLE et supprimera :\n- Toutes les données du compte\n- L\'historique des parties\n- Les amis\n- Les badges\n- La progression\n\nToutes les données associées !\n\nPour confirmer, entrez votre mot de passe administrateur.`)) {
+                          return;
+                        }
+
+                        const adminPassword = prompt('Mot de passe administrateur :');
+                        if (!adminPassword) return;
+
+                        // Call delete API
+                        fetch('/api/admin/delete-user', {
+                          method: 'DELETE',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ 
+                            userId: profile.id,
+                            adminPassword 
+                          })
+                        }).then(async (response) => {
+                          const data = await response.json();
+                          if (response.ok) {
+                            alert(`✅ Compte de ${profile.username} supprimé avec succès !`);
+                            window.location.href = '/'; // Rediriger vers l'accueil
+                          } else {
+                            alert(`❌ Erreur: ${data.error || 'Échec de la suppression'}`);
+                          }
+                        }).catch(error => {
+                          console.error('Error deleting user:', error);
+                          alert('❌ Erreur réseau lors de la suppression');
+                        });
+                      }}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Supprimer le compte
+                    </button>
+                  </div>
+                )}
+
                 {/* Bouton d'amitié */}
                 {session?.user?.id && session.user.id !== profile.id && (
                   <div className="mt-3">

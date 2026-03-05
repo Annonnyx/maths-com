@@ -177,8 +177,13 @@ export default function FriendsPage() {
       let query = searchQuery.trim();
       let searchType = 'username';
       
-      // If starts with #, search by ID
-      if (query.startsWith('#')) {
+      // Si commence par @, recherche par username
+      if (query.startsWith('@')) {
+        query = query.substring(1);
+        searchType = 'username';
+      }
+      // Si commence par #, recherche par ID
+      else if (query.startsWith('#')) {
         query = query.substring(1);
         searchType = 'id';
       }
@@ -336,7 +341,7 @@ export default function FriendsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Nom d'utilisateur..."
+                placeholder="Rechercher par @username, #ID ou nom..."
                 className="w-full pl-10 pr-4 py-3 bg-[#1e1e2e] border border-[#3a3a4a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
               />
             </div>

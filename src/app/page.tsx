@@ -69,6 +69,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/practice"
+                className="group px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 rounded-xl transition-all font-semibold glow-primary flex items-center justify-center gap-2"
               >
                 <motion.div
                   whileHover={{ scale: 1.05 }}

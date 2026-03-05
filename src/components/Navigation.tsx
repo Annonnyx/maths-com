@@ -23,12 +23,18 @@ export default function Navigation() {
 
   const isActive = (path: string) => pathname === path;
 
+  // Navigation conditionnelle selon le rôle de l'utilisateur
   const navigation = [
     { name: 'Accueil', href: '/', icon: Home },
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Tests', href: '/test', icon: Target },
     { name: 'Multijoueur', href: '/multiplayer', icon: Users },
     { name: 'Cours', href: '/courses', icon: BookOpen },
+    // Bouton conditionnel pour les classes
+    ...(session?.user?.isTeacher || (session?.user as any)?.isAdmin ? [
+      { name: 'Mes classes', href: '/class-management', icon: GraduationCap }
+    ] : [
+      { name: 'Ma classe', href: '/class-management', icon: GraduationCap }
+    ]),
     { name: 'Classement', href: '/leaderboard', icon: Trophy },
   ];
 
