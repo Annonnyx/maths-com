@@ -215,6 +215,17 @@ export default function DashboardPage() {
             <h3 className="font-semibold">Bannières</h3>
             <p className="text-sm text-muted-foreground">Customise ton profil</p>
           </Link>
+
+          {(profile?.user?.isTeacher || (profile?.user as any)?.isAdmin || profile?.user?.email === 'noe.barneron@gmail.com') && (
+            <Link
+              href="/class-management"
+              className="p-6 bg-card rounded-2xl border border-border hover:border-purple-500/50 transition-all group"
+            >
+              <GraduationCap className="w-8 h-8 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
+              <h3 className="font-semibold">Classes</h3>
+              <p className="text-sm text-muted-foreground">Gère tes classes</p>
+            </Link>
+          )}
         </motion.div>
 
         {/* Main Grid */}
@@ -460,27 +471,6 @@ export default function DashboardPage() {
 
           {/* Right Column */}
           <div className="space-y-6">
-            {/* Classes Quick Access */}
-            {(profile?.user?.isTeacher || (profile?.user as any)?.isAdmin || profile?.user?.email === 'noe.barneron@gmail.com') && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="p-6 bg-[#12121a] rounded-2xl border border-purple-500/30"
-              >
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <GraduationCap className="w-5 h-5 text-purple-400" />
-                  Classes
-                </h3>
-                <Link
-                  href="/class-management"
-                  className="block w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors text-center"
-                >
-                  Gérer mes classes
-                </Link>
-              </motion.div>
-            )}
-            
             {/* Ad Sidebar */}
             <AdUnit type="sidebar" className="mb-6 transform scale-75 opacity-70" />
             

@@ -125,15 +125,6 @@ export default function ClassManagementPage() {
                 Professeur: {session.user.displayName || session.user.username}
               </span>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={loadClassData}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 rounded-lg font-medium transition-colors"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Actualiser
-              </button>
-            </div>
           </div>
         </div>
       </header>

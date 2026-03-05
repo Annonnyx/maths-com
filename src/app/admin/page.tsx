@@ -578,6 +578,13 @@ export default function AdminPage() {
               Bot Discord
             </Link>
             <Link 
+              href="/admin/reports" 
+              className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Signalements
+            </Link>
+            <Link 
               href="/admin/teachers" 
               className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-lg font-medium transition-colors flex items-center gap-2"
             >
