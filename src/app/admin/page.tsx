@@ -1606,18 +1606,6 @@ export default function AdminPage() {
                     });
 
                     const data = await response.json();
-
-                    if (response.ok) {
-                      alert(`✅ Compte de ${users.find(u => u.id === deleteUserId)?.username} supprimé avec succès !`);
-                      setDeleteUserId('');
-                      setDeletePassword('');
-                      // Rafraîchir la liste des utilisateurs
-                      loadData();
-                    } else {
-                      alert(`❌ Erreur: ${data.error || 'Échec de la suppression'}`);
-                    }
-                  } catch (error) {
-                    console.error('Error deleting user:', error);
                     alert('❌ Erreur réseau lors de la suppression');
                   }
                 }}
