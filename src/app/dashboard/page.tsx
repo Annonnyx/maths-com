@@ -461,7 +461,7 @@ export default function DashboardPage() {
           {/* Right Column */}
           <div className="space-y-6">
             {/* Teacher Class Section */}
-            {profile?.user?.isTeacher && (
+            {(profile?.user?.isTeacher || (profile?.user as any)?.isAdmin) && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
