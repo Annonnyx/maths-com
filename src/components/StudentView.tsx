@@ -81,7 +81,7 @@ export default function StudentView({
         <JoinClassSection onClassJoined={onClassJoined} />
 
         {/* Barre de recherche */}
-        <div className="mb-8">
+        <div className="mt-12 mb-8">
           <div className="relative max-w-2xl mx-auto">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
