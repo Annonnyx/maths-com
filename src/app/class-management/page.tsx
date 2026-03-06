@@ -10,6 +10,7 @@ import {
 import Link from 'next/link';
 import TeacherClassManager from '@/components/TeacherClassManager';
 import JoinClassSection from '@/components/JoinClassSection';
+import StudentView from '@/components/StudentView';
 
 interface ClassStats {
   totalStudents: number;
@@ -39,10 +40,15 @@ export default function ClassManagementPage() {
   const [recentActivity, setRecentActivity] = useState<ClassActivity[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [myClasses, setMyClasses] = useState<any[]>([]);
+  const [publicClasses, setPublicClasses] = useState<any[]>([]);
 
   useEffect(() => {
-    if (session?.user && (session.user as any).isTeacher) {
-      loadClassData();
+    if (session?.user) {
+      if ((session.user as any).isTeacher) {
+        loadClassData();
+      } else {
+        loadPublicClasses();
+      }
     }
   }, [session?.user?.id]); // Ne dépend que de l'ID utilisateur, pas de l'objet session complet
 
@@ -89,6 +95,36 @@ export default function ClassManagementPage() {
     }
   };
 
+  const loadPublicClasses = async () => {
+    setIsLoading(true);
+    try {
+      // Charger les classes publiques depuis l'API
+      const response = await fetch('/api/class-groups/public');
+      if (response.ok) {
+        const data = await response.json();
+        const classes = data.groups || [];
+        
+        setPublicClasses(classes.map((group: any) => ({
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          level: group.level,
+          subject: group.subject,
+          maxStudents: group.maxStudents,
+          studentCount: group._count?.members || 0,
+          teacher: group.teacher,
+          createdAt: group.createdAt
+        })));
+      } else {
+        console.error('Failed to load public classes');
+      }
+    } catch (error) {
+      console.error('Error loading public classes:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   console.log('🔍 Session user:', session?.user);
   console.log('🔍 isTeacher:', (session?.user as any)?.isTeacher);
   console.log('🔍 isAdmin:', (session?.user as any)?.isAdmin);
@@ -110,17 +146,15 @@ export default function ClassManagementPage() {
   const isAdmin = userEmail === 'noe.barneron@gmail.com' || (session.user as any)?.isAdmin;
   const isTeacher = (session.user as any)?.isTeacher;
 
+  // Si c'est un élève, afficher la page élève
   if (!isAdmin && !isTeacher) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <GraduationCap className="w-16 h-16 mx-auto mb-4 text-gray-500" />
-          <h1 className="text-2xl font-bold text-white mb-2">Accès réservé</h1>
-          <p className="text-gray-400">Cette page est réservée aux professeurs et administrateurs</p>
-          <p className="text-gray-500 text-sm mt-2">Debug: {userEmail}</p>
-        </div>
-      </div>
-    );
+    return <StudentView 
+      publicClasses={publicClasses} 
+      searchQuery={searchQuery}
+      setSearchQuery={setSearchQuery}
+      isLoading={isLoading}
+      onClassJoined={() => loadPublicClasses()}
+    />;
   }
 
   return (
@@ -194,7 +228,7 @@ export default function ClassManagementPage() {
                     </h3>
                     <Link
                       href="/class-management/create"
-                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-150 flex items-center gap-2"
                     >
                       <Plus className="w-4 h-4" />
                       Créer une classe
