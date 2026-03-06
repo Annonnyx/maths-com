@@ -247,6 +247,8 @@ export default function ClassManagementPage() {
                       ))}
                     </div>
                   )}
+                  
+                  <JoinClassSection onClassJoined={loadClassData} />
                 </div>
               </motion.div>
             )}
