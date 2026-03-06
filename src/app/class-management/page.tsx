@@ -5,10 +5,11 @@ import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { 
-  Users, User, UserPlus, Clock, Target, Award, Crown, BarChart3, TrendingUp, Settings, GraduationCap, RefreshCw, Plus, ArrowLeft
+  Users, User, UserPlus, Clock, Target, Award, Crown, BarChart3, TrendingUp, Settings, GraduationCap, RefreshCw, Plus, ArrowLeft, BookOpen, MessageSquare
 } from 'lucide-react';
 import Link from 'next/link';
 import TeacherClassManager from '@/components/TeacherClassManager';
+import JoinClassSection from '@/components/JoinClassSection';
 
 interface ClassStats {
   totalStudents: number;
@@ -155,8 +156,8 @@ export default function ClassManagementPage() {
               { id: 'classes', label: 'Mes classes', icon: GraduationCap },
               { id: 'overview', label: 'Aperçu', icon: BarChart3 },
               { id: 'students', label: 'Élèves', icon: Users },
-              { id: 'requests', label: 'Demandes', icon: UserPlus },
-              { id: 'analytics', label: 'Analytiques', icon: TrendingUp },
+              { id: 'assignments', label: 'Devoirs', icon: BookOpen },
+              { id: 'messages', label: 'Messages', icon: MessageSquare },
               { id: 'settings', label: 'Paramètres', icon: Settings }
             ].map((tab) => (
               <button
