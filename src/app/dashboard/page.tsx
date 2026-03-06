@@ -55,7 +55,7 @@ export default function DashboardPage() {
           hasCompletedOnboarding: true,
           // Valeurs par défaut si on skip le test
           soloElo: 400,
-          soloRankClass: 5
+          soloRankClass: 'F-'
         })
       });
 

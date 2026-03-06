@@ -5,13 +5,31 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
+    console.log('🔍 Starting onboarding complete API');
+    
     const session = await getServerSession(authOptions);
+    console.log('🔍 Session:', session?.user?.id ? `User ${session.user.id}` : 'No session');
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { soloElo, soloRankClass, hasCompletedOnboarding } = await req.json();
+    const body = await req.json();
+    console.log('🔍 Request body:', body);
+
+    const { soloElo, soloRankClass, hasCompletedOnboarding } = body;
+
+    // Test simple de connexion Prisma
+    try {
+      const userCount = await prisma.user.count();
+      console.log('🔍 Prisma connection test - user count:', userCount);
+    } catch (dbError) {
+      console.error('❌ Prisma connection error:', dbError);
+      return NextResponse.json({ 
+        error: 'Database connection failed',
+        details: dbError instanceof Error ? dbError.message : 'Unknown error'
+      }, { status: 500 });
+    }
 
     // Mettre à jour l'utilisateur avec les résultats d'onboarding
     const updatedUser = await prisma.user.update({
