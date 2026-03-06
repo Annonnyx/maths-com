@@ -10,9 +10,10 @@ import { useSound } from '@/components/SoundProvider';
 
 interface OnboardingFlowProps {
   onComplete: () => void;
+  onSkip?: () => void; // Ajout de la prop pour skip
 }
 
-export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
+export default function OnboardingFlow({ onComplete, onSkip }: OnboardingFlowProps) {
   const [step, setStep] = useState(0);
   const { playSound } = useSound();
 
@@ -113,7 +114,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <button
                 onClick={() => {
                   playSound('click');
-                  onComplete();
+                  if (onSkip) {
+                    onSkip();
+                  } else {
+                    onComplete();
+                  }
                 }}
                 className="text-gray-500 hover:text-gray-300 text-sm transition-colors"
               >

@@ -45,6 +45,30 @@ export default function DashboardPage() {
     router.push('/onboarding/test');
   };
 
+  const handleOnboardingSkip = async () => {
+    // Marquer l'onboarding comme terminé sans faire le test
+    try {
+      const response = await fetch('/api/users/onboarding-complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hasCompletedOnboarding: true,
+          // Valeurs par défaut si on skip le test
+          soloElo: 400,
+          soloRankClass: 5
+        })
+      });
+
+      if (response.ok) {
+        setShowOnboarding(false);
+        // Recharger la page pour mettre à jour le profil
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error skipping onboarding:', error);
+    }
+  };
+
   // Redirect to login if not authenticated (fallback if middleware fails)
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -103,7 +127,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Onboarding Flow for new users */}
       {showOnboarding && (
-        <OnboardingFlow onComplete={handleOnboardingComplete} />
+        <OnboardingFlow onComplete={handleOnboardingComplete} onSkip={handleOnboardingSkip} />
       )}
 
       {/* Header */}

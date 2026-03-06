@@ -242,7 +242,7 @@ function PracticePage() {
   };
 
   useEffect(() => {
-    if (!showSettings && !courseSession) {
+    if (!showSettings && !courseSession && !feedback && !inputValue.trim()) {
       generateNewExercise();
     }
   }, [selectedOperation, selectedClass, showSettings]);
