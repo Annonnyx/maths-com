@@ -43,7 +43,7 @@ export default function ClassManagementPage() {
     if (session?.user && (session.user as any).isTeacher) {
       loadClassData();
     }
-  }, [session]);
+  }, [session?.user?.id]); // Ne dépend que de l'ID utilisateur, pas de l'objet session complet
 
   const loadClassData = async () => {
     setIsLoading(true);
@@ -221,7 +221,11 @@ export default function ClassManagementPage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {myClasses.map((classItem) => (
-                        <div key={classItem.id} className="p-4 bg-[#1e1e2e] rounded-lg border border-[#3a3a4a] hover:border-purple-500/50 transition-colors">
+                        <Link
+                          key={classItem.id}
+                          href={`/class-management/${classItem.id}`}
+                          className="block p-4 bg-[#1e1e2e] rounded-lg border border-[#3a3a4a] hover:border-purple-500/50 transition-colors cursor-pointer"
+                        >
                           <div className="flex items-start justify-between mb-3">
                             <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
                               <GraduationCap className="w-5 h-5 text-purple-400" />
@@ -238,7 +242,7 @@ export default function ClassManagementPage() {
                             <span className="text-gray-400">{classItem.level} • {classItem.subject}</span>
                             <span className="text-purple-400">{classItem.studentCount}/{classItem.maxStudents} élèves</span>
                           </div>
-                        </div>
+                        </Link>
                       ))}
                     </div>
                   )}
