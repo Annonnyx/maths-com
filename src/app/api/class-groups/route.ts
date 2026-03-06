@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('Loading class groups for user:', session.user.id);
+    console.log('Session full:', session);
 
     const groups = await prisma.classGroup.findMany({
       where: {
