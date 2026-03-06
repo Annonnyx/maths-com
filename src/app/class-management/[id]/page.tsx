@@ -32,6 +32,13 @@ export default function ClassDetailsPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [students, setStudents] = useState<any[]>([]);
   const [joinRequests, setJoinRequests] = useState<any[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    description: '',
+    maxStudents: 30,
+    isPrivate: false
+  });
 
   const tabs = [
     { id: 'overview', name: 'Aperçu', icon: BarChart3 },
@@ -55,6 +62,14 @@ export default function ClassDetailsPage() {
         const data = await response.json();
         setClassDetails(data.group);
         
+        // Initialiser le formulaire d'édition
+        setEditForm({
+          name: data.group.name,
+          description: data.group.description || '',
+          maxStudents: data.group.maxStudents,
+          isPrivate: data.group.isPrivate
+        });
+        
         // Extraire les élèves et les demandes d'adhésion
         const members = data.group?.members || [];
         const actualStudents = members.filter((m: any) => m.role === 'student');
@@ -67,6 +82,43 @@ export default function ClassDetailsPage() {
       console.error('Error loading class details:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const updateClass = async () => {
+    try {
+      const response = await fetch(`/api/class-groups/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
+      });
+      if (response.ok) {
+        setIsEditing(false);
+        loadClassDetails();
+        alert('Classe mise à jour avec succès !');
+      }
+    } catch (error) {
+      console.error('Error updating class:', error);
+      alert('Erreur lors de la mise à jour');
+    }
+  };
+
+  const deleteClass = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette classe ? Cette action est irréversible.')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/class-groups/${params.id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        router.push('/class-management');
+        alert('Classe supprimée avec succès');
+      }
+    } catch (error) {
+      console.error('Error deleting class:', error);
+      alert('Erreur lors de la suppression');
     }
   };
 
@@ -371,34 +423,170 @@ export default function ClassDetailsPage() {
 
           {activeTab === 'settings' && (
             <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
-              <h3 className="text-xl font-semibold text-white mb-4">Paramètres de la classe</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Nom de la classe</label>
-                  <input
-                    type="text"
-                    value={classDetails.name}
-                    className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
-                    readOnly
-                  />
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-white">Paramètres de la classe</h3>
+                <div className="flex gap-2">
+                  {!isEditing ? (
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    >
+                      Modifier
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          setIsEditing(false);
+                          setEditForm({
+                            name: classDetails.name,
+                            description: classDetails.description || '',
+                            maxStudents: classDetails.maxStudents,
+                            isPrivate: classDetails.isPrivate
+                          });
+                        }}
+                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                      >
+                        Annuler
+                      </button>
+                      <button
+                        onClick={updateClass}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                      >
+                        Sauvegarder
+                      </button>
+                    </>
+                  )}
                 </div>
+              </div>
+
+              {/* Informations de base */}
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">Nom de la classe</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                        className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={classDetails.name}
+                        className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                        readOnly
+                      />
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">Nombre maximum d'élèves</label>
+                    {isEditing ? (
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={editForm.maxStudents}
+                        onChange={(e) => setEditForm({...editForm, maxStudents: parseInt(e.target.value) || 0})}
+                        className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={classDetails.maxStudents === 0 ? 'Illimité' : classDetails.maxStudents}
+                        className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                        readOnly
+                      />
+                    )}
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-2">Description</label>
-                  <textarea
-                    value={classDetails.description}
-                    className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
-                    rows={3}
-                    readOnly
-                  />
+                  {isEditing ? (
+                    <textarea
+                      value={editForm.description}
+                      onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                      rows={3}
+                    />
+                  ) : (
+                    <textarea
+                      value={classDetails.description || ''}
+                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                      rows={3}
+                      readOnly
+                    />
+                  )}
                 </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="private"
+                    checked={isEditing ? editForm.isPrivate : classDetails.isPrivate}
+                    onChange={(e) => isEditing && setEditForm({...editForm, isPrivate: e.target.checked})}
+                    disabled={!isEditing}
+                    className="w-4 h-4 text-purple-600 bg-[#2a2a3a] border border-[#3a3a4a] rounded focus:ring-purple-500"
+                  />
+                  <label htmlFor="private" className="text-sm text-gray-400">
+                    Classe privée (uniquement sur invitation)
+                  </label>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-2">Code d'invitation</label>
-                  <input
-                    type="text"
-                    value={classDetails.inviteCode || 'Aucun'}
-                    className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
-                    readOnly
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={classDetails.inviteCode || 'Aucun'}
+                      className="flex-1 px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                      readOnly
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(classDetails.inviteCode || '');
+                        alert('Code copié dans le presse-papiers !');
+                      }}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    >
+                      Copier
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
+                  <div>
+                    <span className="font-medium">Niveau:</span> {classDetails.level || 'Non défini'}
+                  </div>
+                  <div>
+                    <span className="font-medium">Matière:</span> {classDetails.subject}
+                  </div>
+                  <div>
+                    <span className="font-medium">Élèves actuels:</span> {classDetails.studentCount}
+                  </div>
+                  <div>
+                    <span className="font-medium">Créée le:</span> {new Date(classDetails.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions dangereuses */}
+              <div className="mt-8 pt-6 border-t border-[#3a3a4a]">
+                <h4 className="text-lg font-semibold text-red-400 mb-4">Actions dangereuses</h4>
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-400">
+                    Une fois supprimée, la classe ne pourra pas être récupérée. Tous les élèves seront retirés et les données associées seront perdues.
+                  </p>
+                  <button
+                    onClick={deleteClass}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  >
+                    Supprimer la classe
+                  </button>
                 </div>
               </div>
             </div>
