@@ -83,6 +83,9 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         description: description || null,
+        level: level || null,
+        subject: subject || 'maths', // Maths par défaut
+        maxStudents: maxStudents || 30, // 30 par défaut, 0 = illimité
         isPrivate: isPrivate ?? false,
         inviteCode,
         teacherId: session.user.id,
