@@ -58,7 +58,7 @@ export default function Navigation() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
                     isActive(item.href)
                       ? 'bg-purple-500/20 text-purple-400 border border-primary/30'
                       : 'text-muted-foreground hover:text-foreground hover:bg-border'
@@ -89,21 +89,21 @@ export default function Navigation() {
                   
                   <Link
                     href="/dashboard"
-                    className="flex items-center gap-2 px-3 py-2 bg-border hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-all"
+                    className="flex items-center gap-2 px-3 py-2 bg-border hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors duration-150"
                   >
                     <LayoutDashboard className="w-4 h-4" />
                     <span className="text-sm">Dashboard</span>
                   </Link>
                   <Link
                     href="/profile"
-                    className="flex items-center gap-2 px-3 py-2 bg-border hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-all"
+                    className="flex items-center gap-2 px-3 py-2 bg-border hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors duration-150"
                   >
                     <Settings className="w-4 h-4" />
                     <span className="text-sm">Profil</span>
                   </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
-                    className="flex items-center gap-2 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-all"
+                    className="flex items-center gap-2 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors duration-150"
                   >
                     <LogOut className="w-4 h-4" />
                     <span className="text-sm">Déconnexion</span>
@@ -113,13 +113,13 @@ export default function Navigation() {
                 <div className="flex items-center gap-3">
                   <Link
                     href="/login"
-                    className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-foreground rounded-lg font-medium transition-all"
+                    className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-foreground rounded-lg font-medium transition-colors duration-150"
                   >
                     Connexion
                   </Link>
                   <Link
                     href="/register"
-                    className="px-4 py-2 bg-border hover:bg-muted text-foreground rounded-lg font-medium transition-all"
+                    className="px-4 py-2 bg-border hover:bg-muted text-foreground rounded-lg font-medium transition-colors duration-150"
                   >
                     Inscription
                   </Link>
