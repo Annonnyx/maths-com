@@ -600,9 +600,9 @@ model ClassGroup {
   name        String
   teacherId   String @map("teacher_id")
   description String?
-  level       String?  // 6eme, 5eme, etc.
-  subject     String   @default("maths") // maths, physique, etc.
-  maxStudents Int      @default(30) // 0 = illimité
+  level       String?  @map("level")  // 6eme, 5eme, etc.
+  subject     String   @default("maths") @map("subject") // maths, physique, etc.
+  maxStudents Int      @default(30) @map("maxstudents") // 0 = illimité
   isPrivate   Boolean  @default(false)
   inviteCode  String?  @unique
   createdAt   DateTime @default(now())
