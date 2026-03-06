@@ -87,6 +87,22 @@ export default function ClassDetailsPage() {
 
   const updateClass = async () => {
     try {
+      // Vérifier si la visibilité change
+      const isVisibilityChanging = classDetails.isPrivate !== editForm.isPrivate;
+      
+      if (isVisibilityChanging) {
+        const action = editForm.isPrivate ? 'rendre privée' : 'rendre publique';
+        const consequence = editForm.isPrivate 
+          ? "Seuls les élèves ayant le code d'invitation pourront la rejoindre"
+          : "Tous les élèves pourront la retrouver et la rejoindre";
+        
+        if (!confirm(
+          `Êtes-vous sûr de vouloir ${action} cette classe ?\n\n${consequence}.\n\nCette action affectera la façon dont les élèves peuvent accéder à votre classe.`
+        )) {
+          return;
+        }
+      }
+
       const response = await fetch(`/api/class-groups/${params.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -95,7 +111,13 @@ export default function ClassDetailsPage() {
       if (response.ok) {
         setIsEditing(false);
         loadClassDetails();
-        alert('Classe mise à jour avec succès !');
+        
+        if (isVisibilityChanging) {
+          const newStatus = editForm.isPrivate ? 'privée' : 'publique';
+          alert(`Classe mise à jour avec succès !\n\nVotre classe est maintenant ${newStatus}.`);
+        } else {
+          alert('Classe mise à jour avec succès !');
+        }
       }
     } catch (error) {
       console.error('Error updating class:', error);
@@ -508,18 +530,35 @@ export default function ClassDetailsPage() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="private"
-                    checked={isEditing ? editForm.isPrivate : classDetails.isPrivate}
-                    onChange={(e) => isEditing && setEditForm({...editForm, isPrivate: e.target.checked})}
-                    disabled={!isEditing}
-                    className="w-4 h-4 text-purple-600 bg-[#2a2a3a] border border-[#3a3a4a] rounded focus:ring-purple-500"
-                  />
-                  <label htmlFor="private" className="text-sm text-gray-400">
-                    Classe privée (uniquement sur invitation)
-                  </label>
+                <div className="flex items-center justify-between p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="private"
+                      checked={isEditing ? editForm.isPrivate : classDetails.isPrivate}
+                      onChange={(e) => isEditing && setEditForm({...editForm, isPrivate: e.target.checked})}
+                      disabled={!isEditing}
+                      className="w-4 h-4 text-purple-600 bg-[#2a2a3a] border border-[#3a3a4a] rounded focus:ring-purple-500"
+                    />
+                    <div>
+                      <label htmlFor="private" className="text-sm font-medium text-white">
+                        Classe privée
+                      </label>
+                      <p className="text-xs text-gray-400">
+                        {isEditing ? editForm.isPrivate : classDetails.isPrivate 
+                          ? "Uniquement accessible avec un code d'invitation" 
+                          : "Visible et rejoignable par tous les élèves"
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    (isEditing ? editForm.isPrivate : classDetails.isPrivate)
+                      ? 'bg-red-500/20 text-red-400' 
+                      : 'bg-green-500/20 text-green-400'
+                  }`}>
+                    {(isEditing ? editForm.isPrivate : classDetails.isPrivate) ? 'Privée' : 'Publique'}
+                  </div>
                 </div>
 
                 <div>
