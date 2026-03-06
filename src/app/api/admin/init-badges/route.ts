@@ -71,7 +71,6 @@ export async function POST(req: NextRequest) {
           category: 'special',
           color: '#00C851',
           requirement: 'Atteindre la première place du classement solo',
-          isCustom: false
         }
       });
     } else if (top1Solo.icon !== '🔥') {
@@ -87,13 +86,12 @@ export async function POST(req: NextRequest) {
       top1Multi = await prisma.badge.create({
         data: {
           id: 'top_1_multi',
-          name: 'Top 1 Multi Mondial',
-          description: 'Être classé numéro 1 au classement multijoueur mondial',
+          name: 'Top 1 Multijoueur',
+          description: 'Classé premier du classement multijoueur',
           icon: '🔥',
           category: 'special',
           color: '#ff4444',
           requirement: 'Atteindre la première place du classement multijoueur',
-          isCustom: false
         }
       });
     } else if (top1Multi.icon !== '🔥') {

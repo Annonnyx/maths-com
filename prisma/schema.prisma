@@ -305,8 +305,8 @@ model Badge {
   category    String    // 'rank', 'achievement', 'special', 'custom'
   color       String    @default("#FFD700") // Gold default
   requirement String?   // Description of how to earn
-  isCustom    Boolean  @default(false)
-  isTemporary Boolean  @default(false) // For monthly top 1 badges
+  isTeacher     Boolean  @default(false)
+  isAdmin       Boolean  @default(false) @map("is_admin") // For monthly top 1 badges
   createdById String?   // Admin who created it (for custom badges)
   createdAt   DateTime  @default(now())
   

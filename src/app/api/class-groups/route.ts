@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    console.log('Loading class groups for user:', session.user.id);
+
     const groups = await prisma.classGroup.findMany({
       where: {
         OR: [
@@ -36,10 +38,15 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     });
 
+    console.log('Found groups:', groups.length);
+
     return NextResponse.json({ groups });
   } catch (error) {
     console.error('Error fetching class groups:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
 

@@ -93,7 +93,6 @@ export async function seedAchievements() {
       category: 'special',
       color: '#FFD700',
       requirement: 'Être premier au classement mensuel solo',
-      isTemporary: true,
     }
   });
 
@@ -107,7 +106,6 @@ export async function seedAchievements() {
       category: 'special',
       color: '#FF6B35',
       requirement: 'Être premier au classement mensuel multijoueur',
-      isTemporary: true,
     }
   });
 

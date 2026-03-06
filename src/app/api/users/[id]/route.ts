@@ -61,8 +61,8 @@ export async function GET(
                 category: true,
                 color: true,
                 requirement: true,
-                isCustom: true,
-                isTemporary: true
+                createdById: true,
+                createdAt: true
               }
             }
           }

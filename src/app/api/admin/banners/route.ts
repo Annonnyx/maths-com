@@ -89,11 +89,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Vérifier si Supabase est configuré
-    if (!supabaseUrl || !supabaseServiceKey) {
+    if (!supabaseUrl || !supabaseServiceKey || supabaseUrl === 'https://placeholder.supabase.co') {
       return NextResponse.json({ 
         error: 'Supabase not configured',
-        details: 'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY'
-      }, { status: 500 });
+        message: 'Veuillez configurer NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY dans .env.local'
+      }, { status: 503 });
     }
 
     const formData = await req.formData();

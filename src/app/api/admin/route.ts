@@ -170,7 +170,6 @@ export async function POST(req: NextRequest) {
           category: category || 'custom',
           color: color || '#FFD700',
           requirement,
-          isCustom: true,
           createdById: user?.id
         }
       });

@@ -60,7 +60,6 @@ export async function POST(req: NextRequest) {
           category: 'rank',
           color: badgeInfo.color,
           requirement: `Atteindre le rang ${rank}`,
-          isCustom: false
         }
       });
       createdBadges.push(badge);

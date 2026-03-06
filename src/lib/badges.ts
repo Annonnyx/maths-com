@@ -57,7 +57,6 @@ export async function initializeBadges() {
             category: 'rank',
             color: badge.color,
             requirement: `Atteindre le rang ${rank}`,
-            isCustom: false
           }
         });
         console.log(`Created rank badge: ${badge.name}`);
@@ -80,7 +79,6 @@ export async function initializeBadges() {
             category: badge.category,
             color: badge.color,
             requirement: badge.description,
-            isCustom: false
           }
         });
         console.log(`Created achievement badge: ${badge.name}`);

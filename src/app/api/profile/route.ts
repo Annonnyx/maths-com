@@ -50,8 +50,8 @@ export async function GET(req: NextRequest) {
                   category: true,
                   color: true,
                   requirement: true,
-                  isCustom: true,
-                  isTemporary: true
+                  createdById: true,
+                  createdAt: true
                 }
               }
             }
