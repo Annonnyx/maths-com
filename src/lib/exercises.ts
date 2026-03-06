@@ -815,7 +815,7 @@ function generateLogic(difficulty: number): Exercise {
       return {
         question: `${a} × ? = ${c}`,
         answer: b.toString(),
-        explanation: `${a} × ${b} = ${c}, donc ? = ${c} / ${a} = ${b}`
+        explanation: `Pour trouver le nombre manquant, on divise ${c} par ${a}: ${c} ÷ ${a} = ${b}`
       };
     },
     // Number pattern
