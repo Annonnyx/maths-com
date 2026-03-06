@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Users, Settings, BarChart3, MessageSquare, 
-  BookOpen, Calendar, Award, Target, TrendingUp, Check, X
+  BookOpen, Calendar, Award, Target, TrendingUp, Check, X, Plus
 } from 'lucide-react';
 
 interface ClassDetails {
@@ -43,8 +43,8 @@ export default function ClassDetailsPage() {
   const tabs = [
     { id: 'overview', name: 'Aperçu', icon: BarChart3 },
     { id: 'students', name: 'Élèves', icon: Users },
-    { id: 'requests', name: 'Demandes', icon: Users },
-    { id: 'analytics', name: 'Analytiques', icon: TrendingUp },
+    { id: 'assignments', name: 'Devoirs', icon: BookOpen },
+    { id: 'messages', name: 'Messages', icon: MessageSquare },
     { id: 'settings', name: 'Paramètres', icon: Settings },
   ];
 
@@ -333,54 +333,39 @@ export default function ClassDetailsPage() {
             </div>
           )}
 
-          {activeTab === 'requests' && (
+          {activeTab === 'assignments' && (
             <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-white">Demandes d'adhésion ({joinRequests.length})</h3>
+                <h3 className="text-xl font-semibold text-white">Devoirs et exercices</h3>
+                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Créer un devoir
+                </button>
               </div>
               
-              {joinRequests.length === 0 ? (
-                <div className="text-center py-8">
-                  <Users className="w-12 h-12 mx-auto mb-4 text-gray-600" />
-                  <p className="text-gray-400">Aucune demande d'adhésion en attente.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {joinRequests.map((request) => (
-                    <div key={request.id} className="flex items-center justify-between p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                          <span className="text-yellow-400 font-medium">
-                            {request.user.displayName?.[0] || request.user.username?.[0] || '?'}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-white font-medium">
-                            {request.user.displayName || request.user.username}
-                          </p>
-                          <p className="text-sm text-gray-400">@{request.user.username}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => acceptStudent(request.userId)}
-                          className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-1"
-                        >
-                          <Check className="w-3 h-3" />
-                          Accepter
-                        </button>
-                        <button
-                          onClick={() => rejectStudent(request.userId)}
-                          className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-1"
-                        >
-                          <X className="w-3 h-3" />
-                          Refuser
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="text-center py-8">
+                <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                <p className="text-gray-400 mb-2">Aucun devoir créé pour le moment.</p>
+                <p className="text-sm text-gray-500">Commencez par créer votre premier devoir pour cette classe.</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'messages' && (
+            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-white">Messages de la classe</h3>
+                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2">
+                  <Plus className="w-4 h-4" />
+                  Envoyer un message
+                </button>
+              </div>
+              
+              <div className="text-center py-8">
+                <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                <p className="text-gray-400 mb-2">Aucun message pour le moment.</p>
+                <p className="text-sm text-gray-500">Communiquez avec vos élèves en envoyant des messages à toute la classe.</p>
+              </div>
             </div>
           )}
 
