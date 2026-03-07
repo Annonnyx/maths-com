@@ -114,6 +114,8 @@ export default function ClassDetailsPage() {
   };
 
   const updateClass = async () => {
+    if (!classDetails) return;
+    
     try {
       // Vérifier si la visibilité change
       const isVisibilityChanging = classDetails.isPrivate !== editForm.isPrivate;

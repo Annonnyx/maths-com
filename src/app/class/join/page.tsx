@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { ArrowLeft, Users, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 
-export default function JoinClassPage() {
+function JoinClassContent() {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -163,4 +163,16 @@ export default function JoinClassPage() {
   }
 
   return null;
+}
+
+export default function JoinClassPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+      </div>
+    }>
+      <JoinClassContent />
+    </Suspense>
+  );
 }

@@ -26,7 +26,13 @@ export async function GET(request: NextRequest) {
       const teacherClasses = await prisma.classGroup.findMany({
         where: {
           isPrivate: false,
-          teacher: teacherQuery
+          teacher: {
+            ...(teacherSearch.startsWith('@') 
+              ? { username: teacherSearch.slice(1) }
+              : teacherSearch.startsWith('#')
+              ? { id: teacherSearch.slice(1) }
+              : { displayName: { contains: teacherSearch, mode: 'insensitive' } })
+          }
         },
         include: {
           teacher: {
