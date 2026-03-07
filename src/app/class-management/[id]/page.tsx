@@ -33,6 +33,8 @@ export default function ClassDetailsPage() {
   const [students, setStudents] = useState<any[]>([]);
   const [joinRequests, setJoinRequests] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
@@ -45,14 +47,40 @@ export default function ClassDetailsPage() {
     { id: 'students', name: 'Élèves', icon: Users },
     { id: 'assignments', name: 'Devoirs', icon: BookOpen },
     { id: 'messages', name: 'Messages', icon: MessageSquare },
+    { id: 'analytics', name: 'Analytics', icon: TrendingUp },
     { id: 'settings', name: 'Paramètres', icon: Settings },
   ];
+
+  const loadAnalytics = async () => {
+    if (!params.id) return;
+    
+    setAnalyticsLoading(true);
+    try {
+      const response = await fetch(`/api/class-groups/${params.id}/analytics`);
+      if (response.ok) {
+        const data = await response.json();
+        setAnalyticsData(data);
+      } else {
+        console.error('Failed to load analytics');
+      }
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (params.id) {
       loadClassDetails();
     }
   }, [params.id]);
+
+  useEffect(() => {
+    if (activeTab === 'analytics' && params.id) {
+      loadAnalytics();
+    }
+  }, [activeTab, params.id]);
 
   const loadClassDetails = async () => {
     setIsLoading(true);
@@ -393,38 +421,153 @@ export default function ClassDetailsPage() {
 
           {activeTab === 'analytics' && (
             <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
-              <h3 className="text-xl font-semibold text-white mb-6">Analytiques de la classe</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
-                  <div className="flex items-center justify-between mb-2">
-                    <TrendingUp className="w-6 h-6 text-green-400" />
-                    <span className="text-2xl font-bold text-white">--</span>
-                  </div>
-                  <p className="text-gray-400 text-sm">Progression moyenne</p>
-                </div>
-                
-                <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
-                  <div className="flex items-center justify-between mb-2">
-                    <Target className="w-6 h-6 text-blue-400" />
-                    <span className="text-2xl font-bold text-white">--</span>
-                  </div>
-                  <p className="text-gray-400 text-sm">Taux de réussite</p>
-                </div>
-                
-                <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
-                  <div className="flex items-center justify-between mb-2">
-                    <Calendar className="w-6 h-6 text-purple-400" />
-                    <span className="text-2xl font-bold text-white">--</span>
-                  </div>
-                  <p className="text-gray-400 text-sm">Activité cette semaine</p>
-                </div>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-white">Analytiques de la classe</h3>
+                <button 
+                  onClick={loadAnalytics}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  Actualiser
+                </button>
               </div>
               
-              <div className="text-center py-8">
-                <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                <p className="text-gray-400">Les analytiques détaillées seront bientôt disponibles.</p>
-              </div>
+              {analyticsLoading ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                </div>
+              ) : analyticsData ? (
+                <div className="space-y-8">
+                  {/* Statistiques globales */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                      <div className="flex items-center justify-between mb-2">
+                        <TrendingUp className="w-6 h-6 text-green-400" />
+                        <span className="text-2xl font-bold text-white">
+                          {analyticsData.globalStats.averageScore.toFixed(1)}%
+                        </span>
+                      </div>
+                      <p className="text-gray-400 text-sm">Score moyen</p>
+                    </div>
+                    
+                    <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                      <div className="flex items-center justify-between mb-2">
+                        <Target className="w-6 h-6 text-blue-400" />
+                        <span className="text-2xl font-bold text-white">
+                          {analyticsData.globalStats.accuracy.toFixed(1)}%
+                        </span>
+                      </div>
+                      <p className="text-gray-400 text-sm">Taux de réussite</p>
+                    </div>
+                    
+                    <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                      <div className="flex items-center justify-between mb-2">
+                        <Calendar className="w-6 h-6 text-purple-400" />
+                        <span className="text-2xl font-bold text-white">
+                          {analyticsData.globalStats.totalQuestions}
+                        </span>
+                      </div>
+                      <p className="text-gray-400 text-sm">Total questions</p>
+                    </div>
+                    
+                    <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                      <div className="flex items-center justify-between mb-2">
+                        <Award className="w-6 h-6 text-yellow-400" />
+                        <span className="text-2xl font-bold text-white">
+                          {(analyticsData.globalStats.averageTime / 1000).toFixed(1)}s
+                        </span>
+                      </div>
+                      <p className="text-gray-400 text-sm">Temps moyen</p>
+                    </div>
+                  </div>
+
+                  {/* Performance par matière */}
+                  <div className="bg-[#2a2a3a] rounded-lg border border-[#3a3a4a] p-6">
+                    <h4 className="text-lg font-semibold text-white mb-4">Performance par matière</h4>
+                    <div className="space-y-3">
+                      {analyticsData.subjectPerformance.map((subject: any) => (
+                        <div key={subject.subject} className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                            <span className="text-white capitalize">{subject.subject}</span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-gray-400 text-sm">
+                              {subject.correctAnswers}/{subject.totalQuestions}
+                            </span>
+                            <span className="text-green-400 font-semibold">
+                              {subject.accuracy.toFixed(1)}%
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Top élèves */}
+                  <div className="bg-[#2a2a3a] rounded-lg border border-[#3a3a4a] p-6">
+                    <h4 className="text-lg font-semibold text-white mb-4">Top des élèves</h4>
+                    <div className="space-y-3">
+                      {analyticsData.studentsStats.slice(0, 5).map((student: any, index: number) => (
+                        <div key={student.id} className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                              {index + 1}
+                            </div>
+                            <div>
+                              <p className="text-white font-medium">{student.displayName}</p>
+                              <p className="text-gray-400 text-sm">@{student.username}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-green-400 font-semibold">
+                              {student.averageScore.toFixed(1)}%
+                            </p>
+                            <p className="text-gray-400 text-sm">
+                              {student.totalQuestions} questions
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Évolution temporelle */}
+                  {analyticsData.timeEvolution.length > 0 && (
+                    <div className="bg-[#2a2a3a] rounded-lg border border-[#3a3a4a] p-6">
+                      <h4 className="text-lg font-semibold text-white mb-4">Progression (30 derniers jours)</h4>
+                      <div className="space-y-2">
+                        {analyticsData.timeEvolution.slice(-7).map((day: any) => (
+                          <div key={day.date} className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">
+                              {new Date(day.date).toLocaleDateString('fr-FR', { 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </span>
+                            <div className="flex items-center gap-4">
+                              <span className="text-gray-400">
+                                {day.totalQuestions} q
+                              </span>
+                              <span className="text-green-400">
+                                {day.accuracy.toFixed(1)}%
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                  <p className="text-gray-400 mb-2">Aucune donnée analytique disponible</p>
+                  <p className="text-sm text-gray-500">
+                    Les élèves doivent commencer à répondre à des questions pour voir les analytiques.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
