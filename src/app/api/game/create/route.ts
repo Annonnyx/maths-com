@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     // Générer un code unique à 6 caractères (seulement pour mode groupe)
     let joinCode = null;
     if (gameMode === 'group_quiz') {
-      const generateCode = () => {
+      const generateCode = async () => {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let code = '';
         for (let i = 0; i < 6; i++) {
@@ -40,27 +40,42 @@ export async function POST(req: NextRequest) {
         return code;
       };
 
-      joinCode = generateCode();
-      
-      // Vérifier que le code n'existe pas déjà
       let attempts = 0;
-      while (attempts < 10) {
-        const existingSession = await prisma.$queryRaw<Array<{id: string}>>`
-          SELECT id FROM game_sessions WHERE code = ${joinCode}
-        `;
+      const maxAttempts = 10;
+      
+      while (attempts < maxAttempts) {
+        joinCode = await generateCode();
         
-        if (existingSession.length === 0) {
-          break;
+        // Vérifier si le code existe déjà avec Prisma
+        const existingSession = await prisma.gameSession.findUnique({
+          where: { code: joinCode },
+          select: { id: true }
+        });
+        
+        if (!existingSession) {
+          break; // Code unique trouvé
         }
         
-        joinCode = generateCode();
         attempts++;
       }
 
-      if (attempts >= 10) {
-        return NextResponse.json({ 
-          error: 'Unable to generate unique game code' 
-        }, { status: 500 });
+      if (attempts >= maxAttempts) {
+        // Fallback avec timestamp si pas de code unique trouvé
+        const timestamp = Date.now().toString(36).toUpperCase().slice(-3);
+        const randomPart = Math.random().toString(36).substring(2, 5).toUpperCase();
+        joinCode = `${randomPart}${timestamp}`;
+        
+        // Vérification finale du fallback
+        const existingSession = await prisma.gameSession.findUnique({
+          where: { code: joinCode },
+          select: { id: true }
+        });
+        
+        if (existingSession) {
+          return NextResponse.json({ 
+            error: 'Unable to generate unique game code after multiple attempts' 
+          }, { status: 500 });
+        }
       }
     }
 
