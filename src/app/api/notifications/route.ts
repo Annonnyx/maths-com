@@ -51,14 +51,24 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 });
+    // Si pas de userId, essayer de récupérer l'utilisateur depuis la session
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const { getServerSession } = await import('next-auth/next');
+      const { authOptions } = await import('@/lib/auth');
+      const session = await getServerSession(authOptions);
+      
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'userId requis ou non authentifié' }, { status: 400 });
+      }
+      
+      targetUserId = session.user.id;
     }
 
     let query = supabase
       .from('notifications')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', targetUserId)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -77,7 +87,7 @@ export async function GET(request: NextRequest) {
     const { count: unreadCount } = await supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
+      .eq('user_id', targetUserId)
       .eq('is_read', false);
 
     return NextResponse.json({
@@ -97,8 +107,18 @@ export async function PUT(request: NextRequest) {
   try {
     const { notificationIds, markAllAsRead, userId } = await request.json();
     
-    if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 });
+    // Si pas de userId, essayer de récupérer l'utilisateur depuis la session
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const { getServerSession } = await import('next-auth/next');
+      const { authOptions } = await import('@/lib/auth');
+      const session = await getServerSession(authOptions);
+      
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'userId requis ou non authentifié' }, { status: 400 });
+      }
+      
+      targetUserId = session.user.id;
     }
 
     let query;
@@ -107,13 +127,13 @@ export async function PUT(request: NextRequest) {
       query = supabase
         .from('notifications')
         .update({ is_read: true, updated_at: new Date().toISOString() })
-        .eq('user_id', userId)
+        .eq('user_id', targetUserId)
         .eq('is_read', false);
     } else if (notificationIds && Array.isArray(notificationIds)) {
       query = supabase
         .from('notifications')
         .update({ is_read: true, updated_at: new Date().toISOString() })
-        .eq('user_id', userId)
+        .eq('user_id', targetUserId)
         .in('id', notificationIds);
     } else {
       return NextResponse.json({ error: 'notificationIds ou markAllAsRead requis' }, { status: 400 });
@@ -142,8 +162,18 @@ export async function DELETE(request: NextRequest) {
   try {
     const { notificationIds, deleteAll, userId } = await request.json();
     
-    if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 });
+    // Si pas de userId, essayer de récupérer l'utilisateur depuis la session
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const { getServerSession } = await import('next-auth/next');
+      const { authOptions } = await import('@/lib/auth');
+      const session = await getServerSession(authOptions);
+      
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'userId requis ou non authentifié' }, { status: 400 });
+      }
+      
+      targetUserId = session.user.id;
     }
 
     let query;
@@ -152,12 +182,12 @@ export async function DELETE(request: NextRequest) {
       query = supabase
         .from('notifications')
         .delete()
-        .eq('user_id', userId);
+        .eq('user_id', targetUserId);
     } else if (notificationIds && Array.isArray(notificationIds)) {
       query = supabase
         .from('notifications')
         .delete()
-        .eq('user_id', userId)
+        .eq('user_id', targetUserId)
         .in('id', notificationIds);
     } else {
       return NextResponse.json({ error: 'notificationIds ou deleteAll requis' }, { status: 400 });
