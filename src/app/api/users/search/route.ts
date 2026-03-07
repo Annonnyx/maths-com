@@ -13,26 +13,48 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q');
-    const type = searchParams.get('type') || 'username';
 
-    if (!query || query.length < 2) {
+    if (!query || query.length < 1) {
       return NextResponse.json({ users: [] });
     }
 
     let whereClause: any = {};
+    let searchType = 'username';
 
-    if (type === 'id') {
-      // Search by exact ID
-      whereClause = {
-        id: query
-      };
-    } else {
-      // Search by username (partial match)
+    // Détection automatique du type de recherche
+    if (query.startsWith('@')) {
+      // Recherche par username exact
+      searchType = 'username';
       whereClause = {
         username: {
-          contains: query,
+          equals: query.slice(1),
           mode: 'insensitive'
         }
+      };
+    } else if (query.startsWith('#')) {
+      // Recherche par ID exact
+      searchType = 'id';
+      whereClause = {
+        id: query.slice(1)
+      };
+    } else {
+      // Recherche par displayName ou username partiel
+      searchType = 'display';
+      whereClause = {
+        OR: [
+          {
+            displayName: {
+              startsWith: query,
+              mode: 'insensitive'
+            }
+          },
+          {
+            username: {
+              startsWith: query,
+              mode: 'insensitive'
+            }
+          }
+        ]
       };
     }
 
@@ -49,14 +71,18 @@ export async function GET(req: NextRequest) {
         isTeacher: true,
         createdAt: true
       },
-      take: type === 'id' ? 1 : 20, // Limit results for username search
+      take: 5, // Limiter à 5 résultats maximum
       orderBy: [
-        { soloElo: 'desc' }, // Show high ELO users first
+        { soloElo: 'desc' }, // Montrer les ELO élevés d'abord
         { username: 'asc' }
       ]
     });
 
-    return NextResponse.json({ users });
+    return NextResponse.json({ 
+      users,
+      searchType,
+      query: query
+    });
   } catch (error) {
     console.error('Error searching users:', error);
     return NextResponse.json(

@@ -52,6 +52,16 @@ export default function ClassManagementPage() {
     }
   }, [session?.user?.id]); // Ne dépend que de l'ID utilisateur, pas de l'objet session complet
 
+  useEffect(() => {
+    if (!(session?.user as any)?.isTeacher && session?.user) {
+      const timeoutId = setTimeout(() => {
+        loadPublicClasses(searchQuery);
+      }, 300); // Debounce de 300ms
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchQuery]);
+
   const loadClassData = async () => {
     setIsLoading(true);
     try {
@@ -95,11 +105,23 @@ export default function ClassManagementPage() {
     }
   };
 
-  const loadPublicClasses = async () => {
+  const loadPublicClasses = async (searchQuery?: string) => {
     setIsLoading(true);
     try {
+      // Construire l'URL avec les paramètres de recherche
+      let url = '/api/class-groups/public';
+      const params = new URLSearchParams();
+      
+      if (searchQuery) {
+        params.append('search', searchQuery);
+      }
+      
+      if (params.toString()) {
+        url += '?' + params.toString();
+      }
+
       // Charger les classes publiques depuis l'API
-      const response = await fetch('/api/class-groups/public');
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         const classes = data.groups || [];
@@ -111,8 +133,9 @@ export default function ClassManagementPage() {
           level: group.level,
           subject: group.subject,
           maxStudents: group.maxStudents,
-          studentCount: group._count?.members || 0,
+          studentCount: group.studentCount || 0,
           teacher: group.teacher,
+          inviteCode: group.inviteCode,
           createdAt: group.createdAt
         })));
       } else {

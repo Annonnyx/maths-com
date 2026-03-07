@@ -20,7 +20,12 @@ export async function POST(request: NextRequest) {
 
     // Trouver le groupe avec le code
     const group = await prisma.classGroup.findUnique({
-      where: { inviteCode: inviteCode.toUpperCase() }
+      where: { inviteCode: inviteCode.toUpperCase() },
+      include: {
+        teacher: {
+          select: { id: true, username: true, displayName: true }
+        }
+      }
     });
 
     if (!group) {
@@ -38,15 +43,33 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingMember) {
+      if (existingMember.role === 'pending') {
+        return NextResponse.json({ error: 'Demande déjà en attente' }, { status: 400 });
+      }
       return NextResponse.json({ error: 'Already a member of this group' }, { status: 400 });
     }
 
-    // Rejoindre le groupe
+    // Vérifier que la classe n'est pas pleine
+    const currentMembers = await prisma.classGroupMember.count({
+      where: {
+        groupId: group.id,
+        role: { not: 'pending' }
+      }
+    });
+
+    if (group.maxStudents > 0 && currentMembers >= group.maxStudents) {
+      return NextResponse.json({ error: 'Class is full' }, { status: 400 });
+    }
+
+    // Si la classe est privée, mettre en attente d'approbation
+    // Si la classe est publique, rejoindre directement
+    const role = group.isPrivate ? 'pending' : 'student';
+
     const member = await prisma.classGroupMember.create({
       data: {
         groupId: group.id,
         userId: session.user.id,
-        role: 'student'
+        role
       },
       include: {
         group: {
@@ -66,7 +89,14 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ success: true, member });
+    return NextResponse.json({ 
+      success: true, 
+      member,
+      needsApproval: group.isPrivate,
+      message: group.isPrivate 
+        ? 'Demande envoyée, en attente d\'approbation du professeur'
+        : 'Classe rejointe avec succès'
+    });
   } catch (error) {
     console.error('Error joining class group:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

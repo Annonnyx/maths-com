@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, GraduationCap, Users, BookOpen, Plus, Send } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, GraduationCap, Users, BookOpen, Plus, Send, User } from 'lucide-react';
 import JoinClassSection from './JoinClassSection';
 
 interface StudentViewProps {
@@ -20,25 +20,65 @@ export default function StudentView({
   onClassJoined 
 }: StudentViewProps) {
   const [requestingClass, setRequestingClass] = useState<string | null>(null);
+  const [teacherQuery, setTeacherQuery] = useState('');
+  const [isSearchingTeacher, setIsSearchingTeacher] = useState(false);
+  const [teacherClasses, setTeacherClasses] = useState<any[]>([]);
+  const [searchType, setSearchType] = useState<'class' | 'teacher'>('class');
 
-  const filteredClasses = publicClasses.filter(cls =>
-    cls.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cls.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cls.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cls.level?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Détecter le type de recherche automatiquement
+  useEffect(() => {
+    if (searchQuery.startsWith('@') || searchQuery.startsWith('#')) {
+      setSearchType('teacher');
+      setTeacherQuery(searchQuery);
+    } else {
+      setSearchType('class');
+      setTeacherQuery('');
+    }
+  }, [searchQuery]);
+
+  // Charger les classes du professeur
+  useEffect(() => {
+    if (searchType === 'teacher' && teacherQuery) {
+      loadTeacherClasses();
+    } else {
+      setTeacherClasses([]);
+    }
+  }, [teacherQuery, searchType]);
+
+  const loadTeacherClasses = async () => {
+    if (!teacherQuery.trim()) return;
+    
+    setIsSearchingTeacher(true);
+    try {
+      const response = await fetch(`/api/class-groups/public?teacher=${encodeURIComponent(teacherQuery)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setTeacherClasses(data.groups || []);
+      }
+    } catch (error) {
+      console.error('Error loading teacher classes:', error);
+      setTeacherClasses([]);
+    } finally {
+      setIsSearchingTeacher(false);
+    }
+  };
 
   const requestToJoin = async (classId: string) => {
     setRequestingClass(classId);
     try {
-      const response = await fetch('/api/class-requests', {
+      const response = await fetch('/api/class-groups/join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'request', classId })
+        body: JSON.stringify({ 
+          action: 'request', 
+          classId,
+          inviteCode: '' // Sera géré différemment pour les classes publiques
+        })
       });
       
       if (response.ok) {
-        alert('Demande d\'adhésion envoyée avec succès !');
+        const data = await response.json();
+        alert(data.message || 'Demande d\'adhésion envoyée avec succès !');
         onClassJoined(); // Recharger la liste
       } else {
         const error = await response.json();
@@ -51,128 +91,128 @@ export default function StudentView({
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  const joinPublicClass = async (inviteCode: string) => {
+    setRequestingClass(inviteCode);
+    try {
+      const response = await fetch('/api/class-groups/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteCode })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || 'Classe rejointe avec succès !');
+        onClassJoined();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erreur lors de l\'adhésion');
+      }
+    } catch (error) {
+      alert('Erreur lors de l\'adhésion à la classe');
+    } finally {
+      setRequestingClass(null);
+    }
+  };
+
+  const displayedClasses = searchType === 'teacher' ? teacherClasses : publicClasses;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
-      {/* Header */}
-      <div className="bg-[#1a1a2e] border-b border-[#2a2a3a]">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                <GraduationCap className="w-8 h-8 text-purple-400" />
-                Explorer les classes
-              </h1>
-              <p className="text-gray-400 mt-2">Découvrez et rejoignez des classes publiques</p>
-            </div>
-          </div>
+    <div className="space-y-8">
+      {/* Section Rejoindre par code */}
+      <JoinClassSection onClassJoined={onClassJoined} />
+
+      {/* Section Recherche */}
+      <div className="bg-[#1a1a2a] rounded-xl border border-[#2a2a3a] p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <Search className="w-6 h-6 text-purple-500" />
+          <h2 className="text-xl font-semibold">
+            {searchType === 'teacher' ? 'Rechercher un professeur' : 'Rechercher une classe publique'}
+          </h2>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Section Rejoindre avec code */}
-        <JoinClassSection onClassJoined={onClassJoined} />
-
-        {/* Barre de recherche */}
-        <div className="mt-12 mb-8">
-          <div className="relative max-w-2xl mx-auto">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <div className="space-y-4">
+          {/* Recherche de classes */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Rechercher des classes par nom, matière, niveau..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-[#1a1a2e] border border-[#2a2a3a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 text-lg"
+              placeholder={
+                searchType === 'teacher' 
+                  ? "Entrez @pseudo, #id ou le nom du professeur..." 
+                  : "Rechercher une classe..."
+              }
+              value={searchType === 'teacher' ? teacherQuery : searchQuery}
+              onChange={(e) => {
+                if (searchType === 'teacher') {
+                  setTeacherQuery(e.target.value);
+                } else {
+                  setSearchQuery(e.target.value);
+                }
+              }}
+              className="w-full pl-10 pr-4 py-3 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
             />
           </div>
+
+          {/* Indicateur de recherche */}
+          {searchType === 'teacher' && teacherQuery && (
+            <div className="flex items-center gap-2 text-sm text-purple-400">
+              <User className="w-4 h-4" />
+              <span>Recherche de professeur: {teacherQuery}</span>
+            </div>
+          )}
         </div>
 
-        {/* Résultats de recherche */}
-        {filteredClasses.length === 0 ? (
-          <div className="text-center py-16">
-            <GraduationCap className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-            <h3 className="text-xl font-semibold text-gray-400 mb-2">
-              {searchQuery ? 'Aucune classe trouvée' : 'Aucune classe publique disponible'}
-            </h3>
-            <p className="text-gray-500">
-              {searchQuery 
-                ? 'Essayez d\'autres termes de recherche' 
-                : 'Les professeurs n\'ont pas encore créé de classes publiques'
-              }
-            </p>
+        {/* Résultats */}
+        {isLoading || isSearchingTeacher ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredClasses.map((cls) => (
-              <div key={cls.id} className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] overflow-hidden hover:border-purple-500/50 transition-colors">
-                {/* Header */}
-                <div className="p-6 border-b border-[#2a2a3a]">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                      <BookOpen className="w-6 h-6 text-purple-400" />
-                    </div>
-                    <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">
-                      Publique
-                    </span>
+        ) : displayedClasses.length > 0 ? (
+          <div className="grid gap-4 mt-6">
+            {displayedClasses.map((cls) => (
+              <div key={cls.id} className="bg-[#2a2a3a] rounded-lg p-4 border border-[#3a3a4a]">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-semibold text-white mb-1">{cls.name}</h3>
+                    <p className="text-sm text-gray-400 mb-2">
+                      Professeur: {cls.teacher.displayName}
+                    </p>
+                    {cls.description && (
+                      <p className="text-sm text-gray-300">{cls.description}</p>
+                    )}
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">{cls.name}</h3>
-                  <p className="text-gray-400 mb-4 line-clamp-2">{cls.description || 'Aucune description'}</p>
-                  
-                  <div className="flex items-center gap-4 text-sm text-gray-400">
-                    <span className="flex items-center gap-1">
+                  <div className="text-right">
+                    <div className="flex items-center gap-2 text-sm text-purple-400 mb-2">
                       <Users className="w-4 h-4" />
-                      {cls.studentCount} élèves
-                    </span>
-                    <span>{cls.level || 'Tous niveaux'}</span>
-                    <span>{cls.subject}</span>
+                      <span>{cls.studentCount || 0} élèves</span>
+                    </div>
+                    {cls.level && (
+                      <span className="inline-block px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded">
+                        {cls.level}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* Footer */}
-                <div className="p-4 bg-[#2a2a3a]">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center">
-                        <span className="text-blue-400 text-xs font-bold">
-                          {cls.teacher?.displayName?.[0] || cls.teacher?.username?.[0] || '?'}
-                        </span>
-                      </div>
-                      <span className="text-sm text-gray-400">
-                        {cls.teacher?.displayName || cls.teacher?.username}
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-500">
-                      Max: {cls.maxStudents === 0 ? 'Illimité' : cls.maxStudents}
-                    </span>
-                  </div>
-                  
+                <div className="flex gap-2 mt-4">
                   <button
-                    onClick={() => requestToJoin(cls.id)}
-                    disabled={requestingClass === cls.id}
-                    className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                    onClick={() => joinPublicClass(cls.inviteCode)}
+                    disabled={requestingClass === cls.inviteCode}
+                    className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {requestingClass === cls.id ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Envoi en cours...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Demander à rejoindre
-                      </>
-                    )}
+                    {requestingClass === cls.inviteCode ? 'Rejoindre...' : 'Rejoindre'}
                   </button>
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-400">
+            {searchType === 'teacher' 
+              ? (teacherQuery ? 'Aucune classe trouvée pour ce professeur' : 'Entrez un nom de professeur pour rechercher')
+              : 'Aucune classe publique trouvée'
+            }
           </div>
         )}
       </div>

@@ -76,8 +76,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Group name is required' }, { status: 400 });
     }
 
-    // Générer un code d'invitation unique
-    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    // Générer un code d'invitation unique et plus long
+    const generateInviteCode = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = '';
+      for (let i = 0; i < 10; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      // Format: XXXX-XXXX-XX
+      return `${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 10)}`;
+    };
+    
+    const inviteCode = generateInviteCode();
 
     const group = await prisma.classGroup.create({
       data: {
