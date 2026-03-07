@@ -40,6 +40,8 @@ export default function ClassDetailsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [userClasses, setUserClasses] = useState<any[]>([]);
+  const [userClassesLoading, setUserClassesLoading] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
@@ -49,6 +51,7 @@ export default function ClassDetailsPage() {
 
   const tabs = [
     { id: 'overview', name: 'Aperçu', icon: BarChart3 },
+    { id: 'my-classes', name: 'Mes classes', icon: Users },
     { id: 'view-class', name: 'Voir la classe', icon: Users },
     { id: 'students', name: 'Élèves', icon: Users },
     { id: 'assignments', name: 'Devoirs', icon: BookOpen },
@@ -76,6 +79,25 @@ export default function ClassDetailsPage() {
     }
   };
 
+  const loadUserClasses = async () => {
+    if (!session?.user) return;
+    
+    setUserClassesLoading(true);
+    try {
+      const response = await fetch('/api/class-groups/my-classes');
+      if (response.ok) {
+        const data = await response.json();
+        setUserClasses(data.classes || []);
+      } else {
+        console.error('Failed to load user classes');
+      }
+    } catch (error) {
+      console.error('Error loading user classes:', error);
+    } finally {
+      setUserClassesLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (params.id) {
       loadClassDetails();
@@ -87,6 +109,12 @@ export default function ClassDetailsPage() {
       loadAnalytics();
     }
   }, [activeTab, params.id]);
+
+  useEffect(() => {
+    if (activeTab === 'my-classes') {
+      loadUserClasses();
+    }
+  }, [activeTab, session?.user]);
 
   const loadClassDetails = async () => {
     setIsLoading(true);
@@ -337,6 +365,61 @@ export default function ClassDetailsPage() {
                 <p className="text-gray-400">Progression moyenne</p>
                 <p className="text-sm text-gray-500 mt-1">Données à venir</p>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'my-classes' && (
+            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Mes Classes</h2>
+                <p className="text-gray-400">Toutes les classes dans lesquelles tu es inscrit</p>
+              </div>
+
+              {userClassesLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                  <span className="ml-3 text-gray-400">Chargement de tes classes...</span>
+                </div>
+              ) : userClasses.length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+                  <p className="text-gray-400 mb-4">Tu n'es inscrit dans aucune classe pour le moment.</p>
+                  <div className="text-sm text-gray-500">
+                    Utilise un code d'invitation pour rejoindre une classe.
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {userClasses.map((classItem: any) => (
+                    <div key={classItem.id} className="bg-[#2a2a3a] rounded-lg border border-[#3a3a4a] p-4 hover:border-[#4a4a5a] transition-all">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-lg flex items-center justify-center">
+                            <Users className="w-6 h-6 text-blue-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-white">{classItem.name}</h3>
+                            <p className="text-sm text-gray-400">
+                              Professeur: {classItem.teacher?.displayName || classItem.teacher?.username || 'Inconnu'}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {classItem.studentCount || 0} élèves • Code: {classItem.inviteCode}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/class-management/${classItem.id}`}
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+                          >
+                            Voir
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
