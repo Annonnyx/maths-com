@@ -46,17 +46,15 @@ export function ResponsiveSideAd({ side, className = "" }: ResponsiveSideAdProps
       case 'mobile':
         return 'hidden'; // Pas de pub sur mobile
       case 'tablet':
-        return side === 'right' 
-          ? 'fixed right-3 top-32 z-30' 
-          : 'hidden'; // Seulement à droite sur tablette
+        return 'hidden'; // Plus de pub sur tablette
       case 'desktop':
         return side === 'right'
-          ? 'fixed right-4 top-1/2 -translate-y-1/2 z-30'
-          : 'hidden'; // Seulement à droite sur desktop normal
+          ? 'fixed right-8 bottom-8 z-20' // En bas à droite, beaucoup plus petit
+          : 'hidden'; // Seulement à droite sur desktop
       case 'wide':
-        return side === 'left' 
-          ? 'fixed left-4 top-1/2 -translate-y-1/2 z-30'
-          : 'fixed right-4 top-1/2 -translate-y-1/2 z-30'; // Côtés sur écran large
+        return side === 'right'
+          ? 'fixed right-8 bottom-8 z-20' // En bas à droite
+          : 'hidden'; // Plus que côté droit même sur écran large
       default:
         return 'hidden';
     }
@@ -64,14 +62,12 @@ export function ResponsiveSideAd({ side, className = "" }: ResponsiveSideAdProps
 
   const getAdSize = () => {
     switch (screenSize) {
-      case 'tablet':
-        return 'w-28 transform scale-70';
       case 'desktop':
-        return 'w-32';
+        return 'w-20 h-20'; // Beaucoup plus petit
       case 'wide':
-        return 'w-36';
+        return 'w-24 h-24'; // Un peu plus grand sur écran large
       default:
-        return 'w-32';
+        return 'w-20 h-20';
     }
   };
 
@@ -95,8 +91,8 @@ export function ResponsiveSideAd({ side, className = "" }: ResponsiveSideAdProps
   return (
     <div className={`${getPositionClasses()} ${className}`}>
       <AdWrapper showAdBlockMessage={false}>
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10 hover:bg-white/10 transition-all duration-300 shadow-lg">
-          <div className="text-xs text-foreground mb-2 text-center">Publicité</div>
+        <div className="bg-white/3 backdrop-blur-sm rounded-lg p-2 border border-white/5 hover:bg-white/5 transition-all duration-300">
+          <div className="text-xs text-foreground/50 mb-1 text-center">Pub</div>
           <AdSenseBanner 
             adSlot={getSlotId()}
             adFormat="vertical"
@@ -108,12 +104,9 @@ export function ResponsiveSideAd({ side, className = "" }: ResponsiveSideAdProps
   );
 }
 
-// Composant qui gère les deux côtés
+// Composant qui gère les deux côtés - maintenant seulement une pub
 export function HomePageSideAds() {
   return (
-    <>
-      <ResponsiveSideAd side="left" />
-      <ResponsiveSideAd side="right" />
-    </>
+    <ResponsiveSideAd side="right" />
   );
 }
