@@ -170,6 +170,38 @@ export const authOptions: NextAuthOptions = {
           return false;
         }
       }
+      
+      // Gérer les connexions par email/mot de passe (Credentials)
+      if (account?.provider === 'credentials') {
+        try {
+          console.log('🔍 Recherche utilisateur Credentials...');
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! },
+          });
+
+          if (!existingUser) {
+            console.log('❌ Utilisateur Credentials non trouvé');
+            return false;
+          }
+          
+          console.log('👤 Utilisateur Credentials trouvé:', existingUser.id);
+          (user as any).id = existingUser.id;
+          (user as any).username = existingUser.username;
+          (user as any).displayName = existingUser.displayName;
+          (user as any).soloElo = existingUser.soloElo;
+          (user as any).soloRankClass = existingUser.soloRankClass;
+          (user as any).multiplayerElo = existingUser.multiplayerElo;
+          (user as any).multiplayerRankClass = existingUser.multiplayerRankClass;
+          (user as any).hasCompletedOnboarding = existingUser.hasCompletedOnboarding;
+          (user as any).isTeacher = existingUser.isTeacher;
+          (user as any).isAdmin = existingUser.isAdmin;
+          return true;
+        } catch (error) {
+          console.error('❌ Credentials sign in error:', error);
+          return false;
+        }
+      }
+      
       return true;
     },
     async jwt({ token, user, account }: any) {

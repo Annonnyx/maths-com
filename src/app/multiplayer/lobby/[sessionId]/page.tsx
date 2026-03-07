@@ -59,7 +59,7 @@ export default function GameLobbyPage() {
   const [isHost, setIsHost] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hostParticipating, setHostParticipating] = useState(true);
+  const [hostParticipating, setHostParticipating] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
 
   const supabase = createClient(

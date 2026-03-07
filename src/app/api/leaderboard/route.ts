@@ -6,10 +6,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
@@ -19,28 +16,27 @@ export async function GET(req: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    // Get current user
-    const currentUser = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: {
-        id: true,
-        username: true,
-        displayName: true,
-        // SOLO Ranking
-        soloElo: true,
-        soloRankClass: true,
-        soloBestElo: true,
-        soloBestRankClass: true,
-        // MULTIPLAYER Ranking
-        multiplayerElo: true,
-        multiplayerRankClass: true,
-        multiplayerBestElo: true,
-        multiplayerBestRankClass: true,
-      }
-    });
-
-    if (!currentUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    // Get current user if logged in
+    let currentUser = null;
+    if (session?.user?.email) {
+      currentUser = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          // SOLO Ranking
+          soloElo: true,
+          soloRankClass: true,
+          soloBestElo: true,
+          soloBestRankClass: true,
+          // MULTIPLAYER Ranking
+          multiplayerElo: true,
+          multiplayerRankClass: true,
+          multiplayerBestElo: true,
+          multiplayerBestRankClass: true,
+        }
+      });
     }
 
     // Build filters
@@ -57,6 +53,17 @@ export async function GET(req: NextRequest) {
 
     let friendsFilter = {};
     if (scope === 'friends') {
+      if (!currentUser) {
+        // Return empty leaderboard for guests trying to view friends
+        return NextResponse.json({
+          mode,
+          leaderboard: [],
+          pagination: { page, limit, total: 0, totalPages: 0 },
+          userRank: null,
+          currentUser: null
+        });
+      }
+
       // Get user's friends
       const friendships = await prisma.friendship.findMany({
         where: {
@@ -150,17 +157,19 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    // Get current user's rank among friends (temporairement désactivé)
+    // Get current user's rank among friends
     let userRank = null;
-    const userCount = await prisma.user.count({
-      where: {
-        ...dateFilter,
-        ...friendsFilter,
-        soloElo: { gt: currentUser.soloElo }
-      }
-    });
+    if (currentUser) {
+      const userCount = await prisma.user.count({
+        where: {
+          ...dateFilter,
+          ...friendsFilter,
+          soloElo: { gt: currentUser.soloElo }
+        }
+      });
 
-    userRank = userCount + 1;
+      userRank = userCount + 1;
+    }
 
     return NextResponse.json({
       leaderboard: leaderboardWithStats,
@@ -171,7 +180,7 @@ export async function GET(req: NextRequest) {
         totalPages: Math.ceil(total / limit)
       },
       userRank,
-      currentUser: {
+      currentUser: currentUser ? {
         id: currentUser.id,
         username: currentUser.username,
         displayName: currentUser.displayName,
@@ -180,7 +189,7 @@ export async function GET(req: NextRequest) {
           currentRank: currentUser.soloRankClass,
           totalGames: 0 // Pas de statistics dans le select
         }
-      }
+      } : null
     });
 
   } catch (error) {

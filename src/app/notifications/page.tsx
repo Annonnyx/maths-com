@@ -385,7 +385,23 @@ export default function NotificationsPage() {
                         })}
                       </span>
                       
-                      {getNotificationLink(notificationItem) !== '/notifications' && (
+                      {notificationItem.type === 'challenge' && notificationItem.metadata?.challengeId ? (
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/multiplayer/game/${notificationItem.metadata.challengeId}`}
+                            onClick={() => handleMarkAsRead(notification.id)}
+                            className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors font-medium"
+                          >
+                            Accepter
+                          </Link>
+                          <button
+                            onClick={() => handleMarkAsRead(notification.id)}
+                            className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg transition-colors font-medium"
+                          >
+                            Refuser
+                          </button>
+                        </div>
+                      ) : getNotificationLink(notificationItem) !== '/notifications' ? (
                         <Link
                           href={getNotificationLink(notificationItem)}
                           onClick={() => handleMarkAsRead(notification.id)}
@@ -393,7 +409,7 @@ export default function NotificationsPage() {
                         >
                           Voir →
                         </Link>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </div>
