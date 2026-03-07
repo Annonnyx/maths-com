@@ -21,12 +21,11 @@ export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const { profile, isLoading, error } = useUserProfile();
-  const [activeTab, setActiveTab] = useState<'overview' | 'stats'>('overview');
   const [showOnboarding, setShowOnboarding] = useState(false);
   
   // Stats state
   const [statsPeriod, setStatsPeriod] = useState<'hour' | 'day' | 'week' | 'month' | 'year'>('week');
-  const [statsData, setStatsData] = useState<any>(null);
+  const [showAdvancedStats, setShowAdvancedStats] = useState(false);
 
   // Check if user needs onboarding
   useEffect(() => {
@@ -138,220 +137,217 @@ export default function DashboardPage() {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Tabs Navigation */}
-        <div className="flex gap-2 mb-6 bg-card rounded-xl p-1 overflow-x-auto">
-          {[
-            { id: 'overview' as const, label: 'Aperçu', icon: BarChart3 },
-            { id: 'stats' as const, label: 'Statistiques', icon: TrendingUp }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
-                activeTab === tab.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              <span className="hidden md:inline">{tab.label}</span>
-            </button>
-          ))}
-        </div>
+        {/* Welcome Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className="text-3xl font-bold mb-2">Bonjour, {user.username || user.displayName || 'Mathématicien'} ! 👋</h1>
+          <p className="text-muted-foreground">Prêt à améliorer tes capacités de calcul mental ?</p>
+        </motion.div>
 
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <>
-            {/* Welcome Section */}
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+        >
+          <Link
+            href="/test"
+            className="p-6 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-2xl border border-indigo-500/30 hover:border-indigo-500/50 transition-all group"
+          >
+            <Zap className="w-8 h-8 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-semibold">Test d'évaluation</h3>
+            <p className="text-sm text-muted-foreground">Teste ton niveau</p>
+          </Link>
+          
+          <Link
+            href="/practice"
+            className="p-6 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-2xl border border-green-500/30 hover:border-green-500/50 transition-all group"
+          >
+            <Target className="w-8 h-8 text-green-400 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-semibold">Entraînement</h3>
+            <p className="text-sm text-muted-foreground">Libre</p>
+          </Link>
+          
+          <Link
+            href="/multiplayer"
+            className="p-6 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-2xl border border-purple-500/30 hover:border-purple-500/50 transition-all group"
+          >
+            <Users className="w-8 h-8 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-semibold">Multijoueur</h3>
+            <p className="text-sm text-muted-foreground">Joueurs en ligne</p>
+          </Link>
+          
+          <Link
+            href="/friends"
+            className="p-6 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-2xl border border-blue-500/30 hover:border-blue-500/50 transition-all group"
+          >
+            <MessageCircle className="w-8 h-8 text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
+            <h3 className="font-semibold">Amis</h3>
+            <p className="text-sm text-muted-foreground">Gérer</p>
+          </Link>
+        </motion.div>
+
+        {/* Main Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Stats */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Rank Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
+              transition={{ delay: 0.2 }}
+              className={`p-6 rounded-2xl border ${getRankColor(user.soloRankClass)}`}
             >
-              <h1 className="text-3xl font-bold mb-2">Bonjour, {user.username || user.displayName || 'Mathématicien'} ! 👋</h1>
-              <p className="text-muted-foreground">Prêt à améliorer tes capacités de calcul mental ?</p>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold mb-1">Classe actuelle</h2>
+                  <p className="text-muted-foreground">Progresse pour débloquer de nouvelles opérations</p>
+                </div>
+                <div className="text-4xl font-bold">{user.soloRankClass}</div>
+              </div>
+              
+              {/* Progress to next rank */}
+              <div className="mb-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span>{user.soloElo} Elo</span>
+                  <span>Prochain rang: {(() => {
+                    const currentRankIndex = RANK_CLASSES.indexOf(user.soloRankClass as any);
+                    const nextRank = currentRankIndex < RANK_CLASSES.length - 1 ? RANK_CLASSES[currentRankIndex + 1] : null;
+                    return nextRank || 'Max';
+                  })()}</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                  <div 
+                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
+                    style={{ width: `${(() => {
+                      const rankClass = user.soloRankClass as RankClass;
+                      const threshold = RANK_THRESHOLDS[rankClass];
+                      const progress = Math.min(100, Math.max(0, ((user.soloElo - Number(threshold || 0)) / 100) * 100));
+                      return `${progress}%`;
+                    })()}` 
+                    }}
+                  />
+                </div>
+              </div>
             </motion.div>
 
-            {/* Quick Actions */}
+            {/* Stats Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-            >
-              <Link
-                href="/test"
-                className="p-6 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-2xl border border-indigo-500/30 hover:border-indigo-500/50 transition-all group"
-              >
-                <Zap className="w-8 h-8 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="font-semibold">Test d'évaluation</h3>
-                <p className="text-sm text-muted-foreground">Teste ton niveau</p>
-              </Link>
-              
-              <Link
-                href="/practice"
-                className="p-6 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-2xl border border-green-500/30 hover:border-green-500/50 transition-all group"
-              >
-                <Target className="w-8 h-8 text-green-400 mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="font-semibold">Entraînement</h3>
-                <p className="text-sm text-muted-foreground">Libre</p>
-              </Link>
-              
-              <Link
-                href="/multiplayer"
-                className="p-6 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-2xl border border-purple-500/30 hover:border-purple-500/50 transition-all group"
-              >
-                <Users className="w-8 h-8 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="font-semibold">Multijoueur</h3>
-                <p className="text-sm text-muted-foreground">Joueurs en ligne</p>
-              </Link>
-              
-              <Link
-                href="/friends"
-                className="p-6 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-2xl border border-blue-500/30 hover:border-blue-500/50 transition-all group"
-              >
-                <MessageCircle className="w-8 h-8 text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="font-semibold">Amis</h3>
-                <p className="text-sm text-muted-foreground">Gérer</p>
-              </Link>
-            </motion.div>
-
-            {/* Main Grid */}
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Left Column - Stats */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Rank Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className={`p-6 rounded-2xl border ${getRankColor(user.soloRankClass)}`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-2xl font-bold mb-1">Classe actuelle</h2>
-                      <p className="text-muted-foreground">Progresse pour débloquer de nouvelles opérations</p>
-                    </div>
-                    <div className="text-4xl font-bold">{user.soloRankClass}</div>
-                  </div>
-                  
-                  {/* Progress to next rank */}
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>{user.soloElo} Elo</span>
-                      <span>Prochain rang: {(() => {
-                        const currentRankIndex = RANK_CLASSES.indexOf(user.soloRankClass as any);
-                        const nextRank = currentRankIndex < RANK_CLASSES.length - 1 ? RANK_CLASSES[currentRankIndex + 1] : null;
-                        return nextRank || 'Max';
-                      })()}</span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-                      <div 
-                        className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
-                        style={{ width: `${(() => {
-                          const rankClass = user.soloRankClass as RankClass;
-                          const threshold = RANK_THRESHOLDS[rankClass];
-                          const progress = Math.min(100, Math.max(0, ((user.soloElo - Number(threshold || 0)) / 100) * 100));
-                          return `${progress}%`;
-                        })()}` 
-                        }}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-
-                {/* Stats Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="p-6 bg-[#12121a] rounded-2xl border border-border"
-                >
-                  <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Calculator className="w-5 h-5 text-indigo-400" />
-                    <span className="text-muted-foreground">Statistiques</span>
-                  </h2>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-indigo-400" />
-                        <span className="text-muted-foreground">Tests complétés</span>
-                      </div>
-                      <span className="font-bold">{stats?.totalTests || 0}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Target className="w-5 h-5 text-green-400" />
-                        <span className="text-muted-foreground">Taux de réussite</span>
-                      </div>
-                      <span className="font-bold">
-                        {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-cyan-400" />
-                        <span className="text-muted-foreground">Temps moyen</span>
-                      </div>
-                      <span className="font-bold">{stats ? Math.round(stats.averageTime) : 0}s</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5 text-orange-400" />
-                        <span className="text-muted-foreground">Meilleure série</span>
-                      </div>
-                      <span className="font-bold">{user.soloBestStreak} 🔥</span>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                {/* Ad Sidebar */}
-                <AdUnit type="sidebar" className="mb-6 transform scale-75 opacity-70" />
-                
-                {/* Weak Points */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="p-6 bg-[#12121a] rounded-2xl border border-border"
-                >
-                  <h2 className="text-xl font-bold mb-4">Points à améliorer</h2>
-                  <div className="space-y-2">
-                    {['division', 'power', 'racine', 'factorisation'].slice(0, 2).map((point) => (
-                      <div key={point} className="flex items-center gap-2 text-orange-400">
-                        <Target className="w-4 h-4" />
-                        <span className="capitalize">{point}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <Link
-                    href="/practice"
-                    className="mt-4 block text-center px-4 py-2 bg-orange-500/20 text-orange-400 rounded-lg hover:bg-orange-500/30 transition-all"
-                  >
-                    S&apos;entraîner
-                  </Link>
-                </motion.div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {activeTab === 'stats' && (
-          <div className="space-y-6">
-            {/* Stats Period Selector */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="p-6 bg-card rounded-2xl border border-border"
+              transition={{ delay: 0.3 }}
+              className="p-6 bg-[#12121a] rounded-2xl border border-border"
             >
               <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-indigo-400" />
+                <span className="text-muted-foreground">Statistiques</span>
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-indigo-400" />
+                    <span className="text-muted-foreground">Tests complétés</span>
+                  </div>
+                  <span className="font-bold">{stats?.totalTests || 0}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-green-400" />
+                    <span className="text-muted-foreground">Taux de réussite</span>
+                  </div>
+                  <span className="font-bold">
+                    {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-cyan-400" />
+                    <span className="text-muted-foreground">Temps moyen</span>
+                  </div>
+                  <span className="font-bold">{stats ? Math.round(stats.averageTime) : 0}s</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-orange-400" />
+                    <span className="text-muted-foreground">Meilleure série</span>
+                  </div>
+                  <span className="font-bold">{user.soloBestStreak} 🔥</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            {/* Ad Sidebar */}
+            <AdUnit type="sidebar" className="mb-6 transform scale-75 opacity-70" />
+            
+            {/* Weak Points */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="p-6 bg-[#12121a] rounded-2xl border border-border"
+            >
+              <h2 className="text-xl font-bold mb-4">Points à améliorer</h2>
+              <div className="space-y-2">
+                {['division', 'power', 'racine', 'factorisation'].slice(0, 2).map((point) => (
+                  <div key={point} className="flex items-center gap-2 text-orange-400">
+                    <Target className="w-4 h-4" />
+                    <span className="capitalize">{point}</span>
+                  </div>
+                ))}
+              </div>
+              <Link
+                href="/practice"
+                className="mt-4 block text-center px-4 py-2 bg-orange-500/20 text-orange-400 rounded-lg hover:bg-orange-500/30 transition-all"
+              >
+                S&apos;entraîner
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Advanced Stats Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="mt-12"
+        >
+          {/* Toggle Button */}
+          <div className="flex items-center justify-center mb-6">
+            <button
+              onClick={() => setShowAdvancedStats(!showAdvancedStats)}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500/20 to-purple-600/20 rounded-xl border border-indigo-500/30 hover:border-indigo-500/50 transition-all group"
+            >
+              <BarChart3 className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
+              <span className="font-semibold">
+                {showAdvancedStats ? 'Masquer' : 'Voir'} les statistiques avancées
+              </span>
+              <ChevronRight className={`w-4 h-4 text-indigo-400 transition-transform ${showAdvancedStats ? 'rotate-90' : ''}`} />
+            </button>
+          </div>
+
+          {/* Advanced Stats Content */}
+          {showAdvancedStats && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              transition={{ duration: 0.3 }}
+              className="bg-[#1a1a2e] rounded-2xl border border-[#2a2a3a] p-6"
+            >
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                 <BarChart3 className="w-6 h-6 text-indigo-400" />
                 Statistiques avancées
               </h2>
-              <div className="flex gap-2 mb-4 flex-wrap">
+              
+              {/* Stats Period Selector */}
+              <div className="flex gap-2 mb-6 flex-wrap justify-center">
                 {[
                   { id: 'hour', label: 'Heure', icon: Clock },
                   { id: 'day', label: 'Jour', icon: Calendar },
@@ -373,66 +369,76 @@ export default function DashboardPage() {
                   </button>
                 ))}
               </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="p-6 bg-[#2a2a3a] rounded-xl border border-[#3a3a4a]"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <Trophy className="w-6 h-6 text-yellow-400" />
+                    <h3 className="text-lg font-semibold text-white">Évolution ELO</h3>
+                  </div>
+                  <div className="text-3xl font-bold text-primary">+125</div>
+                  <div className="text-sm text-gray-400">Cette {statsPeriod}</div>
+                  <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
+                    <Activity className="w-8 h-8 text-gray-500" />
+                    <span className="text-sm text-gray-500">Graphique à venir</span>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="p-6 bg-[#2a2a3a] rounded-xl border border-[#3a3a4a]"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <Target className="w-6 h-6 text-green-400" />
+                    <h3 className="text-lg font-semibold text-white">Précision</h3>
+                  </div>
+                  <div className="text-3xl font-bold text-green-400">87.5%</div>
+                  <div className="text-sm text-gray-400">Cette {statsPeriod}</div>
+                  <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
+                    <Activity className="w-8 h-8 text-gray-500" />
+                    <span className="text-sm text-gray-500">Graphique à venir</span>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="p-6 bg-[#2a2a3a] rounded-xl border border-[#3a3a4a]"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <Star className="w-6 h-6 text-purple-400" />
+                    <h3 className="text-lg font-semibold text-white">Niveau moyen</h3>
+                  </div>
+                  <div className="text-3xl font-bold text-purple-400">4.2</div>
+                  <div className="text-sm text-gray-400">Cette {statsPeriod}</div>
+                  <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
+                    <Activity className="w-8 h-8 text-gray-500" />
+                    <span className="text-sm text-gray-500">Graphique à venir</span>
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Future Expansion Note */}
+              <div className="mt-8 p-4 bg-gradient-to-r from-blue-500/10 to-purple-600/10 rounded-xl border border-blue-500/20">
+                <div className="flex items-center gap-3 text-blue-400">
+                  <Star className="w-5 h-5" />
+                  <span className="text-sm font-medium">
+                    Cette section sera bientôt enrichie avec des graphiques interactifs et des analyses détaillées !
+                  </span>
+                </div>
+              </div>
             </motion.div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="p-6 bg-card rounded-2xl border border-border"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <Trophy className="w-6 h-6 text-yellow-400" />
-                  <h3 className="text-lg font-semibold">Évolution ELO</h3>
-                </div>
-                <div className="text-3xl font-bold text-primary">+125</div>
-                <div className="text-sm text-muted-foreground">Cette {statsPeriod}</div>
-                <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
-                  <Activity className="w-8 h-8 text-muted-foreground" />
-                  <span className="text-sm">Graphique à venir</span>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="p-6 bg-card rounded-2xl border border-border"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <Target className="w-6 h-6 text-green-400" />
-                  <h3 className="text-lg font-semibold">Précision</h3>
-                </div>
-                <div className="text-3xl font-bold text-green-400">87.5%</div>
-                <div className="text-sm text-muted-foreground">Cette {statsPeriod}</div>
-                <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
-                  <Activity className="w-8 h-8 text-muted-foreground" />
-                  <span className="text-sm">Graphique à venir</span>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="p-6 bg-card rounded-2xl border border-border"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <Star className="w-6 h-6 text-purple-400" />
-                  <h3 className="text-lg font-semibold">Niveau moyen</h3>
-                </div>
-                <div className="text-3xl font-bold text-purple-400">4.2</div>
-                <div className="text-sm text-muted-foreground">Cette {statsPeriod}</div>
-                <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
-                  <Activity className="w-8 h-8 text-muted-foreground" />
-                  <span className="text-sm">Graphique à venir</span>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        )}
+          )}
+        </motion.div>
       </main>
 
       {/* Footer Ad */}
