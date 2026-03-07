@@ -46,14 +46,20 @@ export async function POST(req: NextRequest) {
       while (attempts < maxAttempts) {
         joinCode = await generateCode();
         
-        // Vérifier si le code existe déjà avec Prisma
-        const existingSession = await prisma.gameSession.findUnique({
-          where: { code: joinCode },
+        // Vérifier si le code existe déjà dans les 24 dernières heures
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const existingSession = await prisma.gameSession.findFirst({
+          where: {
+            code: joinCode,
+            createdAt: {
+              gte: twentyFourHoursAgo
+            }
+          },
           select: { id: true }
         });
         
         if (!existingSession) {
-          break; // Code unique trouvé
+          break; // Code unique ou expiré trouvé
         }
         
         attempts++;
@@ -66,8 +72,14 @@ export async function POST(req: NextRequest) {
         joinCode = `${randomPart}${timestamp}`;
         
         // Vérification finale du fallback
-        const existingSession = await prisma.gameSession.findUnique({
-          where: { code: joinCode },
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const existingSession = await prisma.gameSession.findFirst({
+          where: {
+            code: joinCode,
+            createdAt: {
+              gte: twentyFourHoursAgo
+            }
+          },
           select: { id: true }
         });
         
