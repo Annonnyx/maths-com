@@ -44,6 +44,7 @@ export default function ClassDetailsPage() {
 
   const tabs = [
     { id: 'overview', name: 'Aperçu', icon: BarChart3 },
+    { id: 'view-class', name: 'Voir la classe', icon: Users },
     { id: 'students', name: 'Élèves', icon: Users },
     { id: 'assignments', name: 'Devoirs', icon: BookOpen },
     { id: 'messages', name: 'Messages', icon: MessageSquare },
@@ -330,6 +331,84 @@ export default function ClassDetailsPage() {
                 </div>
                 <p className="text-gray-400">Progression moyenne</p>
                 <p className="text-sm text-gray-500 mt-1">Données à venir</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'view-class' && (
+            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Vue Élève</h2>
+                <p className="text-gray-400">Tu consultes cette classe en tant qu'élève</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Users className="w-6 h-6 text-blue-400" />
+                    <h3 className="text-lg font-semibold text-white">Informations</h3>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Nom de la classe</span>
+                      <span className="text-white font-medium">{classDetails.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Professeur</span>
+                      <span className="text-white font-medium">{classDetails.teacher?.displayName || classDetails.teacher?.username}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Nombre d'élèves</span>
+                      <span className="text-white font-medium">{students.length}/{classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Code d'invitation</span>
+                      <span className="text-white font-mono">{classDetails.inviteCode}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                  <div className="flex items-center gap-3 mb-3">
+                    <BookOpen className="w-6 h-6 text-green-400" />
+                    <h3 className="text-lg font-semibold text-white">Devoirs</h3>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Devoirs actifs</span>
+                      <span className="text-white font-medium">0</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Devoirs complétés</span>
+                      <span className="text-white font-medium">0</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Moyenne</span>
+                      <span className="text-white font-medium">-</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Trophy className="w-6 h-6 text-yellow-400" />
+                    <h3 className="text-lg font-semibold text-white">Classement</h3>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Ton rang</span>
+                      <span className="text-white font-medium">-</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Points</span>
+                      <span className="text-white font-medium">0</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Participation</span>
+                      <span className="text-white font-medium">0%</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}

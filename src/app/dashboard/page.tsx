@@ -11,7 +11,7 @@ import {
   Trophy, Target, Clock, TrendingUp, BookOpen, 
   Calculator, ChevronRight, Award, BarChart3,
   Zap, Star, History, Users, MessageCircle, Medal,
-  GraduationCap
+  GraduationCap, Calendar, BarChart, Activity
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS, RankClass } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
@@ -21,8 +21,12 @@ export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const { profile, isLoading, error } = useUserProfile();
-  const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'history' | 'class'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'stats'>('overview');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  // Stats state
+  const [statsPeriod, setStatsPeriod] = useState<'hour' | 'day' | 'week' | 'month' | 'year'>('week');
+  const [statsData, setStatsData] = useState<any>(null);
 
   // Check if user needs onboarding
   useEffect(() => {
@@ -160,15 +164,39 @@ export default function DashboardPage() {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold mb-2">Bonjour, {user.username || user.displayName || 'Mathématicien'} ! 👋</h1>
-          <p className="text-muted-foreground">Prêt à améliorer tes capacités de calcul mental ?</p>
-        </motion.div>
+        {/* Tabs Navigation */}
+        <div className="flex gap-2 mb-6 bg-card rounded-xl p-1 overflow-x-auto">
+          {[
+            { id: 'overview' as const, label: 'Aperçu', icon: BarChart3 },
+            { id: 'stats' as const, label: 'Statistiques', icon: TrendingUp }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span className="hidden md:inline">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <>
+            {/* Welcome Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <h1 className="text-3xl font-bold mb-2">Bonjour, {user.username || user.displayName || 'Mathématicien'} ! 👋</h1>
+              <p className="text-muted-foreground">Prêt à améliorer tes capacités de calcul mental ?</p>
+            </motion.div>
 
         {/* Quick Actions */}
         <motion.div
@@ -522,7 +550,102 @@ export default function DashboardPage() {
               </Link>
             </motion.div>
           </div>
-        </div>
+        )}
+        )}
+        {activeTab === 'stats' && (
+          <div className="space-y-6">
+            {/* Stats Period Selector */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-6 bg-card rounded-2xl border border-border"
+            >
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <BarChart className="w-6 h-6 text-indigo-400" />
+                Statistiques avancées
+              </h2>
+              <div className="flex gap-2 mb-4">
+                {[
+                  { id: 'hour', label: 'Heure', icon: Clock },
+                  { id: 'day', label: 'Jour', icon: Calendar },
+                  { id: 'week', label: 'Semaine', icon: Calendar },
+                  { id: 'month', label: 'Mois', icon: Calendar },
+                  { id: 'year', label: 'Année', icon: Calendar }
+                ].map(period => (
+                  <button
+                    key={period.id}
+                    onClick={() => setStatsPeriod(period.id as any)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      statsPeriod === period.id
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    }`}
+                  >
+                    <period.icon className="w-4 h-4 mr-2" />
+                    {period.label}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="p-6 bg-card rounded-2xl border border-border"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <Trophy className="w-6 h-6 text-yellow-400" />
+                  <h3 className="text-lg font-semibold">Évolution ELO</h3>
+                </div>
+                <div className="text-3xl font-bold text-primary">+125</div>
+                <div className="text-sm text-muted-foreground">Cette {statsPeriod}</div>
+                <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
+                  <Activity className="w-8 h-8 text-muted-foreground" />
+                  <span className="text-sm">Graphique à venir</span>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="p-6 bg-card rounded-2xl border border-border"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <Target className="w-6 h-6 text-green-400" />
+                  <h3 className="text-lg font-semibold">Précision</h3>
+                </div>
+                <div className="text-3xl font-bold text-green-400">87.5%</div>
+                <div className="text-sm text-muted-foreground">Cette {statsPeriod}</div>
+                <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
+                  <Activity className="w-8 h-8 text-muted-foreground" />
+                  <span className="text-sm">Graphique à venir</span>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="p-6 bg-card rounded-2xl border border-border"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <Star className="w-6 h-6 text-purple-400" />
+                  <h3 className="text-lg font-semibold">Niveau moyen</h3>
+                </div>
+                <div className="text-3xl font-bold text-purple-400">4.2</div>
+                <div className="text-sm text-muted-foreground">Cette {statsPeriod}</div>
+                <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
+                  <Activity className="w-8 h-8 text-muted-foreground" />
+                  <span className="text-sm">Graphique à venir</span>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Footer Ad */}
