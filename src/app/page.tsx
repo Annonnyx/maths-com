@@ -180,9 +180,6 @@ export default function Home() {
         <FAQAndReporting />
       </section>
 
-      {/* Responsive Side Ads - Desktop/Tablet Only */}
-      <HomePageSideAds />
-
       <Footer />
     </div>
   );
