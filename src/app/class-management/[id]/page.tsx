@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Users, Settings, BarChart3, MessageSquare, 
-  BookOpen, Calendar, Award, Target, TrendingUp, Check, X, Plus
+  BookOpen, Calendar, Award, Target, TrendingUp, Check, X, Plus, Trophy
 } from 'lucide-react';
 
 interface ClassDetails {
@@ -21,6 +21,11 @@ interface ClassDetails {
   studentCount: number;
   createdAt: string;
   inviteCode?: string;
+  teacher?: {
+    id: string;
+    username: string;
+    displayName?: string;
+  };
 }
 
 export default function ClassDetailsPage() {
@@ -355,7 +360,7 @@ export default function ClassDetailsPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Professeur</span>
-                      <span className="text-white font-medium">{classDetails.teacher?.displayName || classDetails.teacher?.username}</span>
+                      <span className="text-white font-medium">{classDetails.teacher?.displayName || classDetails.teacher?.username || 'Inconnu'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Nombre d'élèves</span>
