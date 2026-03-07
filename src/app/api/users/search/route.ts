@@ -14,7 +14,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q');
 
-    if (!query || query.length < 1) {
+    console.log('Search API - Query:', query, 'User:', session.user.username);
+
+    if (!query || query.length < 2) {
+      console.log('Search API - Query too short or empty');
       return NextResponse.json({ users: [] });
     }
 
@@ -71,12 +74,14 @@ export async function GET(req: NextRequest) {
         isTeacher: true,
         createdAt: true
       },
-      take: 5, // Limiter à 5 résultats maximum
+      take: 20, // Augmenté à 20 résultats pour plus de choix
       orderBy: [
         { soloElo: 'desc' }, // Montrer les ELO élevés d'abord
         { username: 'asc' }
       ]
     });
+
+    console.log('Search API - Found users:', users.length, 'for query:', query);
 
     return NextResponse.json({ 
       users,
