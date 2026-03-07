@@ -47,6 +47,21 @@ export default function FriendsPage() {
     }
   }, [session]);
 
+  // Recherche automatique à chaque frappe
+  useEffect(() => {
+    if (searchQuery.trim().length >= 2) {
+      const timer = setTimeout(() => {
+        searchUsers();
+      }, 300); // Délai de 300ms pour éviter trop de requêtes
+
+      return () => clearTimeout(timer);
+    } else {
+      // Cache les résultats si la recherche est trop courte
+      setSearchResults([]);
+      setShowSearchResults(false);
+    }
+  }, [searchQuery]);
+
   // Poll friends list every 10 seconds to update online status
   useEffect(() => {
     if (!session) return;
@@ -135,7 +150,7 @@ export default function FriendsPage() {
 
     // Check if search starts with # for ID search
     if (searchQuery.startsWith('#')) {
-      await searchUsers();
+      // La recherche est déjà gérée par le useEffect
       return;
     }
 
@@ -154,12 +169,7 @@ export default function FriendsPage() {
         fetchFriends();
         alert('Demande d\'ami envoyée !');
       } else {
-        // If user not found, search for similar usernames
-        if (data.error?.includes('not found') || data.error?.includes('introuvable')) {
-          await searchUsers();
-        } else {
-          alert(data.error || 'Erreur lors de l\'envoi');
-        }
+        alert(data.error || 'Erreur lors de l\'envoi');
       }
     } catch (error) {
       console.error('Error adding friend:', error);
@@ -341,7 +351,7 @@ export default function FriendsPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Rechercher par @username, #ID ou nom..."
+                placeholder="Recherche automatique par @username, #ID ou nom..."
                 className="w-full pl-10 pr-4 py-3 bg-[#1e1e2e] border border-[#3a3a4a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
               />
             </div>
@@ -400,6 +410,8 @@ export default function FriendsPage() {
             ) : searchResults.length > 0 ? (
               <div className="space-y-3 max-h-80 overflow-y-auto">
                 {searchResults.map((user) => {
+                  if (!user || !user.id) return null; // Protection contre les undefined
+                  
                   const isAlreadyFriend = friends.some(f => f.user.id === user.id);
                   const hasPendingRequest = pendingRequests.some(p => p.user.id === user.id) || 
                                          sentRequests.some(s => s.user.id === user.id);
@@ -408,13 +420,13 @@ export default function FriendsPage() {
                     <div key={user.id} className="flex items-center justify-between p-3 bg-[#2a2a3e] rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
-                          {user.username.charAt(0).toUpperCase()}
+                          {(user.username || '').charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="font-semibold text-white">
-                            {user.displayName || user.username}
+                            {user.displayName || user.username || 'Utilisateur inconnu'}
                           </div>
-                          <div className="text-sm text-gray-400">@{user.username}</div>
+                          <div className="text-sm text-gray-400">@{user.username || 'inconnu'}</div>
                           <div className="text-xs text-gray-500">Elo: {user.soloElo || 400}</div>
                         </div>
                       </div>
@@ -423,20 +435,20 @@ export default function FriendsPage() {
                           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         )}
                         <Link
-                          href={`/u/${user.username}`}
+                          href={`/u/${user.username || ''}`}
                           className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
                         >
                           Profil
                         </Link>
                         <button
-                          onClick={() => handleChallengeUser(user.id, user.username)}
+                          onClick={() => handleChallengeUser(user.id, user.username || '')}
                           className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-lg transition-colors"
                         >
                           Défier
                         </button>
                         {!isAlreadyFriend && !hasPendingRequest && user.id !== session?.user?.id && (
                           <button
-                            onClick={() => handleAddFriendFromSearch(user.id, user.username)}
+                            onClick={() => handleAddFriendFromSearch(user.id, user.username || '')}
                             disabled={isAdding}
                             className="px-3 py-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
                           >
