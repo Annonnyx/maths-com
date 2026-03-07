@@ -286,6 +286,47 @@ export default function DashboardPage() {
             {/* Ad Sidebar */}
             <AdUnit type="sidebar" className="mb-6 transform scale-75 opacity-70" />
             
+            {/* Recent Activity */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="p-6 bg-[#12121a] rounded-2xl border border-border"
+            >
+              <h2 className="text-xl font-bold mb-4">Activité récente</h2>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <History className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm">Dernier test</span>
+                  </div>
+                  <span className="text-sm font-medium">
+                    {stats?.lastTestDate ? new Date(stats.lastTestDate).toLocaleDateString('fr-FR') : 'Jamais'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-yellow-400" />
+                    <span className="text-sm">Meilleur score</span>
+                  </div>
+                  <span className="text-sm font-medium">{stats?.bestScore || 0}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-green-400" />
+                    <span className="text-sm">Tests cette semaine</span>
+                  </div>
+                  <span className="text-sm font-medium">{stats?.testsThisWeek || 0}</span>
+                </div>
+              </div>
+              <Link
+                href="/history"
+                className="mt-4 block text-center px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all text-sm"
+              >
+                Voir tout l'historique
+              </Link>
+            </motion.div>
+
             {/* Weak Points */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -429,11 +470,20 @@ export default function DashboardPage() {
 
               {/* Future Expansion Note */}
               <div className="mt-8 p-4 bg-gradient-to-r from-blue-500/10 to-purple-600/10 rounded-xl border border-blue-500/20">
-                <div className="flex items-center gap-3 text-blue-400">
-                  <Star className="w-5 h-5" />
-                  <span className="text-sm font-medium">
-                    Cette section sera bientôt enrichie avec des graphiques interactifs et des analyses détaillées !
-                  </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-blue-400">
+                    <Star className="w-5 h-5" />
+                    <span className="text-sm font-medium">
+                      Cette section sera bientôt enrichie avec des graphiques interactifs et des analyses détaillées !
+                    </span>
+                  </div>
+                  <Link
+                    href="/dashboard/history"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-all text-sm"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    Historique complet
+                  </Link>
                 </div>
               </div>
             </motion.div>

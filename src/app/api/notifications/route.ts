@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,8 +56,6 @@ export async function GET(request: NextRequest) {
     // Si pas de userId, essayer de récupérer l'utilisateur depuis la session
     let targetUserId = userId;
     if (!targetUserId) {
-      const { getServerSession } = await import('next-auth/next');
-      const { authOptions } = await import('@/lib/auth');
       const session = await getServerSession(authOptions);
       
       if (!session?.user?.id) {
@@ -110,8 +110,6 @@ export async function PUT(request: NextRequest) {
     // Si pas de userId, essayer de récupérer l'utilisateur depuis la session
     let targetUserId = userId;
     if (!targetUserId) {
-      const { getServerSession } = await import('next-auth/next');
-      const { authOptions } = await import('@/lib/auth');
       const session = await getServerSession(authOptions);
       
       if (!session?.user?.id) {
@@ -165,8 +163,6 @@ export async function DELETE(request: NextRequest) {
     // Si pas de userId, essayer de récupérer l'utilisateur depuis la session
     let targetUserId = userId;
     if (!targetUserId) {
-      const { getServerSession } = await import('next-auth/next');
-      const { authOptions } = await import('@/lib/auth');
       const session = await getServerSession(authOptions);
       
       if (!session?.user?.id) {

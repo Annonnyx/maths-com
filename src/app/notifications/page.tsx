@@ -388,7 +388,7 @@ export default function NotificationsPage() {
                       {notificationItem.type === 'challenge' && notificationItem.metadata?.challengeId ? (
                         <div className="flex items-center gap-2">
                           <Link
-                            href={`/multiplayer/game/${notificationItem.metadata.challengeId}`}
+                            href={`/practice?challenge=${notificationItem.metadata.challengeId}`}
                             onClick={() => handleMarkAsRead(notification.id)}
                             className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors font-medium"
                           >

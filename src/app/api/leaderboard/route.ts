@@ -110,10 +110,8 @@ export async function GET(req: NextRequest) {
     const leaderboard = await prisma.user.findMany({
       where: {
         ...dateFilter,
-        ...friendsFilter,
-        [statisticsField]: {
-          totalTests: { gt: 0 }
-        }
+        ...friendsFilter
+        // Remove statistics requirement to show all users
       },
       include: {
         [statisticsField]: true
