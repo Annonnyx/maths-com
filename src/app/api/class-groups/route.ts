@@ -77,17 +77,39 @@ export async function POST(request: NextRequest) {
     }
 
     // Générer un code d'invitation unique et plus long
-    const generateInviteCode = () => {
+    const generateInviteCode = async () => {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let code = '';
-      for (let i = 0; i < 10; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      while (attempts < maxAttempts) {
+        let code = '';
+        for (let i = 0; i < 10; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        // Format: XXXX-XXXX-XX
+        const formattedCode = `${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 10)}`;
+        
+        // Vérifier si le code existe déjà
+        const existingGroup = await prisma.classGroup.findUnique({
+          where: { inviteCode: formattedCode },
+          select: { id: true }
+        });
+        
+        if (!existingGroup) {
+          return formattedCode; // Code unique trouvé
+        }
+        
+        attempts++;
       }
-      // Format: XXXX-XXXX-XX
-      return `${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 10)}`;
+      
+      // Si on trouve pas de code unique après 10 tentatives, générer un code avec timestamp
+      const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
+      const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+      return `${randomPart}-${timestamp}-${randomPart.slice(0, 2)}`;
     };
     
-    const inviteCode = generateInviteCode();
+    const inviteCode = await generateInviteCode();
 
     const group = await prisma.classGroup.create({
       data: {
