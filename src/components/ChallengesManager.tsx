@@ -190,19 +190,22 @@ function ChallengesList({ title, challenges, onRespond, showActions = false }: C
     >
       <h4 className="font-semibold text-foreground mb-3">{title}</h4>
       <div className="space-y-2">
-        {challenges.map((challenge) => (
-          <div key={challenge.id} className="flex items-center justify-between p-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-xs font-bold">
-                {challenge.opponent.username.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <div className="text-sm font-medium">{challenge.opponent.username}</div>
-                <div className="text-xs text-gray-500">
-                  {challenge.gameType === 'ranked' ? 'Classé' : 'Amical'} • {challenge.timeControl}
+        {challenges.map((challenge) => {
+          if (!challenge.opponent || !challenge.opponent.username) return null; // Protection contre les undefined
+          
+          return (
+            <div key={challenge.id} className="flex items-center justify-between p-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-xs font-bold">
+                  {(challenge.opponent.username || '').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-sm font-medium">{challenge.opponent.username || 'Utilisateur inconnu'}</div>
+                  <div className="text-xs text-gray-500">
+                    {challenge.gameType === 'ranked' ? 'Classé' : 'Amical'} • {challenge.timeControl}
+                  </div>
                 </div>
               </div>
-            </div>
             {showActions && onRespond && (
               <div className="flex items-center gap-2">
                 <button
@@ -223,7 +226,8 @@ function ChallengesList({ title, challenges, onRespond, showActions = false }: C
               {new Date(challenge.createdAt).toLocaleDateString('fr-FR')}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </motion.div>
   );
