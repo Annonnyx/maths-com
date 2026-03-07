@@ -655,6 +655,10 @@ model QuestionHistory {
   questionId  String @map("question_id")
   answeredAt  DateTime @default(now())
   correct     Boolean
+  timeSpent   Int? @default(0) @map("time_spent") // en millisecondes
+  difficulty  String? @default("mixed") // easy, medium, hard
+  subject     String? @default("maths")
+  type        String? @default("calculation") // calculation, logic, etc.
   eloAtMoment Int
   
   // Relations

@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // GET /api/class-groups/[id]/analytics - Analytics d'une classe spécifique
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,6 +14,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const params = await context.params;
     const classId = params.id;
 
     // Vérifier que l'utilisateur est le professeur de cette classe
@@ -74,23 +75,14 @@ export async function GET(
       where: {
         userId: { in: studentIds }
       },
-      include: {
-        exercise: {
-          select: {
-            subject: true,
-            difficulty: true,
-            type: true
-          }
-        }
-      },
       orderBy: {
-        createdAt: 'asc'
+        answeredAt: 'asc'
       }
     });
 
     // Calculer les statistiques globales
     const totalQuestions = questionHistory.length;
-    const correctAnswers = questionHistory.filter(q => q.isCorrect).length;
+    const correctAnswers = questionHistory.filter(q => q.correct).length;
     const wrongAnswers = totalQuestions - correctAnswers;
     const averageScore = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
     const averageTime = totalQuestions > 0 
@@ -103,7 +95,7 @@ export async function GET(
       const student = students.find(s => s.user.id === studentId);
       const studentHistory = questionHistory.filter(q => q.userId === studentId);
       
-      const studentCorrect = studentHistory.filter(q => q.isCorrect).length;
+      const studentCorrect = studentHistory.filter(q => q.correct).length;
       const studentTotal = studentHistory.length;
       const studentAverage = studentTotal > 0 ? (studentCorrect / studentTotal) * 100 : 0;
       const studentAvgTime = studentTotal > 0 
@@ -111,11 +103,11 @@ export async function GET(
         : 0;
 
       return {
-        id: student.user.id,
-        username: student.user.username,
-        displayName: student.user.displayName,
-        soloElo: student.user.soloElo,
-        soloRankClass: student.user.soloRankClass,
+        id: student?.user.id || studentId,
+        username: student?.user.username || 'Unknown',
+        displayName: student?.user.displayName || 'Unknown',
+        soloElo: student?.user.soloElo || 0,
+        soloRankClass: student?.user.soloRankClass || 'F-',
         totalQuestions: studentTotal,
         correctAnswers: studentCorrect,
         wrongAnswers: studentTotal - studentCorrect,
@@ -123,19 +115,19 @@ export async function GET(
         averageTime: studentAvgTime,
         accuracy: studentAverage,
         lastActivity: studentHistory.length > 0 
-          ? studentHistory[studentHistory.length - 1].createdAt 
+          ? studentHistory[studentHistory.length - 1].answeredAt 
           : null
       };
     }).sort((a, b) => b.averageScore - a.averageScore);
 
     // Performance par matière
     const subjectPerformance = questionHistory.reduce((acc, q) => {
-      const subject = q.exercise?.subject || 'unknown';
+      const subject = q.subject || 'unknown';
       if (!acc[subject]) {
         acc[subject] = { total: 0, correct: 0, subject };
       }
       acc[subject].total++;
-      if (q.isCorrect) acc[subject].correct++;
+      if (q.correct) acc[subject].correct++;
       return acc;
     }, {} as Record<string, { total: number; correct: number; subject: string }>);
 
@@ -148,12 +140,12 @@ export async function GET(
 
     // Performance par difficulté
     const difficultyPerformance = questionHistory.reduce((acc, q) => {
-      const difficulty = q.exercise?.difficulty || 'unknown';
+      const difficulty = q.difficulty || 'unknown';
       if (!acc[difficulty]) {
         acc[difficulty] = { total: 0, correct: 0, difficulty };
       }
       acc[difficulty].total++;
-      if (q.isCorrect) acc[difficulty].correct++;
+      if (q.correct) acc[difficulty].correct++;
       return acc;
     }, {} as Record<string, { total: number; correct: number; difficulty: string }>);
 
@@ -170,15 +162,15 @@ export async function GET(
 
     // Évolution temporelle (derniers 30 jours)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const recentHistory = questionHistory.filter(q => q.createdAt >= thirtyDaysAgo);
+    const recentHistory = questionHistory.filter(q => q.answeredAt >= thirtyDaysAgo);
     
     const timeEvolution = recentHistory.reduce((acc, q) => {
-      const dateKey = q.createdAt.toISOString().split('T')[0]; // YYYY-MM-DD
+      const dateKey = q.answeredAt.toISOString().split('T')[0]; // YYYY-MM-DD
       if (!acc[dateKey]) {
         acc[dateKey] = { date: dateKey, total: 0, correct: 0 };
       }
       acc[dateKey].total++;
-      if (q.isCorrect) acc[dateKey].correct++;
+      if (q.correct) acc[dateKey].correct++;
       return acc;
     }, {} as Record<string, { date: string; total: number; correct: number }>);
 
