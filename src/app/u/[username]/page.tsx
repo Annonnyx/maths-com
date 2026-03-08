@@ -51,6 +51,7 @@ export default function PublicProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isFriend, setIsFriend] = useState(false);
+  const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const [friendLoading, setFriendLoading] = useState(false);
   
   const { data: session } = useSession();
@@ -88,10 +89,21 @@ export default function PublicProfilePage() {
 
   const checkFriendship = async (profileId: string) => {
     try {
-      const response = await fetch('/api/friends');
-      if (response.ok) {
-        const friends = await response.json();
-        setIsFriend(friends.some((friend: any) => friend.user.id === profileId));
+      // Vérifier les amis
+      const friendsResponse = await fetch('/api/friends');
+      if (friendsResponse.ok) {
+        const friends = await friendsResponse.json();
+        const isAlreadyFriend = friends.some((friend: any) => friend.user.id === profileId);
+        setIsFriend(isAlreadyFriend);
+      }
+      
+      // Vérifier les demandes en attente
+      const requestsResponse = await fetch('/api/friends/requests');
+      if (requestsResponse.ok) {
+        const data = await requestsResponse.json();
+        const pending = data.sentRequests?.some((req: any) => req.user.id === profileId) || 
+                       data.receivedRequests?.some((req: any) => req.user.id === profileId);
+        setHasPendingRequest(pending);
       }
     } catch (error) {
       console.error('Error checking friendship:', error);
@@ -110,7 +122,7 @@ export default function PublicProfilePage() {
       });
       
       if (response.ok) {
-        setIsFriend(true);
+        setHasPendingRequest(true);
       }
     } catch (error) {
       console.error('Error adding friend:', error);
@@ -294,11 +306,13 @@ export default function PublicProfilePage() {
                   <div className="mt-3">
                     <button
                       onClick={() => handleAddFriend()}
-                      disabled={friendLoading || isFriend}
+                      disabled={friendLoading || isFriend || hasPendingRequest}
                       className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
                         isFriend 
                           ? 'bg-green-600 text-white'
-                          : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                          : hasPendingRequest
+                            ? 'bg-yellow-600/80 text-white'
+                            : 'bg-indigo-600 hover:bg-indigo-700 text-white'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       {isFriend ? (
@@ -306,10 +320,15 @@ export default function PublicProfilePage() {
                           <Users className="w-4 h-4" />
                           Ami
                         </>
+                      ) : hasPendingRequest ? (
+                        <>
+                          <Clock className="w-4 h-4" />
+                          Demande envoyée
+                        </>
                       ) : (
                         <>
                           <UserPlus className="w-4 h-4" />
-                          {friendLoading ? 'Ajout...' : 'Ajouter en ami'}
+                          {friendLoading ? 'Envoi...' : 'Ajouter en ami'}
                         </>
                       )}
                     </button>

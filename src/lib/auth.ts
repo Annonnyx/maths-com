@@ -5,6 +5,51 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import DiscordProvider from 'next-auth/providers/discord';
 
+// Adjectives and nouns for generating random usernames
+const ADJECTIVES = [
+  'rapide', 'sage', 'futé', 'agile', 'brillant', 'vif', 'audacieux', 'malin',
+  'calcul', 'logique', 'précis', 'expert', 'maître', 'génie', 'stratège',
+  'penseur', 'analyste', 'mathématicien', 'calculateur', 'virtuose',
+  'lumineux', 'astucieux', 'déterminé', 'fougueux', 'adroit',
+  'magique', 'numérique', 'quantique', 'algébrique', 'géométrique'
+];
+
+const NOUNS = [
+  'tigre', 'aigle', 'faucon', 'loup', 'panthère', 'dragon', 'phénix', 'lion',
+  'cerveau', 'ordinateur', 'algorithme', 'équation', 'théorème', 'axiome',
+  'maître', 'champion', 'prodige', 'virtuose', 'stratège', 'génie',
+  'calculateur', 'analyste', 'mathématicien', 'logicien', 'penseur',
+  'architecte', 'constructeur', 'résolveur', 'explorateur', 'navigateur'
+];
+
+// Generate a random username in format: adjective_noun_number
+async function generateUniqueUsername(): Promise<string> {
+  let attempts = 0;
+  const maxAttempts = 100;
+  
+  while (attempts < maxAttempts) {
+    const adjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+    const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+    const number = Math.floor(Math.random() * 9999).toString().padStart(2, '0');
+    const username = `${adjective}_${noun}_${number}`;
+    
+    // Check if username already exists
+    const existing = await prisma.user.findUnique({
+      where: { username }
+    });
+    
+    if (!existing) {
+      return username;
+    }
+    
+    attempts++;
+  }
+  
+  // Fallback with timestamp if all attempts failed
+  const timestamp = Date.now().toString(36).substring(2, 8);
+  return `math_user_${timestamp}`;
+}
+
 // Debug des variables d'environnement
 const isDev = process.env.NODE_ENV === 'development';
 const nextAuthUrl = isDev ? 'http://localhost:3000' : (process.env.NEXTAUTH_URL || 'https://maths-app.com');
@@ -139,7 +184,7 @@ export const authOptions: NextAuthOptions = {
 
           if (!existingUser) {
             console.log('👤 Création nouvel utilisateur OAuth...');
-            const username = user.email!.split('@')[0] + Math.random().toString(36).substring(2, 6);
+            const username = await generateUniqueUsername();
             existingUser = await prisma.user.create({
               data: {
                 email: user.email!,

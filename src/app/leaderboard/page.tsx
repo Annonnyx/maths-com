@@ -739,7 +739,7 @@ export default function LeaderboardPage() {
                         <div>
                           <div className="font-semibold flex items-center gap-2">
                             <Link 
-                              href={`/users/${entry.id}`}
+                              href={`/u/${entry.username}`}
                               className="hover:text-indigo-400 transition-colors"
                             >
                               {entry.displayName || entry.username}

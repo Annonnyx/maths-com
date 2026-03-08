@@ -101,25 +101,24 @@ export async function GET(req: NextRequest) {
       friendsFilter = { id: { in: friendIds } };
     }
 
-    // Determine which fields to use based on mode
+    // Determine which fields and relations to use based on mode
     const eloField = mode === 'solo' ? 'soloElo' : 'multiplayerElo';
     const rankClassField = mode === 'solo' ? 'soloRankClass' : 'multiplayerRankClass';
-    const statisticsField = mode === 'solo' ? 'soloStatistics' : 'multiplayerStatistics';
+    const statisticsRelation = mode === 'solo' ? 'soloStatistics' : 'multiplayerStatistics';
 
     // Get leaderboard data with statistics
     const leaderboard = await prisma.user.findMany({
       where: {
         ...dateFilter,
         ...friendsFilter
-        // Remove statistics requirement to show all users
       },
       include: {
-        [statisticsField]: true
+        soloStatistics: mode === 'solo',
+        multiplayerStatistics: mode === 'multiplayer'
       },
-      orderBy: [
-        { [eloField]: 'desc' }, 
-        { [statisticsField]: { totalTests: 'desc' } }
-      ],
+      orderBy: {
+        [eloField]: 'desc'
+      },
       skip,
       take: limit
     });
@@ -127,30 +126,37 @@ export async function GET(req: NextRequest) {
     const total = await prisma.user.count({
       where: {
         ...dateFilter,
-        ...friendsFilter,
-        [statisticsField]: {
-          totalTests: { gt: 0 }
-        }
+        ...friendsFilter
       }
     });
 
     // Calculate additional stats
-    const leaderboardWithStats = leaderboard.map((user, index) => {
-      const globalRank = index + 1;
+    const leaderboardWithStats = leaderboard.map((user: any, index: number) => {
+      const globalRank = skip + index + 1;
       
-      // Calculate accuracy for solo (temporairement désactivé car les champs n'existent pas encore)
-      const accuracy = 0; // TODO: Implémenter après migration solo/multi
+      // Get stats based on mode
+      const stats = mode === 'solo' ? user.soloStatistics : user.multiplayerStatistics;
+      
+      // Calculate accuracy
+      const totalQuestions = stats?.totalQuestions || 0;
+      const correctAnswers = stats?.totalCorrect || 0;
+      const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+      
+      // Get total games/tests
+      const totalGames = mode === 'solo' 
+        ? (stats?.totalTests || 0)
+        : (stats?.totalGames || 0);
 
       return {
         ...user,
         globalRank,
         stats: {
           accuracy,
-          totalGames: 0, // TODO: user.soloStatistics?.totalTests || 0 après migration
-          currentElo: user.soloElo,
-          currentRank: user.soloRankClass,
-          bestElo: user.soloBestElo,
-          bestRank: user.soloBestRankClass
+          totalGames,
+          currentElo: mode === 'solo' ? user.soloElo : user.multiplayerElo,
+          currentRank: mode === 'solo' ? user.soloRankClass : user.multiplayerRankClass,
+          bestElo: mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo,
+          bestRank: mode === 'solo' ? user.soloBestRankClass : user.multiplayerBestRankClass
         }
       };
     });
@@ -183,9 +189,9 @@ export async function GET(req: NextRequest) {
         username: currentUser.username,
         displayName: currentUser.displayName,
         stats: {
-          currentElo: currentUser.soloElo,
-          currentRank: currentUser.soloRankClass,
-          totalGames: 0 // Pas de statistics dans le select
+          currentElo: mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo,
+          currentRank: mode === 'solo' ? currentUser.soloRankClass : currentUser.multiplayerRankClass,
+          totalGames: 0 // Will be populated from actual statistics
         }
       } : null
     });
