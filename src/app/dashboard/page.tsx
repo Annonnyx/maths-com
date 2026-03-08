@@ -103,7 +103,8 @@ export default function DashboardPage() {
   const currentRank = gameMode === 'multiplayer' ? user.multiplayerRankClass : user.soloRankClass;
   const currentElo = gameMode === 'multiplayer' ? user.multiplayerElo : user.soloElo;
   
-  const getRankColor = (rank: string) => {
+  const getRankColor = (rank: string | undefined | null) => {
+    if (!rank) return 'bg-gray-500/20 border-gray-500';
     const tier = rank.charAt(0);
     return RANK_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
   };
@@ -333,6 +334,38 @@ export default function DashboardPage() {
           </div>
         </motion.section>
 
+        {/* TESTS RAPIDES — Icônes courtes */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18 }}
+          className="mb-6"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="w-4 h-4 text-yellow-400" />
+            <span className="text-sm font-medium text-muted-foreground">Tests rapides</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { icon: '➕', label: 'Additions', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', href: '/test?type=addition' },
+              { icon: '✖️', label: 'Multiplications', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30', href: '/test?type=multiplication' },
+              { icon: '➗', label: 'Divisions', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30', href: '/test?type=division' },
+              { icon: '🔢', label: 'Mental', color: 'bg-green-500/20 text-green-400 border-green-500/30', href: '/practice' },
+              { icon: '⚡', label: 'Rapide', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', href: '/test?mode=quick' },
+              { icon: '🎯', label: 'Streak', color: 'bg-pink-500/20 text-pink-400 border-pink-500/30', href: '/test?mode=streak' },
+            ].map((test) => (
+              <Link
+                key={test.label}
+                href={test.href}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${test.color} hover:opacity-80 transition-all text-sm font-medium`}
+              >
+                <span className="text-lg">{test.icon}</span>
+                <span>{test.label}</span>
+              </Link>
+            ))}
+          </div>
+        </motion.section>
+
         {/* SECTION PRINCIPALE — 7 Boutons avec Previews */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
@@ -467,7 +500,7 @@ export default function DashboardPage() {
           </Link>
 
           {/* BOUTON 5 — Statistiques */}
-          <Link href="/dashboard/history" className="group">
+          <Link href="/dashboard" className="group">
             <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-green-500/50 transition-all">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-green-500/20 rounded-lg">
@@ -503,7 +536,7 @@ export default function DashboardPage() {
           </Link>
 
           {/* BOUTON 6 — Historique */}
-          <Link href="/dashboard/history" className="group">
+          <Link href="/history" className="group">
             <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-yellow-500/50 transition-all">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-yellow-500/20 rounded-lg">
