@@ -93,7 +93,9 @@ export default function PublicProfilePage() {
       const friendsResponse = await fetch('/api/friends');
       if (friendsResponse.ok) {
         const friends = await friendsResponse.json();
-        const isAlreadyFriend = friends.some((friend: any) => friend.user.id === profileId);
+        // Ensure friends is an array
+        const friendsArray = Array.isArray(friends) ? friends : friends?.friends || [];
+        const isAlreadyFriend = friendsArray.some((friend: any) => friend?.user?.id === profileId || friend?.id === profileId);
         setIsFriend(isAlreadyFriend);
       }
       
@@ -101,8 +103,10 @@ export default function PublicProfilePage() {
       const requestsResponse = await fetch('/api/friends/requests');
       if (requestsResponse.ok) {
         const data = await requestsResponse.json();
-        const pending = data.sentRequests?.some((req: any) => req.user.id === profileId) || 
-                       data.receivedRequests?.some((req: any) => req.user.id === profileId);
+        const sentRequests = Array.isArray(data?.sentRequests) ? data.sentRequests : [];
+        const receivedRequests = Array.isArray(data?.receivedRequests) ? data.receivedRequests : [];
+        const pending = sentRequests.some((req: any) => req?.user?.id === profileId || req?.id === profileId) || 
+                       receivedRequests.some((req: any) => req?.user?.id === profileId || req?.id === profileId);
         setHasPendingRequest(pending);
       }
     } catch (error) {
