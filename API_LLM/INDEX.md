@@ -185,36 +185,37 @@ Ce dossier est LA référence absolue du projet. Il doit être consulté avant t
 
 ## 📚 Structure complète des fichiers API_LLM
 
-### Fichiers prioritaires (déjà créés)
+### Fichiers de référence principaux (déjà créés)
 1. **INDEX.md** ← Vue globale (ce fichier)
 2. **DATABASE.md** ← Référence complète des tables
 3. **AUTH.md** ← NextAuth, sessions, middleware
+4. **DEPLOYMENT.md** ← Procédures de déploiement
+
+### 🆕 Fichiers de documentation complète (récemment créés)
+5. **API_ROUTES.md** ← Documentation complète de toutes les routes API
+6. **COMPONENTS.md** ← Composants réutilisables et hooks personnalisés
+7. **PAGES.md** ← Documentation des pages principales et leur fonctionnement
+8. **MIDDLEWARE.md** ← Middleware, protections, sécurité et monitoring
 
 ### Pages principales à documenter
-4. **profile.md** ← Profil utilisateur, stats solo/multi
-5. **dashboard.md** ← Tableau de bord, analytics
-6. **multiplayer.md** ← Mode multijoueur unifié
-7. **tests.md** ← Tests solo, onboarding
-8. **leaderboard.md** ← Classements ELO
-9. **courses.md** ← Cours et exercices
-10. **admin.md** ← Interface admin
+- **profile.md** ← Profil utilisateur, stats, paramètres
+- **dashboard.md** ← Tableau de bord, analytics
+- **multiplayer.md** ← Mode multijoueur unifié
+- **tests.md** ← Tests solo, progression
+- **leaderboard.md** ← Classements ELO
+- **courses.md** ← Cours et exercices
+- **admin.md** ← Interface admin
 
 ### Features secondaires
-11. **notifications.md** ← Système de notifications
-12. **discord-bot.md** ← Bot Discord Railway
-13. **teacher.md** ← Interface professeurs
-14. **parent.md** ← Interface parents
-15. **settings.md** ← Paramètres utilisateur
-16. **tickets.md** ← Support technique
-17. **friends.md** ← Gestion amis
-18. **messages.md** ← Messagerie interne
-19. **onboarding.md** ← Processus d'intégration
-
-### Fichiers techniques
-20. **API_ROUTES.md** ← Référence de toutes les routes API
-21. **COMPONENTS.md** ← Composants réutilisables
-22. **MIDDLEWARE.md** ← Middleware et protections
-23. **DEPLOYMENT.md** ← Déploiement et hébergement
+- **notifications.md** ← Système de notifications
+- **discord-bot.md** ← Bot Discord Railway
+- **teacher.md** ← Interface professeurs
+- **parent.md** ← Interface parents
+- **settings.md** ← Paramètres utilisateur
+- **tickets.md** ← Support technique
+- **friends.md** ← Gestion amis
+- **messages.md** ← Messagerie interne
+- **onboarding.md** ← Processus d'intégration
 
 ---
 
