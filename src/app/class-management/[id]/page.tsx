@@ -48,6 +48,14 @@ export default function ClassDetailsPage() {
     maxStudents: 30,
     isPrivate: false
   });
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [showMessageForm, setShowMessageForm] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [newAssignment, setNewAssignment] = useState({ title: '', description: '', dueDate: '' });
+  const [showAssignmentForm, setShowAssignmentForm] = useState(false);
+  const [creatingAssignment, setCreatingAssignment] = useState(false);
 
   // Déterminer si professeur ou élève (après chargement des données)
   const isTeacher = session?.user && (classDetails?.teacher?.id === session.user.id || (session.user as any)?.isAdmin);
@@ -118,10 +126,100 @@ export default function ClassDetailsPage() {
   }, [activeTab, params.id]);
 
   useEffect(() => {
-    if (activeTab === 'my-classes') {
-      loadUserClasses();
+    if (activeTab === 'messages' && params.id) {
+      loadMessages();
     }
-  }, [activeTab, session?.user]);
+  }, [activeTab, params.id]);
+
+  useEffect(() => {
+    if (activeTab === 'assignments' && params.id) {
+      loadAssignments();
+    }
+  }, [activeTab, params.id]);
+
+  const loadMessages = async () => {
+    try {
+      const response = await fetch(`/api/class-messages?classId=${params.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data.messages || []);
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  };
+
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+
+    setSendingMessage(true);
+    try {
+      const response = await fetch('/api/class-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classId: params.id, content: newMessage })
+      });
+
+      if (response.ok) {
+        setNewMessage('');
+        setShowMessageForm(false);
+        loadMessages();
+      } else {
+        alert('Erreur lors de l\'envoi du message');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Erreur réseau');
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  const loadAssignments = async () => {
+    try {
+      const response = await fetch(`/api/class-assignments?classId=${params.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAssignments(data.assignments || []);
+      }
+    } catch (error) {
+      console.error('Error loading assignments:', error);
+    }
+  };
+
+  const createAssignment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAssignment.title.trim()) return;
+
+    setCreatingAssignment(true);
+    try {
+      const response = await fetch('/api/class-assignments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          classId: params.id, 
+          title: newAssignment.title,
+          description: newAssignment.description,
+          dueDate: newAssignment.dueDate
+        })
+      });
+
+      if (response.ok) {
+        setNewAssignment({ title: '', description: '', dueDate: '' });
+        setShowAssignmentForm(false);
+        loadAssignments();
+        alert('Devoir créé avec succès !');
+      } else {
+        alert('Erreur lors de la création du devoir');
+      }
+    } catch (error) {
+      console.error('Error creating assignment:', error);
+      alert('Erreur réseau');
+    } finally {
+      setCreatingAssignment(false);
+    }
+  };
 
   const loadClassDetails = async () => {
     setIsLoading(true);
@@ -675,16 +773,79 @@ export default function ClassDetailsPage() {
             <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Devoirs et exercices</h3>
-                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
-                  Créer un devoir
-                </button>
+                {isTeacher && (
+                  <button 
+                    onClick={() => setShowAssignmentForm(true)}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Créer un devoir
+                  </button>
+                )}
               </div>
+
+              {showAssignmentForm && (
+                <form onSubmit={createAssignment} className="mb-6 p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                  <h4 className="text-lg font-semibold text-white mb-4">Nouveau devoir</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Titre</label>
+                      <input
+                        type="text"
+                        value={newAssignment.title}
+                        onChange={(e) => setNewAssignment({...newAssignment, title: e.target.value})}
+                        className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        placeholder="Titre du devoir"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Description</label>
+                      <textarea
+                        value={newAssignment.description}
+                        onChange={(e) => setNewAssignment({...newAssignment, description: e.target.value})}
+                        className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        placeholder="Description du devoir"
+                        rows={3}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Date de rendu</label>
+                      <input
+                        type="date"
+                        value={newAssignment.dueDate}
+                        onChange={(e) => setNewAssignment({...newAssignment, dueDate: e.target.value})}
+                        className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={creatingAssignment}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50"
+                      >
+                        {creatingAssignment ? 'Création...' : 'Créer'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowAssignmentForm(false)}
+                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              )}
               
               <div className="text-center py-8">
                 <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-600" />
                 <p className="text-gray-400 mb-2">Aucun devoir créé pour le moment.</p>
-                <p className="text-sm text-gray-500">Commencez par créer votre premier devoir pour cette classe.</p>
+                {isTeacher ? (
+                  <p className="text-sm text-gray-500">Commencez par créer votre premier devoir pour cette classe.</p>
+                ) : (
+                  <p className="text-sm text-gray-500">Votre professeur n&apos;a pas encore créé de devoirs.</p>
+                )}
               </div>
             </div>
           )}
@@ -693,17 +854,86 @@ export default function ClassDetailsPage() {
             <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Messages de la classe</h3>
-                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
-                  Envoyer un message
-                </button>
+                {isTeacher && (
+                  <button 
+                    onClick={() => setShowMessageForm(true)}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Envoyer un message
+                  </button>
+                )}
               </div>
+
+              {showMessageForm && (
+                <form onSubmit={sendMessage} className="mb-6 p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                  <h4 className="text-lg font-semibold text-white mb-4">Nouveau message</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Message</label>
+                      <textarea
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        placeholder="Votre message pour la classe..."
+                        rows={4}
+                        required
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={sendingMessage}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors disabled:opacity-50"
+                      >
+                        {sendingMessage ? 'Envoi...' : 'Envoyer'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowMessageForm(false)}
+                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              )}
               
-              <div className="text-center py-8">
-                <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                <p className="text-gray-400 mb-2">Aucun message pour le moment.</p>
-                <p className="text-sm text-gray-500">Communiquez avec vos élèves en envoyant des messages à toute la classe.</p>
-              </div>
+              {messages.length > 0 ? (
+                <div className="space-y-4">
+                  {messages.map((msg: any) => (
+                    <div key={msg.id} className="p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center">
+                          <span className="text-purple-400 text-sm">
+                            {msg.user?.displayName?.[0] || msg.user?.username?.[0]}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-white font-medium text-sm">
+                            {msg.user?.displayName || msg.user?.username}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {new Date(msg.createdAt).toLocaleString('fr-FR')}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-gray-300 text-sm">{msg.content}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                  <p className="text-gray-400 mb-2">Aucun message pour le moment.</p>
+                  {isTeacher ? (
+                    <p className="text-sm text-gray-500">Communiquez avec vos élèves en envoyant un message à la classe.</p>
+                  ) : (
+                    <p className="text-sm text-gray-500">Le professeur n&apos;a pas encore envoyé de messages.</p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
