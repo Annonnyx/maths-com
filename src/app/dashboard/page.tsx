@@ -10,8 +10,7 @@ import OnboardingFlow from '@/components/OnboardingFlow';
 import { 
   Trophy, Target, Clock, TrendingUp, Zap, Users, MessageCircle,
   Award, BarChart3, History, GraduationCap, Sparkles, LineChart,
-  UserCircle, ChevronRight, Activity, Loader2, Calendar, Flame,
-  Calculator, Star
+  UserCircle, ChevronRight, Loader2, Flame
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS, RankClass } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
@@ -22,9 +21,8 @@ export default function DashboardPage() {
   const { profile, isLoading, error } = useUserProfile();
   const [showOnboarding, setShowOnboarding] = useState(false);
   
-  // Nouveaux filtres globaux
-  const [gameMode, setGameMode] = useState<'solo' | 'multiplayer' | 'both'>('solo');
-  const [timePeriod, setTimePeriod] = useState<'1h' | '24h' | '7d' | '30d' | '3m' | 'all'>('7d');
+  // Toggle pour le rang
+  const [gameMode, setGameMode] = useState<'solo' | 'multiplayer'>('solo');
   const [loadingPreviews, setLoadingPreviews] = useState(true);
 
   // Check if user needs onboarding
@@ -268,72 +266,6 @@ export default function DashboardPage() {
           </div>
         </motion.section>
 
-        {/* FILTRES GLOBAUX */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mb-8"
-        >
-          <div className="flex flex-col md:flex-row gap-4 p-4 bg-card rounded-xl border border-border">
-            {/* Filtre Période */}
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground mr-2">Période:</span>
-              <div className="flex gap-1">
-                {[
-                  { id: '1h', label: '1h' },
-                  { id: '24h', label: '24h' },
-                  { id: '7d', label: '7j' },
-                  { id: '30d', label: '30j' },
-                  { id: '3m', label: '3 mois' },
-                  { id: 'all', label: 'Tout' },
-                ].map((period) => (
-                  <button
-                    key={period.id}
-                    onClick={() => setTimePeriod(period.id as typeof timePeriod)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                      timePeriod === period.id
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-muted text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {period.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Séparateur */}
-            <div className="hidden md:block w-px bg-border" />
-
-            {/* Filtre Mode */}
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground mr-2">Mode:</span>
-              <div className="flex gap-1">
-                {[
-                  { id: 'solo', label: 'Solo' },
-                  { id: 'multiplayer', label: 'Multijoueur' },
-                  { id: 'both', label: 'Les deux' },
-                ].map((mode) => (
-                  <button
-                    key={mode.id}
-                    onClick={() => setGameMode(mode.id as typeof gameMode)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                      gameMode === mode.id
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-muted text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {mode.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.section>
-
         {/* TESTS RAPIDES — Icônes courtes */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
@@ -500,7 +432,7 @@ export default function DashboardPage() {
           </Link>
 
           {/* BOUTON 5 — Statistiques */}
-          <Link href="/dashboard" className="group">
+          <Link href="/stats" className="group">
             <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-green-500/50 transition-all">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-green-500/20 rounded-lg">

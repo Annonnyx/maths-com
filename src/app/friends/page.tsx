@@ -334,49 +334,70 @@ export default function FriendsPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Add Friend Form */}
+        {/* Add Friend - Recherche intelligente */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]"
         >
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-green-400" />
             Ajouter un ami
           </h2>
-          <form onSubmit={handleAddFriend} className="flex gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Recherche automatique par @username, #ID ou nom..."
-                className="w-full pl-10 pr-4 py-3 bg-[#1e1e2e] border border-[#3a3a4a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-              />
-            </div>
+          <p className="text-sm text-gray-400 mb-4">
+            Recherche intelligente : <span className="text-purple-400">@pseudo</span> · <span className="text-blue-400">#ID</span> · <span className="text-green-400">nom</span>
+          </p>
+          
+          {/* Barre de recherche améliorée */}
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher un utilisateur..."
+              className="w-full pl-12 pr-4 py-4 bg-[#1e1e2e] border border-[#3a3a4a] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-lg"
+            />
+            {isSearching && (
+              <Loader2 className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-500 animate-spin" />
+            )}
+          </div>
+
+          {/* Pills d'aide syntaxe */}
+          <div className="flex flex-wrap gap-2 mb-4">
             <button
-              type="submit"
-              disabled={isAdding}
-              className={`px-6 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2 ${
-                isAdding 
-                  ? 'bg-gray-600 cursor-not-allowed' 
-                  : 'bg-green-600 hover:bg-green-700'
-              }`}
+              onClick={() => setSearchQuery('@')}
+              className="px-3 py-1.5 bg-purple-500/10 border border-purple-500/30 rounded-full text-sm text-purple-400 hover:bg-purple-500/20 transition-all flex items-center gap-1"
             >
-              {isAdding ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Envoi...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  Envoyer
-                </>
-              )}
+              <span className="font-mono">@</span> Recherche par pseudo
             </button>
-          </form>
+            <button
+              onClick={() => setSearchQuery('#')}
+              className="px-3 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-sm text-blue-400 hover:bg-blue-500/20 transition-all flex items-center gap-1"
+            >
+              <span className="font-mono">#</span> Recherche par ID
+            </button>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-full text-sm text-green-400 hover:bg-green-500/20 transition-all flex items-center gap-1"
+            >
+              <span className="font-mono">Aa</span> Recherche par nom
+            </button>
+          </div>
+
+          {/* Indicateur de type de recherche actif */}
+          {searchQuery && (
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-400">Type de recherche :</span>
+              {searchQuery.startsWith('@') ? (
+                <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs font-medium">Par pseudo</span>
+              ) : searchQuery.startsWith('#') ? (
+                <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs font-medium">Par ID</span>
+              ) : (
+                <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium">Par nom</span>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* Search Results */}
