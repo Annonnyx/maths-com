@@ -29,41 +29,28 @@ export default function ClassGroupsPage() {
   const [activeTab, setActiveTab] = useState<'my' | 'all'>('my');
 
   useEffect(() => {
-    fetchGroups();
-    if (session?.user) {
-      fetchMyGroups();
-    }
-  }, [session]);
-
-  const fetchGroups = async () => {
-    try {
-      const response = await fetch('/api/class-groups');
-      if (response.ok) {
-        const data = await response.json();
-        setGroups(data.groups || []);
-      }
-    } catch (error) {
-      console.error('Error fetching groups:', error);
-    }
-  };
-
-  const fetchMyGroups = async () => {
-    try {
-      const response = await fetch('/api/class-groups/my-classes');
-      if (response.ok) {
-        const data = await response.json();
-        setMyGroups(data.groups || []);
-      }
-    } catch (error) {
-      console.error('Error fetching my groups:', error);
-    }
-  };
-
-  useEffect(() => {
     const loadAll = async () => {
       setLoading(true);
-      await Promise.all([fetchGroups(), session?.user ? fetchMyGroups() : Promise.resolve()]);
-      setLoading(false);
+      try {
+        const [groupsRes, myGroupsRes] = await Promise.all([
+          fetch('/api/class-groups'),
+          session?.user ? fetch('/api/class-groups/my-classes') : Promise.resolve({ ok: false } as Response)
+        ]);
+        
+        if (groupsRes.ok) {
+          const groupsData = await groupsRes.json();
+          setGroups(groupsData.groups || []);
+        }
+        
+        if (myGroupsRes.ok) {
+          const myGroupsData = await myGroupsRes.json();
+          setMyGroups(myGroupsData.groups || []);
+        }
+      } catch (error) {
+        console.error('Error loading groups:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     
     loadAll();
@@ -178,50 +165,6 @@ export default function ClassGroupsPage() {
                     <Users className="w-4 h-4" />
                     <span>Prof: {group.teacher.displayName || group.teacher.username}</span>
                   </div>
-                </div>
-              ))}
-            </div>
-          )
-        ) : (
-          groups.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Users className="w-10 h-10 text-gray-400" />
-              </div>
-              <h2 className="text-xl font-semibold mb-2">Aucune classe publique</h2>
-              <p className="text-gray-400 mb-6">
-                Il n'y a pas de classe publique disponible pour le moment.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {groups.map((group) => (
-                <div key={group.id} className="bg-[#1e1e2e] rounded-xl p-6 border border-gray-700 hover:border-indigo-500/50 transition-all">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">{group.name}</h3>
-                    <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded text-xs">
-                      {group._count.members} membres
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-                    <Users className="w-4 h-4" />
-                    <span>Prof: {group.teacher.displayName || group.teacher.username}</span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (group.isPrivate) {
-                        const code = prompt('Cette classe est privée. Entrez le code d\'invitation:');
-                        if (code) {
-                          window.location.href = `/class-join?code=${code}`;
-                        }
-                      } else {
-                        window.location.href = `/class-join?code=${group.id}`;
-                      }
-                    }}
-                    className="w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg font-medium transition-colors"
-                  >
-                    {group.isPrivate ? 'Rejoindre (privée)' : 'Rejoindre'}
-                  </button>
                 </div>
               ))}
             </div>
