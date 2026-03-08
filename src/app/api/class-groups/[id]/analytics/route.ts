@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // GET /api/class-groups/[id]/analytics - Analytics d'une classe spécifique
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const classId = params.id;
+    const { id: classId } = await params;
     if (!classId) {
       return NextResponse.json({ error: 'Class ID required' }, { status: 400 });
     }
