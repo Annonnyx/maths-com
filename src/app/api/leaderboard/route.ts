@@ -106,6 +106,9 @@ export async function GET(req: NextRequest) {
     const rankClassField = mode === 'solo' ? 'soloRankClass' : 'multiplayerRankClass';
     const statisticsRelation = mode === 'solo' ? 'soloStatistics' : 'multiplayerStatistics';
 
+    // FORCE 10 PLAYERS MAX
+    const effectiveLimit = Math.min(limit, 10);
+
     // Get leaderboard data with statistics
     const leaderboard = await prisma.user.findMany({
       where: {
@@ -120,7 +123,7 @@ export async function GET(req: NextRequest) {
         [eloField]: 'desc'
       },
       skip,
-      take: limit
+      take: effectiveLimit
     });
 
     const total = await prisma.user.count({
@@ -131,6 +134,8 @@ export async function GET(req: NextRequest) {
     });
 
     // Calculate additional stats
+    const totalUsers = await prisma.user.count();
+    
     const leaderboardWithStats = leaderboard.map((user: any, index: number) => {
       const globalRank = skip + index + 1;
       
@@ -147,9 +152,13 @@ export async function GET(req: NextRequest) {
         ? (stats?.totalTests || 0)
         : (stats?.totalGames || 0);
 
+      // Calculate percentile (top X%)
+      const percentile = Math.round(((globalRank - 1) / totalUsers) * 100);
+
       return {
         ...user,
         globalRank,
+        percentile,
         stats: {
           accuracy,
           totalGames,
