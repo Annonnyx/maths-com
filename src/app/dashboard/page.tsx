@@ -97,7 +97,7 @@ export default function DashboardPage() {
   }
 
   const user = profile.user;
-  const stats = profile.soloStatistics;
+  const stats = profile.statistics;
 
   const getRankColor = (rank: string) => {
     const tier = rank.charAt(0);
@@ -293,37 +293,58 @@ export default function DashboardPage() {
               transition={{ delay: 0.4 }}
               className="p-6 bg-[#12121a] rounded-2xl border border-border"
             >
-              <h2 className="text-xl font-bold mb-4">Activité récente</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <History className="w-5 h-5 text-blue-400" />
+                  <span>Activité récente</span>
+                </h2>
+                <span className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded">Vue rapide</span>
+              </div>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <History className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm">Dernier test</span>
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-white">Dernier test</span>
+                      <p className="text-xs text-gray-400">Votre dernière session</p>
+                    </div>
                   </div>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium text-white">
                     {stats?.lastTestDate ? new Date(stats.lastTestDate).toLocaleDateString('fr-FR') : 'Jamais'}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Trophy className="w-4 h-4 text-yellow-400" />
-                    <span className="text-sm">Meilleur score</span>
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                      <Trophy className="w-4 h-4 text-yellow-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-white">Meilleur score</span>
+                      <p className="text-xs text-gray-400">Performance maximale</p>
+                    </div>
                   </div>
-                  <span className="text-sm font-medium">{stats?.bestScore || 0}</span>
+                  <span className="text-sm font-medium text-white">{stats?.bestScore || 0}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-green-400" />
-                    <span className="text-sm">Tests cette semaine</span>
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <Activity className="w-4 h-4 text-green-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-white">Tests cette semaine</span>
+                      <p className="text-xs text-gray-400">Progression hebdomadaire</p>
+                    </div>
                   </div>
-                  <span className="text-sm font-medium">{stats?.testsThisWeek || 0}</span>
+                  <span className="text-sm font-medium text-white">{stats?.testsThisWeek || 0}</span>
                 </div>
               </div>
               <Link
-                href="/history"
-                className="mt-4 block text-center px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all text-sm"
+                href="/dashboard/history"
+                className="mt-4 block text-center px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all text-sm font-medium"
               >
-                Voir tout l'historique
+                Voir tout l'historique détaillé →
               </Link>
             </motion.div>
 
@@ -334,20 +355,34 @@ export default function DashboardPage() {
               transition={{ delay: 0.5 }}
               className="p-6 bg-[#12121a] rounded-2xl border border-border"
             >
-              <h2 className="text-xl font-bold mb-4">Points à améliorer</h2>
-              <div className="space-y-2">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Target className="w-5 h-5 text-orange-400" />
+                  <span>Points à améliorer</span>
+                </h2>
+                <span className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded">Sujets ciblés</span>
+              </div>
+              <div className="space-y-3">
                 {['division', 'power', 'racine', 'factorisation'].slice(0, 2).map((point) => (
-                  <div key={point} className="flex items-center gap-2 text-orange-400">
-                    <Target className="w-4 h-4" />
-                    <span className="capitalize">{point}</span>
+                  <div key={point} className="flex items-center justify-between p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg hover:bg-orange-500/20 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                        <Target className="w-4 h-4 text-orange-400" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-white capitalize">{point}</span>
+                        <p className="text-xs text-gray-400">Entraînement recommandé</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-orange-400 bg-orange-500/20 px-2 py-1 rounded">À travailler</span>
                   </div>
                 ))}
               </div>
               <Link
                 href="/practice"
-                className="mt-4 block text-center px-4 py-2 bg-orange-500/20 text-orange-400 rounded-lg hover:bg-orange-500/30 transition-all"
+                className="mt-4 block text-center px-4 py-2 bg-orange-500/20 text-orange-400 rounded-lg hover:bg-orange-500/30 transition-all text-sm font-medium"
               >
-                S&apos;entraîner
+                Commencer l'entraînement →
               </Link>
             </motion.div>
           </div>

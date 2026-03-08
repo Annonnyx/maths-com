@@ -196,7 +196,7 @@ function ProfileContent() {
   }
 
   const user = profile.user;
-  const stats = profile.soloStatistics;
+  const stats = profile.statistics;
 
   const submitTeacherRequest = async () => {
     if (!teacherFormData.name || !teacherFormData.school || !teacherFormData.subject) {

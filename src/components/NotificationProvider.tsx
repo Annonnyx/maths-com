@@ -112,7 +112,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           const existingIds = new Set(prev.map(n => n.id));
           const newNotifications = [...pendingRequests, ...messageNotifications]
             .filter(n => !existingIds.has(n.id));
-          return [...newNotifications, ...prev];
+          return [...newNotifications, ...prev.filter(n => !newNotifications.find(nn => nn.id === n.id))];
         });
       }
     } catch (error) {

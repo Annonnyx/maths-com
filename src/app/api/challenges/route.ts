@@ -201,7 +201,9 @@ export async function POST(req: NextRequest) {
         metadata: JSON.stringify({
           challengeId: challenge.id,
           gameType,
-          timeControl
+          timeControl,
+          senderName: challenge.challenger.username || challenge.challenger.displayName,
+          senderId: user.id
         })
       }
     });

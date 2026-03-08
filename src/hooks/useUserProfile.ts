@@ -27,10 +27,9 @@ interface UserProfile {
     lastSeenAt: string;
     hasCompletedOnboarding: boolean;
   };
-  soloStatistics?: any;
-  multiplayerStatistics?: any;
-  recentTests?: any[];
+  statistics?: any;
   recentGames?: any[];
+  recentTests?: any[];
 }
 
 // Cache avec TTL de 2 minutes
