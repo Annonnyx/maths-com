@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Users, Settings, BarChart3, MessageSquare, 
-  BookOpen, Calendar, Award, Target, TrendingUp, Check, X, Plus, Trophy
+  BookOpen, Calendar, Award, Target, TrendingUp, Check, X, Plus, Trophy, Clock
 } from 'lucide-react';
 
 interface ClassDetails {
@@ -49,16 +49,23 @@ export default function ClassDetailsPage() {
     isPrivate: false
   });
 
+  // Déterminer si professeur ou élève (après chargement des données)
+  const isTeacher = session?.user && (classDetails?.teacher?.id === session.user.id || (session.user as any)?.isAdmin);
+  const isStudent = session?.user && !isTeacher;
+  const isClassOwner = classDetails?.teacher?.id === session?.user?.id;
+
   const tabs = [
-    { id: 'overview', name: 'Aperçu', icon: BarChart3 },
-    { id: 'my-classes', name: 'Mes classes', icon: Users },
-    { id: 'view-class', name: 'Voir la classe', icon: Users },
-    { id: 'students', name: 'Élèves', icon: Users },
-    { id: 'assignments', name: 'Devoirs', icon: BookOpen },
-    { id: 'messages', name: 'Messages', icon: MessageSquare },
-    { id: 'analytics', name: 'Analytics', icon: TrendingUp },
-    { id: 'settings', name: 'Paramètres', icon: Settings },
-  ];
+    { id: 'overview', name: 'Aperçu', icon: BarChart3, showFor: 'all' },
+    { id: 'students', name: 'Élèves', icon: Users, showFor: 'teacher' },
+    { id: 'assignments', name: 'Devoirs', icon: BookOpen, showFor: 'all' },
+    { id: 'messages', name: 'Messages', icon: MessageSquare, showFor: 'all' },
+    { id: 'analytics', name: 'Analytics', icon: TrendingUp, showFor: 'teacher' },
+    { id: 'settings', name: 'Paramètres', icon: Settings, showFor: 'teacher' },
+  ].filter(tab => {
+    if (tab.showFor === 'all') return true;
+    if (tab.showFor === 'teacher') return isTeacher;
+    return true;
+  });
 
   const loadAnalytics = async () => {
     if (!params.id) return;
@@ -215,11 +222,16 @@ export default function ClassDetailsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'accept', requestId: studentId, classId: params.id })
       });
+      
       if (response.ok) {
-        loadClassDetails(); // Recharger les données
+        loadClassDetails();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erreur lors de l\'acceptation');
       }
     } catch (error) {
       console.error('Error accepting student:', error);
+      alert('Erreur lors de l\'acceptation de l\'élève');
     }
   };
 
@@ -230,11 +242,54 @@ export default function ClassDetailsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'reject', requestId: studentId, classId: params.id })
       });
+      
       if (response.ok) {
-        loadClassDetails(); // Recharger les données
+        loadClassDetails();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erreur lors du refus');
       }
     } catch (error) {
       console.error('Error rejecting student:', error);
+      alert('Erreur lors du refus de l\'élève');
+    }
+  };
+
+  const leaveClass = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir quitter cette classe ?')) return;
+    
+    try {
+      const response = await fetch(`/api/class-members?classId=${params.id}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        router.push('/classes');
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erreur lors de la tentative de quitter');
+      }
+    } catch (error) {
+      alert('Erreur réseau');
+    }
+  };
+
+  const removeStudent = async (memberId: string, studentName: string) => {
+    if (!confirm(`Exclure ${studentName} de la classe ?`)) return;
+    
+    try {
+      const response = await fetch(`/api/class-members?classId=${params.id}&memberId=${memberId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        loadClassDetails();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Erreur lors de l\'exclusion');
+      }
+    } catch (error) {
+      alert('Erreur réseau');
     }
   };
 
@@ -329,41 +384,56 @@ export default function ClassDetailsPage() {
           transition={{ duration: 0.3 }}
         >
           {activeTab === 'overview' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
-                <div className="flex items-center justify-between mb-2">
-                  <Users className="w-8 h-8 text-blue-400" />
-                  <span className="text-2xl font-bold text-white">{classDetails.studentCount}</span>
+            <div className="space-y-6">
+              {/* Bouton quitter pour élèves */}
+              {isStudent && (
+                <div className="flex justify-end">
+                  <button
+                    onClick={leaveClass}
+                    className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <X className="w-4 h-4" />
+                    Quitter la classe
+                  </button>
                 </div>
-                <p className="text-gray-400">Élèves inscrits</p>
-                <p className="text-sm text-gray-500 mt-1">sur {classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents}</p>
-              </div>
+              )}
               
-              <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
-                <div className="flex items-center justify-between mb-2">
-                  <BookOpen className="w-8 h-8 text-green-400" />
-                  <span className="text-2xl font-bold text-white">0</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
+                  <div className="flex items-center justify-between mb-2">
+                    <Users className="w-8 h-8 text-blue-400" />
+                    <span className="text-2xl font-bold text-white">{classDetails.studentCount}</span>
+                  </div>
+                  <p className="text-gray-400">Élèves inscrits</p>
+                  <p className="text-sm text-gray-500 mt-1">sur {classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents}</p>
                 </div>
-                <p className="text-gray-400">Devoirs actifs</p>
-                <p className="text-sm text-gray-500 mt-1">À configurer</p>
-              </div>
-              
-              <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
-                <div className="flex items-center justify-between mb-2">
-                  <MessageSquare className="w-8 h-8 text-purple-400" />
-                  <span className="text-2xl font-bold text-white">0</span>
+                
+                <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
+                  <div className="flex items-center justify-between mb-2">
+                    <BookOpen className="w-8 h-8 text-green-400" />
+                    <span className="text-2xl font-bold text-white">0</span>
+                  </div>
+                  <p className="text-gray-400">Devoirs actifs</p>
+                  <p className="text-sm text-gray-500 mt-1">À configurer</p>
                 </div>
-                <p className="text-gray-400">Messages</p>
-                <p className="text-sm text-gray-500 mt-1">Aucun nouveau message</p>
-              </div>
-              
-              <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
-                <div className="flex items-center justify-between mb-2">
-                  <TrendingUp className="w-8 h-8 text-orange-400" />
-                  <span className="text-2xl font-bold text-white">--</span>
+                
+                <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
+                  <div className="flex items-center justify-between mb-2">
+                    <MessageSquare className="w-8 h-8 text-purple-400" />
+                    <span className="text-2xl font-bold text-white">0</span>
+                  </div>
+                  <p className="text-gray-400">Messages</p>
+                  <p className="text-sm text-gray-500 mt-1">Aucun nouveau message</p>
                 </div>
-                <p className="text-gray-400">Progression moyenne</p>
-                <p className="text-sm text-gray-500 mt-1">Données à venir</p>
+                
+                <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
+                  <div className="flex items-center justify-between mb-2">
+                    <TrendingUp className="w-8 h-8 text-orange-400" />
+                    <span className="text-2xl font-bold text-white">--</span>
+                  </div>
+                  <p className="text-gray-400">Progression moyenne</p>
+                  <p className="text-sm text-gray-500 mt-1">Données à venir</p>
+                </div>
               </div>
             </div>
           )}
@@ -510,6 +580,49 @@ export default function ClassDetailsPage() {
                 </div>
               </div>
               
+              {/* Demandes en attente - visible uniquement pour le prof */}
+              {isTeacher && joinRequests.length > 0 && (
+                <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <h4 className="font-semibold text-yellow-400 mb-3 flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Demandes en attente ({joinRequests.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {joinRequests.map((request) => (
+                      <div key={request.id} className="flex items-center justify-between p-3 bg-[#2a2a3a] rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                            <span className="text-yellow-400 text-sm">
+                              {request.user.displayName?.[0] || request.user.username?.[0]}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-white text-sm">{request.user.displayName || request.user.username}</p>
+                            <p className="text-xs text-gray-400">@{request.user.username}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => acceptStudent(request.id)}
+                            className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors flex items-center gap-1"
+                          >
+                            <Check className="w-3 h-3" />
+                            Accepter
+                          </button>
+                          <button
+                            onClick={() => rejectStudent(request.id)}
+                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors flex items-center gap-1"
+                          >
+                            <X className="w-3 h-3" />
+                            Refuser
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               {students.length === 0 ? (
                 <div className="text-center py-8">
                   <Users className="w-12 h-12 mx-auto mb-4 text-gray-600" />
@@ -541,9 +654,15 @@ export default function ClassDetailsPage() {
                         <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">
                           Élève
                         </span>
-                        <button className="p-2 hover:bg-[#3a3a4a] rounded-lg transition-colors">
-                          <MessageSquare className="w-4 h-4 text-gray-400" />
-                        </button>
+                        {isTeacher && (
+                          <button 
+                            onClick={() => removeStudent(student.id, student.user.displayName || student.user.username)}
+                            className="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                            title="Exclure de la classe"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
