@@ -192,6 +192,15 @@ export async function POST(req: NextRequest) {
     });
 
     // Create notification message
+    // Get user details for sender name
+    const senderUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        username: true,
+        displayName: true
+      }
+    });
+
     await prisma.message.create({
       data: {
         senderId: user.id,
@@ -202,7 +211,7 @@ export async function POST(req: NextRequest) {
           challengeId: challenge.id,
           gameType,
           timeControl,
-          senderName: challenge.challenger.username || challenge.challenger.displayName,
+          senderName: senderUser?.username || senderUser?.displayName || 'Utilisateur',
           senderId: user.id
         })
       }

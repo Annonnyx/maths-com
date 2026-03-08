@@ -292,14 +292,6 @@ function ProfileContent() {
             <div className="text-sm font-semibold">Amis</div>
             <div className="text-xs text-muted-foreground">Gérer</div>
           </Link>
-          <Link
-            href="/class-groups"
-            className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-xl border border-blue-500/30 hover:border-blue-500/50 transition-all group"
-          >
-            <Users className="w-6 h-6 text-blue-400 mb-2 group-hover:scale-110 transition-transform" />
-            <div className="text-sm font-semibold">Mes classes</div>
-            <div className="text-xs text-muted-foreground">Voir et rejoindre</div>
-          </Link>
           <button
             onClick={() => setShowShareModal(true)}
             className="p-4 bg-card rounded-xl border border-border hover:border-indigo-500/50 transition-all group text-left"

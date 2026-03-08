@@ -23,12 +23,17 @@ interface ClassGroup {
 export default function ClassGroupsPage() {
   const { data: session } = useSession();
   const [groups, setGroups] = useState<ClassGroup[]>([]);
+  const [myGroups, setMyGroups] = useState<ClassGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'my' | 'all'>('my');
 
   useEffect(() => {
     fetchGroups();
-  }, []);
+    if (session?.user) {
+      fetchMyGroups();
+    }
+  }, [session]);
 
   const fetchGroups = async () => {
     try {
@@ -39,10 +44,30 @@ export default function ClassGroupsPage() {
       }
     } catch (error) {
       console.error('Error fetching groups:', error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  const fetchMyGroups = async () => {
+    try {
+      const response = await fetch('/api/class-groups/my-classes');
+      if (response.ok) {
+        const data = await response.json();
+        setMyGroups(data.groups || []);
+      }
+    } catch (error) {
+      console.error('Error fetching my groups:', error);
+    }
+  };
+
+  useEffect(() => {
+    const loadAll = async () => {
+      setLoading(true);
+      await Promise.all([fetchGroups(), session?.user ? fetchMyGroups() : Promise.resolve()]);
+      setLoading(false);
+    };
+    
+    loadAll();
+  }, [session]);
 
   if (loading) {
     return (
@@ -61,7 +86,7 @@ export default function ClassGroupsPage() {
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-3">
                 <GraduationCap className="w-8 h-8 text-indigo-400" />
-                Mes Classes
+                Classes
               </h1>
               <p className="text-gray-400 mt-1">
                 Rejoignez des groupes de classe pour apprendre ensemble
@@ -81,74 +106,170 @@ export default function ClassGroupsPage() {
         </div>
       </header>
 
+      {/* Tabs */}
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="flex gap-4 border-b border-gray-800">
+          <button
+            onClick={() => setActiveTab('my')}
+            className={`px-6 py-3 font-medium transition-colors ${
+              activeTab === 'my'
+                ? 'text-indigo-400 border-b-2 border-indigo-400'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Mes classes
+          </button>
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`px-6 py-3 font-medium transition-colors ${
+              activeTab === 'all'
+                ? 'text-indigo-400 border-b-2 border-indigo-400'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Toutes les classes
+          </button>
+        </div>
+      </div>
+
       {/* Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {groups.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Users className="w-10 h-10 text-gray-400" />
+        {activeTab === 'my' ? (
+          myGroups.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="w-10 h-10 text-gray-400" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">Aucune classe</h2>
+              <p className="text-gray-400 mb-6">
+                Vous n'êtes membre d'aucune classe pour le moment.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => {
+                    const code = prompt('Entrez le code d\'invitation:');
+                    if (code) {
+                      window.location.href = `/class-join?code=${code}`;
+                    }
+                  }}
+                  className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 rounded-lg font-medium transition-colors"
+                >
+                  Rejoindre avec un code
+                </button>
+                <button
+                  onClick={() => setActiveTab('all')}
+                  className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors"
+                >
+                  Explorer les classes
+                </button>
+              </div>
             </div>
-            <h2 className="text-xl font-semibold mb-2">Aucune classe</h2>
-            <p className="text-gray-400 mb-6">
-              Vous n'êtes membre d'aucune classe pour le moment.
-            </p>
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => {
-                  const code = prompt('Entrez le code d\'invitation:');
-                  if (code) {
-                    fetch('/api/class-groups/join', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ inviteCode: code })
-                    }).then(() => fetchGroups());
-                  }
-                }}
-                className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 rounded-xl font-medium transition-colors"
-              >
-                Rejoindre avec un code
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {groups.map((group) => (
-              <motion.div
-                key={group.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-[#12121a] rounded-xl border border-gray-800 p-6 hover:border-indigo-500/50 transition-colors"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-white" />
-                  </div>
-                  {group.isPrivate && (
-                    <span className="px-2 py-1 bg-gray-800 rounded text-xs text-gray-400">
-                      Privé
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {myGroups.map((group) => (
+                <div key={group.id} className="bg-[#1e1e2e] rounded-xl p-6 border border-gray-700 hover:border-indigo-500/50 transition-all">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">{group.name}</h3>
+                    <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded text-xs">
+                      {group._count.members} membres
                     </span>
-                  )}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <Users className="w-4 h-4" />
+                    <span>Prof: {group.teacher.displayName || group.teacher.username}</span>
+                  </div>
                 </div>
-                
-                <h3 className="text-lg font-semibold mb-2">{group.name}</h3>
-                <p className="text-sm text-gray-400 mb-4">
-                  Prof: {group.teacher.displayName || group.teacher.username}
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-400">
-                    {group._count.members} membres
-                  </span>
-                  <Link
-                    href={`/class-groups/${group.id}`}
-                    className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors"
+              ))}
+            </div>
+          )
+        ) : (
+          groups.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="w-10 h-10 text-gray-400" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">Aucune classe publique</h2>
+              <p className="text-gray-400 mb-6">
+                Il n'y a pas de classe publique disponible pour le moment.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {groups.map((group) => (
+                <div key={group.id} className="bg-[#1e1e2e] rounded-xl p-6 border border-gray-700 hover:border-indigo-500/50 transition-all">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">{group.name}</h3>
+                    <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded text-xs">
+                      {group._count.members} membres
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
+                    <Users className="w-4 h-4" />
+                    <span>Prof: {group.teacher.displayName || group.teacher.username}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (group.isPrivate) {
+                        const code = prompt('Cette classe est privée. Entrez le code d\'invitation:');
+                        if (code) {
+                          window.location.href = `/class-join?code=${code}`;
+                        }
+                      } else {
+                        window.location.href = `/class-join?code=${group.id}`;
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg font-medium transition-colors"
                   >
-                    Voir <ArrowRight className="w-4 h-4" />
-                  </Link>
+                    {group.isPrivate ? 'Rejoindre (privée)' : 'Rejoindre'}
+                  </button>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )
+        ) : (
+          groups.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="w-10 h-10 text-gray-400" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">Aucune classe publique</h2>
+              <p className="text-gray-400 mb-6">
+                Il n'y a pas de classe publique disponible pour le moment.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {groups.map((group) => (
+                <div key={group.id} className="bg-[#1e1e2e] rounded-xl p-6 border border-gray-700 hover:border-indigo-500/50 transition-all">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">{group.name}</h3>
+                    <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 rounded text-xs">
+                      {group._count.members} membres
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
+                    <Users className="w-4 h-4" />
+                    <span>Prof: {group.teacher.displayName || group.teacher.username}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (group.isPrivate) {
+                        const code = prompt('Cette classe est privée. Entrez le code d\'invitation:');
+                        if (code) {
+                          window.location.href = `/class-join?code=${code}`;
+                        }
+                      } else {
+                        window.location.href = `/class-join?code=${group.id}`;
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg font-medium transition-colors"
+                  >
+                    {group.isPrivate ? 'Rejoindre (privée)' : 'Rejoindre'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )
         )}
       </main>
     </div>

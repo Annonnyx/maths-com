@@ -11,7 +11,7 @@ import {
   Trophy, Target, Clock, TrendingUp, BookOpen, 
   Calculator, ChevronRight, Award, BarChart3,
   Zap, Star, History, Users, MessageCircle, Medal,
-  GraduationCap, Calendar, Activity
+  GraduationCap, Calendar, Activity, Plus
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS, RankClass } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
@@ -346,6 +346,63 @@ export default function DashboardPage() {
               >
                 Voir tout l'historique détaillé →
               </Link>
+            </motion.div>
+
+            {/* My Classes */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="p-6 bg-[#12121a] rounded-2xl border border-border"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5 text-indigo-400" />
+                  <span>Mes classes</span>
+                </h2>
+                <Link
+                  href="/class-groups"
+                  className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  Gérer tout →
+                </Link>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg hover:bg-indigo-500/20 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                      <Users className="w-4 h-4 text-indigo-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-white">Voir mes classes</span>
+                      <p className="text-xs text-gray-400">Accéder à mes groupes</p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/class-groups"
+                    className="text-sm text-indigo-400 hover:text-indigo-300"
+                  >
+                    Voir →
+                  </Link>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/20 rounded-lg hover:bg-green-500/20 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <Plus className="w-4 h-4 text-green-400" />
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-white">Rejoindre une classe</span>
+                      <p className="text-xs text-gray-400">Avec un code d'invitation</p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/class-groups"
+                    className="text-sm text-green-400 hover:text-green-300"
+                  >
+                    Rejoindre →
+                  </Link>
+                </div>
+              </div>
             </motion.div>
 
             {/* Weak Points */}

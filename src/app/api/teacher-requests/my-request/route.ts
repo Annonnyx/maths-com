@@ -24,8 +24,8 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.email || !(await isAdminEmail(session.user.email))) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get the user's teacher request
