@@ -2,6 +2,42 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getRankFromElo } from '@/lib/elo';
+
+// Old school level to ELO rank conversion
+const SCHOOL_LEVEL_TO_ELO: Record<string, number> = {
+  'CP': 350,    // ~F
+  'CE1': 450,   // ~F+
+  'CE2': 550,   // ~E
+  'CM1': 650,   // ~E+
+  'CM2': 750,   // ~D-
+  '6e': 850,    // ~D
+  '5e': 950,    // ~D+
+  '4e': 1050,   // ~C-
+  '3e': 1150,   // ~C
+  '2de': 1250,  // ~C+
+  '1re': 1350,  // ~B-
+  'Tle': 1450,  // ~B
+};
+
+// Sanitize rank - convert old school levels to proper ELO ranks
+function sanitizeRank(rank: string | null | undefined, elo: number): string {
+  if (!rank) return getRankFromElo(elo);
+  
+  // If it's a school level, convert it
+  if (rank in SCHOOL_LEVEL_TO_ELO) {
+    return getRankFromElo(elo);
+  }
+  
+  // Valid ELO ranks: F-, F, F+, E-, E, E+, D-, D, D+, C-, C, C+, B-, B, B+, A-, A, A+, S-, S, S+
+  const validRanks = ['F-', 'F', 'F+', 'E-', 'E', 'E+', 'D-', 'D', 'D+', 'C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+', 'S-', 'S', 'S+'];
+  if (validRanks.includes(rank)) {
+    return rank;
+  }
+  
+  // Fallback: calculate from ELO
+  return getRankFromElo(elo);
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -163,9 +199,9 @@ export async function GET(req: NextRequest) {
           accuracy,
           totalGames,
           currentElo: mode === 'solo' ? user.soloElo : user.multiplayerElo,
-          currentRank: mode === 'solo' ? user.soloRankClass : user.multiplayerRankClass,
+          currentRank: sanitizeRank(mode === 'solo' ? user.soloRankClass : user.multiplayerRankClass, mode === 'solo' ? user.soloElo : user.multiplayerElo),
           bestElo: mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo,
-          bestRank: mode === 'solo' ? user.soloBestRankClass : user.multiplayerBestRankClass
+          bestRank: sanitizeRank(mode === 'solo' ? user.soloBestRankClass : user.multiplayerBestRankClass, mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo)
         }
       };
     });
@@ -199,7 +235,7 @@ export async function GET(req: NextRequest) {
         displayName: currentUser.displayName,
         stats: {
           currentElo: mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo,
-          currentRank: mode === 'solo' ? currentUser.soloRankClass : currentUser.multiplayerRankClass,
+          currentRank: sanitizeRank(mode === 'solo' ? currentUser.soloRankClass : currentUser.multiplayerRankClass, mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo),
           totalGames: 0 // Will be populated from actual statistics
         }
       } : null
