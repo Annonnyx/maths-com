@@ -8,7 +8,6 @@ import {
   Users, User, UserPlus, Clock, Target, Award, Crown, BarChart3, TrendingUp, Settings, GraduationCap, RefreshCw, Plus, ArrowLeft, BookOpen, MessageSquare
 } from 'lucide-react';
 import Link from 'next/link';
-import TeacherClassManager from '@/components/TeacherClassManager';
 import JoinClassSection from '@/components/JoinClassSection';
 import StudentView from '@/components/StudentView';
 
