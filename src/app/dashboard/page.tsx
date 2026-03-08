@@ -266,37 +266,7 @@ export default function DashboardPage() {
           </div>
         </motion.section>
 
-        {/* Description des sections */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.18 }}
-          className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
-        >
-          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
-            <p className="text-xs text-gray-400"><span className="text-indigo-400 font-medium">Tests</span> — Lance des exercices de calcul mental pour t'entraîner et monter en ELO</p>
-          </div>
-          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
-            <p className="text-xs text-gray-400"><span className="text-purple-400 font-medium">Multijoueur</span> — Affronte d'autres joueurs en temps réel et grimpe dans le classement</p>
-          </div>
-          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
-            <p className="text-xs text-gray-400"><span className="text-blue-400 font-medium">Social</span> — Gère tes amis, envoie des messages et défie-les en duel</p>
-          </div>
-          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
-            <p className="text-xs text-gray-400"><span className="text-pink-400 font-medium">Profil</span> — Personnalise ton avatar, ta bannière et vois ton historique public</p>
-          </div>
-          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
-            <p className="text-xs text-gray-400"><span className="text-green-400 font-medium">Statistiques</span> — Analyse tes performances détaillées avec filtres par période</p>
-          </div>
-          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
-            <p className="text-xs text-gray-400"><span className="text-yellow-400 font-medium">Historique</span> — Retrouve tous tes résultats de tests et parties passées</p>
-          </div>
-          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50 md:col-span-2 lg:col-span-1">
-            <p className="text-xs text-gray-400"><span className="text-cyan-400 font-medium">Mes Classes</span> — Rejoins ou crée des classes pour apprendre avec tes camarades</p>
-          </div>
-        </motion.section>
-
-        {/* SECTION PRINCIPALE — 7 Boutons avec Previews */}
+        {/* SECTION PRINCIPALE — 7 Boutons avec Descriptions */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -305,32 +275,23 @@ export default function DashboardPage() {
         >
           {/* BOUTON 1 — Tests */}
           <Link href="/test" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all flex flex-col">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-indigo-500/20 rounded-lg">
                   <Zap className="w-5 h-5 text-indigo-400" />
                 </div>
                 <h3 className="font-semibold">Tests</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              
-              {loadingPreviews ? (
-                <PreviewSkeleton />
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Dernier score</span>
-                    <span className="font-medium">
-                      {stats?.lastScore ? `${stats.lastScore}%` : 'Aucun'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Cette semaine</span>
-                    <span className="font-medium">{stats?.testsThisWeek || 0} tests</span>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-[#2a2a3a]">
-                    <Sparkline data={[85, 92, 78, 88, 95]} color="text-indigo-400" />
-                  </div>
+              <p className="text-sm text-gray-400 flex-grow">
+                Lance des exercices de calcul mental pour t'entraîner et monter en ELO
+              </p>
+              {!loadingPreviews && (
+                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm">
+                  <span className="text-muted-foreground">Dernier score</span>
+                  <span className="font-medium text-indigo-400">
+                    {stats?.lastScore ? `${stats.lastScore}%` : 'Aucun'}
+                  </span>
                 </div>
               )}
             </div>
@@ -338,31 +299,24 @@ export default function DashboardPage() {
 
           {/* BOUTON 2 — Multijoueur */}
           <Link href="/multiplayer" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all flex flex-col">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-purple-500/20 rounded-lg">
                   <Users className="w-5 h-5 text-purple-400" />
                 </div>
                 <h3 className="font-semibold">Multijoueur</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              
-              {loadingPreviews ? (
-                <PreviewSkeleton />
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Rang actuel</span>
-                    <span className="font-medium text-purple-400">{user.multiplayerRankClass}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">ELO Multijoueur</span>
-                    <span className="font-medium">{user.multiplayerElo}</span>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex items-center gap-2">
+              <p className="text-sm text-gray-400 flex-grow">
+                Affronte d'autres joueurs en temps réel et grimpe dans le classement
+              </p>
+              {!loadingPreviews && (
+                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm items-center">
+                  <span className="text-muted-foreground flex items-center gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-sm text-green-400">En ligne</span>
-                  </div>
+                    En ligne
+                  </span>
+                  <span className="font-medium text-purple-400">{user.multiplayerElo} ELO</span>
                 </div>
               )}
             </div>
@@ -370,60 +324,48 @@ export default function DashboardPage() {
 
           {/* BOUTON 3 — Social */}
           <Link href="/friends" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-blue-500/50 transition-all">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-blue-500/50 transition-all flex flex-col">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-blue-500/20 rounded-lg">
                   <MessageCircle className="w-5 h-5 text-blue-400" />
                 </div>
                 <h3 className="font-semibold">Social</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              
-              {loadingPreviews ? (
-                <PreviewSkeleton />
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Amis</span>
-                    <span className="font-medium">Gérer vos amis</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Messages</span>
-                    <span className="font-medium text-xs">Voir les conversations</span>
-                  </div>
+              <p className="text-sm text-gray-400 flex-grow">
+                Gère tes amis, envoie des messages et défie-les en duel
+              </p>
+              {!loadingPreviews && (
+                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm">
+                  <span className="text-muted-foreground">Amis</span>
+                  <span className="font-medium text-blue-400">Voir les amis</span>
                 </div>
               )}
             </div>
           </Link>
 
-          {/* BOUTON 4 — Bannière */}
+          {/* BOUTON 4 — Profil */}
           <Link href="/profile" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-pink-500/50 transition-all">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-pink-500/50 transition-all flex flex-col">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-pink-500/20 rounded-lg">
                   <UserCircle className="w-5 h-5 text-pink-400" />
                 </div>
                 <h3 className="font-semibold">Profil & Bannière</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              
-              {loadingPreviews ? (
-                <PreviewSkeleton />
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Personnalisation</span>
-                    <span className="font-medium">Avatar & bannière</span>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-[#2a2a3a]">
-                    {user.bannerUrl ? (
-                      <div className="h-12 rounded bg-gradient-to-r from-purple-600 to-pink-600" />
-                    ) : (
-                      <div className="h-12 rounded bg-muted/30 flex items-center justify-center text-xs text-muted-foreground">
-                        Bannière par défaut
-                      </div>
-                    )}
-                  </div>
+              <p className="text-sm text-gray-400 flex-grow">
+                Personnalise ton avatar, ta bannière et vois ton historique public
+              </p>
+              {!loadingPreviews && (
+                <div className="mt-3 pt-3 border-t border-[#2a2a3a]">
+                  {user.bannerUrl ? (
+                    <div className="h-8 rounded bg-gradient-to-r from-purple-600 to-pink-600" />
+                  ) : (
+                    <div className="text-xs text-muted-foreground">
+                      Bannière par défaut
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -431,35 +373,23 @@ export default function DashboardPage() {
 
           {/* BOUTON 5 — Statistiques */}
           <Link href="/stats" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-green-500/50 transition-all">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-green-500/50 transition-all flex flex-col">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-green-500/20 rounded-lg">
                   <LineChart className="w-5 h-5 text-green-400" />
                 </div>
                 <h3 className="font-semibold">Statistiques</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              
-              {loadingPreviews ? (
-                <PreviewSkeleton />
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Taux de réussite</span>
-                    <span className="font-medium">
-                      {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Meilleure série</span>
-                    <span className="font-medium flex items-center gap-1">
-                      <Flame className="w-3 h-3 text-orange-400" />
-                      {user.soloBestStreak}
-                    </span>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-[#2a2a3a]">
-                    <Sparkline data={[1200, 1250, 1230, 1280, 1300, 1320, 1350]} color="text-green-400" />
-                  </div>
+              <p className="text-sm text-gray-400 flex-grow">
+                Analyse tes performances détaillées avec filtres par période
+              </p>
+              {!loadingPreviews && (
+                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm">
+                  <span className="text-muted-foreground">Taux de réussite</span>
+                  <span className="font-medium text-green-400">
+                    {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
+                  </span>
                 </div>
               )}
             </div>
@@ -467,32 +397,21 @@ export default function DashboardPage() {
 
           {/* BOUTON 6 — Historique */}
           <Link href="/history" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-yellow-500/50 transition-all">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-yellow-500/50 transition-all flex flex-col">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-yellow-500/20 rounded-lg">
                   <History className="w-5 h-5 text-yellow-400" />
                 </div>
                 <h3 className="font-semibold">Historique</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              
-              {loadingPreviews ? (
-                <PreviewSkeleton />
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Dernier test</span>
-                    <span className="font-medium text-xs">
-                      {stats?.lastTestDate 
-                        ? new Date(stats.lastTestDate).toLocaleDateString('fr-FR')
-                        : 'Jamais'
-                      }
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tests complétés</span>
-                    <span className="font-medium">{stats?.totalTests || 0}</span>
-                  </div>
+              <p className="text-sm text-gray-400 flex-grow">
+                Retrouve tous tes résultats de tests et parties passées
+              </p>
+              {!loadingPreviews && (
+                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm">
+                  <span className="text-muted-foreground">Tests complétés</span>
+                  <span className="font-medium text-yellow-400">{stats?.totalTests || 0}</span>
                 </div>
               )}
             </div>
@@ -500,28 +419,20 @@ export default function DashboardPage() {
 
           {/* BOUTON 7 — Mes Classes */}
           <Link href="/classes" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-cyan-500/50 transition-all">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-cyan-500/50 transition-all flex flex-col">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-cyan-500/20 rounded-lg">
                   <GraduationCap className="w-5 h-5 text-cyan-400" />
                 </div>
                 <h3 className="font-semibold">Mes Classes</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              
-              {loadingPreviews ? (
-                <PreviewSkeleton />
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Gérer les classes</span>
-                    <span className="font-medium">Rejoindre / Créer</span>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">
-                      Classes publiques et privées
-                    </span>
-                  </div>
+              <p className="text-sm text-gray-400 flex-grow">
+                Rejoins ou crée des classes pour apprendre avec tes camarades
+              </p>
+              {!loadingPreviews && (
+                <div className="mt-3 pt-3 border-t border-[#2a2a3a] text-xs text-muted-foreground">
+                  Classes publiques et privées
                 </div>
               )}
             </div>

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { RANK_BG_COLORS, RANK_THRESHOLDS, RankClass, RANK_CLASSES } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
+import { EloChart } from '@/components/EloChart';
 
 export default function StatsPage() {
   const { data: session } = useSession();
@@ -146,7 +147,7 @@ export default function StatsPage() {
           </div>
         </motion.section>
 
-        {/* Grand Graphique Principal */}
+        {/* Grand Graphique Principal - Évolution ELO */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -170,23 +171,23 @@ export default function StatsPage() {
                 </span>
               </div>
             </div>
-            <div className="h-80 bg-[#1e1e2e] rounded-xl flex items-center justify-center relative overflow-hidden">
-              {/* Placeholder pour le graphique */}
-              <div className="text-center text-gray-500">
-                <LineChart className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p className="text-lg mb-2">Graphique d'évolution ELO</p>
-                <p className="text-sm">Les données s'afficheront ici selon les filtres sélectionnés</p>
+            
+            {/* Graphique ELO fonctionnel */}
+            <EloChart 
+              mode={gameMode}
+              period={timePeriod}
+              currentElo={currentElo}
+              currentRank={currentRank || 'F-'}
+            />
+            
+            {/* Indicateur de mode/rang actuel */}
+            <div className="mt-4 flex items-center justify-end gap-3">
+              <div className="text-right">
+                <div className="text-2xl font-bold">{currentElo}</div>
+                <div className="text-xs text-gray-400">ELO actuel</div>
               </div>
-              
-              {/* Indicateur de mode/rang actuel */}
-              <div className="absolute top-4 right-4 flex items-center gap-3">
-                <div className="text-right">
-                  <div className="text-2xl font-bold">{currentElo}</div>
-                  <div className="text-xs text-gray-400">ELO</div>
-                </div>
-                <div className={`px-3 py-1.5 rounded-lg border text-center ${getRankColor(currentRank)}`}>
-                  <div className="text-sm font-bold">{currentRank}</div>
-                </div>
+              <div className={`px-3 py-1.5 rounded-lg border text-center ${getRankColor(currentRank)}`}>
+                <div className="text-sm font-bold">{currentRank}</div>
               </div>
             </div>
           </div>
