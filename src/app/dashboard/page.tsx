@@ -8,14 +8,13 @@ import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import OnboardingFlow from '@/components/OnboardingFlow';
 import { 
-  Trophy, Target, Clock, TrendingUp, BookOpen, 
-  Calculator, ChevronRight, Award, BarChart3,
-  Zap, Star, History, Users, MessageCircle, Medal,
-  GraduationCap, Calendar, Activity, Plus
+  Trophy, Target, Clock, TrendingUp, Zap, Users, MessageCircle,
+  Award, BarChart3, History, GraduationCap, Sparkles, LineChart,
+  UserCircle, ChevronRight, Activity, Loader2, Calendar, Flame,
+  Calculator, Star
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS, RankClass } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
-import TeacherClassManager from '@/components/TeacherClassManager';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -23,9 +22,10 @@ export default function DashboardPage() {
   const { profile, isLoading, error } = useUserProfile();
   const [showOnboarding, setShowOnboarding] = useState(false);
   
-  // Stats state
-  const [statsPeriod, setStatsPeriod] = useState<'hour' | 'day' | 'week' | 'month' | 'year'>('week');
-  const [showAdvancedStats, setShowAdvancedStats] = useState(false);
+  // Nouveaux filtres globaux
+  const [gameMode, setGameMode] = useState<'solo' | 'multiplayer' | 'both'>('solo');
+  const [timePeriod, setTimePeriod] = useState<'1h' | '24h' | '7d' | '30d' | '3m' | 'all'>('7d');
+  const [loadingPreviews, setLoadingPreviews] = useState(true);
 
   // Check if user needs onboarding
   useEffect(() => {
@@ -99,17 +99,59 @@ export default function DashboardPage() {
   const user = profile.user;
   const stats = profile.statistics;
 
+  // Déterminer les stats à afficher selon le mode
+  const currentRank = gameMode === 'multiplayer' ? user.multiplayerRankClass : user.soloRankClass;
+  const currentElo = gameMode === 'multiplayer' ? user.multiplayerElo : user.soloElo;
+  
   const getRankColor = (rank: string) => {
     const tier = rank.charAt(0);
     return RANK_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
   };
+
+  // Mini sparkline component
+  const Sparkline = ({ data, color = 'text-purple-400' }: { data: number[], color?: string }) => {
+    if (!data.length) return <div className="h-10 w-full bg-muted/30 rounded" />;
+    
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
+    
+    const points = data.map((val, i) => {
+      const x = (i / (data.length - 1)) * 100;
+      const y = 100 - ((val - min) / range) * 80 - 10;
+      return `${x},${y}`;
+    }).join(' ');
+    
+    return (
+      <svg className="h-10 w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <polyline
+          points={points}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          className={color}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  };
+
+  // Skeleton loader pour les previews
+  const PreviewSkeleton = () => (
+    <div className="animate-pulse space-y-2">
+      <div className="h-4 bg-muted/50 rounded w-3/4" />
+      <div className="h-4 bg-muted/50 rounded w-1/2" />
+      <div className="h-16 bg-muted/30 rounded mt-3" />
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
+          <Link href="/dashboard" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors">
             <Trophy className="w-6 h-6" />
             <span className="font-bold">maths-app.com</span>
           </Link>
@@ -123,9 +165,9 @@ export default function DashboardPage() {
             </Link>
             <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg">
               <Award className="w-5 h-5 text-yellow-400" />
-              <span className="font-semibold">{user.soloRankClass}</span>
+              <span className="font-semibold">{currentRank}</span>
               <span className="text-muted-foreground">|</span>
-              <span className="font-mono">{user.soloElo} Elo</span>
+              <span className="font-mono">{currentElo} Elo</span>
             </div>
           </div>
         </div>
@@ -137,483 +179,391 @@ export default function DashboardPage() {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Welcome Section */}
+        {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold mb-2">Bonjour, {user.username || user.displayName || 'Mathématicien'} ! 👋</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            Bonjour, {user.username || user.displayName || 'Mathématicien'} !
+          </h1>
           <p className="text-muted-foreground">Prêt à améliorer tes capacités de calcul mental ?</p>
         </motion.div>
 
-        {/* Quick Actions */}
-        <motion.div
+        {/* SECTION HAUTE — Rang et ELO avec Toggle */}
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+          className={`p-6 rounded-2xl border mb-8 ${getRankColor(currentRank)}`}
         >
-          <Link
-            href="/test"
-            className="p-6 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-2xl border border-indigo-500/30 hover:border-indigo-500/50 transition-all group"
-          >
-            <Zap className="w-8 h-8 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="font-semibold">Test d'évaluation</h3>
-            <p className="text-sm text-muted-foreground">Teste ton niveau</p>
-          </Link>
-          
-          <Link
-            href="/practice"
-            className="p-6 bg-gradient-to-br from-green-500/20 to-emerald-600/20 rounded-2xl border border-green-500/30 hover:border-green-500/50 transition-all group"
-          >
-            <Target className="w-8 h-8 text-green-400 mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="font-semibold">Entraînement</h3>
-            <p className="text-sm text-muted-foreground">Libre</p>
-          </Link>
-          
-          <Link
-            href="/multiplayer"
-            className="p-6 bg-gradient-to-br from-purple-500/20 to-pink-600/20 rounded-2xl border border-purple-500/30 hover:border-purple-500/50 transition-all group"
-          >
-            <Users className="w-8 h-8 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="font-semibold">Multijoueur</h3>
-            <p className="text-sm text-muted-foreground">Joueurs en ligne</p>
-          </Link>
-          
-          <Link
-            href="/friends"
-            className="p-6 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-2xl border border-blue-500/30 hover:border-blue-500/50 transition-all group"
-          >
-            <MessageCircle className="w-8 h-8 text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="font-semibold">Amis</h3>
-            <p className="text-sm text-muted-foreground">Gérer</p>
-          </Link>
-        </motion.div>
+          {/* Toggle Solo/Multijoueur */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex bg-black/20 rounded-lg p-1">
+              <button
+                onClick={() => setGameMode('solo')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  gameMode === 'solo'
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Solo
+              </button>
+              <button
+                onClick={() => setGameMode('multiplayer')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  gameMode === 'multiplayer'
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Multijoueur
+              </button>
+            </div>
+            <Sparkles className="w-5 h-5 text-yellow-400" />
+          </div>
 
-        {/* Main Grid */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Stats */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Rank Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className={`p-6 rounded-2xl border ${getRankColor(user.soloRankClass)}`}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold mb-1">Classe actuelle</h2>
-                  <p className="text-muted-foreground">Progresse pour débloquer de nouvelles opérations</p>
-                </div>
-                <div className="text-4xl font-bold">{user.soloRankClass}</div>
-              </div>
-              
-              {/* Progress to next rank */}
-              <div className="mb-4">
-                <div className="flex justify-between text-sm mb-2">
-                  <span>{user.soloElo} Elo</span>
-                  <span>Prochain rang: {(() => {
-                    const currentRankIndex = RANK_CLASSES.indexOf(user.soloRankClass as any);
-                    const nextRank = currentRankIndex < RANK_CLASSES.length - 1 ? RANK_CLASSES[currentRankIndex + 1] : null;
-                    return nextRank || 'Max';
-                  })()}</span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-                  <div 
-                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
-                    style={{ width: `${(() => {
-                      const rankClass = user.soloRankClass as RankClass;
-                      const threshold = RANK_THRESHOLDS[rankClass];
-                      const progress = Math.min(100, Math.max(0, ((user.soloElo - Number(threshold || 0)) / 100) * 100));
-                      return `${progress}%`;
-                    })()}` 
-                    }}
-                  />
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Stats Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="p-6 bg-[#12121a] rounded-2xl border border-border"
-            >
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Calculator className="w-5 h-5 text-indigo-400" />
-                <span className="text-muted-foreground">Statistiques</span>
+          {/* Affichage du rang */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold mb-1">
+                Rang actuel : {currentRank}
               </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-indigo-400" />
-                    <span className="text-muted-foreground">Tests complétés</span>
-                  </div>
-                  <span className="font-bold">{stats?.totalTests || 0}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-green-400" />
-                    <span className="text-muted-foreground">Taux de réussite</span>
-                  </div>
-                  <span className="font-bold">
-                    {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-cyan-400" />
-                    <span className="text-muted-foreground">Temps moyen</span>
-                  </div>
-                  <span className="font-bold">{stats ? Math.round(stats.averageTime) : 0}s</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-orange-400" />
-                    <span className="text-muted-foreground">Meilleure série</span>
-                  </div>
-                  <span className="font-bold">{user.soloBestStreak} 🔥</span>
-                </div>
-              </div>
-            </motion.div>
+              <p className="text-muted-foreground">
+                {gameMode === 'solo' ? 'Progression en mode solo' : 'Progression en multijoueur'}
+              </p>
+            </div>
+            <div className="text-right">
+              <div className="text-4xl font-bold">{currentElo}</div>
+              <div className="text-sm text-muted-foreground">ELO</div>
+            </div>
           </div>
-
-          {/* Right Column */}
-          <div className="space-y-6">
-            {/* Ad Sidebar */}
-            <AdUnit type="sidebar" className="mb-6 transform scale-75 opacity-70" />
-            
-            {/* Recent Activity */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="p-6 bg-[#12121a] rounded-2xl border border-border"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <History className="w-5 h-5 text-blue-400" />
-                  <span>Activité récente</span>
-                </h2>
-                <span className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded">Vue rapide</span>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <Calendar className="w-4 h-4 text-blue-400" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-white">Dernier test</span>
-                      <p className="text-xs text-gray-400">Votre dernière session</p>
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-white">
-                    {stats?.lastTestDate ? new Date(stats.lastTestDate).toLocaleDateString('fr-FR') : 'Jamais'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                      <Trophy className="w-4 h-4 text-yellow-400" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-white">Meilleur score</span>
-                      <p className="text-xs text-gray-400">Performance maximale</p>
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-white">{stats?.bestScore || 0}</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <Activity className="w-4 h-4 text-green-400" />
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-white">Tests cette semaine</span>
-                      <p className="text-xs text-gray-400">Progression hebdomadaire</p>
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-white">{stats?.testsThisWeek || 0}</span>
-                </div>
-              </div>
-              <Link
-                href="/dashboard/history"
-                className="mt-4 block text-center px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-all text-sm font-medium"
-              >
-                Voir tout l'historique détaillé →
-              </Link>
-            </motion.div>
-
-            {/* My Classes */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="p-6 bg-[#12121a] rounded-2xl border border-border"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <GraduationCap className="w-5 h-5 text-indigo-400" />
-                  <span>Mes classes</span>
-                </h2>
-                <Link
-                  href="/class-groups"
-                  className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-                >
-                  Gérer tout →
-                </Link>
-              </div>
-              <div className="space-y-3">
-                {/* Statistiques des classes */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Users className="w-4 h-4 text-indigo-400" />
-                      <span className="text-lg font-bold text-white">3</span>
-                    </div>
-                    <span className="text-xs text-gray-400">Classes rejointes</span>
-                  </div>
-                  <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Activity className="w-4 h-4 text-green-400" />
-                      <span className="text-lg font-bold text-white">12</span>
-                    </div>
-                    <span className="text-xs text-gray-400">Activités cette semaine</span>
-                  </div>
-                </div>
-                
-                {/* Catégories principales */}
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-gray-400 mb-2">Catégories disponibles</div>
-                  <div className="grid grid-cols-1 gap-2">
-                    <div className="flex items-center justify-between p-2 bg-purple-500/10 border border-purple-500/20 rounded-lg hover:bg-purple-500/20 transition-colors cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-purple-500/20 rounded flex items-center justify-center">
-                          <span className="text-xs font-bold text-purple-400">M</span>
-                        </div>
-                        <span className="text-sm text-white">Mathématiques</span>
-                      </div>
-                      <span className="text-xs text-purple-400">2 classes</span>
-                    </div>
-                    <div className="flex items-center justify-between p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-colors cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-blue-500/20 rounded flex items-center justify-center">
-                          <span className="text-xs font-bold text-blue-400">S</span>
-                        </div>
-                        <span className="text-sm text-white">Sciences</span>
-                      </div>
-                      <span className="text-xs text-blue-400">1 classe</span>
-                    </div>
-                    <div className="flex items-center justify-between p-2 bg-orange-500/10 border border-orange-500/20 rounded-lg hover:bg-orange-500/20 transition-colors cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-orange-500/20 rounded flex items-center justify-center">
-                          <span className="text-xs font-bold text-orange-400">A</span>
-                        </div>
-                        <span className="text-sm text-white">Autres</span>
-                      </div>
-                      <span className="text-xs text-orange-400">0 classe</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Actions rapides */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => window.location.href = '/class-groups'}
-                    className="flex-1 p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg hover:bg-indigo-500/20 transition-colors text-xs text-indigo-400"
-                  >
-                    Voir tout
-                  </button>
-                  <button
-                    onClick={() => window.location.href = '/class-groups'}
-                    className="flex-1 p-2 bg-green-500/10 border border-green-500/20 rounded-lg hover:bg-green-500/20 transition-colors text-xs text-green-400"
-                  >
-                    Rejoindre
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Weak Points */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="p-6 bg-[#12121a] rounded-2xl border border-border"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <Target className="w-5 h-5 text-orange-400" />
-                  <span>Points à améliorer</span>
-                </h2>
-                <span className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded">Sujets ciblés</span>
-              </div>
-              <div className="space-y-3">
-                {['division', 'power', 'racine', 'factorisation'].slice(0, 2).map((point) => (
-                  <div key={point} className="flex items-center justify-between p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg hover:bg-orange-500/20 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                        <Target className="w-4 h-4 text-orange-400" />
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-white capitalize">{point}</span>
-                        <p className="text-xs text-gray-400">Entraînement recommandé</p>
-                      </div>
-                    </div>
-                    <span className="text-xs text-orange-400 bg-orange-500/20 px-2 py-1 rounded">À travailler</span>
-                  </div>
-                ))}
-              </div>
-              <Link
-                href="/practice"
-                className="mt-4 block text-center px-4 py-2 bg-orange-500/20 text-orange-400 rounded-lg hover:bg-orange-500/30 transition-all text-sm font-medium"
-              >
-                Commencer l'entraînement →
-              </Link>
-            </motion.div>
+          
+          {/* Barre de progression */}
+          <div>
+            <div className="flex justify-between text-sm mb-2">
+              <span>{currentElo} Elo</span>
+              <span>
+                Prochain rang: {(() => {
+                  const currentRankIndex = RANK_CLASSES.indexOf(currentRank as any);
+                  const nextRank = currentRankIndex < RANK_CLASSES.length - 1 ? RANK_CLASSES[currentRankIndex + 1] : null;
+                  return nextRank || 'Max';
+                })()}
+              </span>
+            </div>
+            <div className="w-full bg-black/30 rounded-full h-3 overflow-hidden">
+              <div 
+                className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
+                style={{ width: `${(() => {
+                  const rankClass = currentRank as RankClass;
+                  const threshold = RANK_THRESHOLDS[rankClass];
+                  const progress = Math.min(100, Math.max(0, ((currentElo - Number(threshold || 0)) / 100) * 100));
+                  return `${progress}%`;
+                })()}` }}
+              />
+            </div>
           </div>
-        </div>
+        </motion.section>
 
-        {/* Advanced Stats Section */}
-        <motion.div
+        {/* FILTRES GLOBAUX */}
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="mt-12"
+          transition={{ delay: 0.15 }}
+          className="mb-8"
         >
-          {/* Toggle Button */}
-          <div className="flex items-center justify-center mb-6">
-            <button
-              onClick={() => setShowAdvancedStats(!showAdvancedStats)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500/20 to-purple-600/20 rounded-xl border border-indigo-500/30 hover:border-indigo-500/50 transition-all group"
-            >
-              <BarChart3 className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
-              <span className="font-semibold">
-                {showAdvancedStats ? 'Masquer' : 'Voir'} les statistiques avancées
-              </span>
-              <ChevronRight className={`w-4 h-4 text-indigo-400 transition-transform ${showAdvancedStats ? 'rotate-90' : ''}`} />
-            </button>
-          </div>
-
-          {/* Advanced Stats Content */}
-          {showAdvancedStats && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              transition={{ duration: 0.3 }}
-              className="bg-[#1a1a2e] rounded-2xl border border-[#2a2a3a] p-6"
-            >
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <BarChart3 className="w-6 h-6 text-indigo-400" />
-                Statistiques avancées
-              </h2>
-              
-              {/* Stats Period Selector */}
-              <div className="flex gap-2 mb-6 flex-wrap justify-center">
+          <div className="flex flex-col md:flex-row gap-4 p-4 bg-card rounded-xl border border-border">
+            {/* Filtre Période */}
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground mr-2">Période:</span>
+              <div className="flex gap-1">
                 {[
-                  { id: 'hour', label: 'Heure', icon: Clock },
-                  { id: 'day', label: 'Jour', icon: Calendar },
-                  { id: 'week', label: 'Semaine', icon: Calendar },
-                  { id: 'month', label: 'Mois', icon: Calendar },
-                  { id: 'year', label: 'Année', icon: Calendar }
-                ].map(period => (
+                  { id: '1h', label: '1h' },
+                  { id: '24h', label: '24h' },
+                  { id: '7d', label: '7j' },
+                  { id: '30d', label: '30j' },
+                  { id: '3m', label: '3 mois' },
+                  { id: 'all', label: 'Tout' },
+                ].map((period) => (
                   <button
                     key={period.id}
-                    onClick={() => setStatsPeriod(period.id as any)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                      statsPeriod === period.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    onClick={() => setTimePeriod(period.id as typeof timePeriod)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      timePeriod === period.id
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-muted text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    <period.icon className="w-4 h-4 mr-2" />
                     {period.label}
                   </button>
                 ))}
               </div>
+            </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="p-6 bg-[#2a2a3a] rounded-xl border border-[#3a3a4a]"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <Trophy className="w-6 h-6 text-yellow-400" />
-                    <h3 className="text-lg font-semibold text-white">Évolution ELO</h3>
-                  </div>
-                  <div className="text-3xl font-bold text-primary">+125</div>
-                  <div className="text-sm text-gray-400">Cette {statsPeriod}</div>
-                  <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
-                    <Activity className="w-8 h-8 text-gray-500" />
-                    <span className="text-sm text-gray-500">Graphique à venir</span>
-                  </div>
-                </motion.div>
+            {/* Séparateur */}
+            <div className="hidden md:block w-px bg-border" />
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="p-6 bg-[#2a2a3a] rounded-xl border border-[#3a3a4a]"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <Target className="w-6 h-6 text-green-400" />
-                    <h3 className="text-lg font-semibold text-white">Précision</h3>
-                  </div>
-                  <div className="text-3xl font-bold text-green-400">87.5%</div>
-                  <div className="text-sm text-gray-400">Cette {statsPeriod}</div>
-                  <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
-                    <Activity className="w-8 h-8 text-gray-500" />
-                    <span className="text-sm text-gray-500">Graphique à venir</span>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="p-6 bg-[#2a2a3a] rounded-xl border border-[#3a3a4a]"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <Star className="w-6 h-6 text-purple-400" />
-                    <h3 className="text-lg font-semibold text-white">Niveau moyen</h3>
-                  </div>
-                  <div className="text-3xl font-bold text-purple-400">4.2</div>
-                  <div className="text-sm text-gray-400">Cette {statsPeriod}</div>
-                  <div className="mt-4 h-20 bg-muted rounded-lg flex items-center justify-center">
-                    <Activity className="w-8 h-8 text-gray-500" />
-                    <span className="text-sm text-gray-500">Graphique à venir</span>
-                  </div>
-                </motion.div>
+            {/* Filtre Mode */}
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground mr-2">Mode:</span>
+              <div className="flex gap-1">
+                {[
+                  { id: 'solo', label: 'Solo' },
+                  { id: 'multiplayer', label: 'Multijoueur' },
+                  { id: 'both', label: 'Les deux' },
+                ].map((mode) => (
+                  <button
+                    key={mode.id}
+                    onClick={() => setGameMode(mode.id as typeof gameMode)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      gameMode === mode.id
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-muted text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
               </div>
+            </div>
+          </div>
+        </motion.section>
 
-              {/* Future Expansion Note */}
-              <div className="mt-8 p-4 bg-gradient-to-r from-blue-500/10 to-purple-600/10 rounded-xl border border-blue-500/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-blue-400">
-                    <Star className="w-5 h-5" />
-                    <span className="text-sm font-medium">
-                      Cette section sera bientôt enrichie avec des graphiques interactifs et des analyses détaillées !
+        {/* SECTION PRINCIPALE — 7 Boutons avec Previews */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          {/* BOUTON 1 — Tests */}
+          <Link href="/test" className="group">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-indigo-500/20 rounded-lg">
+                  <Zap className="w-5 h-5 text-indigo-400" />
+                </div>
+                <h3 className="font-semibold">Tests</h3>
+                <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
+              </div>
+              
+              {loadingPreviews ? (
+                <PreviewSkeleton />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Dernier score</span>
+                    <span className="font-medium">
+                      {stats?.lastScore ? `${stats.lastScore}%` : 'Aucun'}
                     </span>
                   </div>
-                  <Link
-                    href="/dashboard/history"
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-all text-sm"
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    Historique complet
-                  </Link>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Cette semaine</span>
+                    <span className="font-medium">{stats?.testsThisWeek || 0} tests</span>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-[#2a2a3a]">
+                    <Sparkline data={[85, 92, 78, 88, 95]} color="text-indigo-400" />
+                  </div>
                 </div>
+              )}
+            </div>
+          </Link>
+
+          {/* BOUTON 2 — Multijoueur */}
+          <Link href="/multiplayer" className="group">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-purple-500/20 rounded-lg">
+                  <Users className="w-5 h-5 text-purple-400" />
+                </div>
+                <h3 className="font-semibold">Multijoueur</h3>
+                <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-            </motion.div>
-          )}
-        </motion.div>
+              
+              {loadingPreviews ? (
+                <PreviewSkeleton />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Rang actuel</span>
+                    <span className="font-medium text-purple-400">{user.multiplayerRankClass}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">ELO Multijoueur</span>
+                    <span className="font-medium">{user.multiplayerElo}</span>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    <span className="text-sm text-green-400">En ligne</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Link>
+
+          {/* BOUTON 3 — Social */}
+          <Link href="/friends" className="group">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-blue-500/50 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <MessageCircle className="w-5 h-5 text-blue-400" />
+                </div>
+                <h3 className="font-semibold">Social</h3>
+                <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
+              </div>
+              
+              {loadingPreviews ? (
+                <PreviewSkeleton />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Amis</span>
+                    <span className="font-medium">Gérer vos amis</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Messages</span>
+                    <span className="font-medium text-xs">Voir les conversations</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Link>
+
+          {/* BOUTON 4 — Bannière */}
+          <Link href="/profile" className="group">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-pink-500/50 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-pink-500/20 rounded-lg">
+                  <UserCircle className="w-5 h-5 text-pink-400" />
+                </div>
+                <h3 className="font-semibold">Profil & Bannière</h3>
+                <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
+              </div>
+              
+              {loadingPreviews ? (
+                <PreviewSkeleton />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Personnalisation</span>
+                    <span className="font-medium">Avatar & bannière</span>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-[#2a2a3a]">
+                    {user.bannerUrl ? (
+                      <div className="h-12 rounded bg-gradient-to-r from-purple-600 to-pink-600" />
+                    ) : (
+                      <div className="h-12 rounded bg-muted/30 flex items-center justify-center text-xs text-muted-foreground">
+                        Bannière par défaut
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </Link>
+
+          {/* BOUTON 5 — Statistiques */}
+          <Link href="/dashboard/history" className="group">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-green-500/50 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                  <LineChart className="w-5 h-5 text-green-400" />
+                </div>
+                <h3 className="font-semibold">Statistiques</h3>
+                <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
+              </div>
+              
+              {loadingPreviews ? (
+                <PreviewSkeleton />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Taux de réussite</span>
+                    <span className="font-medium">
+                      {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Meilleure série</span>
+                    <span className="font-medium flex items-center gap-1">
+                      <Flame className="w-3 h-3 text-orange-400" />
+                      {user.soloBestStreak}
+                    </span>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-[#2a2a3a]">
+                    <Sparkline data={[1200, 1250, 1230, 1280, 1300, 1320, 1350]} color="text-green-400" />
+                  </div>
+                </div>
+              )}
+            </div>
+          </Link>
+
+          {/* BOUTON 6 — Historique */}
+          <Link href="/dashboard/history" className="group">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-yellow-500/50 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-yellow-500/20 rounded-lg">
+                  <History className="w-5 h-5 text-yellow-400" />
+                </div>
+                <h3 className="font-semibold">Historique</h3>
+                <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
+              </div>
+              
+              {loadingPreviews ? (
+                <PreviewSkeleton />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Dernier test</span>
+                    <span className="font-medium text-xs">
+                      {stats?.lastTestDate 
+                        ? new Date(stats.lastTestDate).toLocaleDateString('fr-FR')
+                        : 'Jamais'
+                      }
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Tests complétés</span>
+                    <span className="font-medium">{stats?.totalTests || 0}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Link>
+
+          {/* BOUTON 7 — Mes Classes */}
+          <Link href="/classes" className="group">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-cyan-500/50 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-cyan-500/20 rounded-lg">
+                  <GraduationCap className="w-5 h-5 text-cyan-400" />
+                </div>
+                <h3 className="font-semibold">Mes Classes</h3>
+                <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
+              </div>
+              
+              {loadingPreviews ? (
+                <PreviewSkeleton />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Gérer les classes</span>
+                    <span className="font-medium">Rejoindre / Créer</span>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      Classes publiques et privées
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Link>
+        </motion.section>
       </main>
 
       {/* Footer Ad */}

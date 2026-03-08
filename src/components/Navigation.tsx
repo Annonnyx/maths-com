@@ -29,11 +29,9 @@ export default function Navigation() {
     { name: 'Tests', href: '/test', icon: Target },
     { name: 'Multijoueur', href: '/multiplayer', icon: Users },
     { name: 'Cours', href: '/courses', icon: BookOpen },
-    // Bouton conditionnel pour les classes
-    ...(session?.user && ((session.user as any).isTeacher || (session.user as any).isAdmin) ? [
-      { name: 'Mes classes', href: '/class-management', icon: GraduationCap }
-    ] : session?.user ? [
-      { name: 'Ma classe', href: '/class-management', icon: GraduationCap }
+    // Point d'entrée unique pour les classes
+    ...(session?.user ? [
+      { name: 'Mes classes', href: '/classes', icon: GraduationCap }
     ] : []),
     { name: 'Classement', href: '/leaderboard', icon: Trophy },
   ];
