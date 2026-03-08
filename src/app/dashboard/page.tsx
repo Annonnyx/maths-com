@@ -368,39 +368,72 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg hover:bg-indigo-500/20 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                {/* Statistiques des classes */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
                       <Users className="w-4 h-4 text-indigo-400" />
+                      <span className="text-lg font-bold text-white">3</span>
                     </div>
-                    <div>
-                      <span className="text-sm font-medium text-white">Voir mes classes</span>
-                      <p className="text-xs text-gray-400">Accéder à mes groupes</p>
-                    </div>
+                    <span className="text-xs text-gray-400">Classes rejointes</span>
                   </div>
-                  <Link
-                    href="/class-groups"
-                    className="text-sm text-indigo-400 hover:text-indigo-300"
-                  >
-                    Voir →
-                  </Link>
+                  <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Activity className="w-4 h-4 text-green-400" />
+                      <span className="text-lg font-bold text-white">12</span>
+                    </div>
+                    <span className="text-xs text-gray-400">Activités cette semaine</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/20 rounded-lg hover:bg-green-500/20 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <Plus className="w-4 h-4 text-green-400" />
+                
+                {/* Catégories principales */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-gray-400 mb-2">Catégories disponibles</div>
+                  <div className="grid grid-cols-1 gap-2">
+                    <div className="flex items-center justify-between p-2 bg-purple-500/10 border border-purple-500/20 rounded-lg hover:bg-purple-500/20 transition-colors cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-purple-500/20 rounded flex items-center justify-center">
+                          <span className="text-xs font-bold text-purple-400">M</span>
+                        </div>
+                        <span className="text-sm text-white">Mathématiques</span>
+                      </div>
+                      <span className="text-xs text-purple-400">2 classes</span>
                     </div>
-                    <div>
-                      <span className="text-sm font-medium text-white">Rejoindre une classe</span>
-                      <p className="text-xs text-gray-400">Avec un code d'invitation</p>
+                    <div className="flex items-center justify-between p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-colors cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-blue-500/20 rounded flex items-center justify-center">
+                          <span className="text-xs font-bold text-blue-400">S</span>
+                        </div>
+                        <span className="text-sm text-white">Sciences</span>
+                      </div>
+                      <span className="text-xs text-blue-400">1 classe</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-orange-500/10 border border-orange-500/20 rounded-lg hover:bg-orange-500/20 transition-colors cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-orange-500/20 rounded flex items-center justify-center">
+                          <span className="text-xs font-bold text-orange-400">A</span>
+                        </div>
+                        <span className="text-sm text-white">Autres</span>
+                      </div>
+                      <span className="text-xs text-orange-400">0 classe</span>
                     </div>
                   </div>
-                  <Link
-                    href="/class-groups"
-                    className="text-sm text-green-400 hover:text-green-300"
+                </div>
+                
+                {/* Actions rapides */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => window.location.href = '/class-groups'}
+                    className="flex-1 p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg hover:bg-indigo-500/20 transition-colors text-xs text-indigo-400"
                   >
-                    Rejoindre →
-                  </Link>
+                    Voir tout
+                  </button>
+                  <button
+                    onClick={() => window.location.href = '/class-groups'}
+                    className="flex-1 p-2 bg-green-500/10 border border-green-500/20 rounded-lg hover:bg-green-500/20 transition-colors text-xs text-green-400"
+                  >
+                    Rejoindre
+                  </button>
                 </div>
               </div>
             </motion.div>
