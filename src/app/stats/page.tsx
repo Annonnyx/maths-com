@@ -146,50 +146,48 @@ export default function StatsPage() {
           </div>
         </motion.section>
 
-        {/* Rang actuel */}
+        {/* Grand Graphique Principal */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className={`p-6 rounded-2xl border mb-8 ${getRankColor(currentRank)}`}
+          className="mb-8"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold mb-1">
-                Rang {gameMode === 'multiplayer' ? 'Multijoueur' : 'Solo'} : {currentRank}
-              </h2>
-              <p className="text-gray-400">
-                Période : {timePeriod === '1h' ? '1 heure' : timePeriod === '24h' ? '24 heures' : timePeriod === '7d' ? '7 jours' : timePeriod === '30d' ? '30 jours' : timePeriod === '3m' ? '3 mois' : 'Tout'}
-              </p>
+          <div className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <BarChart3 className="w-6 h-6 text-purple-400" />
+                Évolution de l'ELO
+              </h3>
+              <div className="flex items-center gap-4 text-sm">
+                <span className="text-gray-400">
+                  Mode: <span className="text-white font-medium">{gameMode === 'solo' ? 'Solo' : gameMode === 'multiplayer' ? 'Multijoueur' : 'Les deux'}</span>
+                </span>
+                <span className="text-gray-400">
+                  Période: <span className="text-white font-medium">
+                    {timePeriod === '1h' ? '1h' : timePeriod === '24h' ? '24h' : timePeriod === '7d' ? '7j' : timePeriod === '30d' ? '30j' : timePeriod === '3m' ? '3 mois' : 'Tout'}
+                  </span>
+                </span>
+              </div>
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold">{currentElo}</div>
-              <div className="text-sm text-gray-400">ELO</div>
-            </div>
-          </div>
-          
-          {/* Barre de progression */}
-          <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span>{currentElo} Elo</span>
-              <span>
-                Prochain rang: {(() => {
-                  const currentRankIndex = RANK_CLASSES.indexOf(currentRank as any);
-                  const nextRank = currentRankIndex < RANK_CLASSES.length - 1 ? RANK_CLASSES[currentRankIndex + 1] : 'Max';
-                  return nextRank;
-                })()}
-              </span>
-            </div>
-            <div className="w-full bg-black/30 rounded-full h-3 overflow-hidden">
-              <div 
-                className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
-                style={{ width: `${(() => {
-                  const rankClass = currentRank as RankClass;
-                  const threshold = RANK_THRESHOLDS[rankClass];
-                  const progress = Math.min(100, Math.max(0, ((currentElo - Number(threshold || 0)) / 100) * 100));
-                  return `${progress}%`;
-                })()}` }}
-              />
+            <div className="h-80 bg-[#1e1e2e] rounded-xl flex items-center justify-center relative overflow-hidden">
+              {/* Placeholder pour le graphique */}
+              <div className="text-center text-gray-500">
+                <LineChart className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg mb-2">Graphique d'évolution ELO</p>
+                <p className="text-sm">Les données s'afficheront ici selon les filtres sélectionnés</p>
+              </div>
+              
+              {/* Indicateur de mode/rang actuel */}
+              <div className="absolute top-4 right-4 flex items-center gap-3">
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{currentElo}</div>
+                  <div className="text-xs text-gray-400">ELO</div>
+                </div>
+                <div className={`px-3 py-1.5 rounded-lg border text-center ${getRankColor(currentRank)}`}>
+                  <div className="text-sm font-bold">{currentRank}</div>
+                </div>
+              </div>
             </div>
           </div>
         </motion.section>
@@ -248,27 +246,13 @@ export default function StatsPage() {
           </div>
         </motion.section>
 
-        {/* Section Graphiques (placeholder) */}
+        {/* Section Graphiques */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
         >
-          <div className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-purple-400" />
-              Évolution de l'ELO
-            </h3>
-            <div className="h-48 bg-[#1e1e2e] rounded-xl flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <LineChart className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>Graphique d'évolution ELO à venir</p>
-                <p className="text-sm">(Données filtrées par {timePeriod})</p>
-              </div>
-            </div>
-          </div>
-
           <div className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Trophy className="w-5 h-5 text-yellow-400" />
@@ -279,6 +263,20 @@ export default function StatsPage() {
                 <Target className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 <p>Analyse détaillée à venir</p>
                 <p className="text-sm">(Mode: {gameMode})</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 bg-[#12121a] rounded-2xl border border-[#2a2a3a]">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Award className="w-5 h-5 text-green-400" />
+              Répartition par rang
+            </h3>
+            <div className="h-48 bg-[#1e1e2e] rounded-xl flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>Distribution des rangs</p>
+                <p className="text-sm">(Données à venir)</p>
               </div>
             </div>
           </div>

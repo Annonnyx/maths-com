@@ -266,35 +266,33 @@ export default function DashboardPage() {
           </div>
         </motion.section>
 
-        {/* TESTS RAPIDES — Icônes courtes */}
+        {/* Description des sections */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18 }}
-          className="mb-6"
+          className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
         >
-          <div className="flex items-center gap-2 mb-3">
-            <Zap className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm font-medium text-muted-foreground">Tests rapides</span>
+          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
+            <p className="text-xs text-gray-400"><span className="text-indigo-400 font-medium">Tests</span> — Lance des exercices de calcul mental pour t'entraîner et monter en ELO</p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              { icon: '➕', label: 'Additions', color: 'bg-blue-500/20 text-blue-400 border-blue-500/30', href: '/test?type=addition' },
-              { icon: '✖️', label: 'Multiplications', color: 'bg-purple-500/20 text-purple-400 border-purple-500/30', href: '/test?type=multiplication' },
-              { icon: '➗', label: 'Divisions', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30', href: '/test?type=division' },
-              { icon: '🔢', label: 'Mental', color: 'bg-green-500/20 text-green-400 border-green-500/30', href: '/practice' },
-              { icon: '⚡', label: 'Rapide', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', href: '/test?mode=quick' },
-              { icon: '🎯', label: 'Streak', color: 'bg-pink-500/20 text-pink-400 border-pink-500/30', href: '/test?mode=streak' },
-            ].map((test) => (
-              <Link
-                key={test.label}
-                href={test.href}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${test.color} hover:opacity-80 transition-all text-sm font-medium`}
-              >
-                <span className="text-lg">{test.icon}</span>
-                <span>{test.label}</span>
-              </Link>
-            ))}
+          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
+            <p className="text-xs text-gray-400"><span className="text-purple-400 font-medium">Multijoueur</span> — Affronte d'autres joueurs en temps réel et grimpe dans le classement</p>
+          </div>
+          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
+            <p className="text-xs text-gray-400"><span className="text-blue-400 font-medium">Social</span> — Gère tes amis, envoie des messages et défie-les en duel</p>
+          </div>
+          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
+            <p className="text-xs text-gray-400"><span className="text-pink-400 font-medium">Profil</span> — Personnalise ton avatar, ta bannière et vois ton historique public</p>
+          </div>
+          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
+            <p className="text-xs text-gray-400"><span className="text-green-400 font-medium">Statistiques</span> — Analyse tes performances détaillées avec filtres par période</p>
+          </div>
+          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50">
+            <p className="text-xs text-gray-400"><span className="text-yellow-400 font-medium">Historique</span> — Retrouve tous tes résultats de tests et parties passées</p>
+          </div>
+          <div className="p-3 bg-[#1a1a2e]/50 rounded-lg border border-[#2a2a3a]/50 md:col-span-2 lg:col-span-1">
+            <p className="text-xs text-gray-400"><span className="text-cyan-400 font-medium">Mes Classes</span> — Rejoins ou crée des classes pour apprendre avec tes camarades</p>
           </div>
         </motion.section>
 

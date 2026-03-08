@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 import { usePresence } from '@/hooks/usePresence';
 import { 
   ArrowLeft, Users, UserPlus, MessageCircle, Check, X, 
-  Search, Loader2, Mail, Trash2, Send
+  Search, Loader2, Mail, Trash2, Send, UserCircle, Swords, Clock
 } from 'lucide-react';
 
 interface Friend {
@@ -438,51 +438,61 @@ export default function FriendsPage() {
                                          sentRequests.some(s => s.user.id === user.id);
                   
                   return (
-                    <div key={user.id} className="flex items-center justify-between p-3 bg-[#2a2a3e] rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
+                    <div key={user.id} className="flex items-center justify-between p-4 bg-[#2a2a3e] rounded-xl hover:bg-[#2a2a3e]/80 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
                           {(user.username || '').charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div className="font-semibold text-white">
+                          <div className="font-semibold text-white text-base">
                             {user.displayName || user.username || 'Utilisateur inconnu'}
                           </div>
-                          <div className="text-sm text-gray-400">@{user.username || 'inconnu'}</div>
-                          <div className="text-xs text-gray-500">Elo: {user.soloElo || 400}</div>
+                          <div className="text-sm text-gray-400 flex items-center gap-2">
+                            @{user.username || 'inconnu'}
+                            {user.isOnline && (
+                              <span className="flex items-center gap-1 text-green-400">
+                                <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                                En ligne
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">ELO: {user.soloElo || 400} • Rang: {user.soloRankClass || 'F-'}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {user.isOnline && (
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        )}
                         <Link
                           href={`/u/${user.username || ''}`}
-                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+                          className="px-4 py-2 bg-[#1e1e2e] hover:bg-blue-600/20 border border-gray-700 hover:border-blue-500/50 text-white text-sm rounded-lg transition-all flex items-center gap-2"
                         >
+                          <UserCircle className="w-4 h-4" />
                           Profil
                         </Link>
                         <button
                           onClick={() => handleChallengeUser(user.id, user.username || '')}
-                          className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-lg transition-colors"
+                          className="px-4 py-2 bg-[#1e1e2e] hover:bg-orange-600/20 border border-gray-700 hover:border-orange-500/50 text-white text-sm rounded-lg transition-all flex items-center gap-2"
                         >
+                          <Swords className="w-4 h-4" />
                           Défier
                         </button>
                         {!isAlreadyFriend && !hasPendingRequest && user.id !== session?.user?.id && (
                           <button
                             onClick={() => handleAddFriendFromSearch(user.id, user.username || '')}
                             disabled={isAdding}
-                            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
+                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:hover:bg-purple-600 text-white text-sm rounded-lg transition-all flex items-center gap-2"
                           >
+                            <UserPlus className="w-4 h-4" />
                             {isAdding ? '...' : 'Ajouter'}
                           </button>
                         )}
                         {isAlreadyFriend && (
-                          <span className="px-3 py-1 bg-green-600/20 text-green-400 text-sm rounded-lg">
+                          <span className="px-4 py-2 bg-green-600/20 text-green-400 text-sm rounded-lg flex items-center gap-2">
+                            <Check className="w-4 h-4" />
                             Ami
                           </span>
                         )}
                         {hasPendingRequest && (
-                          <span className="px-3 py-1 bg-yellow-600/20 text-yellow-400 text-sm rounded-lg">
+                          <span className="px-4 py-2 bg-yellow-600/20 text-yellow-400 text-sm rounded-lg flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
                             En attente
                           </span>
                         )}
