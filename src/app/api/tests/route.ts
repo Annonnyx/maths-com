@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { calculateAdvancedEloChange, getRankFromElo } from '@/lib/elo';
+import { calculateEloChange, getRankFromElo, clampElo } from '~lib/elo';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { AchievementService } from '@/lib/achievement-service';
@@ -56,20 +56,32 @@ export async function POST(req: NextRequest) {
     let eloAfter = eloBefore;
     let eloChange = 0;
 
-    // Only update Elo for competitive mode
+    // ---- NOUVEL ALGORITHME ELO : calcul question par question ----
     if (testMode === 'competitive') {
-      const eloResult = calculateAdvancedEloChange({
-        correctAnswers: correct,
-        totalQuestions: questions.length,
-        totalTimeSeconds: timeTaken,
-        questionTimes: timePerQuestion,
-        difficulties: questions.map((q: any) => q.difficulty),
-        currentElo: eloBefore,
-        streak: user.soloCurrentStreak
-      });
+      let simulatedElo = eloBefore;
+      let streak = user.soloCurrentStreak;
+      const maxTime = 60; // placeholder
 
-      eloChange = eloResult.eloChange;
-      eloAfter = eloBefore + eloChange;
+      const difficultyToElo = (d: number) => clampElo(400 + (d - 1) * 320);
+
+      for (let i = 0; i < questions.length; i++) {
+        const qElo = difficultyToElo(questions[i].difficulty);
+        const scoreReal = questionResults[i].isCorrect ? 1 : 0;
+        const delta = calculateEloChange(
+          simulatedElo,
+          qElo,
+          scoreReal,
+          timePerQuestion[i],
+          maxTime,
+          streak,
+          false // solo mode
+        );
+        eloChange += delta;
+        simulatedElo += delta;
+        streak = scoreReal === 1 ? streak + 1 : 0;
+      }
+
+      eloAfter = clampElo(eloBefore + eloChange);
 
       // Update user Elo and rank
       const newRankClass = getRankFromElo(eloAfter);

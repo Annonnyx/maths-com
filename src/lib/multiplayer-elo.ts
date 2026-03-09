@@ -1,8 +1,9 @@
 import { MultiplayerGame, MultiplayerStats, TimeControl, GameType } from './multiplayer';
+import { calculateEloChange, clampElo } from '~lib/elo';
 import { User } from '@/types';
 import { getRankFromElo } from './elo';
 
-// Calculate Elo change for multiplayer games - NERFED for less volatility
+// Calculate Elo change for multiplayer games using unified ELO algorithm
 export function calculateMultiplayerEloChange(
   playerElo: number,
   opponentElo: number,
@@ -10,25 +11,24 @@ export function calculateMultiplayerEloChange(
   opponentScore: number,
   isRanked: boolean
 ): number {
-  if (!isRanked) return 0; // No Elo change for friendly games
-  
-  // REDUCED K-factor for multiplayer (lower than before for less dramatic changes)
-  const K = 24; // Was 32, now 24 for less volatility
-  
-  // Calculate expected scores
-  const expectedScore = 1 / (1 + Math.pow(10, (opponentElo - playerElo) / 400));
-  
-  // Actual score (1 for win, 0.5 for draw, 0 for loss)
-  const actualScore = playerScore > opponentScore ? 1 : playerScore === opponentScore ? 0.5 : 0;
-  
-  // Score difference factor - close games give less ELO change
-  const scoreDiff = Math.abs(playerScore - opponentScore);
-  const closeGameFactor = scoreDiff <= 2 ? 0.7 : scoreDiff <= 5 ? 0.85 : 1;
-  
-  // Elo change with close game adjustment
-  const eloChange = Math.round(K * (actualScore - expectedScore) * closeGameFactor);
-  
-  return eloChange;
+  if (!isRanked) return 0; // Pas de changement en partie amicale
+
+  // Déterminer le score réel (1, 0.5, 0)
+  const scoreReal = playerScore > opponentScore ? 1 : playerScore === opponentScore ? 0.5 : 0;
+
+  // Nous assimilons la difficulté de la « question » à l’ELO adverse
+  const delta = calculateEloChange(
+    playerElo,
+    opponentElo,
+    scoreReal,
+    undefined,
+    undefined,
+    0,
+    true // multijoueur => pas de modificateur temps
+  );
+
+  // Arrondir à l’entier le plus proche
+  return Math.round(delta);
 }
 
 // Calculate multiplayer performance tier

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { calculateAdvancedEloChange, getRankFromElo } from '@/lib/elo';
+import { calculateEloChange, getRankFromElo, clampElo } from '~lib/elo';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { AchievementService } from '@/lib/achievement-service';
 
-// POST /api/tests/[id]/complete - Complete a test
+// POST /api/tests/[id]/complete - Complete a test with new ELO algorithm
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -18,7 +18,7 @@ export async function POST(
 
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true, soloCurrentStreak: true, lastTestDate: true }
+      select: { id: true, soloCurrentStreak: true, lastTestDate: true, soloElo: true }
     });
 
     if (!currentUser) {
@@ -75,43 +75,52 @@ export async function POST(
     // Execute all question updates
     await Promise.all(questionUpdates);
 
-    // Calculate score - ensure exact integer calculation
+    // Calculate score
     const rawScore = (correctCount / test.totalQuestions) * 100;
     const score = Math.min(100, Math.max(0, Math.round(rawScore)));
     
     // Calculate time bonus with custom formula
-    // Base = 120 - timeTaken (max 120pts if instant, min 0 if >120s)
     const baseTime = Math.max(0, 120 - timeTaken);
     
     let timeBonus = 0;
     if (correctCount === 0) {
-      // No correct answers = maximum penalty, base becomes negative
       timeBonus = -baseTime;
     } else if (correctCount < 10) {
-      // Less than 10 correct: NEGATIVE bonus = -(base / correctCount)
       timeBonus = -Math.round(baseTime / correctCount);
     } else if (correctCount === test.totalQuestions) {
-      // Perfect 20/20: full base + 20 bonus
       timeBonus = baseTime + 20;
     } else {
-      // 10-19 correct: base / (20 - correctCount)
-      // Example: 14 correct → base / 6, 15 correct → base / 5
       timeBonus = Math.round(baseTime / (test.totalQuestions - correctCount));
     }
 
-    // Calculate Elo change with advanced formula
-    const { eloChange, performance } = calculateAdvancedEloChange({
-      correctAnswers: correctCount,
-      totalQuestions: test.totalQuestions,
-      totalTimeSeconds: timeTaken,
-      questionTimes: test.questions.map(() => timeTaken / test.totalQuestions), // Average distribution
-      difficulties,
-      isCorrectArray,
-      currentElo: test.user.soloElo,
-      streak: currentUser.soloCurrentStreak
-    });
-    
-    const newElo = Math.max(0, test.user.soloElo + eloChange);
+    // ---- NOUVEL ALGORITHME ELO : calcul question par question ----
+    let eloChange = 0;
+    let simulatedElo = test.user.soloElo;
+    let streak = currentUser.soloCurrentStreak;
+    const perQuestionTime = timeTaken / test.totalQuestions;
+    const maxTime = 60; // placeholder max time per question
+
+    // Map difficulty (1-10) to ELO equivalent
+    const difficultyToElo = (d: number) => clampElo(400 + (d - 1) * 320);
+
+    for (let i = 0; i < test.totalQuestions; i++) {
+      const qElo = difficultyToElo(difficulties[i]);
+      const scoreReal = isCorrectArray[i] ? 1 : 0;
+      const delta = calculateEloChange(
+        simulatedElo,
+        qElo,
+        scoreReal,
+        perQuestionTime,
+        maxTime,
+        streak,
+        false // solo mode
+      );
+      eloChange += delta;
+      simulatedElo += delta;
+      streak = scoreReal === 1 ? streak + 1 : 0;
+    }
+
+    const newElo = clampElo(test.user.soloElo + eloChange);
     const newRank = getRankFromElo(newElo);
 
     // Check streak
@@ -119,7 +128,6 @@ export async function POST(
     let isStreakTest = false;
     
     if (score >= 80) {
-      // Check if this is consecutive day
       const lastTest = currentUser.lastTestDate;
       const today = new Date();
       
@@ -199,13 +207,11 @@ async function updateStatistics(
   });
 
   if (existingStats) {
-    // Update existing statistics
     const newTotalTests = existingStats.totalTests + 1;
     const newTotalCorrect = existingStats.totalCorrect + correctCount;
     const newTotalQuestions = existingStats.totalQuestions + test.totalQuestions;
     const newTotalTime = existingStats.totalTime + test.timeTaken;
     
-    // Calculate new averages
     const newAverageScore = ((existingStats.averageScore * existingStats.totalTests) + score) / newTotalTests;
     const newAverageTime = ((existingStats.averageTime * existingStats.totalTests) + test.timeTaken) / newTotalTests;
 
@@ -218,14 +224,12 @@ async function updateStatistics(
         totalTime: newTotalTime,
         averageScore: newAverageScore,
         averageTime: newAverageTime,
-        // Update by operation type
         additionTests: existingStats.additionTests + test.questions.filter((q: any) => q.type === 'addition').length,
         additionCorrect: existingStats.additionCorrect + test.questions.filter((q: any) => q.type === 'addition' && q.isCorrect).length,
         additionTotal: existingStats.additionTotal + test.questions.filter((q: any) => q.type === 'addition').length,
       }
     });
   } else {
-    // Create new statistics
     await prisma.soloStatistics.create({
       data: {
         userId,

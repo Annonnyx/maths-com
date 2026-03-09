@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import { Exercise, QuestionHistory, generateAdaptiveQuestion, calculateEloChange } from './adaptive-exercises';
+import { Exercise, QuestionHistory, generateAdaptiveQuestion } from './adaptive-exercises';
+import { calculateEloChange, clampElo } from '~lib/elo';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -106,15 +107,22 @@ export class AdaptiveExerciseManager {
     const isCorrect = userAnswer.trim() === exercise.answer.trim();
     const currentElo = await this.getCurrentElo();
     
-    // Calculate ELO change
+    // Calculate ELO change using new algorithm
+    const scoreReal = isCorrect ? 1 : 0;
+    const maxTime = 60; // placeholder
+    const streak = 0; // TODO: track streak in adaptive mode
+    
     const eloChange = calculateEloChange(
       currentElo,
-      exercise.difficulty,
-      isCorrect,
-      responseTime
+      exercise.difficulty * 320 + 400, // Convert difficulty to ELO equivalent
+      scoreReal,
+      responseTime,
+      maxTime,
+      streak,
+      false // solo mode
     );
     
-    const newElo = Math.max(0, currentElo + eloChange);
+    const newElo = clampElo(currentElo + eloChange);
 
     try {
       // Record question in history

@@ -13,7 +13,7 @@ import {
 import { useSound } from '@/components/SoundProvider';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
 import { Exercise, generateTest, generateEvaluationTest, generateFocusedTest, getOperationTypesForCourse, validateAnswer } from '@/lib/exercises';
-import { calculateAdvancedEloChange, getPerformanceTier, getRankFromElo, RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { calculateEloChange, getPerformanceTier, getRankFromElo, RANK_COLORS, RANK_BG_COLORS } from '~lib/elo';
 import { getClassFromDifficulty, formatClassName } from '@/lib/french-classes';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 
@@ -300,21 +300,37 @@ function TestPage() {
         timeBonus = Math.round(baseTime / (testState.questions.length - correct));
       }
       
-      const eloResult = calculateAdvancedEloChange({
-        correctAnswers: correct,
-        totalQuestions: testState.questions.length,
-        totalTimeSeconds: totalTime,
-        questionTimes: timePerQuestion,
-        difficulties: testState.questions.map(q => q.difficulty),
-        isCorrectArray: results.map(r => r.isCorrect),
-        currentElo: userElo,
-        streak: 0
-      });
-      
-      eloChange = eloResult.eloChange;
+      // ---- NOUVEL ALGORITHME ELO : calcul question par question ----
+      let simulatedElo = userElo;
+      let streak = 0;
+      const maxTime = 60;
+      const difficultyToElo = (d: number) => Math.max(400, Math.min(4000, 400 + (d - 1) * 320));
+
+      for (let i = 0; i < testState.questions.length; i++) {
+        const qElo = difficultyToElo(testState.questions[i].difficulty);
+        const scoreReal = results[i].isCorrect ? 1 : 0;
+        // Note: calculateEloChange est maintenant importé depuis ~lib/elo
+        const delta = calculateEloChange(
+          simulatedElo,
+          qElo,
+          scoreReal,
+          timePerQuestion[i],
+          maxTime,
+          streak,
+          false // solo mode
+        );
+        eloChange += delta;
+        simulatedElo += delta;
+        streak = scoreReal === 1 ? streak + 1 : 0;
+      }
+
+      // Simplified performance metrics (legacy compatibility)
       performance = {
-        ...eloResult.performance,
-        speedBonus: timeBonus // Override with custom time bonus
+        speedBonus: timeBonus,
+        accuracyBonus: 0,
+        difficultyBonus: 0,
+        streakBonus: 0,
+        baseChange: eloChange - timeBonus
       };
       tier = getPerformanceTier(eloChange);
     }
