@@ -7,8 +7,10 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Users, Settings, BarChart3, MessageSquare, 
-  BookOpen, Calendar, Award, Target, TrendingUp, Check, X, Plus, Trophy, Clock
+  BookOpen, Calendar, Award, Target, TrendingUp, Check, X, Plus, Trophy, Clock,
+  Share2, QrCode
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 // Composant pour créer des questions manuelles
 function ManualQuestionEditor({ onAdd }: { onAdd: (question: any) => void }) {
@@ -295,6 +297,8 @@ export default function ClassDetailsPage() {
   });
   const [showAssignmentForm, setShowAssignmentForm] = useState(false);
   const [creatingAssignment, setCreatingAssignment] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [selectedAssignmentForShare, setSelectedAssignmentForShare] = useState<any>(null);
 
   // Déterminer si professeur ou élève (après chargement des données)
   const isTeacher = session?.user && (classDetails?.teacher?.id === session.user.id || (session.user as any)?.isAdmin);
@@ -1372,7 +1376,7 @@ export default function ClassDetailsPage() {
                       )}
 
                       {/* Actions */}
-                      <div className="mt-3 flex gap-2">
+                      <div className="mt-3 flex gap-2 flex-wrap">
                         {isTeacher ? (
                           <>
                             <button
@@ -1387,6 +1391,18 @@ export default function ClassDetailsPage() {
                             >
                               Détails
                             </button>
+                            {assignment.shareEnabled && assignment.shareCode && (
+                              <button
+                                onClick={() => {
+                                  setSelectedAssignmentForShare(assignment);
+                                  setShareModalOpen(true);
+                                }}
+                                className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded flex items-center gap-1"
+                              >
+                                <Share2 className="w-3 h-3" />
+                                Partager
+                              </button>
+                            )}
                           </>
                         ) : (
                           <button
@@ -1842,6 +1858,74 @@ export default function ClassDetailsPage() {
           )}
         </motion.div>
       </div>
+
+      {/* Modal de partage */}
+      {shareModalOpen && selectedAssignmentForShare && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1a1a2e] rounded-lg border border-[#3a3a4a] p-6 max-w-md w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                <QrCode className="w-5 h-5" />
+                Partager le devoir
+              </h3>
+              <button
+                onClick={() => setShareModalOpen(false)}
+                className="p-1 hover:bg-gray-700 rounded"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex flex-col items-center p-4 bg-white rounded-lg">
+                <QRCodeSVG 
+                  value={`${window.location.origin}/shared-assignment/${selectedAssignmentForShare.shareCode}`}
+                  size={200}
+                  level="H"
+                />
+                <p className="mt-2 text-sm text-gray-600">Scannez pour accéder au devoir</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Lien de partage</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${window.location.origin}/shared-assignment/${selectedAssignmentForShare.shareCode}`}
+                    className="flex-1 px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/shared-assignment/${selectedAssignmentForShare.shareCode}`);
+                      alert('Lien copié !');
+                    }}
+                    className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm"
+                  >
+                    Copier
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Code de partage</label>
+                <div className="px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-center">
+                  <span className="text-2xl font-mono font-bold text-purple-400 tracking-wider">
+                    {selectedAssignmentForShare.shareCode}
+                  </span>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => setShareModalOpen(false)}
+                className="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
