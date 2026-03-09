@@ -133,6 +133,7 @@ export default function ClassDetailsPage() {
 
   useEffect(() => {
     if (activeTab === 'assignments' && params.id) {
+      console.log('[Frontend] useEffect assignments triggered, loading assignments...');
       loadAssignments();
     }
   }, [activeTab, params.id]);
@@ -177,14 +178,21 @@ export default function ClassDetailsPage() {
   };
 
   const loadAssignments = async () => {
+    console.log('[Frontend] loadAssignments called, classId:', params.id);
     try {
       const response = await fetch(`/api/class-assignments?classId=${params.id}`);
+      console.log('[Frontend] API response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('[Frontend] API returned data:', data);
+        console.log('[Frontend] Assignments count:', data.assignments?.length);
         setAssignments(data.assignments || []);
+      } else {
+        const errorText = await response.text();
+        console.error('[Frontend] API error:', errorText);
       }
     } catch (error) {
-      console.error('Error loading assignments:', error);
+      console.error('[Frontend] Error loading assignments:', error);
     }
   };
 

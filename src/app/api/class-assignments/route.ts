@@ -7,12 +7,15 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    console.log('[GET /api/class-assignments] Session:', session?.user?.id);
+    
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const classId = searchParams.get('classId');
+    console.log('[GET /api/class-assignments] classId:', classId);
 
     if (!classId) {
       return NextResponse.json({ error: 'classId requis' }, { status: 400 });
@@ -25,12 +28,14 @@ export async function GET(request: NextRequest) {
         userId: session.user.id
       }
     });
+    console.log('[GET /api/class-assignments] Membership:', membership);
 
     if (!membership) {
       return NextResponse.json({ error: 'Non membre de cette classe' }, { status: 403 });
     }
 
     // Fetch real assignments from database
+    console.log('[GET /api/class-assignments] Fetching assignments...');
     const assignments = await prisma.classAssignment.findMany({
       where: { classId },
       include: {
@@ -54,6 +59,8 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' }
     });
+    console.log('[GET /api/class-assignments] Found', assignments.length, 'assignments');
+    console.log('[GET /api/class-assignments] First assignment:', assignments[0]);
 
     // Format assignments for response
     const formattedAssignments = assignments.map(assignment => ({
