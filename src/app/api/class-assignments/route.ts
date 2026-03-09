@@ -93,8 +93,13 @@ export async function POST(request: NextRequest) {
       dueDate, 
       questionCount = 10, 
       difficulty = 'mixed',
+      schoolLevel = null,
       operationTypes = ['addition', 'subtraction', 'multiplication', 'division'],
-      timeLimit = null 
+      timeLimit = null,
+      negativePoints = false,
+      questionSource = 'auto',
+      manualQuestions = [], // For manually created questions
+      shareEnabled = false
     } = body;
 
     if (!classId || !title) {
@@ -111,6 +116,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Accès réservé au professeur' }, { status: 403 });
     }
 
+    // Générer un share code si partage activé
+    const shareCode = shareEnabled ? generateShareCode() : null;
+
     // Créer le devoir
     const assignment = await prisma.classAssignment.create({
       data: {
@@ -119,26 +127,58 @@ export async function POST(request: NextRequest) {
         description,
         questionCount,
         difficulty,
-        operationTypes: JSON.stringify(operationTypes),
+        schoolLevel,
+        negativePoints,
+        questionSource,
+        operationTypes: questionSource === 'auto' ? JSON.stringify(operationTypes) : null,
         timeLimit,
         dueDate: dueDate ? new Date(dueDate) : null,
-        status: 'active'
+        status: 'active',
+        shareCode,
+        shareEnabled
       }
     });
 
-    // Générer les questions
-    const questions = generateQuestions(questionCount, difficulty, operationTypes);
-    
-    // Créer les questions dans la base
-    await prisma.assignmentQuestion.createMany({
-      data: questions.map((q, index) => ({
+    // Créer les questions
+    let questions;
+    if (questionSource === 'manual' && manualQuestions.length > 0) {
+      // Use manually created questions
+      questions = manualQuestions.map((q: any, index: number) => ({
         assignmentId: assignment.id,
+        questionType: q.type,
+        question: q.question,
+        answer: q.answer || null,
+        type: 'manual',
+        difficulty: q.difficulty || 5,
+        order: index,
+        points: q.points || 1,
+        options: q.options ? JSON.stringify(q.options) : null,
+        correctAnswers: q.correctAnswers ? JSON.stringify(q.correctAnswers) : null,
+        requiresManualGrading: q.requiresManualGrading || false,
+        acceptedAnswers: q.acceptedAnswers ? JSON.stringify(q.acceptedAnswers) : null
+      }));
+    } else {
+      // Generate auto questions
+      const generatedQuestions = generateQuestions(questionCount, difficulty, operationTypes);
+      questions = generatedQuestions.map((q, index) => ({
+        assignmentId: assignment.id,
+        questionType: 'single',
         question: q.question,
         answer: q.answer,
         type: q.type,
         difficulty: q.difficulty,
-        order: index
-      }))
+        order: index,
+        points: 1,
+        options: null,
+        correctAnswers: null,
+        requiresManualGrading: false,
+        acceptedAnswers: null
+      }));
+    }
+    
+    // Créer les questions dans la base
+    await prisma.assignmentQuestion.createMany({
+      data: questions
     });
 
     return NextResponse.json({ 
@@ -153,6 +193,16 @@ export async function POST(request: NextRequest) {
     console.error('Error creating assignment:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
+}
+
+// Generate unique share code
+function generateShareCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 }
 
 // Générer des questions de calcul

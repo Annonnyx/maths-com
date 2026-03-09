@@ -59,8 +59,27 @@ export default function ClassDetailsPage() {
     dueDate: string;
     questionCount?: number;
     difficulty?: string;
+    schoolLevel?: string;
     operationTypes?: string[];
-  }>({ title: '', description: '', dueDate: '', questionCount: 10, difficulty: 'mixed', operationTypes: ['addition', 'subtraction', 'multiplication', 'division'] });
+    timeLimit?: number | null;
+    negativePoints?: boolean;
+    questionSource?: 'auto' | 'manual';
+    manualQuestions?: any[];
+    shareEnabled?: boolean;
+  }>({ 
+    title: '', 
+    description: '', 
+    dueDate: '', 
+    questionCount: 10, 
+    difficulty: 'mixed',
+    schoolLevel: '6eme',
+    operationTypes: ['addition', 'subtraction', 'multiplication', 'division'],
+    timeLimit: null,
+    negativePoints: false,
+    questionSource: 'auto',
+    manualQuestions: [],
+    shareEnabled: false
+  });
   const [showAssignmentForm, setShowAssignmentForm] = useState(false);
   const [creatingAssignment, setCreatingAssignment] = useState(false);
 
@@ -216,12 +235,34 @@ export default function ClassDetailsPage() {
           classId: params.id, 
           title: newAssignment.title,
           description: newAssignment.description,
-          dueDate: newAssignment.dueDate
+          dueDate: newAssignment.dueDate,
+          questionCount: newAssignment.questionCount,
+          difficulty: newAssignment.difficulty,
+          schoolLevel: newAssignment.schoolLevel,
+          operationTypes: newAssignment.operationTypes,
+          timeLimit: newAssignment.timeLimit,
+          negativePoints: newAssignment.negativePoints,
+          questionSource: newAssignment.questionSource,
+          manualQuestions: newAssignment.manualQuestions,
+          shareEnabled: newAssignment.shareEnabled
         })
       });
 
       if (response.ok) {
-        setNewAssignment({ title: '', description: '', dueDate: '', questionCount: 10, difficulty: 'mixed', operationTypes: ['addition', 'subtraction', 'multiplication', 'division'] });
+        setNewAssignment({ 
+          title: '', 
+          description: '', 
+          dueDate: '', 
+          questionCount: 10, 
+          difficulty: 'mixed',
+          schoolLevel: '6eme',
+          operationTypes: ['addition', 'subtraction', 'multiplication', 'division'],
+          timeLimit: null,
+          negativePoints: false,
+          questionSource: 'auto',
+          manualQuestions: [],
+          shareEnabled: false
+        });
         setShowAssignmentForm(false);
         loadAssignments();
         alert('Devoir créé avec succès !');
@@ -829,12 +870,47 @@ export default function ClassDetailsPage() {
                         <label className="block text-sm text-gray-400 mb-1">Nombre de questions</label>
                         <input
                           type="number"
-                          min="5"
-                          max="50"
+                          min="1"
+                          max="100"
                           value={newAssignment.questionCount || 10}
                           onChange={(e) => setNewAssignment({...newAssignment, questionCount: parseInt(e.target.value)})}
                           className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
                         />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Durée (minutes)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="180"
+                          placeholder="Sans limite"
+                          value={newAssignment.timeLimit || ''}
+                          onChange={(e) => setNewAssignment({...newAssignment, timeLimit: e.target.value ? parseInt(e.target.value) : null})}
+                          className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Niveau scolaire</label>
+                        <select
+                          value={newAssignment.schoolLevel || '6eme'}
+                          onChange={(e) => setNewAssignment({...newAssignment, schoolLevel: e.target.value})}
+                          className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        >
+                          <option value="CP">CP</option>
+                          <option value="CE1">CE1</option>
+                          <option value="CE2">CE2</option>
+                          <option value="CM1">CM1</option>
+                          <option value="CM2">CM2</option>
+                          <option value="6eme">6ème</option>
+                          <option value="5eme">5ème</option>
+                          <option value="4eme">4ème</option>
+                          <option value="3eme">3ème</option>
+                          <option value="2nde">Seconde</option>
+                          <option value="1ere">Première</option>
+                          <option value="Terminale">Terminale</option>
+                        </select>
                       </div>
                       <div>
                         <label className="block text-sm text-gray-400 mb-1">Difficulté</label>
@@ -875,6 +951,26 @@ export default function ClassDetailsPage() {
                           </label>
                         ))}
                       </div>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newAssignment.negativePoints || false}
+                          onChange={(e) => setNewAssignment({...newAssignment, negativePoints: e.target.checked})}
+                          className="rounded"
+                        />
+                        Points négatifs
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newAssignment.shareEnabled || false}
+                          onChange={(e) => setNewAssignment({...newAssignment, shareEnabled: e.target.checked})}
+                          className="rounded"
+                        />
+                        Partage via lien/QR
+                      </label>
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Date de rendu</label>
