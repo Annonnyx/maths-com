@@ -53,7 +53,14 @@ export default function ClassDetailsPage() {
   const [showMessageForm, setShowMessageForm] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [assignments, setAssignments] = useState<any[]>([]);
-  const [newAssignment, setNewAssignment] = useState({ title: '', description: '', dueDate: '' });
+  const [newAssignment, setNewAssignment] = useState<{ 
+    title: string; 
+    description: string; 
+    dueDate: string;
+    questionCount?: number;
+    difficulty?: string;
+    operationTypes?: string[];
+  }>({ title: '', description: '', dueDate: '', questionCount: 10, difficulty: 'mixed', operationTypes: ['addition', 'subtraction', 'multiplication', 'division'] });
   const [showAssignmentForm, setShowAssignmentForm] = useState(false);
   const [creatingAssignment, setCreatingAssignment] = useState(false);
 
@@ -214,7 +221,7 @@ export default function ClassDetailsPage() {
       });
 
       if (response.ok) {
-        setNewAssignment({ title: '', description: '', dueDate: '' });
+        setNewAssignment({ title: '', description: '', dueDate: '', questionCount: 10, difficulty: 'mixed', operationTypes: ['addition', 'subtraction', 'multiplication', 'division'] });
         setShowAssignmentForm(false);
         loadAssignments();
         alert('Devoir créé avec succès !');
