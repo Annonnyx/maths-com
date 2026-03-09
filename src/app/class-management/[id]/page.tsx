@@ -1386,10 +1386,11 @@ export default function ClassDetailsPage() {
                               Voir les rendus
                             </button>
                             <button
-                              onClick={() => {/* TODO: View details */}}
-                              className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded"
+                              onClick={() => router.push(`/assignment-analytics/${assignment.id}`)}
+                              className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded flex items-center gap-1"
                             >
-                              Détails
+                              <BarChart3 className="w-3 h-3" />
+                              Analytiques
                             </button>
                             {assignment.shareEnabled && assignment.shareCode && (
                               <button
