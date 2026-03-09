@@ -10,6 +10,219 @@ import {
   BookOpen, Calendar, Award, Target, TrendingUp, Check, X, Plus, Trophy, Clock
 } from 'lucide-react';
 
+// Composant pour créer des questions manuelles
+function ManualQuestionEditor({ onAdd }: { onAdd: (question: any) => void }) {
+  const [questionType, setQuestionType] = useState<'single' | 'multiple' | 'free_text'>('single');
+  const [questionText, setQuestionText] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [options, setOptions] = useState<{ id: string; text: string }[]>([{ id: '1', text: '' }, { id: '2', text: '' }]);
+  const [correctOptions, setCorrectOptions] = useState<string[]>([]);
+  const [points, setPoints] = useState(1);
+  const [difficulty, setDifficulty] = useState(5);
+
+  const resetForm = () => {
+    setQuestionText('');
+    setAnswer('');
+    setOptions([{ id: '1', text: '' }, { id: '2', text: '' }]);
+    setCorrectOptions([]);
+    setPoints(1);
+    setDifficulty(5);
+  };
+
+  const handleAddOption = () => {
+    setOptions([...options, { id: String(options.length + 1), text: '' }]);
+  };
+
+  const handleOptionChange = (id: string, text: string) => {
+    setOptions(options.map(opt => opt.id === id ? { ...opt, text } : opt));
+  };
+
+  const handleRemoveOption = (id: string) => {
+    setOptions(options.filter(opt => opt.id !== id));
+    setCorrectOptions(correctOptions.filter(cid => cid !== id));
+  };
+
+  const toggleCorrectOption = (id: string) => {
+    if (questionType === 'single') {
+      setCorrectOptions([id]);
+    } else {
+      setCorrectOptions(
+        correctOptions.includes(id) 
+          ? correctOptions.filter(cid => cid !== id)
+          : [...correctOptions, id]
+      );
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!questionText.trim()) return;
+
+    const question: any = {
+      type: questionType,
+      question: questionText,
+      points,
+      difficulty,
+    };
+
+    if (questionType === 'single') {
+      question.answer = answer;
+    } else if (questionType === 'multiple') {
+      question.options = options.filter(opt => opt.text.trim());
+      question.correctAnswers = correctOptions;
+    } else if (questionType === 'free_text') {
+      question.requiresManualGrading = true;
+      question.acceptedAnswers = answer.split(',').map(a => a.trim()).filter(Boolean);
+    }
+
+    onAdd(question);
+    resetForm();
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setQuestionType('single')}
+          className={`px-3 py-1 rounded text-sm ${questionType === 'single' ? 'bg-purple-600 text-white' : 'bg-[#2a2a3a] text-gray-400'}`}
+        >
+          Réponse unique
+        </button>
+        <button
+          type="button"
+          onClick={() => setQuestionType('multiple')}
+          className={`px-3 py-1 rounded text-sm ${questionType === 'multiple' ? 'bg-purple-600 text-white' : 'bg-[#2a2a3a] text-gray-400'}`}
+        >
+          Choix multiples
+        </button>
+        <button
+          type="button"
+          onClick={() => setQuestionType('free_text')}
+          className={`px-3 py-1 rounded text-sm ${questionType === 'free_text' ? 'bg-purple-600 text-white' : 'bg-[#2a2a3a] text-gray-400'}`}
+        >
+          Réponse libre
+        </button>
+      </div>
+
+      <div>
+        <label className="block text-xs text-gray-400 mb-1">Question</label>
+        <textarea
+          value={questionText}
+          onChange={(e) => setQuestionText(e.target.value)}
+          className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+          rows={2}
+          placeholder="Entrez votre question..."
+        />
+      </div>
+
+      {questionType === 'single' && (
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">Réponse correcte</label>
+          <input
+            type="text"
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+            placeholder="Réponse attendue..."
+          />
+        </div>
+      )}
+
+      {questionType === 'multiple' && (
+        <div className="space-y-2">
+          <label className="block text-xs text-gray-400">Options (cochez les correctes)</label>
+          {options.map((opt) => (
+            <div key={opt.id} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={correctOptions.includes(opt.id)}
+                onChange={() => toggleCorrectOption(opt.id)}
+                className="rounded"
+              />
+              <input
+                type="text"
+                value={opt.text}
+                onChange={(e) => handleOptionChange(opt.id, e.target.value)}
+                className="flex-1 px-3 py-1 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+                placeholder={`Option ${opt.id}`}
+              />
+              {options.length > 2 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveOption(opt.id)}
+                  className="p-1 hover:bg-red-500/20 text-red-400 rounded"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={handleAddOption}
+            className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300"
+          >
+            <Plus className="w-3 h-3" />
+            Ajouter une option
+          </button>
+        </div>
+      )}
+
+      {questionType === 'free_text' && (
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">
+            Réponses acceptées (séparées par des virgules, laisser vide pour correction manuelle)
+          </label>
+          <input
+            type="text"
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+            placeholder="ex: Paris, paris, capitale de la France"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Laissez vide si vous souhaitez corriger manuellement chaque réponse.
+          </p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">Points</label>
+          <input
+            type="number"
+            min="1"
+            max="10"
+            value={points}
+            onChange={(e) => setPoints(parseInt(e.target.value))}
+            className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-400 mb-1">Difficulté (1-10)</label>
+          <input
+            type="number"
+            min="1"
+            max="10"
+            value={difficulty}
+            onChange={(e) => setDifficulty(parseInt(e.target.value))}
+            className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={handleSubmit}
+        disabled={!questionText.trim()}
+        className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white rounded text-sm transition-colors"
+      >
+        Ajouter la question
+      </button>
+    </div>
+  );
+}
+
 interface ClassDetails {
   id: string;
   name: string;
@@ -952,6 +1165,74 @@ export default function ClassDetailsPage() {
                         ))}
                       </div>
                     </div>
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-2">Source des questions</label>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="questionSource"
+                            value="auto"
+                            checked={newAssignment.questionSource === 'auto'}
+                            onChange={(e) => setNewAssignment({...newAssignment, questionSource: e.target.value as 'auto' | 'manual'})}
+                            className="rounded"
+                          />
+                          Générées automatiquement
+                        </label>
+                        <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="questionSource"
+                            value="manual"
+                            checked={newAssignment.questionSource === 'manual'}
+                            onChange={(e) => setNewAssignment({...newAssignment, questionSource: e.target.value as 'auto' | 'manual'})}
+                            className="rounded"
+                          />
+                          Créées manuellement
+                        </label>
+                      </div>
+                    </div>
+                    {newAssignment.questionSource === 'manual' && (
+                      <div className="p-4 bg-[#1a1a2e] rounded border border-[#3a3a4a]">
+                        <div className="flex items-center justify-between mb-3">
+                          <h5 className="text-sm font-medium text-white">Questions manuelles</h5>
+                          <span className="text-xs text-gray-400">{newAssignment.manualQuestions?.length || 0} questions</span>
+                        </div>
+                        
+                        {newAssignment.manualQuestions && newAssignment.manualQuestions.length > 0 && (
+                          <div className="space-y-2 mb-4 max-h-60 overflow-y-auto">
+                            {newAssignment.manualQuestions.map((q: any, idx: number) => (
+                              <div key={idx} className="p-3 bg-[#2a2a3a] rounded flex items-center justify-between">
+                                <div>
+                                  <span className="text-xs text-purple-400">Q{idx + 1}</span>
+                                  <p className="text-sm text-white truncate max-w-md">{q.question}</p>
+                                  <span className="text-xs text-gray-400">{q.type === 'single' ? 'Réponse unique' : q.type === 'multiple' ? 'Choix multiples' : 'Réponse libre'}</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = newAssignment.manualQuestions?.filter((_, i) => i !== idx) || [];
+                                    setNewAssignment({...newAssignment, manualQuestions: updated});
+                                  }}
+                                  className="p-1 hover:bg-red-500/20 text-red-400 rounded"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <ManualQuestionEditor
+                          onAdd={(question: any) => {
+                            setNewAssignment({
+                              ...newAssignment,
+                              manualQuestions: [...(newAssignment.manualQuestions || []), question]
+                            });
+                          }}
+                        />
+                      </div>
+                    )}
                     <div className="flex items-center gap-6">
                       <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
                         <input
