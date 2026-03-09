@@ -772,7 +772,7 @@ export default function ClassDetailsPage() {
           {activeTab === 'assignments' && (
             <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-white">Devoirs et exercices</h3>
+                <h3 className="text-xl font-semibold text-white">Devoirs et exercices ({assignments.length})</h3>
                 {isTeacher && (
                   <button 
                     onClick={() => setShowAssignmentForm(true)}
@@ -806,8 +806,60 @@ export default function ClassDetailsPage() {
                         onChange={(e) => setNewAssignment({...newAssignment, description: e.target.value})}
                         className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
                         placeholder="Description du devoir"
-                        rows={3}
+                        rows={2}
                       />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Nombre de questions</label>
+                        <input
+                          type="number"
+                          min="5"
+                          max="50"
+                          value={newAssignment.questionCount || 10}
+                          onChange={(e) => setNewAssignment({...newAssignment, questionCount: parseInt(e.target.value)})}
+                          className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Difficulté</label>
+                        <select
+                          value={newAssignment.difficulty || 'mixed'}
+                          onChange={(e) => setNewAssignment({...newAssignment, difficulty: e.target.value})}
+                          className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        >
+                          <option value="easy">Facile</option>
+                          <option value="medium">Moyen</option>
+                          <option value="hard">Difficile</option>
+                          <option value="mixed">Mixte</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-1">Types d'opérations</label>
+                      <div className="flex flex-wrap gap-2">
+                        {['addition', 'subtraction', 'multiplication', 'division'].map((op) => (
+                          <label key={op} className="flex items-center gap-1 text-sm text-gray-300">
+                            <input
+                              type="checkbox"
+                              checked={newAssignment.operationTypes?.includes(op) ?? true}
+                              onChange={(e) => {
+                                const current = newAssignment.operationTypes || ['addition', 'subtraction', 'multiplication', 'division'];
+                                if (e.target.checked) {
+                                  setNewAssignment({...newAssignment, operationTypes: [...current, op]});
+                                } else {
+                                  setNewAssignment({...newAssignment, operationTypes: current.filter(o => o !== op)});
+                                }
+                              }}
+                              className="rounded"
+                            />
+                            {op === 'addition' && '+'}
+                            {op === 'subtraction' && '-'}
+                            {op === 'multiplication' && '×'}
+                            {op === 'division' && '÷'}
+                          </label>
+                        ))}
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm text-gray-400 mb-1">Date de rendu</label>
@@ -838,15 +890,135 @@ export default function ClassDetailsPage() {
                 </form>
               )}
               
-              <div className="text-center py-8">
-                <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                <p className="text-gray-400 mb-2">Aucun devoir créé pour le moment.</p>
-                {isTeacher ? (
-                  <p className="text-sm text-gray-500">Commencez par créer votre premier devoir pour cette classe.</p>
-                ) : (
-                  <p className="text-sm text-gray-500">Votre professeur n&apos;a pas encore créé de devoirs.</p>
-                )}
-              </div>
+              {assignments.length > 0 ? (
+                <div className="space-y-4">
+                  {assignments.map((assignment: any) => (
+                    <div key={assignment.id} className="p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="text-lg font-semibold text-white">{assignment.title}</h4>
+                          <p className="text-sm text-gray-400">{assignment.description || 'Pas de description'}</p>
+                        </div>
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          assignment.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
+                        }`}>
+                          {assignment.status === 'active' ? 'Actif' : 'Fermé'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-4 text-sm text-gray-400 mb-3">
+                        <span className="flex items-center gap-1">
+                          <Target className="w-4 h-4" />
+                          {assignment.questionCount} questions
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Award className="w-4 h-4" />
+                          Difficulté: {assignment.difficulty}
+                        </span>
+                        {assignment.dueDate && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            À rendre le: {new Date(assignment.dueDate).toLocaleDateString('fr-FR')}
+                          </span>
+                        )}
+                        {isTeacher && (
+                          <span className="flex items-center gap-1 text-blue-400">
+                            <Users className="w-4 h-4" />
+                            {assignment.totalSubmissions || 0} rendus
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Progression pour l'élève */}
+                      {!isTeacher && assignment.mySubmission && (
+                        <div className="mb-3 p-3 bg-[#1a1a2e] rounded">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-300">
+                              {assignment.mySubmission.status === 'submitted' ? 'Rendu' : 
+                               assignment.mySubmission.status === 'graded' ? 'Noté' : 'En cours'}
+                            </span>
+                            {assignment.mySubmission.score !== null && (
+                              <span className={`text-lg font-bold ${
+                                assignment.mySubmission.score >= 70 ? 'text-green-400' :
+                                assignment.mySubmission.score >= 50 ? 'text-yellow-400' : 'text-red-400'
+                              }`}>
+                                {assignment.mySubmission.score}%
+                              </span>
+                            )}
+                          </div>
+                          <div className="mt-2 text-sm text-gray-400">
+                            {assignment.mySubmission.correctCount}/{assignment.mySubmission.totalAnswered} correct
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Liste des questions (visible par le prof) */}
+                      {isTeacher && assignment.questions && assignment.questions.length > 0 && (
+                        <div className="mt-3 border-t border-[#3a3a4a] pt-3">
+                          <h5 className="text-sm font-medium text-gray-300 mb-2">Questions ({assignment.questions.length})</h5>
+                          <div className="grid grid-cols-5 gap-2">
+                            {assignment.questions.slice(0, 10).map((q: any, idx: number) => (
+                              <div 
+                                key={q.id} 
+                                className={`p-2 rounded text-center text-xs ${
+                                  q.difficulty <= 3 ? 'bg-green-500/20 text-green-400' :
+                                  q.difficulty <= 6 ? 'bg-yellow-500/20 text-yellow-400' :
+                                  'bg-red-500/20 text-red-400'
+                                }`}
+                                title={`${q.question} = ${q.answer} (difficulté: ${q.difficulty})`}
+                              >
+                                Q{idx + 1}
+                              </div>
+                            ))}
+                            {assignment.questions.length > 10 && (
+                              <div className="p-2 rounded text-center text-xs bg-gray-500/20 text-gray-400">
+                                +{assignment.questions.length - 10}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="mt-3 flex gap-2">
+                        {isTeacher ? (
+                          <>
+                            <button
+                              onClick={() => {/* TODO: View submissions */}}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded"
+                            >
+                              Voir les rendus
+                            </button>
+                            <button
+                              onClick={() => {/* TODO: View details */}}
+                              className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded"
+                            >
+                              Détails
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => {/* TODO: Start/take assignment */}}
+                            className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded"
+                          >
+                            {assignment.mySubmission ? 'Continuer' : 'Commencer'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+                  <p className="text-gray-400 mb-2">Aucun devoir créé pour le moment.</p>
+                  {isTeacher ? (
+                    <p className="text-sm text-gray-500">Commencez par créer votre premier devoir pour cette classe.</p>
+                  ) : (
+                    <p className="text-sm text-gray-500">Votre professeur n&apos;a pas encore créé de devoirs.</p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

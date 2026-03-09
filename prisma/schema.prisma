@@ -114,6 +114,7 @@ model User {
   taughtGroups    ClassGroup[]     @relation("GroupTeacher")
   groupMemberships ClassGroupMember[]
   groupMessages   ClassMessage[]
+  assignmentSubmissions AssignmentSubmission[]
   
   // First-time setup (COMMUN)
   hasCompletedOnboarding Boolean @default(false) @map("has_completed_onboarding")
@@ -612,6 +613,7 @@ model ClassGroup {
   teacher     User     @relation("GroupTeacher", fields: [teacherId], references: [id])
   members     ClassGroupMember[]
   messages    ClassMessage[]
+  assignments ClassAssignment[]
   
   @@map("class_groups")
 }
@@ -723,4 +725,109 @@ model CoursePracticeHistory {
   course            Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   
   @@map("course_practice_history")
+}
+
+// Class Assignment System
+model ClassAssignment {
+  @@schema("public")
+  id          String   @id @default(cuid())
+  classId     String   @map("class_id")
+  title       String
+  description String?
+  
+  // Configuration
+  questionCount Int    @default(10) @map("question_count")
+  difficulty    String @default("mixed") // easy, medium, hard, mixed
+  timeLimit     Int?   @map("time_limit") // en minutes, null = pas de limite
+  
+  // Operation types (JSON array)
+  operationTypes String? @map("operation_types") // ["addition", "subtraction", ...]
+  
+  // Due date
+  dueDate     DateTime? @map("due_date")
+  
+  // Status
+  status      String   @default("active") // active, closed, draft
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  class       ClassGroup @relation(fields: [classId], references: [id], onDelete: Cascade)
+  questions   AssignmentQuestion[]
+  submissions AssignmentSubmission[]
+  
+  @@map("class_assignments")
+}
+
+// Questions generated for an assignment
+model AssignmentQuestion {
+  @@schema("public")
+  id           String   @id @default(cuid())
+  assignmentId String   @map("assignment_id")
+  
+  // Question content
+  question     String
+  answer       String
+  type         String   // addition, subtraction, etc.
+  difficulty   Int      // 1-10
+  order        Int      // Position dans le devoir
+  
+  // Relations
+  assignment   ClassAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  answers      AssignmentAnswer[]
+  
+  @@map("assignment_questions")
+}
+
+// Student submissions for assignments
+model AssignmentSubmission {
+  @@schema("public")
+  id             String   @id @default(cuid())
+  assignmentId   String   @map("assignment_id")
+  studentId      String   @map("student_id")
+  
+  // Status
+  status         String   @default("in_progress") // in_progress, submitted, graded
+  
+  // Scoring
+  score          Int?     // 0-100, null si pas encore noté
+  correctCount   Int      @default(0) @map("correct_count")
+  totalAnswered  Int      @default(0) @map("total_answered")
+  timeSpent      Int?     @map("time_spent") // en secondes
+  
+  // Timestamps
+  startedAt      DateTime @default(now()) @map("started_at")
+  submittedAt    DateTime? @map("submitted_at")
+  gradedAt       DateTime? @map("graded_at")
+  gradedBy       String?  @map("graded_by") // teacherId ou auto
+  
+  // Relations
+  assignment     ClassAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student        User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  answers        AssignmentAnswer[]
+  
+  @@unique([assignmentId, studentId])
+  @@map("assignment_submissions")
+}
+
+// Individual answers for assignment questions
+model AssignmentAnswer {
+  @@schema("public")
+  id           String   @id @default(cuid())
+  submissionId String   @map("submission_id")
+  questionId   String   @map("question_id")
+  
+  // Answer
+  userAnswer   String?  @map("user_answer")
+  isCorrect    Boolean?
+  timeTaken    Int?     @map("time_taken") // en millisecondes
+  
+  // Relations
+  submission   AssignmentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  question     AssignmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@unique([submissionId, questionId])
+  @@map("assignment_answers")
 }
