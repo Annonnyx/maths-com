@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { TimeControl, GameType } from '@/lib/multiplayer';
-import { generateMultiplayerQuestions } from '@/lib/exercises';
 
 export async function GET(
   req: NextRequest,
