@@ -30,11 +30,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Créer un utilisateur anonyme pour les soumissions partagées
+    const anonymousUser = await prisma.user.create({
+      data: {
+        email: `anonymous_${Date.now()}@temp.com`,
+        username: `anonymous_${Date.now()}`,
+        displayName: studentName.trim()
+      }
+    });
+
     // Créer la soumission
     const submission = await prisma.assignmentSubmission.create({
       data: {
         assignmentId,
-        studentName: studentName.trim(),
+        studentId: anonymousUser.id,
         status: 'in_progress',
         startedAt: new Date()
       }
@@ -49,9 +58,9 @@ export async function POST(request: NextRequest) {
       data: questions.map(q => ({
         submissionId: submission.id,
         questionId: q.id,
-        answer: '',
+        userAnswer: '',
         isCorrect: false,
-        points: 0
+        pointsEarned: 0
       }))
     });
 
@@ -90,9 +99,9 @@ export async function PATCH(request: NextRequest) {
           questionId: answer.questionId
         },
         data: {
-          answer: answer.value,
+          userAnswer: answer.value,
           isCorrect: answer.isCorrect || false,
-          points: answer.points || 0
+          pointsEarned: answer.points || 0
         }
       });
     }
@@ -102,8 +111,8 @@ export async function PATCH(request: NextRequest) {
       const submission = await prisma.assignmentSubmission.update({
         where: { id: submissionId },
         data: {
-          status: 'completed',
-          completedAt: new Date()
+          status: 'submitted',
+          submittedAt: new Date()
         },
         include: {
           answers: true
@@ -111,7 +120,7 @@ export async function PATCH(request: NextRequest) {
       });
 
       // Calculer le score total
-      const totalPoints = submission.answers.reduce((sum, a) => sum + a.points, 0);
+      const totalPoints = submission.answers.reduce((sum, a) => sum + (a.pointsEarned || 0), 0);
       const maxPoints = submission.answers.length;
       const percentage = (totalPoints / maxPoints) * 100;
 

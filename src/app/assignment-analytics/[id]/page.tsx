@@ -33,6 +33,12 @@ interface StudentStats {
   correctCount: number;
   totalQuestions: number;
   percentage: number;
+  answers?: {
+    questionId: string;
+    answer: string | null;
+    isCorrect: boolean | null;
+    points: number | null;
+  }[];
   rank?: number;
 }
 

@@ -24,11 +24,36 @@ export async function GET(request: NextRequest) {
       include: {
         class: { select: { teacherId: true } },
         questions: {
-          orderBy: { order: 'asc' }
+          orderBy: { order: 'asc' },
+          select: {
+            id: true,
+            question: true,
+            questionType: true,
+            difficulty: true,
+            order: true,
+            points: true
+          }
         },
         submissions: {
           include: {
-            answers: true
+            answers: {
+              select: {
+                id: true,
+                questionId: true,
+                userAnswer: true,
+                selectedOptions: true,
+                isCorrect: true,
+                pointsEarned: true,
+                timeTaken: true
+              }
+            },
+            student: {
+              select: {
+                id: true,
+                displayName: true,
+                username: true
+              }
+            }
           }
         }
       }
@@ -62,7 +87,7 @@ export async function GET(request: NextRequest) {
       // Réponses les plus fréquentes (pour les questions à réponse libre)
       const answerFrequency: Record<string, number> = {};
       questionAnswers.forEach(a => {
-        const ans = a.answer || '(vide)';
+        const ans = a.userAnswer || a.selectedOptions || '(vide)';
         answerFrequency[ans] = (answerFrequency[ans] || 0) + 1;
       });
       
@@ -80,7 +105,7 @@ export async function GET(request: NextRequest) {
         correctAnswers,
         successRate,
         averagePoints: totalAnswers > 0 
-          ? questionAnswers.reduce((sum, a) => sum + a.points, 0) / totalAnswers 
+          ? questionAnswers.reduce((sum, a) => sum + (a.pointsEarned || 0), 0) / totalAnswers 
           : 0,
         topAnswers
       };
@@ -93,19 +118,19 @@ export async function GET(request: NextRequest) {
       
       return {
         submissionId: s.id,
-        studentName: s.studentName,
+        studentName: s.student?.displayName || s.student?.username || 'Anonyme',
         status: s.status,
         score: s.score,
         startedAt: s.startedAt,
-        completedAt: s.completedAt,
+        completedAt: s.submittedAt,
         correctCount,
         totalQuestions,
         percentage: totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0,
         answers: s.answers.map(a => ({
           questionId: a.questionId,
-          answer: a.answer,
+          answer: a.userAnswer || a.selectedOptions,
           isCorrect: a.isCorrect,
-          points: a.points
+          points: a.pointsEarned
         }))
       };
     });

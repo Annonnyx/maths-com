@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
         username: true,
         displayName: true,
         email: true,
-        level: true,
-        xp: true,
+        soloElo: true,
+        soloRankClass: true,
         createdAt: true
       }
     });
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
         },
         answers: true
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { startedAt: 'desc' }
     });
 
     // Calculer les statistiques globales
@@ -81,13 +81,13 @@ export async function GET(request: NextRequest) {
       : 0;
 
     const totalPoints = completedAssignments.reduce((sum, s) => {
-      return sum + s.answers.reduce((aSum, a) => aSum + a.points, 0);
+      return sum + s.answers.reduce((aSum, a) => aSum + (a.pointsEarned || 0), 0);
     }, 0);
 
     // Progression dans le temps
     const progressByMonth: Record<string, { completed: number; avgScore: number }> = {};
     completedAssignments.forEach(s => {
-      const month = new Date(s.completedAt || s.createdAt).toLocaleDateString('fr-FR', {
+      const month = new Date(s.submittedAt || s.startedAt).toLocaleDateString('fr-FR', {
         year: 'numeric',
         month: 'short'
       });
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
     // Calculer les moyennes par mois
     Object.keys(progressByMonth).forEach(month => {
       const monthSubmissions = completedAssignments.filter(s => 
-        new Date(s.completedAt || s.createdAt).toLocaleDateString('fr-FR', {
+        new Date(s.submittedAt || s.startedAt).toLocaleDateString('fr-FR', {
           year: 'numeric',
           month: 'short'
         }) === month
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
       s.answers.forEach(a => {
         // On récupère la difficulté depuis la question associée
         // Pour simplifier, on utilise les points comme proxy de difficulté
-        const difficulty = Math.ceil(a.points / 2) || 1;
+        const difficulty = Math.ceil((a.pointsEarned || 0) / 2) || 1;
         if (!difficultyStats[difficulty]) {
           difficultyStats[difficulty] = { total: 0, correct: 0 };
         }
@@ -129,8 +129,8 @@ export async function GET(request: NextRequest) {
     // Temps moyen par devoir (si on a les données de temps)
     const avgTimePerAssignment = completedCount > 0
       ? completedAssignments.reduce((sum, s) => {
-          if (s.completedAt && s.startedAt) {
-            const duration = new Date(s.completedAt).getTime() - new Date(s.startedAt).getTime();
+          if (s.submittedAt && s.startedAt) {
+            const duration = new Date(s.submittedAt).getTime() - new Date(s.startedAt).getTime();
             return sum + duration / 1000 / 60; // en minutes
           }
           return sum;
@@ -144,16 +144,16 @@ export async function GET(request: NextRequest) {
       className: s.assignment.class?.name || 'Classe inconnue',
       status: s.status,
       score: s.score,
-      completedAt: s.completedAt,
+      completedAt: s.submittedAt,
       correctCount: s.answers.filter(a => a.isCorrect).length,
       totalQuestions: s.answers.length
     }));
 
     // Classement dans les classes (si l'élève est dans des classes)
-    const classMemberships = await prisma.classMember.findMany({
+    const classMemberships = await prisma.classGroupMember.findMany({
       where: { userId: targetStudentId },
       include: {
-        class: {
+        group: {
           include: {
             members: true
           }
@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
         const allSubmissions = await prisma.assignmentSubmission.findMany({
           where: {
             assignment: {
-              classId: membership.class.id
+              classId: membership.group.id
             },
             status: 'completed'
           },
@@ -197,8 +197,8 @@ export async function GET(request: NextRequest) {
         const totalStudents = avgScores.length;
 
         return {
-          classId: membership.class.id,
-          className: membership.class.name,
+          classId: membership.group.id,
+          className: membership.group.name,
           rank,
           totalStudents,
           percentile: totalStudents > 0 ? ((totalStudents - rank) / totalStudents) * 100 : 0
@@ -212,8 +212,8 @@ export async function GET(request: NextRequest) {
         username: user.username,
         displayName: user.displayName,
         email: user.email,
-        level: user.level,
-        xp: user.xp,
+        level: user.soloRankClass,
+        xp: user.soloElo,
         joinedAt: user.createdAt
       },
       stats: {

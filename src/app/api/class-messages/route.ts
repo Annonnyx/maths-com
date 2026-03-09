@@ -43,9 +43,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Construire la requête
-    const whereClause: any = { classId };
+    const whereClause: any = { groupId: classId };
     if (messageType) {
-      whereClause.messageType = messageType;
+      whereClause.type = messageType;
     }
 
     const messages = await prisma.classMessage.findMany({
@@ -53,47 +53,12 @@ export async function GET(request: NextRequest) {
       take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
-        sender: {
+        user: {
           select: {
             id: true,
             username: true,
-            displayName: true,
-            role: true
+            displayName: true
           }
-        },
-        parentMessage: {
-          select: {
-            id: true,
-            content: true,
-            sender: {
-              select: {
-                displayName: true,
-                username: true
-              }
-            }
-          }
-        },
-        replies: {
-          take: 3,
-          orderBy: { createdAt: 'asc' },
-          include: {
-            sender: {
-              select: {
-                id: true,
-                username: true,
-                displayName: true,
-                role: true
-              }
-            }
-          }
-        },
-        readBy: {
-          where: { userId: session.user.id },
-          select: { readAt: true }
-        },
-        confirmations: {
-          where: { userId: session.user.id },
-          select: { confirmedAt: true }
         }
       }
     });
@@ -119,8 +84,6 @@ export async function POST(request: NextRequest) {
       classId, 
       content, 
       messageType = 'discussion',
-      priority = 'normal',
-      parentMessageId = null,
       requiresConfirmation = false
     } = body;
 
@@ -159,21 +122,18 @@ export async function POST(request: NextRequest) {
     // Créer le message
     const message = await prisma.classMessage.create({
       data: {
-        classId,
-        senderId: session.user.id,
+        groupId: classId,
+        userId: session.user.id,
         content: content.trim(),
-        messageType,
-        priority,
-        parentMessageId,
+        type: messageType,
         requiresConfirmation,
       },
       include: {
-        sender: {
+        user: {
           select: {
             id: true,
             username: true,
-            displayName: true,
-            role: true
+            displayName: true
           }
         }
       }
@@ -194,9 +154,9 @@ export async function POST(request: NextRequest) {
           userId: m.userId,
           type: messageType === 'announcement' ? 'announcement' : 'message',
           title: messageType === 'announcement' ? '📢 Nouvelle annonce' : '💬 Nouveau message',
-          content: `Dans "${classGroup.name}" : ${content.slice(0, 100)}${content.length > 100 ? '...' : ''}`,
+          message: `Dans "${classGroup.name}" : ${content.slice(0, 100)}${content.length > 100 ? '...' : ''}`,
           senderId: session.user.id,
-          data: { classId, messageId: message.id }
+          metadata: { classId, messageId: message.id }
         }))
       });
     }
@@ -226,7 +186,7 @@ export async function PATCH(request: NextRequest) {
 
     const message = await prisma.classMessage.findUnique({
       where: { id: messageId },
-      include: { class: { select: { id: true, teacherId: true } } }
+      include: { group: { select: { id: true, teacherId: true } } }
     });
 
     if (!message) {
@@ -234,41 +194,29 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (action === 'read') {
-      // Marquer comme lu (créer ou mettre à jour MessageRead)
-      await prisma.messageRead.upsert({
-        where: {
-          messageId_userId: {
-            messageId,
-            userId: session.user.id
-          }
-        },
-        update: { readAt: new Date() },
-        create: {
-          messageId,
-          userId: session.user.id,
-          readAt: new Date()
-        }
-      });
+      // Marquer comme lu en ajoutant l'ID au tableau readBy
+      const readBy = message.readBy ? JSON.parse(message.readBy) : [];
+      if (!readBy.includes(session.user.id)) {
+        readBy.push(session.user.id);
+        await prisma.classMessage.update({
+          where: { id: messageId },
+          data: { readBy: JSON.stringify(readBy) }
+        });
+      }
     } else if (action === 'confirm') {
-      // Confirmer la réception (pour les messages importants)
+      // Confirmer la réception
       if (!message.requiresConfirmation) {
         return NextResponse.json({ error: 'Ce message ne requiert pas de confirmation' }, { status: 400 });
       }
 
-      await prisma.messageConfirmation.upsert({
-        where: {
-          messageId_userId: {
-            messageId,
-            userId: session.user.id
-          }
-        },
-        update: { confirmedAt: new Date() },
-        create: {
-          messageId,
-          userId: session.user.id,
-          confirmedAt: new Date()
-        }
-      });
+      const confirmedBy = message.confirmedBy ? JSON.parse(message.confirmedBy) : [];
+      if (!confirmedBy.includes(session.user.id)) {
+        confirmedBy.push(session.user.id);
+        await prisma.classMessage.update({
+          where: { id: messageId },
+          data: { confirmedBy: JSON.stringify(confirmedBy) }
+        });
+      }
     }
 
     return NextResponse.json({ success: true });
@@ -296,7 +244,7 @@ export async function DELETE(request: NextRequest) {
 
     const message = await prisma.classMessage.findUnique({
       where: { id: messageId },
-      include: { class: { select: { teacherId: true } } }
+      include: { group: { select: { teacherId: true } } }
     });
 
     if (!message) {
@@ -304,8 +252,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Vérifier les permissions
-    const isTeacher = message.class.teacherId === session.user.id;
-    const isAuthor = message.senderId === session.user.id;
+    const isTeacher = message.group.teacherId === session.user.id;
+    const isAuthor = message.userId === session.user.id;
 
     if (!isTeacher && !isAuthor) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
