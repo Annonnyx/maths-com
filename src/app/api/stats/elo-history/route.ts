@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     let history: { date: string; elo: number }[] = [];
 
     if (mode === 'solo') {
-      // Récupérer les résultats de tests solo - utiliser soloTest (camelCase du modèle SoloTest)
+      // Récupérer les résultats de tests solo
       const results = await (prisma as any).soloTest.findMany({
         where: {
           userId,
@@ -58,14 +58,30 @@ export async function GET(request: NextRequest) {
         },
         select: {
           completedAt: true,
-          eloAfter: true
+          eloBefore: true,
+          eloAfter: true,
+          eloChange: true
         }
       });
 
-      history = results.map((r: any) => ({
-        date: r.completedAt!.toISOString(),
-        elo: r.eloAfter
-      }));
+      // Construire l'historique avec le point de départ
+      history = [];
+      
+      if (results.length > 0) {
+        // Ajouter le point de départ (ELO avant le premier test)
+        history.push({
+          date: results[0].completedAt ? new Date(new Date(results[0].completedAt).getTime() - 1000).toISOString() : startDate.toISOString(),
+          elo: results[0].eloBefore
+        });
+        
+        // Ajouter les points après chaque test
+        results.forEach((r: any) => {
+          history.push({
+            date: r.completedAt!.toISOString(),
+            elo: r.eloAfter
+          });
+        });
+      }
     } else {
       // Pour le multijoueur, on récupère les jeux terminés
       const results = await (prisma as any).multiplayerGame.findMany({

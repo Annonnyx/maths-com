@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { AdaptiveQuestionGenerator } from '@/lib/question-generators';
+import { FrenchClass } from '@/lib/french-classes';
 
 // GET - Récupérer les devoirs d'une classe
 export async function GET(request: NextRequest) {
@@ -157,8 +159,32 @@ export async function POST(request: NextRequest) {
         requiresManualGrading: q.requiresManualGrading || false,
         acceptedAnswers: q.acceptedAnswers ? JSON.stringify(q.acceptedAnswers) : null
       }));
+    } else if (schoolLevel) {
+      // Use new adaptive question generator based on school level
+      const generator = new AdaptiveQuestionGenerator();
+      const frenchClass = schoolLevel.toLowerCase().replace('è', 'e').replace('é', 'e') as FrenchClass;
+      
+      questions = []; // Initialize array first
+      
+      for (let i = 0; i < questionCount; i++) {
+        const q = generator.generateForLevel(frenchClass, { difficulty });
+        questions.push({
+          assignmentId: assignment.id,
+          questionType: 'single',
+          question: q.question,
+          answer: q.correct, // Use 'correct' property for the answer
+          type: 'calculation', // Default type since GeneratedQuestion doesn't have 'type'
+          difficulty: q.difficulty || 5,
+          order: i,
+          points: 1,
+          options: null,
+          correctAnswers: null,
+          requiresManualGrading: false,
+          acceptedAnswers: null
+        });
+      }
     } else {
-      // Generate auto questions
+      // Fallback to simple generation if no school level selected
       const generatedQuestions = generateQuestions(questionCount, difficulty, operationTypes);
       questions = generatedQuestions.map((q, index) => ({
         assignmentId: assignment.id,
