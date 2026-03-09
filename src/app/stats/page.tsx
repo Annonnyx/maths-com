@@ -20,6 +20,38 @@ export default function StatsPage() {
   // Filtres globaux
   const [timePeriod, setTimePeriod] = useState<'1h' | '24h' | '7d' | '30d' | '3m' | 'all'>('7d');
   const [gameMode, setGameMode] = useState<'solo' | 'multiplayer' | 'both'>('solo');
+  
+  // Stats filtrées par période
+  const [filteredStats, setFilteredStats] = useState({
+    totalTests: 0,
+    totalQuestions: 0,
+    totalCorrect: 0,
+    averageTime: 0,
+    averageScore: 0,
+  });
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  // Récupérer les stats filtrées quand les filtres changent
+  useEffect(() => {
+    const fetchFilteredStats = async () => {
+      if (!session?.user) return;
+      
+      setStatsLoading(true);
+      try {
+        const response = await fetch(`/api/stats/summary?mode=${gameMode}&period=${timePeriod}`);
+        if (response.ok) {
+          const data = await response.json();
+          setFilteredStats(data.stats);
+        }
+      } catch (error) {
+        console.error('Error fetching filtered stats:', error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    fetchFilteredStats();
+  }, [timePeriod, gameMode, session]);
 
   if (!session) {
     return (
@@ -207,8 +239,8 @@ export default function StatsPage() {
               </div>
               <span className="text-gray-400 text-sm">Tests complétés</span>
             </div>
-            <div className="text-3xl font-bold">{stats?.totalTests || 0}</div>
-            <div className="text-sm text-gray-500 mt-1">Cette {timePeriod}</div>
+            <div className="text-3xl font-bold">{filteredStats?.totalTests || 0}</div>
+            <div className="text-sm text-gray-500 mt-1">{statsLoading ? 'Chargement...' : `Cette ${timePeriod}`}</div>
           </div>
 
           <div className="p-5 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
@@ -219,9 +251,9 @@ export default function StatsPage() {
               <span className="text-gray-400 text-sm">Taux de réussite</span>
             </div>
             <div className="text-3xl font-bold">
-              {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
+              {filteredStats?.totalQuestions > 0 ? Math.round((filteredStats.totalCorrect / filteredStats.totalQuestions) * 100) : 0}%
             </div>
-            <div className="text-sm text-gray-500 mt-1">Cette {timePeriod}</div>
+            <div className="text-sm text-gray-500 mt-1">{statsLoading ? 'Chargement...' : `Cette ${timePeriod}`}</div>
           </div>
 
           <div className="p-5 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
@@ -231,8 +263,8 @@ export default function StatsPage() {
               </div>
               <span className="text-gray-400 text-sm">Temps moyen</span>
             </div>
-            <div className="text-3xl font-bold">{stats ? Math.round(stats.averageTime) : 0}s</div>
-            <div className="text-sm text-gray-500 mt-1">Par question</div>
+            <div className="text-3xl font-bold">{filteredStats ? Math.round(filteredStats.averageTime) : 0}s</div>
+            <div className="text-sm text-gray-500 mt-1">{statsLoading ? 'Chargement...' : 'Par question'}</div>
           </div>
 
           <div className="p-5 bg-[#12121a] rounded-xl border border-[#2a2a3a]">
@@ -243,7 +275,7 @@ export default function StatsPage() {
               <span className="text-gray-400 text-sm">Meilleure série</span>
             </div>
             <div className="text-3xl font-bold">{user.soloBestStreak}</div>
-            <div className="text-sm text-gray-500 mt-1">Questions d'affilée</div>
+            <div className="text-sm text-gray-500 mt-1">Record personnel</div>
           </div>
         </motion.section>
 
