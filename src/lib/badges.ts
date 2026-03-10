@@ -1,5 +1,24 @@
 import { prisma } from './prisma';
 
+// Helper functions for rarity
+function getRarityFromRank(rank: string): string {
+  const tier = rank.charAt(0);
+  switch (tier) {
+    case 'S': return 'legendary';
+    case 'A': return 'epic';
+    case 'B': return 'rare';
+    case 'C': return 'common';
+    default: return 'common';
+  }
+}
+
+function getAchievementRarity(id: string): string {
+  if (id.includes('streak_10') || id === 'perfect_score') return 'legendary';
+  if (id.includes('streak_5') || id === 'math_wizard' || id === 'multi_master') return 'epic';
+  if (id === 'first_win' || id === 'speed_demon') return 'rare';
+  return 'common';
+}
+
 // Badges de rang - attribués automatiquement
 export const RANK_BADGES = {
   'S+': { name: 'Maître S+', icon: '🌟', color: '#FFD700', description: 'Atteint le rang S+' },
@@ -55,8 +74,8 @@ export async function initializeBadges() {
             description: badge.description,
             icon: badge.icon,
             category: 'rank',
-            color: badge.color,
-            requirement: `Atteindre le rang ${rank}`,
+            rarity: getRarityFromRank(rank),
+            condition: `Atteindre le rang ${rank}`,
           }
         });
         console.log(`Created rank badge: ${badge.name}`);
@@ -77,8 +96,8 @@ export async function initializeBadges() {
             description: badge.description,
             icon: badge.icon,
             category: badge.category,
-            color: badge.color,
-            requirement: badge.description,
+            rarity: getAchievementRarity(badge.id),
+            condition: badge.description,
           }
         });
         console.log(`Created achievement badge: ${badge.name}`);

@@ -69,15 +69,15 @@ export async function POST(req: NextRequest) {
           description: 'Être classé numéro 1 au classement solo mondial',
           icon: '🔥',
           category: 'special',
-          color: '#00C851',
-          requirement: 'Atteindre la première place du classement solo',
+          rarity: 'legendary',
+          condition: 'Atteindre la première place du classement solo',
         }
       });
     } else if (top1Solo.icon !== '🔥') {
       // Update icon if it's not the fire emoji
       top1Solo = await prisma.badge.update({
         where: { id: 'top_1_solo' },
-        data: { icon: '🔥', color: '#00C851' }
+        data: { icon: '🔥', rarity: 'legendary' }
       });
     }
 
@@ -90,15 +90,15 @@ export async function POST(req: NextRequest) {
           description: 'Classé premier du classement multijoueur',
           icon: '🔥',
           category: 'special',
-          color: '#ff4444',
-          requirement: 'Atteindre la première place du classement multijoueur',
+          rarity: 'legendary',
+          condition: 'Atteindre la première place du classement multijoueur',
         }
       });
     } else if (top1Multi.icon !== '🔥') {
       // Update icon if it's not the fire emoji
       top1Multi = await prisma.badge.update({
         where: { id: 'top_1_multi' },
-        data: { icon: '🔥', color: '#ff4444' }
+        data: { icon: '🔥', rarity: 'legendary' }
       });
     }
 
