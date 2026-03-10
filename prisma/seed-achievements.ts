@@ -10,14 +10,14 @@ export async function seedAchievements() {
   
   for (const rank of ranks) {
     const tier = rank.charAt(0);
-    const tierColors: Record<string, string> = {
-      'S': '#FFD700', // Gold
-      'A': '#FF6B35', // Orange
-      'B': '#9B59B6', // Purple
-      'C': '#3498DB', // Blue
-      'D': '#1ABC9C', // Teal
-      'E': '#2ECC71', // Green
-      'F': '#95A5A6', // Gray
+    const tierRarity: Record<string, string> = {
+      'S': 'legendary',
+      'A': 'epic',
+      'B': 'epic',
+      'C': 'rare',
+      'D': 'common',
+      'E': 'common',
+      'F': 'common',
     };
 
     await prisma.badge.upsert({
@@ -28,8 +28,8 @@ export async function seedAchievements() {
         description: `Atteindre la classe ${rank} en Elo`,
         icon: tier === 'S' ? '👑' : tier === 'A' ? '⭐' : tier === 'B' ? '🎯' : tier === 'C' ? '💎' : tier === 'D' ? '🔷' : tier === 'E' ? '🟢' : '⚪',
         category: 'rank',
-        color: tierColors[tier] || '#95A5A6',
-        requirement: `Atteindre la classe ${rank}`,
+        rarity: tierRarity[tier] || 'common',
+        condition: `Atteindre la classe ${rank}`,
       }
     });
   }
@@ -43,8 +43,8 @@ export async function seedAchievements() {
       description: 'Réussir un test avec un score de 20/20',
       icon: '🏆',
       category: 'achievement',
-      color: '#FFD700',
-      requirement: 'Obtenir 20/20 à un test chronométré',
+      rarity: 'legendary',
+      condition: 'Obtenir 20/20 à un test chronométré',
     }
   });
 
@@ -59,8 +59,8 @@ export async function seedAchievements() {
         description: `Compléter ${milestone} tests en mode solo`,
         icon: milestone >= 1000 ? '💎' : milestone >= 500 ? '🏅' : milestone >= 100 ? '🎖️' : milestone >= 50 ? '🏵️' : '🎯',
         category: 'achievement',
-        color: milestone >= 1000 ? '#FF6B35' : milestone >= 500 ? '#9B59B6' : milestone >= 100 ? '#3498DB' : '#2ECC71',
-        requirement: `Compléter ${milestone} tests solo`,
+        rarity: milestone >= 1000 ? 'legendary' : milestone >= 500 ? 'epic' : milestone >= 100 ? 'rare' : 'common',
+        condition: `Compléter ${milestone} tests solo`,
       }
     });
   }
@@ -76,8 +76,8 @@ export async function seedAchievements() {
         description: `Jouer ${milestone} parties en multijoueur`,
         icon: milestone >= 1000 ? '👑' : milestone >= 500 ? '🏆' : milestone >= 100 ? '🥇' : milestone >= 50 ? '🥈' : '🥉',
         category: 'achievement',
-        color: milestone >= 1000 ? '#FFD700' : milestone >= 500 ? '#C0C0C0' : '#CD7F32',
-        requirement: `Jouer ${milestone} parties multijoueur`,
+        rarity: milestone >= 1000 ? 'legendary' : milestone >= 500 ? 'epic' : milestone >= 100 ? 'rare' : 'common',
+        condition: `Jouer ${milestone} parties multijoueur`,
       }
     });
   }
@@ -91,8 +91,8 @@ export async function seedAchievements() {
       description: 'Classé premier du mois en mode solo',
       icon: '🥇',
       category: 'special',
-      color: '#FFD700',
-      requirement: 'Être premier au classement mensuel solo',
+      rarity: 'legendary',
+      condition: 'Être premier au classement mensuel solo',
     }
   });
 
@@ -104,8 +104,8 @@ export async function seedAchievements() {
       description: 'Classé premier du mois en mode multijoueur',
       icon: '👑',
       category: 'special',
-      color: '#FF6B35',
-      requirement: 'Être premier au classement mensuel multijoueur',
+      rarity: 'epic',
+      condition: 'Être premier au classement mensuel multijoueur',
     }
   });
 
