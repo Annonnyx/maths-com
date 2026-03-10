@@ -79,7 +79,6 @@ export async function POST(req: NextRequest) {
           category: category || 'custom',
           rarity: 'common',
           condition: requirement || 'Badge personnalisé',
-          createdById: user.id
         }
       });
 
