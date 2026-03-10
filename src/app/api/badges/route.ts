@@ -77,8 +77,8 @@ export async function POST(req: NextRequest) {
           description,
           icon,
           category: category || 'custom',
-          color: color || '#FFD700',
-          requirement,
+          rarity: 'common',
+          condition: requirement || 'Badge personnalisé',
           createdById: user.id
         }
       });
