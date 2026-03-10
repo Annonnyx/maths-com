@@ -51,7 +51,6 @@ export async function GET(
           select: {
             id: true,
             earnedAt: true,
-            expiresAt: true,
             badge: {
               select: {
                 id: true,
@@ -59,9 +58,8 @@ export async function GET(
                 description: true,
                 icon: true,
                 category: true,
-                color: true,
-                requirement: true,
-                createdById: true,
+                rarity: true,
+                condition: true,
                 createdAt: true
               }
             }

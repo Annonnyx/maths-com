@@ -189,14 +189,14 @@ export class AchievementService {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    // Remove expired monthly badges
-    await prisma.userBadge.deleteMany({
-      where: {
-        expiresAt: {
-          lt: now
-        }
-      }
-    });
+    // Remove expired monthly badges - not supported in current schema
+    // await prisma.userBadge.deleteMany({
+    //   where: {
+    //     expiresAt: {
+    //       lt: now
+    //     }
+    //   }
+    // });
 
     // Get top solo player of the month
     const topSoloPlayer = await prisma.user.findFirst({
@@ -226,8 +226,7 @@ export class AchievementService {
         await prisma.userBadge.create({
           data: {
             userId: topSoloPlayer.id,
-            badgeId: badge.id,
-            expiresAt: endOfMonth
+            badgeId: badge.id
           }
         });
         console.log(`Awarded monthly top 1 solo badge to ${topSoloPlayer.username}`);
@@ -262,8 +261,7 @@ export class AchievementService {
         await prisma.userBadge.create({
           data: {
             userId: topMultiplayerPlayer.id,
-            badgeId: badge.id,
-            expiresAt: endOfMonth
+            badgeId: badge.id
           }
         });
         console.log(`Awarded monthly top 1 multiplayer badge to ${topMultiplayerPlayer.username}`);
@@ -275,11 +273,7 @@ export class AchievementService {
   static async getUserBadges(userId: string) {
     return await prisma.userBadge.findMany({
       where: {
-        userId,
-        OR: [
-          { expiresAt: null },
-          { expiresAt: { gt: new Date() } }
-        ]
+        userId
       },
       include: {
         badge: true
@@ -294,11 +288,7 @@ export class AchievementService {
   static async getActiveUserBadges(userId: string) {
     return await prisma.userBadge.findMany({
       where: {
-        userId,
-        OR: [
-          { expiresAt: null },
-          { expiresAt: { gt: new Date() } }
-        ]
+        userId
       },
       include: {
         badge: true

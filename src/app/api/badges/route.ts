@@ -125,8 +125,7 @@ export async function POST(req: NextRequest) {
       const userBadge = await prisma.userBadge.create({
         data: {
           userId: targetUserId,
-          badgeId,
-          awardedById: user.id
+          badgeId
         },
         include: { badge: true }
       });
