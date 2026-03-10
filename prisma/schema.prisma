@@ -296,45 +296,6 @@ model KahootQuestion {
   @@map("kahoot_questions")
 }
 
-// Badge system (COMMUN)
-model Badge {
-  @@schema("public")
-  id          String    @id @default(cuid()) @map("id")
-  name        String    @unique
-  description String
-  icon        String    // Emoji or icon name
-  category    String    // 'rank', 'achievement', 'special', 'custom'
-  color       String    @default("#FFD700") // Gold default
-  requirement String?   // Description of how to earn
-  isTeacher     Boolean  @default(false)
-  isAdmin       Boolean  @default(false) @map("is_admin") // For monthly top 1 badges
-  createdById String?   // Admin who created it (for custom badges)
-  createdAt   DateTime  @default(now())
-  
-  // Relations
-  userBadges  UserBadge[]
-  
-  @@map("badges")
-}
-
-// User-Badge association (COMMUN)
-model UserBadge {
-  @@schema("public")
-  id        String   @id @default(cuid()) @map("id")
-  userId    String @map("user_id")
-  badgeId   String @map("badge_id")
-  earnedAt  DateTime @default(now())
-  awardedById String? // For custom badges awarded by admin
-  expiresAt DateTime? // For temporary badges like monthly top 1
-  
-  // Relations
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, badgeId])
-  @@map("user_badges")
-}
-
 model ExerciseAttempt {
   @@schema("public")
   id        String   @id @default(cuid()) @map("id")
