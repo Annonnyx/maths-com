@@ -4,6 +4,18 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { RANK_BADGES } from '@/lib/badges';
 
+// Helper to map rank to rarity
+function getRarityFromRank(rank: string): string {
+  const tier = rank.charAt(0);
+  switch (tier) {
+    case 'S': return 'legendary';
+    case 'A': return 'epic';
+    case 'B': return 'rare';
+    case 'C': return 'common';
+    default: return 'common';
+  }
+}
+
 async function isAdminEmail(email: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: { email },
@@ -58,8 +70,8 @@ export async function POST(req: NextRequest) {
           description: badgeInfo.description,
           icon: badgeInfo.icon,
           category: 'rank',
-          color: badgeInfo.color,
-          requirement: `Atteindre le rang ${rank}`,
+          rarity: getRarityFromRank(rank),
+          condition: `Atteindre le rang ${rank}`,
         }
       });
       createdBadges.push(badge);
