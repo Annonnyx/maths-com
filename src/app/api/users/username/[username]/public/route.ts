@@ -21,49 +21,14 @@ export async function GET(
       );
     }
 
-    // Rechercher l'utilisateur par username
+    // Rechercher l'utilisateur par username avec relations
     const user = await prisma.user.findUnique({
       where: { username },
-      select: {
-        id: true,
-        username: true,
-        displayName: true,
-        avatarUrl: true,
-        bannerUrl: true,
-        customBannerId: true,
-        selectedBadgeIds: true,
-        soloElo: true,
-        soloRankClass: true,
-        soloBestElo: true,
-        soloBestRankClass: true,
-        multiplayerElo: true,
-        multiplayerRankClass: true,
-        multiplayerBestElo: true,
-        multiplayerBestRankClass: true,
-        isTeacher: true,
-        isAdmin: true,
-        hasCompletedOnboarding: true,
-        isOnline: true,
-        lastSeenAt: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         soloStatistics: true,
         userBadges: {
-          select: {
-            id: true,
-            earnedAt: true,
-            badge: {
-              select: {
-                id: true,
-                name: true,
-                description: true,
-                icon: true,
-                category: true,
-                rarity: true,
-                condition: true,
-                createdAt: true
-              }
-            }
+          include: {
+            badge: true
           }
         }
       }

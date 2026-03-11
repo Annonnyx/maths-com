@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://fnoezpxrbqaxzwdgqppv.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZub2V6cHhyYnFheHp3ZGdxcHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgwNzI0NzIsImV4cCI6MjA1MzY0ODQ3Mn0.0G1XxP5R2L8Km9N7QJ3fW1E4cT5yU6i8O2pL9kM4nB7';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://plfjxxakrqxveufldtrc.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsZmp4eGFrcnF4dmV1ZmxkdHJjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDkzMjE1NSwiZXhwIjoyMDg2NTA4MTU1fQ.ZBqdbXCpeGDyA8WdhxhWUOUyScahVV21jE8wnx2pvCM';
 
 // Singleton pattern to avoid multiple instances
 let supabaseInstance: ReturnType<typeof createClient> | null = null;

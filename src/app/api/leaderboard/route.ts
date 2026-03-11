@@ -178,15 +178,17 @@ export async function GET(req: NextRequest) {
       // Get stats based on mode
       const stats = mode === 'solo' ? user.soloStatistics : user.multiplayerStatistics;
       
-      // Calculate accuracy
+      // Calculate accuracy (solo only - multiplayer doesn't track questions)
       const totalQuestions = stats?.totalQuestions || 0;
       const correctAnswers = stats?.totalCorrect || 0;
       const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
       
-      // Get total games/tests
+      // Calculate win rate (multiplayer only)
       const totalGames = mode === 'solo' 
         ? (stats?.totalTests || 0)
         : (stats?.totalGames || 0);
+      const totalWins = stats?.totalWins || 0;
+      const winRate = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
 
       // Calculate percentile (top X%)
       const percentile = Math.round(((globalRank - 1) / totalUsers) * 100);
@@ -197,6 +199,7 @@ export async function GET(req: NextRequest) {
         percentile,
         stats: {
           accuracy,
+          winRate,
           totalGames,
           currentElo: mode === 'solo' ? user.soloElo : user.multiplayerElo,
           currentRank: sanitizeRank(mode === 'solo' ? user.soloRankClass : user.multiplayerRankClass, mode === 'solo' ? user.soloElo : user.multiplayerElo),
