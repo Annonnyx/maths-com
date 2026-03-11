@@ -53,20 +53,20 @@ export class ComplexGenerator implements QuestionGenerator {
         const imagSum = b + d;
         result = `${realSum} ${imagSum >= 0 ? '+' : ''} ${imagSum}i`;
         questionText = `Calcule : (${a} ${b >= 0 ? '+' : ''} ${b}i) + (${c} ${d >= 0 ? '+' : ''} ${d}i)`;
-        explanation = `Addition des parties réelles : ${a} + ${c} = ${realSum}, addition des parties imaginaires : ${b} + ${d} = ${imagSum}. Résultat : ${realSum} ${imagSum >= 0 ? '+' : ''} ${imagSum}i`;
+        explanation = `Pense à additionner les parties réelles et imaginaires séparément`;
         break;
       case 'multiply':
         const realProduct = a * c - b * d;
         const imagProduct = a * d + b * c;
         result = `${realProduct} ${imagProduct >= 0 ? '+' : ''} ${imagProduct}i`;
         questionText = `Calcule : (${a} ${b >= 0 ? '+' : ''} ${b}i) × (${c} ${d >= 0 ? '+' : ''} ${d}i)`;
-        explanation = `(${a} + ${b}i)(${c} + ${d}i) = ${a}×${c} - ${b}×${d} + (${a}×${d} + ${b}×${c})i = ${realProduct} ${imagProduct >= 0 ? '+' : ''} ${imagProduct}i`;
+        explanation = `Pense à la formule du produit de nombres complexes`;
         break;
       case 'modulus':
         const modulus = Math.sqrt(a * a + b * b);
         result = modulus.toFixed(2);
         questionText = `Calcule le module de z = ${a} ${b >= 0 ? '+' : ''} ${b}i`;
-        explanation = `|z| = √(${a}² + ${b}²) = √(${a * a} + ${b * b}) = √${a * a + b * b} ≈ ${modulus.toFixed(2)}`;
+        explanation = `Pense à la formule du module d'un nombre complexe`;
         break;
     }
 

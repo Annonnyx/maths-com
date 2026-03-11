@@ -706,7 +706,7 @@ function generateGeometry(frenchClass: string): Exercise {
         difficulty: FRENCH_CLASSES.indexOf(frenchClass) + 1,
         question: `Périmètre d'un carré de côté ${side} cm = ?`,
         answer: (side * 4).toString(),
-        explanation: `Périmètre = 4 × côté = 4 × ${side} = ${side * 4} cm`,
+        explanation: `Pense à la formule du périmètre pour un carré`,
         frenchClass,
         topic: 'perimetre_carre'
       };
@@ -719,7 +719,7 @@ function generateGeometry(frenchClass: string): Exercise {
         difficulty: FRENCH_CLASSES.indexOf(frenchClass) + 1,
         question: `Aire d'un rectangle de ${length} cm × ${width} cm = ?`,
         answer: (length * width).toString(),
-        explanation: `Aire = longueur × largeur = ${length} × ${width} = ${length * width} cm²`,
+        explanation: `Pense à la formule de l'aire d'un rectangle`,
         frenchClass,
         topic: 'aire_rectangle'
       };
@@ -733,7 +733,7 @@ function generateGeometry(frenchClass: string): Exercise {
         difficulty: FRENCH_CLASSES.indexOf(frenchClass) + 1,
         question: `Volume d'un pavé droit de ${l}×${w}×${h} cm = ?`,
         answer: (l * w * h).toString(),
-        explanation: `Volume = longueur × largeur × hauteur = ${l} × ${w} × ${h} = ${l * w * h} cm³`,
+        explanation: `Pense à la formule du volume d'un pavé droit`,
         frenchClass,
         topic: 'volume_pave'
       };

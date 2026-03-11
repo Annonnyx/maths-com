@@ -862,7 +862,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Périmètre d'un carré de côté ${side} cm = ?`,
           answer: (side * 4).toString(),
-          explanation: `Imagine un carré : 4 côtés égaux de ${side} cm chacun. Le périmètre total = 4 × ${side} = ${side * 4} cm. 💡 Le périmètre est comme marcher autour du carré.`
+          explanation: `Pense à la formule du périmètre d'un carré`
         };
       } else if (shape === 'rectangle') {
         const length = randomInt(5, 10 + difficulty * 2);
@@ -873,7 +873,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Périmètre d'un rectangle de ${length} cm × ${width} cm = ?`,
           answer: (2 * (length + width)).toString(),
-          explanation: `Imagine un rectangle : 2 longueurs (${length} cm) + 2 largeurs (${width} cm). Périmètre = 2 × (${length} + ${width}) = 2 × ${length + width} = ${2 * (length + width)} cm. 📏 Comme faire le tour d'un cadre photo.`
+          explanation: `Pense à la formule du périmètre d'un rectangle`
         };
       } else if (shape === 'triangle') {
         const a = randomInt(3, 5 + difficulty);
@@ -885,7 +885,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Périmètre d'un triangle de côtés ${a}, ${b}, ${c} cm = ?`,
           answer: (a + b + c).toString(),
-          explanation: `Pour un triangle : périmètre = somme des 3 côtés. ${a} + ${b} + ${c} = ${a + b + c} cm. 🔺 Comme mesurer le contour d'une tranche de pizza.`
+          explanation: `Pense à la formule du périmètre d'un triangle`
         };
       } else {
         const radius = randomInt(3, 5 + difficulty);
@@ -913,7 +913,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Aire d'un carré de côté ${side} cm = ?`,
           answer: (side * side).toString(),
-          explanation: `Imagine un carré : aire = côté × côté = ${side} × ${side} = ${side * side} cm². □ Comme compter les carreaux dans un échiquier.`
+          explanation: `Pense à la formule de l'aire d'un carré`
         };
       } else if (shape === 'rectangle') {
         const length = randomInt(5, 10 + difficulty * 2);
@@ -924,7 +924,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Aire d'un rectangle de ${length} cm × ${width} cm = ?`,
           answer: (length * width).toString(),
-          explanation: `Aire = longueur × largeur = ${length} × ${width} = ${length * width} cm². 📐 Comme calculer l'espace dans une pièce rectangulaire.`
+          explanation: `Pense à la formule de l'aire d'un rectangle`
         };
       } else if (shape === 'triangle') {
         const base = randomInt(4, 8 + difficulty);
@@ -936,7 +936,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Aire d'un triangle de base ${base} cm et hauteur ${height} cm = ?`,
           answer: area.toString(),
-          explanation: `Aire = (base × hauteur) ÷ 2 = (${base} × ${height}) ÷ 2 = ${base * height} ÷ 2 = ${area} cm². 🔺 Comme couper un rectangle en deux triangles identiques.`
+          explanation: `Pense à la formule de l'aire d'un triangle`
         };
       } else {
         const radius = randomInt(2, 5 + difficulty);
@@ -947,7 +947,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Aire d'un cercle de rayon ${radius} cm (π≈3,14) = ?`,
           answer: area.toString(),
-          explanation: `Aire = π × rayon² = 3,14 × ${radius}² ≈ 3,14 × ${radius * radius} ≈ ${area} cm². ⭕ Comme mesurer l'espace dans une pizza ronde.`
+          explanation: `Pense à la formule de l'aire d'un cercle`
         };
       }
     }
@@ -964,7 +964,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Volume d'un cube d'arête ${side} cm = ?`,
           answer: (side * side * side).toString(),
-          explanation: `Volume = arête × arête × arête = ${side}³ = ${side * side * side} cm³. □ Comme empiler des cubes dans une boîte.`
+          explanation: `Pense à la formule du volume d'un cube`
         };
       } else {
         const length = randomInt(5, 10 + difficulty);
@@ -976,7 +976,7 @@ function generateGeometry(difficulty: number): Exercise {
           difficulty,
           question: `Volume d'un pavé droit de ${length}×${width}×${height} cm = ?`,
           answer: (length * width * height).toString(),
-          explanation: `Volume = longueur × largeur × hauteur = ${length} × ${width} × ${height} = ${length * width * height} cm³. 📦 Comme compter les briques dans une construction.`
+          explanation: `Pense à la formule du volume d'un pavé droit`
         };
       }
     }

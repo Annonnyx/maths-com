@@ -278,22 +278,22 @@ export class GeometryGenerator implements QuestionGenerator {
       case 'square':
         area = dimensions.side! * dimensions.side!;
         questionText = `Quelle est l'aire d'un carré de côté ${dimensions.side} cm ?`;
-        explanation = `Aire = côté² = ${dimensions.side}² = ${area} cm²`;
+        explanation = `Pense à la formule de l'aire d'un carré`;
         break;
       case 'rectangle':
         area = dimensions.length! * dimensions.width!;
         questionText = `Quelle est l'aire d'un rectangle de longueur ${dimensions.length} cm et de largeur ${dimensions.width} cm ?`;
-        explanation = `Aire = longueur × largeur = ${dimensions.length} × ${dimensions.width} = ${area} cm²`;
+        explanation = `Pense à la formule de l'aire d'un rectangle`;
         break;
       case 'triangle':
         area = (dimensions.base! * dimensions.height!) / 2;
         questionText = `Quelle est l'aire d'un triangle de base ${dimensions.base} cm et de hauteur ${dimensions.height} cm ?`;
-        explanation = `Aire = (base × hauteur) / 2 = (${dimensions.base} × ${dimensions.height}) / 2 = ${area} cm²`;
+        explanation = `Pense à la formule de l'aire d'un triangle`;
         break;
       case 'circle':
         area = Math.PI * dimensions.radius! * dimensions.radius!;
         questionText = `Quelle est l'aire d'un cercle de rayon ${dimensions.radius} cm ?`;
-        explanation = `Aire = π × r² = π × ${dimensions.radius}² ≈ ${area.toFixed(1)} cm²`;
+        explanation = `Pense à la formule de l'aire d'un cercle`;
         break;
     }
 
@@ -361,17 +361,17 @@ export class GeometryGenerator implements QuestionGenerator {
       case 'square':
         perimeter = 4 * dimensions.side!;
         questionText = `Quel est le périmètre d'un carré de côté ${dimensions.side} cm ?`;
-        explanation = `Périmètre = 4 × côté = 4 × ${dimensions.side} = ${perimeter} cm`;
+        explanation = `Pense à la formule du périmètre d'un carré`;
         break;
       case 'rectangle':
         perimeter = 2 * (dimensions.length! + dimensions.width!);
         questionText = `Quel est le périmètre d'un rectangle de longueur ${dimensions.length} cm et de largeur ${dimensions.width} cm ?`;
-        explanation = `Périmètre = 2 × (longueur + largeur) = 2 × (${dimensions.length} + ${dimensions.width}) = ${perimeter} cm`;
+        explanation = `Pense à la formule du périmètre d'un rectangle`;
         break;
       case 'triangle':
         perimeter = dimensions.side1! + dimensions.side2! + dimensions.side3!;
         questionText = `Quel est le périmètre d'un triangle avec des côtés de ${dimensions.side1} cm, ${dimensions.side2} cm et ${dimensions.side3} cm ?`;
-        explanation = `Périmètre = côté1 + côté2 + côté3 = ${dimensions.side1} + ${dimensions.side2} + ${dimensions.side3} = ${perimeter} cm`;
+        explanation = `Pense à la formule du périmètre d'un triangle`;
         break;
     }
 
@@ -433,17 +433,17 @@ export class GeometryGenerator implements QuestionGenerator {
       case 'cube':
         volume = dimensions.side! * dimensions.side! * dimensions.side!;
         questionText = `Quel est le volume d'un cube d'arête ${dimensions.side} cm ?`;
-        explanation = `Volume = arête³ = ${dimensions.side}³ = ${volume} cm³`;
+        explanation = `Pense à la formule du volume d'un cube`;
         break;
       case 'rectangular_prism':
         volume = dimensions.length! * dimensions.width! * dimensions.height!;
         questionText = `Quel est le volume d'un pavé droit de dimensions ${dimensions.length} cm × ${dimensions.width} cm × ${dimensions.height} cm ?`;
-        explanation = `Volume = longueur × largeur × hauteur = ${dimensions.length} × ${dimensions.width} × ${dimensions.height} = ${volume} cm³`;
+        explanation = `Pense à la formule du volume d'un pavé droit`;
         break;
       case 'cylinder':
         volume = Math.PI * dimensions.radius! * dimensions.radius! * dimensions.height!;
         questionText = `Quel est le volume d'un cylindre de rayon ${dimensions.radius} cm et de hauteur ${dimensions.height} cm ?`;
-        explanation = `Volume = π × r² × h = π × ${dimensions.radius}² × ${dimensions.height} ≈ ${volume.toFixed(1)} cm³`;
+        explanation = `Pense à la formule du volume d'un cylindre`;
         break;
     }
 
