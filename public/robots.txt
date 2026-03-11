@@ -1,9 +1,24 @@
+# *
 User-agent: *
 Allow: /
 Disallow: /api/
-# Sitemaps pour les domaines .com
-Sitemap: https://maths-app.com/sitemap-com-xml
-Sitemap: https://www.maths-app.com/sitemap-com-xml
-# Sitemaps pour les domaines .fr  
-Sitemap: https://maths-app.fr/sitemap-fr-xml
-Sitemap: https://www.maths-app.fr/sitemap-fr-xml
+Disallow: /admin/
+Disallow: /dashboard*
+Disallow: /profile*
+Disallow: /settings
+Disallow: /notifications
+Disallow: /friends
+Disallow: /messages
+Disallow: /history
+Disallow: /class-*
+Disallow: /discord/
+Disallow: /onboarding/
+Disallow: /assignment-*
+Disallow: /take-assignment/
+
+# Host
+Host: https://maths-app.com
+
+# Sitemaps
+Sitemap: https://maths-app.com/sitemap-clean.xml
+Sitemap: https://maths-app.com/sitemap.xml
