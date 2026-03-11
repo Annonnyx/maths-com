@@ -10,7 +10,7 @@ import OnboardingFlow from '@/components/OnboardingFlow';
 import { 
   Trophy, Target, Clock, TrendingUp, Zap, Users, MessageCircle,
   Award, BarChart3, History, GraduationCap, Sparkles, LineChart,
-  UserCircle, ChevronRight, Loader2, Flame
+  UserCircle, ChevronRight, Loader2, Flame, BookOpen
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS, RankClass } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
@@ -266,12 +266,12 @@ export default function DashboardPage() {
           </div>
         </motion.section>
 
-        {/* SECTION PRINCIPALE — 7 Boutons avec Descriptions */}
+        {/* SECTION PRINCIPALE — 8 Boutons avec Descriptions */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {/* BOUTON 1 — Tests */}
           <Link href="/test" className="group">
@@ -433,6 +433,27 @@ export default function DashboardPage() {
               {!loadingPreviews && (
                 <div className="mt-3 pt-3 border-t border-[#2a2a3a] text-xs text-muted-foreground">
                   Classes publiques et privées
+                </div>
+              )}
+            </div>
+          </Link>
+
+          {/* BOUTON 8 — Cours */}
+          <Link href="/courses" className="group">
+            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-green-500/50 transition-all flex flex-col">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                  <BookOpen className="w-5 h-5 text-green-400" />
+                </div>
+                <h3 className="font-semibold">Cours</h3>
+                <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
+              </div>
+              <p className="text-sm text-gray-400 flex-grow">
+                Apprends les mathématiques avec nos cours interactifs par niveau
+              </p>
+              {!loadingPreviews && (
+                <div className="mt-3 pt-3 border-t border-[#2a2a3a] text-xs text-muted-foreground">
+                  Du CP à la Terminale
                 </div>
               )}
             </div>
