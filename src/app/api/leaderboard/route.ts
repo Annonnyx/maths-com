@@ -181,17 +181,19 @@ export async function GET(req: NextRequest) {
       // Calculate accuracy (solo only - multiplayer doesn't track questions)
       const totalQuestions = stats?.totalQuestions || 0;
       const correctAnswers = stats?.totalCorrect || 0;
-      const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+      const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 
+                       (mode === 'solo' ? 0 : null); // For multiplayer, accuracy is null
       
       // Calculate win rate (multiplayer only)
       const totalGames = mode === 'solo' 
         ? (stats?.totalTests || 0)
         : (stats?.totalGames || 0);
       const totalWins = stats?.totalWins || 0;
-      const winRate = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
+      const winRate = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 
+                      (mode === 'multiplayer' ? 0 : null); // For solo, winRate is null
 
       // Calculate percentile (top X%)
-      const percentile = Math.round(((globalRank - 1) / totalUsers) * 100);
+      const percentile = totalUsers > 0 ? Math.round(((globalRank - 1) / totalUsers) * 100) : 0;
 
       return {
         ...user,

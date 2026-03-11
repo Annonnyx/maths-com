@@ -25,7 +25,7 @@ export async function GET(
 
     // Rechercher l'utilisateur par username avec relations
     const user = await prisma.user.findUnique({
-      where: { username: username.toLowerCase() },
+      where: { username: username },
       select: {
         id: true,
         username: true,
@@ -84,7 +84,17 @@ export async function GET(
       correctAnswers: user.soloStatistics.totalCorrect || 0,
       averageTime: user.soloStatistics.averageTime || 0,
       averageScore: user.soloStatistics.averageScore || 0,
-    } : null;
+      accuracy: user.soloStatistics.totalQuestions > 0 
+        ? Math.round((user.soloStatistics.totalCorrect / user.soloStatistics.totalQuestions) * 100)
+        : 0
+    } : {
+      totalTests: 0,
+      totalQuestions: 0,
+      correctAnswers: 0,
+      averageTime: 0,
+      averageScore: 0,
+      accuracy: 0
+    };
 
     // Formater les badges
     const badges = user.userBadges ? user.userBadges.map((userBadge: any) => ({
