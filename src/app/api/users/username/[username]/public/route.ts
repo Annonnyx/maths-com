@@ -21,22 +21,58 @@ export async function GET(
       );
     }
 
+    console.log('Recherche du profil pour username:', username);
+
     // Rechercher l'utilisateur par username avec relations
     const user = await prisma.user.findUnique({
-      where: { username },
-      include: {
-        soloStatistics: true,
+      where: { username: username.toLowerCase() },
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        avatarUrl: true,
+        bannerUrl: true,
+        soloElo: true,
+        soloRankClass: true,
+        multiplayerElo: true,
+        multiplayerRankClass: true,
+        isTeacher: true,
+        isAdmin: true,
+        createdAt: true,
+        soloStatistics: {
+          select: {
+            totalTests: true,
+            totalQuestions: true,
+            totalCorrect: true,
+            averageTime: true,
+            averageScore: true
+          }
+        },
         userBadges: {
           include: {
-            badge: true
-          }
+            badge: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                icon: true,
+                rarity: true
+              }
+            }
+          },
+          orderBy: {
+            earnedAt: 'desc'
+          },
+          take: 10 // Limiter à 10 badges les plus récents
         }
       }
     });
 
+    console.log('Utilisateur trouvé:', user ? 'OUI' : 'NON');
+
     if (!user) {
       return NextResponse.json(
-        { error: 'Utilisateur non trouvé' },
+        { error: 'Utilisateur non trouvé', username: username },
         { status: 404 }
       );
     }
@@ -51,13 +87,13 @@ export async function GET(
     } : null;
 
     // Formater les badges
-    const badges = user.userBadges.map(userBadge => ({
+    const badges = user.userBadges ? user.userBadges.map((userBadge: any) => ({
       id: userBadge.badge.id,
       name: userBadge.badge.name,
       description: userBadge.badge.description,
       icon: userBadge.badge.icon,
       tier: userBadge.badge.rarity || 'common'
-    }));
+    })) : [];
 
     // Construire le profil public
     const publicProfile = {

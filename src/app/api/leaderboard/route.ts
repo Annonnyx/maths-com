@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
           userRank: null,
           currentUser: {
             id: currentUser.id,
-            username: currentUser.username,
+            username: currentUser.username || currentUser.displayName || 'Anonymous',
             displayName: currentUser.displayName,
             stats: {
               currentElo: mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo,
@@ -205,7 +205,9 @@ export async function GET(req: NextRequest) {
           currentRank: sanitizeRank(mode === 'solo' ? user.soloRankClass : user.multiplayerRankClass, mode === 'solo' ? user.soloElo : user.multiplayerElo),
           bestElo: mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo,
           bestRank: sanitizeRank(mode === 'solo' ? user.soloBestRankClass : user.multiplayerBestRankClass, mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo)
-        }
+        },
+        // Ensure username is never undefined
+        username: user.username || user.displayName || 'Anonymous'
       };
     });
 
@@ -234,7 +236,7 @@ export async function GET(req: NextRequest) {
       userRank,
       currentUser: currentUser ? {
         id: currentUser.id,
-        username: currentUser.username,
+        username: currentUser.username || currentUser.displayName || 'Anonymous',
         displayName: currentUser.displayName,
         stats: {
           currentElo: mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo,

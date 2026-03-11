@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
@@ -15,7 +15,17 @@ export async function GET(request: NextRequest) {
     const mode = searchParams.get('mode') || 'solo';
     const period = searchParams.get('period') || '7d';
 
-    const userId = session.user.id;
+    // Get user from email
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 });
+    }
+
+    const userId = user.id;
 
     // Calculer la date de début selon la période
     const now = new Date();

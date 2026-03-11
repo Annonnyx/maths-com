@@ -29,9 +29,18 @@ export async function GET(req: NextRequest) {
     }
 
     // Get the user's teacher request
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     const teacherRequest = await prisma.teacherRequest.findFirst({
       where: { 
-        userId: session.user.id 
+        userId: user.id 
       },
       orderBy: { createdAt: 'desc' }
     });

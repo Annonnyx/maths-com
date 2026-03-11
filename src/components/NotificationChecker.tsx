@@ -81,6 +81,9 @@ export function NotificationChecker() {
             }
           }
         });
+      } else if (friendsRes.status === 401) {
+        // Session expired, will be handled by auth system
+        return;
       }
 
       // Check for new challenges
@@ -104,6 +107,9 @@ export function NotificationChecker() {
             }
           }
         });
+      } else if (challengesRes.status === 401) {
+        // Session expired, will be handled by auth system
+        return;
       }
 
       // Check for unread messages
@@ -130,6 +136,9 @@ export function NotificationChecker() {
             }
           }
         });
+      } else if (messagesRes.status === 401) {
+        // Session expired, will be handled by auth system
+        return;
       }
 
       // Show login summary if there are pending items and it's the first check
@@ -161,7 +170,10 @@ export function NotificationChecker() {
 
       lastCheckRef.current = new Date();
     } catch (error) {
-      console.error('Error checking notifications:', error);
+      // Don't log fetch errors in development to reduce console noise
+      if (process.env.NODE_ENV === 'production') {
+        console.error('Error checking notifications:', error);
+      }
     }
   }, [session, addNotification, router]);
 

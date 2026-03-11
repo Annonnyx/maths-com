@@ -27,6 +27,11 @@ export async function middleware(req: NextRequest) {
 
   // Si l'utilisateur n'est pas authentifié et essaie d'accéder à une page protégée
   if (!isAuth) {
+    // Éviter la boucle de redirection infinie
+    if (pathname === '/login') {
+      return NextResponse.next()
+    }
+    
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
