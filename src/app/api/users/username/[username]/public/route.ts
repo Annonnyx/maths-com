@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { formatStatsWithAccuracy } from '@/lib/utils/accuracy';
 
 // GET /api/users/[username]/public - Récupérer le profil public d'un utilisateur
 export async function GET(
@@ -77,17 +78,14 @@ export async function GET(
       );
     }
 
-    // Calculer les statistiques supplémentaires
-    const stats = user.soloStatistics ? {
-      totalTests: user.soloStatistics.totalTests || 0,
-      totalQuestions: user.soloStatistics.totalQuestions || 0,
-      correctAnswers: user.soloStatistics.totalCorrect || 0,
-      averageTime: user.soloStatistics.averageTime || 0,
-      averageScore: user.soloStatistics.averageScore || 0,
-      accuracy: user.soloStatistics.totalQuestions > 0 
-        ? Math.round((user.soloStatistics.totalCorrect / user.soloStatistics.totalQuestions) * 100)
-        : 0
-    } : {
+    // Calculer les statistiques supplémentaires avec précision standardisée
+    const stats = user.soloStatistics ? formatStatsWithAccuracy({
+      totalTests: user.soloStatistics.totalTests,
+      totalQuestions: user.soloStatistics.totalQuestions,
+      totalCorrect: user.soloStatistics.totalCorrect,
+      averageTime: user.soloStatistics.averageTime,
+      averageScore: user.soloStatistics.averageScore
+    }) : {
       totalTests: 0,
       totalQuestions: 0,
       correctAnswers: 0,

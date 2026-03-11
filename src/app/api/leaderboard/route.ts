@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getRankFromElo } from '@/lib/elo';
+import { calculateLeaderboardAccuracy } from '@/lib/utils/accuracy';
 
 // Old school level to ELO rank conversion
 const SCHOOL_LEVEL_TO_ELO: Record<string, number> = {
@@ -179,10 +180,10 @@ export async function GET(req: NextRequest) {
       const stats = mode === 'solo' ? user.soloStatistics : user.multiplayerStatistics;
       
       // Calculate accuracy (solo only - multiplayer doesn't track questions)
-      const totalQuestions = stats?.totalQuestions || 0;
-      const correctAnswers = stats?.totalCorrect || 0;
-      const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 
-                       (mode === 'solo' ? 0 : null); // For multiplayer, accuracy is null
+      const accuracy = calculateLeaderboardAccuracy({
+        totalQuestions: stats?.totalQuestions || 0,
+        totalCorrect: stats?.totalCorrect || 0
+      }, mode as 'solo' | 'multiplayer');
       
       // Calculate win rate (multiplayer only)
       const totalGames = mode === 'solo' 

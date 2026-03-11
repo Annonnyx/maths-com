@@ -62,6 +62,7 @@ google-analytics.json
 # Local env files
 .env.local
 .env.production
+.env
 
 # Debug/temp files (guides, scripts, notes)
 GUIDE_*.md
