@@ -4,11 +4,12 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { 
   Clock, Trophy, Zap, Target, User, ArrowLeft, 
   Send, CheckCircle, XCircle, Timer, RotateCcw,
   TrendingUp, TrendingDown, Award, Brain, Calculator,
-  Link, BarChart3, ArrowRight
+  Link as LinkIcon, BarChart3, ArrowRight
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
 import { useUserPreferences } from '@/hooks/useLocalStorage';

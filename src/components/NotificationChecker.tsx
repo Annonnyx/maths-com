@@ -49,6 +49,7 @@ export function NotificationChecker() {
   const lastCheckRef = useRef<Date>(new Date());
   const notifiedIdsRef = useRef<Set<string>>(new Set());
   const hasShownLoginSummaryRef = useRef(false);
+  const initialCheckDoneRef = useRef(false);
   const [pendingCounts, setPendingCounts] = useState({
     friends: 0,
     challenges: 0,
@@ -167,17 +168,22 @@ export function NotificationChecker() {
   useEffect(() => {
     if (!session?.user) {
       hasShownLoginSummaryRef.current = false;
+      initialCheckDoneRef.current = false;
       return;
     }
 
-    // Check immediately on mount with login summary
-    checkNotifications(true);
+    // Only run initial check once per session
+    if (!initialCheckDoneRef.current) {
+      initialCheckDoneRef.current = true;
+      checkNotifications(true);
+    }
 
     // Then check every 30 seconds (without login summary)
     const interval = setInterval(() => checkNotifications(false), 30000);
 
     return () => clearInterval(interval);
-  }, [session, checkNotifications]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id]); // Only re-run when user ID changes, not on every session change
 
   // Also check when window becomes visible
   useEffect(() => {

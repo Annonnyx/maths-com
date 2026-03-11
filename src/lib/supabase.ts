@@ -6,21 +6,22 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOi
 // Singleton pattern to avoid multiple instances
 let supabaseInstance: ReturnType<typeof createClient> | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: typeof window !== 'undefined',
-    autoRefreshToken: typeof window !== 'undefined',
-  },
-});
+function createSupabaseClient() {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
+}
 
-export function getSupabase() {
+// Lazy singleton - only creates client when first accessed
+export function getSupabase(): ReturnType<typeof createClient> {
   if (!supabaseInstance) {
-    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: typeof window !== 'undefined',
-        autoRefreshToken: typeof window !== 'undefined',
-      },
-    });
+    supabaseInstance = createSupabaseClient();
   }
   return supabaseInstance;
 }
+
+// Backward-compatible export - use getter to ensure singleton
+export const supabase = getSupabase();
