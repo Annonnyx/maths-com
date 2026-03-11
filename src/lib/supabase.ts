@@ -1,12 +1,12 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://plfjxxakrqxveufldtrc.supabase.co';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsZmp4eGFrcnF4dmV1ZmxkdHJjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDkzMjE1NSwiZXhwIjoyMDg2NTA4MTU1fQ.ZBqdbXCpeGDyA8WdhxhWUOUyScahVV21jE8wnx2pvCM';
 
 // Singleton pattern to avoid multiple instances
-let supabaseInstance: ReturnType<typeof createClient> | null = null;
+let supabaseInstance: SupabaseClient | null = null;
 
-function createSupabaseClient() {
+function createSupabaseClient(): SupabaseClient {
   return createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
@@ -16,12 +16,14 @@ function createSupabaseClient() {
 }
 
 // Lazy singleton - only creates client when first accessed
-export function getSupabase(): ReturnType<typeof createClient> {
+export function getSupabase(): SupabaseClient {
   if (!supabaseInstance) {
     supabaseInstance = createSupabaseClient();
   }
   return supabaseInstance;
 }
 
-// Backward-compatible export - use getter to ensure singleton
-export const supabase = getSupabase();
+// Lazy export - only initializes when actually used (not during SSR)
+export const supabase = typeof window === 'undefined' 
+  ? null as unknown as SupabaseClient
+  : getSupabase();
