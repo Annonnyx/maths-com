@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { 
   Trophy, BookOpen, ArrowLeft, Clock, Target, 
   ChevronRight, Calculator, Lightbulb, CheckCircle,
   ChevronDown, ChevronUp, Lock, Search, Triangle,
-  Ruler, AlertCircle, Users, GraduationCap
+  Ruler, AlertCircle, Users, GraduationCap, Grid3X3,
+  Star, TrendingUp
 } from 'lucide-react';
 import { COURSES_BY_CLASS, CourseSection } from '@/lib/courses-data';
 import { FrenchClass, FRENCH_CLASSES, formatClassName } from '@/lib/french-classes';
@@ -27,17 +28,17 @@ const CLASS_COLORS: Record<FrenchClass, string> = {
   'CE1': 'from-green-500/20 to-emerald-600/20 border-green-500/30',
   'CE2': 'from-yellow-500/20 to-yellow-600/20 border-yellow-500/30',
   'CM1': 'from-orange-500/20 to-orange-600/20 border-orange-500/30',
-  'CM2': 'from-cyan-500/20 to-cyan-600/20 border-cyan-500/30',
-  '6e': 'from-red-500/20 to-red-600/20 border-red-500/30',
-  '5e': 'from-pink-500/20 to-pink-600/20 border-pink-500/30',
-  '4e': 'from-purple-500/20 to-purple-600/20 border-purple-500/30',
-  '3e': 'from-indigo-500/20 to-indigo-600/20 border-indigo-500/30',
-  '2de': 'from-blue-500/20 to-blue-600/20 border-blue-500/30',
-  '1re': 'from-violet-500/20 to-violet-600/20 border-violet-500/30',
-  'Tle': 'from-amber-500/20 to-amber-600/20 border-amber-500/30',
-  'Sup1': 'from-rose-500/20 to-rose-600/20 border-rose-500/30',
-  'Sup2': 'from-fuchsia-500/20 to-fuchsia-600/20 border-fuchsia-500/30',
-  'Sup3': 'from-teal-500/20 to-teal-600/20 border-teal-500/30',
+  'CM2': 'from-orange-500/20 to-red-500/20 border-orange-500/30',
+  '6e': 'from-blue-500/20 to-blue-600/20 border-blue-500/30',
+  '5e': 'from-blue-500/20 to-indigo-500/20 border-blue-500/30',
+  '4e': 'from-indigo-500/20 to-purple-500/20 border-indigo-500/30',
+  '3e': 'from-purple-500/20 to-pink-500/20 border-purple-500/30',
+  '2de': 'from-pink-500/20 to-rose-500/20 border-pink-500/30',
+  '1re': 'from-rose-500/20 to-red-500/20 border-rose-500/30',
+  'Tle': 'from-red-500/20 to-orange-500/20 border-red-500/30',
+  'Sup1': 'from-amber-500/20 to-yellow-500/20 border-amber-500/30',
+  'Sup2': 'from-yellow-500/20 to-lime-500/20 border-yellow-500/30',
+  'Sup3': 'from-lime-500/20 to-green-500/20 border-lime-500/30',
   'Pro': 'from-slate-500/20 to-slate-600/20 border-slate-500/30'
 };
 
@@ -198,20 +199,18 @@ export default function CoursesPage() {
               <h1 className="text-3xl font-bold mb-2">{course.title}</h1>
               <p className="text-muted-foreground mb-4">{course.description}</p>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  {course.duration}
-                </span>
-                <span className="flex items-center gap-1">
+                  <span>{course.duration}</span>
+                </div>
+                <div className="flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
-                  {course.sections.length} sections
-                </span>
-                {cycle && (
-                  <span className="flex items-center gap-1">
-                    <GraduationCap className="w-4 h-4" />
-                    {cycle.name}
-                  </span>
-                )}
+                  <span>{course.sections.length} leçons</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-4 h-4" />
+                  <span>{course.skills.length} compétences</span>
+                </div>
               </div>
             </div>
 
@@ -249,128 +248,126 @@ export default function CoursesPage() {
 
   // Vue principale des cours
   return (
-    <div className="min-h-screen bg-[#0f0f23] text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       {/* Header */}
-      <header className="border-b border-[#2a2a3a] bg-[#1a1a2e]/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-bold">maths-app.com</span>
-          </Link>
-          
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Rechercher un cours..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-[#1a1a2e] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 w-64"
-              />
+      <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/dashboard" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-bold">maths-app.com</span>
+            </Link>
+            
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Rechercher un cours..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 w-64"
+                />
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Welcome */}
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="text-center mb-12"
         >
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             Cours de Mathématiques
           </h1>
-          <p className="text-gray-400 text-lg">
-            Explore nos cours interactifs par niveau scolaire, du CP à la Terminale
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+            Explore nos cours interactifs par niveau scolaire, du CP à la Terminale. 
+            Apprends à ton rythme avec des exercices pratiques et des explications claires.
           </p>
         </motion.div>
 
-        {/* Sidebar + Content */}
-        <div className="flex gap-8">
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-12"
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link href="/practice" className="group">
+              <div className="p-6 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-500/30 hover:border-blue-500/50 transition-all hover:scale-[1.02]">
+                <Calculator className="w-8 h-8 text-blue-400 mb-3" />
+                <div className="font-semibold text-white mb-1">Exercices</div>
+                <div className="text-sm text-gray-400">Entraînement libre</div>
+              </div>
+            </Link>
+
+            <Link href="/test" className="group">
+              <div className="p-6 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl border border-green-500/30 hover:border-green-500/50 transition-all hover:scale-[1.02]">
+                <Target className="w-8 h-8 text-green-400 mb-3" />
+                <div className="font-semibold text-white mb-1">Tests</div>
+                <div className="text-sm text-gray-400">Évaluation chronométrée</div>
+              </div>
+            </Link>
+
+            <Link href="/courses/geometry" className="group">
+              <div className="p-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30 hover:border-purple-500/50 transition-all hover:scale-[1.02]">
+                <Grid3X3 className="w-8 h-8 text-purple-400 mb-3" />
+                <div className="font-semibold text-white mb-1">Géométrie</div>
+                <div className="text-sm text-gray-400">Laboratoire interactif</div>
+              </div>
+            </Link>
+
+            <button
+              onClick={() => setShowTrigCourse(true)}
+              className="p-6 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl border border-orange-500/30 hover:border-orange-500/50 transition-all hover:scale-[1.02] text-left"
+            >
+              <Triangle className="w-8 h-8 text-orange-400 mb-3" />
+              <div className="font-semibold text-white mb-1">Trigonométrie</div>
+              <div className="text-sm text-gray-400">Cours avancé</div>
+            </button>
+          </div>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
-          <aside className="w-64 flex-shrink-0">
-            <CycleSidebar
-              selectedCycle={selectedCycle}
-              onSelectCycle={setSelectedCycle}
-              selectedLevel={selectedLevel}
-              onSelectLevel={setSelectedLevel}
-              availableLevels={[...FRENCH_CLASSES]}
-            />
-          </aside>
+          <div className="lg:col-span-1">
+            <div className="sticky top-24">
+              <CycleSidebar
+                selectedCycle={selectedCycle}
+                onSelectCycle={setSelectedCycle}
+                selectedLevel={selectedLevel}
+                onSelectLevel={setSelectedLevel}
+                availableLevels={[...FRENCH_CLASSES]}
+              />
+            </div>
+          </div>
 
           {/* Main Content */}
-          <div className="flex-1">
-            {/* Quick Access */}
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4 text-gray-300">Accès rapide</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Link href="/practice" className="group">
-                  <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-500/30 hover:border-blue-500/50 transition-all">
-                    <Calculator className="w-6 h-6 text-blue-400 mb-2" />
-                    <div className="text-sm font-medium">Exercices</div>
-                    <div className="text-xs text-gray-400">Entraînement libre</div>
-                  </div>
-                </Link>
-
-                <Link href="/test" className="group">
-                  <div className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl border border-green-500/30 hover:border-green-500/50 transition-all">
-                    <Target className="w-6 h-6 text-green-400 mb-2" />
-                    <div className="text-sm font-medium">Tests</div>
-                    <div className="text-xs text-gray-400">Évaluation chronométrée</div>
-                  </div>
-                </Link>
-
-                <button
-                  onClick={() => setShowTrigCourse(true)}
-                  className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30 hover:border-purple-500/50 transition-all text-left"
-                >
-                  <Triangle className="w-6 h-6 text-purple-400 mb-2" />
-                  <div className="text-sm font-medium">Trigonométrie</div>
-                  <div className="text-xs text-gray-400">Cours avancé</div>
-                </button>
-
-                <Link href="/multiplayer" className="group">
-                  <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl border border-orange-500/30 hover:border-orange-500/50 transition-all">
-                    <Users className="w-6 h-6 text-orange-400 mb-2" />
-                    <div className="text-sm font-medium">Multijoueur</div>
-                    <div className="text-xs text-gray-400">Affrontez vos amis</div>
-                  </div>
-                </Link>
-              </div>
-            </div>
-        
+          <div className="lg:col-span-3">
             {/* Search Results */}
-            {searchQuery && (
+            {searchQuery && searchResults.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4 text-gray-400">
+                <h2 className="text-xl font-semibold mb-4 text-gray-300">
                   {searchResults.length} résultat{searchResults.length > 1 ? 's' : ''} pour "{searchQuery}"
                 </h2>
-                {searchResults.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>Aucun cours trouvé. Essayez avec d'autres termes comme "addition", "table de 7", "pythagore"...</p>
-                  </div>
-                )}
               </div>
             )}
 
-            {/* Tables de multiplication */}
-            <MultiplicationTableSection tableData={[
-              { table: 2, values: [2,4,6,8,10,12,14,16,18,20], tip: 'Le plus facile : doublez chaque nombre' },
-              { table: 3, values: [3,6,9,12,15,18,21,24,27,30], tip: 'Comptez de 3 en 3' },
-              { table: 4, values: [4,8,12,16,20,24,28,32,36,40], tip: 'Doublez la table de 2' },
-              { table: 5, values: [5,10,15,20,25,30,35,40,45,50], tip: 'Termine toujours par 0 ou 5' },
-              { table: 6, values: [6,12,18,24,30,36,42,48,54,60], tip: 'Doublez la table de 3' },
-              { table: 7, values: [7,14,21,28,35,42,49,56,63,70], tip: 'La plus difficile, entraînez-vous !' },
-              { table: 8, values: [8,16,24,32,40,48,56,64,72,80], tip: 'Doublez la table de 4' },
-              { table: 9, values: [9,18,27,36,45,54,63,72,81,90], tip: 'La somme des chiffres fait 9' },
-              { table: 10, values: [10,20,30,40,50,60,70,80,90,100], tip: 'Ajoutez un 0 après le nombre' }
-            ]} />
+            {searchQuery && searchResults.length === 0 && (
+              <div className="text-center py-12">
+                <Search className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Aucun résultat</h3>
+                <p className="text-gray-400">Essaie avec d'autres termes comme "addition", "multiplication", "géométrie"...</p>
+              </div>
+            )}
 
             {/* Courses Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(searchQuery ? searchResults : coursesList).map((course, index) => {
                 const frenchClass = course.className as FrenchClass;
                 const isCurrent = frenchClass === userClass;
@@ -380,45 +377,81 @@ export default function CoursesPage() {
                     key={course.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ delay: index * 0.1 }}
                     onClick={() => setSelectedLevel(frenchClass)}
                     className={`p-6 rounded-2xl bg-gradient-to-br ${CLASS_COLORS[frenchClass]} border cursor-pointer hover:scale-[1.02] transition-all relative ${isCurrent ? 'ring-2 ring-indigo-500' : ''}`}
                   >
-                    {isCurrent && <div className="absolute top-4 right-4"><span className="px-2 py-1 bg-indigo-500 text-white text-xs font-bold rounded-full">Ton niveau</span></div>}
+                    {isCurrent && (
+                      <div className="absolute top-4 right-4">
+                        <span className="px-3 py-1 bg-indigo-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                          <Star className="w-3 h-3" />
+                          Ton niveau
+                        </span>
+                      </div>
+                    )}
+                    
                     <div className="flex items-start justify-between mb-4">
                       <span className="text-3xl">{CLASS_ICONS[frenchClass]}</span>
-                      <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">{formatClassName(frenchClass)}</span>
+                      <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">
+                        {formatClassName(frenchClass)}
+                      </span>
                     </div>
+                    
                     <h3 className="text-xl font-bold mb-2">{course.title}</h3>
-                    <p className="text-sm opacity-75 mb-4">{course.description}</p>
-                    <div className="flex items-center gap-4 text-sm opacity-75">
-                      <span>{course.duration}</span>
-                      <span>{course.sections.length} leçons</span>
+                    <p className="text-sm opacity-75 mb-4 line-clamp-2">{course.description}</p>
+                    
+                    <div className="flex items-center justify-between text-sm opacity-75">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{course.duration}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <BookOpen className="w-4 h-4" />
+                          <span>{course.sections.length}</span>
+                        </div>
+                      </div>
+                      <TrendingUp className="w-4 h-4" />
                     </div>
                   </motion.div>
                 );
               })}
             </div>
-          </div>
-        </div>
-        
-        {/* Trig Course Modal */}
-        {showTrigCourse && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto">
-            <div className="min-h-screen px-4 py-8">
-              <div className="max-w-4xl mx-auto">
-                <button
-                  onClick={() => setShowTrigCourse(false)}
-                  className="fixed top-4 right-4 p-2 bg-gray-800 hover:bg-gray-700 rounded-full text-white z-50"
-                >
-                  ✕
-                </button>
-                <TrigonometryCourse />
-              </div>
+
+            {/* Multiplication Tables */}
+            <div className="mt-12">
+              <MultiplicationTableSection tableData={[
+                { table: 2, values: [2,4,6,8,10,12,14,16,18,20], tip: 'Le plus facile : doublez chaque nombre' },
+                { table: 3, values: [3,6,9,12,15,18,21,24,27,30], tip: 'Comptez de 3 en 3' },
+                { table: 4, values: [4,8,12,16,20,24,28,32,36,40], tip: 'Doublez la table de 2' },
+                { table: 5, values: [5,10,15,20,25,30,35,40,45,50], tip: 'Termine toujours par 0 ou 5' },
+                { table: 6, values: [6,12,18,24,30,36,42,48,54,60], tip: 'Doublez la table de 3' },
+                { table: 7, values: [7,14,21,28,35,42,49,56,63,70], tip: 'La plus difficile, entraîtez-vous !' },
+                { table: 8, values: [8,16,24,32,40,48,56,64,72,80], tip: 'Doublez la table de 4' },
+                { table: 9, values: [9,18,27,36,45,54,63,72,81,90], tip: 'La somme des chiffres fait 9' },
+                { table: 10, values: [10,20,30,40,50,60,70,80,90,100], tip: 'Ajoutez un 0 après le nombre' }
+              ]} />
             </div>
           </div>
-        )}
+        </div>
       </main>
+      
+      {/* Trig Course Modal */}
+      {showTrigCourse && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto">
+          <div className="min-h-screen px-4 py-8">
+            <div className="max-w-4xl mx-auto">
+              <button
+                onClick={() => setShowTrigCourse(false)}
+                className="fixed top-4 right-4 p-2 bg-gray-800 hover:bg-gray-700 rounded-full text-white z-50"
+              >
+                ✕
+              </button>
+              <TrigonometryCourse />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
