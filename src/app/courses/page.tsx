@@ -226,6 +226,20 @@ export default function CoursesPage() {
               </div>
             </div>
 
+            {/* Bouton d'entraînement */}
+            <div className="mb-8">
+              <Link 
+                href={`/courses/${course.id}/practice`}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-semibold text-lg transition-all transform hover:scale-[1.02] shadow-lg"
+              >
+                <Target className="w-6 h-6" />
+                S'entraîner sur ce cours
+              </Link>
+              <p className="text-sm text-gray-400 mt-2">
+                Teste tes connaissances avec des exercices basés sur ce cours
+              </p>
+            </div>
+
             {/* Sections du cours */}
             <div className="space-y-8">
               {course.sections.map((section, index) => (
