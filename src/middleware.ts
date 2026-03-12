@@ -12,6 +12,7 @@ export async function middleware(req: NextRequest) {
     '/',
     '/login',
     '/register',
+    '/courses',
     '/cgu',
     '/confidentialite',
     '/cookies',
