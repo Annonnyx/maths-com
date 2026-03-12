@@ -7,7 +7,7 @@ import {
   Trophy, BookOpen, ArrowLeft, Clock, Target, 
   ChevronRight, Calculator, Lightbulb, CheckCircle,
   ChevronDown, ChevronUp, Lock, Search, Triangle,
-  Ruler, AlertCircle
+  Ruler, AlertCircle, Users, GraduationCap
 } from 'lucide-react';
 import { COURSES_BY_CLASS, CourseSection } from '@/lib/courses-data';
 import { FrenchClass, FRENCH_CLASSES, formatClassName } from '@/lib/french-classes';
@@ -42,10 +42,11 @@ const CLASS_COLORS: Record<FrenchClass, string> = {
 };
 
 // Fonction pour déterminer le cycle d'un niveau
-function getCycleForLevel(level: string): Cycle | null {
+function getCycleForLevel(level: FrenchClass): Cycle | null {
   return CYCLES.find(cycle => cycle.levels.includes(level)) || null;
 }
 
+// Tables de multiplication
 function MultiplicationTableSection({ tableData }: { tableData: { table: number; values: number[]; tip: string }[] }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
@@ -77,13 +78,14 @@ function MultiplicationTableSection({ tableData }: { tableData: { table: number;
               {selectedTable === table.table && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-4 pb-4">
                   <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 mb-3">
-                    {table.values.map((value, idx) => (
-                      <div key={idx} className="bg-[#0f0f1a] rounded-lg p-2 text-center border border-border">
-                        <div className="text-xs text-muted-foreground">{table.table}×{idx + 1}</div>
-                        <div className="font-bold text-indigo-400">{value}</div>
+                    {table.values.map((value, index) => (
+                      <div key={index} className="text-center">
+                        <div className="text-xs text-gray-400">{index + 1}</div>
+                        <div className="font-semibold text-white">{value}</div>
                       </div>
                     ))}
                   </div>
+                  <p className="text-sm text-gray-400 italic">{table.tip}</p>
                 </motion.div>
               )}
             </div>
@@ -94,114 +96,68 @@ function MultiplicationTableSection({ tableData }: { tableData: { table: number;
   );
 }
 
-function CourseSectionComponent({ section, index }: { section: CourseSection; index: number }) {
-  const [isExpanded, setIsExpanded] = useState(true);
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="bg-[#12121a] rounded-2xl border border-border overflow-hidden">
-      <button onClick={() => setIsExpanded(!isExpanded)} className="w-full p-6 border-b border-border bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400 font-bold">{index + 1}</div>
-          <h2 className="text-xl font-bold">{section.title}</h2>
-        </div>
-        {isExpanded ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
-      </button>
-      {isExpanded && (
-        <div className="p-6">
-          <p className="text-muted-foreground mb-6">{section.content}</p>
-          {section.isCollapsible && section.tableData && <MultiplicationTableSection tableData={section.tableData} />}
-          {section.examples.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-indigo-400 uppercase mb-4">Exemples</h3>
-              <div className="space-y-3">
-                {section.examples.map((example, idx) => (
-                  <div key={idx} className="bg-[#1a1a2e] rounded-xl p-4 border border-border">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono text-lg text-white">{example.problem}</span>
-                      <span className="text-green-400 font-bold">= {example.solution}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{example.explanation}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          <div>
-            <h3 className="text-sm font-semibold text-yellow-400 uppercase mb-4">Astuces</h3>
-            <ul className="space-y-2">
-              {section.tips.map((tip, idx) => (
-                <li key={idx} className="flex items-start gap-3 text-sm text-muted-foreground">
-                  <span className="text-yellow-400">▸</span>{tip}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-    </motion.div>
-  );
-}
-
 export default function CoursesPage() {
-  const [selectedCycle, setSelectedCycle] = useState<string | null>(null);
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCycle, setSelectedCycle] = useState<Cycle | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<FrenchClass | null>(null);
   const [showTrigCourse, setShowTrigCourse] = useState(false);
-  const userClass = '6e' as FrenchClass;
-  const coursesList = Object.values(COURSES_BY_CLASS);
-  const availableLevels = coursesList.map(c => c.className.toLowerCase());
+  const [userClass] = useState<FrenchClass>('4e'); // Simuler l'utilisateur connecté
 
-  // Search functionality
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return coursesList;
-    
-    const query = searchQuery.toLowerCase();
-    return coursesList.filter(course => {
-      // Search in title and description
-      if (course.title.toLowerCase().includes(query) || 
-          course.description.toLowerCase().includes(query)) {
-        return true;
-      }
-      // Search in sections
-      return course.sections.some(section => 
-        section.title.toLowerCase().includes(query) ||
-        section.content.toLowerCase().includes(query) ||
-        section.examples.some(ex => 
-          ex.problem.toLowerCase().includes(query) ||
-          ex.explanation.toLowerCase().includes(query)
-        ) ||
-        section.tips.some(tip => tip.toLowerCase().includes(query))
+  // Filtrage des cours
+  const { coursesList, searchResults } = useMemo(() => {
+    let allCourses = Object.entries(COURSES_BY_CLASS).flatMap(([className, course]) => ({
+      ...course,
+      className
+    }));
+
+    // Filtrage par cycle
+    if (selectedCycle) {
+      allCourses = allCourses.filter(course => 
+        selectedCycle.levels.includes(course.className as FrenchClass)
       );
-    });
-  }, [searchQuery, coursesList]);
+    }
 
-  // Vue détaillée d'un cours
+    // Recherche
+    const searchResults = searchQuery 
+      ? allCourses.filter(course => 
+          course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          course.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          course.sections.some(section => 
+            section.title.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        )
+      : [];
+
+    return {
+      coursesList: allCourses,
+      searchResults
+    };
+  }, [selectedCycle, searchQuery]);
+
+  // Si un niveau est sélectionné, afficher le détail
   if (selectedLevel) {
-    const frenchClass = selectedLevel.toLowerCase() as FrenchClass;
-    const course = COURSES_BY_CLASS[frenchClass];
-    
-    // Fallback si le cours n'existe pas
+    const course = COURSES_BY_CLASS[selectedLevel];
     if (!course) {
       return (
         <div className="min-h-screen bg-background text-white">
           <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
-            <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-              <button 
-                onClick={() => setSelectedLevel(null)} 
-                className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />Retour
-              </button>
-              <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
-                <Trophy className="w-6 h-6" /><span className="font-bold">maths-app.com</span>
-              </Link>
+            <div className="max-w-6xl mx-auto px-4 py-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
+                    <Trophy className="w-6 h-6" /><span className="font-bold">maths-app.com</span>
+                  </Link>
+                  <span className="text-muted-foreground">|</span>
+                  <span className="text-muted-foreground">Cours par niveau</span>
+                </div>
+              </div>
             </div>
           </header>
           
           <main className="max-w-4xl mx-auto px-4 py-16 text-center">
             <AlertCircle className="w-16 h-16 text-amber-400 mx-auto mb-4" />
             <h1 className="text-3xl font-bold mb-4">Cours bientôt disponible</h1>
-            <p className="text-muted-foreground mb-8">Le programme pour {formatClassName(frenchClass)} est en cours de rédaction.</p>
+            <p className="text-muted-foreground mb-8">Le programme pour {formatClassName(selectedLevel)} est en cours de rédaction.</p>
             <button 
               onClick={() => setSelectedLevel(null)}
               className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 rounded-xl font-semibold transition-all"
@@ -216,139 +172,234 @@ export default function CoursesPage() {
     const cycle = getCycleForLevel(selectedLevel);
 
     return (
-    <div className="min-h-screen bg-background text-white">
-      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
-                <Trophy className="w-6 h-6" /><span className="font-bold">maths-app.com</span>
-              </Link>
-              <span className="text-muted-foreground">|</span>
-              <span className="text-muted-foreground">Cours par niveau</span>
+      <div className="min-h-screen bg-background text-white">
+        <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <Link href="/dashboard" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
+                  <ArrowLeft className="w-5 h-5" />
+                  <span className="font-bold">maths-app.com</span>
+                </Link>
+                <span className="text-muted-foreground">|</span>
+                <span className="text-muted-foreground">Cours de {formatClassName(selectedLevel)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{CLASS_ICONS[selectedLevel]}</span>
+                <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">{formatClassName(selectedLevel)}</span>
+              </div>
             </div>
           </div>
+        </header>
+
+        <main className="max-w-4xl mx-auto px-4 py-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-2">{course.title}</h1>
+              <p className="text-muted-foreground mb-4">{course.description}</p>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  {course.duration}
+                </span>
+                <span className="flex items-center gap-1">
+                  <BookOpen className="w-4 h-4" />
+                  {course.sections.length} sections
+                </span>
+                {cycle && (
+                  <span className="flex items-center gap-1">
+                    <GraduationCap className="w-4 h-4" />
+                    {cycle.name}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Compétences acquises */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Compétences acquises</h2>
+              <div className="flex flex-wrap gap-2">
+                {course.skills.map((skill, index) => (
+                  <span key={index} className="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-full text-sm">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Sections du cours */}
+            <div className="space-y-8">
+              {course.sections.map((section, index) => (
+                <InteractiveCourseSection
+                  key={index}
+                  title={section.title}
+                  content={section.content}
+                  examples={(section.examples || []).map((ex, i) => ({ ...ex, id: `${selectedLevel}-${index}-${i}` }))}
+                  tips={section.tips || []}
+                  courseId={`${selectedLevel}-${index}`}
+                  difficulty="intermediate"
+                />
+              ))}
+            </div>
+          </motion.div>
+        </main>
+      </div>
+    );
+  }
+
+  // Vue principale des cours
+  return (
+    <div className="min-h-screen bg-[#0f0f23] text-white">
+      {/* Header */}
+      <header className="border-b border-[#2a2a3a] bg-[#1a1a2e]/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-bold">maths-app.com</span>
+          </Link>
           
-          {/* Search Bar */}
-          <div className="relative max-w-xl">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Rechercher un cours, une technique, une formule..."
-              className="w-full pl-10 pr-4 py-3 bg-[#1a1a2e] border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-              >
-                ×
-              </button>
-            )}
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Rechercher un cours..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 bg-[#1a1a2e] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 w-64"
+              />
+            </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Cours et Méthodes</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Apprends les techniques de calcul mental adaptées à ton niveau scolaire.</p>
+        {/* Welcome */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Cours de Mathématiques
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Explore nos cours interactifs par niveau scolaire, du CP à la Terminale
+          </p>
         </motion.div>
-        
-        {/* Special Courses Section */}
-        {!searchQuery && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <Triangle className="w-5 h-5 text-pink-400" />
-              Cours Spéciaux
-            </h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => setShowTrigCourse(true)}
-                className="p-6 rounded-2xl bg-gradient-to-br from-pink-500/20 to-purple-600/20 border border-pink-500/30 cursor-pointer hover:scale-[1.02] transition-all"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <span className="text-3xl">📐</span>
-                  <span className="px-3 py-1 bg-pink-500/20 text-pink-400 rounded-full text-sm font-semibold">Interactive</span>
-                </div>
-                <h3 className="text-xl font-bold mb-2">Trigonométrie</h3>
-                <p className="text-sm opacity-75 mb-4">Cours complet sur sinus, cosinus et le cercle trigonométrique avec démonstrations interactives.</p>
-                <div className="flex items-center gap-2 text-sm text-pink-400">
-                  <Triangle className="w-4 h-4" />
-                  <span>Sinus & Cosinus • Cercle unité • Triangles</span>
-                </div>
-              </motion.div>
-              
-              <Link href="/dashboard/geometry">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="p-6 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 cursor-pointer hover:scale-[1.02] transition-all h-full"
+
+        {/* Sidebar + Content */}
+        <div className="flex gap-8">
+          {/* Sidebar */}
+          <aside className="w-64 flex-shrink-0">
+            <CycleSidebar
+              selectedCycle={selectedCycle}
+              onSelectCycle={setSelectedCycle}
+              selectedLevel={selectedLevel}
+              onSelectLevel={setSelectedLevel}
+              availableLevels={[...FRENCH_CLASSES]}
+            />
+          </aside>
+
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Quick Access */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4 text-gray-300">Accès rapide</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Link href="/practice" className="group">
+                  <div className="p-4 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-500/30 hover:border-blue-500/50 transition-all">
+                    <Calculator className="w-6 h-6 text-blue-400 mb-2" />
+                    <div className="text-sm font-medium">Exercices</div>
+                    <div className="text-xs text-gray-400">Entraînement libre</div>
+                  </div>
+                </Link>
+
+                <Link href="/test" className="group">
+                  <div className="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl border border-green-500/30 hover:border-green-500/50 transition-all">
+                    <Target className="w-6 h-6 text-green-400 mb-2" />
+                    <div className="text-sm font-medium">Tests</div>
+                    <div className="text-xs text-gray-400">Évaluation chronométrée</div>
+                  </div>
+                </Link>
+
+                <button
+                  onClick={() => setShowTrigCourse(true)}
+                  className="p-4 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30 hover:border-purple-500/50 transition-all text-left"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <span className="text-3xl">📏</span>
-                    <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-sm font-semibold">Atelier</span>
+                  <Triangle className="w-6 h-6 text-purple-400 mb-2" />
+                  <div className="text-sm font-medium">Trigonométrie</div>
+                  <div className="text-xs text-gray-400">Cours avancé</div>
+                </button>
+
+                <Link href="/multiplayer" className="group">
+                  <div className="p-4 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl border border-orange-500/30 hover:border-orange-500/50 transition-all">
+                    <Users className="w-6 h-6 text-orange-400 mb-2" />
+                    <div className="text-sm font-medium">Multijoueur</div>
+                    <div className="text-xs text-gray-400">Affrontez vos amis</div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2">Atelier de Géométrie</h3>
-                  <p className="text-sm opacity-75 mb-4">Dessinez, construisez et explorez la géométrie comme avec GeoGebra.</p>
-                  <div className="flex items-center gap-2 text-sm text-cyan-400">
-                    <Ruler className="w-4 h-4" />
-                    <span>Figures • Mesures • Constructions</span>
-                  </div>
-                </motion.div>
-              </Link>
+                </Link>
+              </div>
             </div>
-          </div>
-        )}
         
-        {/* Search Results */}
-        {searchQuery && (
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-4 text-gray-400">
-              {searchResults.length} résultat{searchResults.length > 1 ? 's' : ''} pour "{searchQuery}"
-            </h2>
-            {searchResults.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <p>Aucun cours trouvé. Essayez avec d'autres termes comme "addition", "table de 7", "pythagore"...</p>
+            {/* Search Results */}
+            {searchQuery && (
+              <div className="mb-8">
+                <h2 className="text-lg font-semibold mb-4 text-gray-400">
+                  {searchResults.length} résultat{searchResults.length > 1 ? 's' : ''} pour "{searchQuery}"
+                </h2>
+                {searchResults.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>Aucun cours trouvé. Essayez avec d'autres termes comme "addition", "table de 7", "pythagore"...</p>
+                  </div>
+                )}
               </div>
             )}
+
+            {/* Tables de multiplication */}
+            <MultiplicationTableSection tableData={[
+              { table: 2, values: [2,4,6,8,10,12,14,16,18,20], tip: 'Le plus facile : doublez chaque nombre' },
+              { table: 3, values: [3,6,9,12,15,18,21,24,27,30], tip: 'Comptez de 3 en 3' },
+              { table: 4, values: [4,8,12,16,20,24,28,32,36,40], tip: 'Doublez la table de 2' },
+              { table: 5, values: [5,10,15,20,25,30,35,40,45,50], tip: 'Termine toujours par 0 ou 5' },
+              { table: 6, values: [6,12,18,24,30,36,42,48,54,60], tip: 'Doublez la table de 3' },
+              { table: 7, values: [7,14,21,28,35,42,49,56,63,70], tip: 'La plus difficile, entraînez-vous !' },
+              { table: 8, values: [8,16,24,32,40,48,56,64,72,80], tip: 'Doublez la table de 4' },
+              { table: 9, values: [9,18,27,36,45,54,63,72,81,90], tip: 'La somme des chiffres fait 9' },
+              { table: 10, values: [10,20,30,40,50,60,70,80,90,100], tip: 'Ajoutez un 0 après le nombre' }
+            ]} />
+
+            {/* Courses Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(searchQuery ? searchResults : coursesList).map((course, index) => {
+                const frenchClass = course.className as FrenchClass;
+                const isCurrent = frenchClass === userClass;
+
+                return (
+                  <motion.div
+                    key={course.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => setSelectedLevel(frenchClass)}
+                    className={`p-6 rounded-2xl bg-gradient-to-br ${CLASS_COLORS[frenchClass]} border cursor-pointer hover:scale-[1.02] transition-all relative ${isCurrent ? 'ring-2 ring-indigo-500' : ''}`}
+                  >
+                    {isCurrent && <div className="absolute top-4 right-4"><span className="px-2 py-1 bg-indigo-500 text-white text-xs font-bold rounded-full">Ton niveau</span></div>}
+                    <div className="flex items-start justify-between mb-4">
+                      <span className="text-3xl">{CLASS_ICONS[frenchClass]}</span>
+                      <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">{formatClassName(frenchClass)}</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">{course.title}</h3>
+                    <p className="text-sm opacity-75 mb-4">{course.description}</p>
+                    <div className="flex items-center gap-4 text-sm opacity-75">
+                      <span>{course.duration}</span>
+                      <span>{course.sections.length} leçons</span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
-        )}
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(searchQuery ? searchResults : coursesList).map((course, index) => {
-            const frenchClass = course.className as FrenchClass;
-            const classIndex = FRENCH_CLASSES.indexOf(frenchClass);
-            const isCurrent = frenchClass === userClass;
-
-            return (
-              <motion.div
-                key={course.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => setSelectedLevel(frenchClass)}
-                className={`p-6 rounded-2xl bg-gradient-to-br ${CLASS_COLORS[frenchClass]} border cursor-pointer hover:scale-[1.02] transition-all relative ${isCurrent ? 'ring-2 ring-indigo-500' : ''}`}
-              >
-                {isCurrent && <div className="absolute top-4 right-4"><span className="px-2 py-1 bg-indigo-500 text-white text-xs font-bold rounded-full">Ton niveau</span></div>}
-                <div className="flex items-start justify-between mb-4">
-                  <span className="text-3xl">{CLASS_ICONS[frenchClass]}</span>
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">{formatClassName(frenchClass)}</span>
-                </div>
-                <h3 className="text-xl font-bold mb-2">{course.title}</h3>
-                <p className="text-sm opacity-75 mb-4">{course.description}</p>
-                <div className="flex items-center gap-4 text-sm opacity-75">
-                  <span>{course.duration}</span>
-                  <span>{course.sections.length} leçons</span>
-                </div>
-              </motion.div>
-            );
-          })}
         </div>
         
         {/* Trig Course Modal */}
@@ -370,5 +421,4 @@ export default function CoursesPage() {
       </main>
     </div>
   );
-}
 }

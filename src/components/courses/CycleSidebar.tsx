@@ -1,5 +1,7 @@
 'use client';
 
+import { FrenchClass } from '@/lib/french-classes';
+
 import { motion } from 'framer-motion';
 import { ChevronRight, GraduationCap } from 'lucide-react';
 
@@ -7,7 +9,7 @@ export type Cycle = {
   id: string;
   name: string;
   description: string;
-  levels: string[];
+  levels: FrenchClass[];
   color: string;
   gradient: string;
 };
@@ -56,11 +58,11 @@ export const CYCLES: Cycle[] = [
 ];
 
 interface CycleSidebarProps {
-  selectedCycle: string | null;
-  onSelectCycle: (cycle: string | null) => void;
-  selectedLevel: string | null;
-  onSelectLevel: (level: string | null) => void;
-  availableLevels: string[];
+  selectedCycle: Cycle | null;
+  onSelectCycle: (cycle: Cycle | null) => void;
+  selectedLevel: FrenchClass | null;
+  onSelectLevel: (level: FrenchClass | null) => void;
+  availableLevels: FrenchClass[];
 }
 
 export function CycleSidebar({
@@ -80,7 +82,7 @@ export function CycleSidebar({
 
         <div className="space-y-2">
           {CYCLES.map((cycle) => {
-            const isActive = selectedCycle === cycle.id;
+            const isActive = selectedCycle?.id === cycle.id;
             const isExpanded = isActive;
 
             return (
@@ -91,7 +93,7 @@ export function CycleSidebar({
                       onSelectCycle(null);
                       onSelectLevel(null);
                     } else {
-                      onSelectCycle(cycle.id);
+                      onSelectCycle(cycle);
                       onSelectLevel(null);
                     }
                   }}
@@ -136,7 +138,7 @@ export function CycleSidebar({
                         <button
                           key={level}
                           onClick={() =>
-                            onSelectLevel(hasCourse ? level : null)
+                            onSelectLevel(hasCourse ? level as FrenchClass : null)
                           }
                           disabled={!hasCourse}
                           className={`w-full flex items-center justify-between p-2 rounded-lg text-sm transition-all ${
