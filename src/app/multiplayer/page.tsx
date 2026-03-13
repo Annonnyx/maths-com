@@ -296,7 +296,7 @@ export default function MultiplayerPage() {
 
   // Démarrer la partie groupe
   const startGroupGame = async () => {
-    if (!createdSession || lobbyPlayers.length < 2) return;
+    if (!createdSession || lobbyPlayers.length < 1) return;
     
     try {
       const response = await fetch('/api/game/start', {
@@ -306,10 +306,15 @@ export default function MultiplayerPage() {
       });
       
       if (response.ok) {
+        // Navigate to the game after successfully starting
         window.location.href = `/multiplayer/game/${createdSession.id}`;
+      } else {
+        const error = await response.json();
+        setError(error.error || 'Erreur lors du démarrage');
       }
     } catch (error) {
       console.error('Error starting game:', error);
+      setError('Erreur de connexion');
     }
   };
 
@@ -673,7 +678,8 @@ export default function MultiplayerPage() {
               <button
                 onClick={() => {
                   if (createdSession) {
-                    router.push(`/multiplayer/lobby/${createdSession.id}`);
+                    // Start the game first, then navigate
+                    startGroupGame();
                   }
                 }}
                 disabled={lobbyPlayers.length < 1}
@@ -846,7 +852,9 @@ export default function MultiplayerPage() {
                   <button
                     onClick={() => {
                       if (createdSession) {
-                        router.push(`/multiplayer/lobby/${createdSession.id}`);
+                        // Start the game first, then navigate
+                        startGroupGame();
+                        setShowQrModal(false);
                       }
                     }}
                     className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"

@@ -64,42 +64,81 @@ export default function PiMemoryPage() {
     if (gameMode === 'menu') return;
 
     const newInput = value.replace(/[^0-9]/g, '');
-    setUserInput(newInput);
-
-    if (newInput.length > currentIndex) {
-      // L'utilisateur a ajouté un chiffre
-      const expectedChar = targetDecimals[currentIndex];
-      const actualChar = newInput[currentIndex];
-      
-      if (actualChar !== expectedChar) {
-        setErrors(prev => prev + 1);
-        // Vibration feedback si disponible
-        if (navigator.vibrate) {
-          navigator.vibrate(100);
-        }
+    
+    if (gameMode === 'reveal') {
+      // In reveal mode, show decimals progressively as user types
+      if (newInput.length > userInput.length) {
+        // User added a character
+        const expectedChar = targetDecimals[currentIndex];
+        const actualChar = newInput[newInput.length - 1];
         
-        // Effacer le dernier caractère incorrect
-        setUserInput(newInput.slice(0, -1));
-        
-        // Montrer brièvement l'erreur
-        const input = document.getElementById('pi-input') as HTMLInputElement;
-        if (input) {
-          input.classList.add('bg-red-500/20');
-          setTimeout(() => input.classList.remove('bg-red-500/20'), 300);
+        if (actualChar === expectedChar) {
+          // Correct character, advance and show next
+          setUserInput(newInput);
+          setCurrentIndex(prev => prev + 1);
+          
+          // Celebrate if we reach the end
+          if (currentIndex + 1 >= targetDecimals.length) {
+            endGame();
+          }
+        } else {
+          // Wrong character, don't advance
+          setErrors(prev => prev + 1);
+          if (navigator.vibrate) {
+            navigator.vibrate(100);
+          }
+          
+          // Show error feedback
+          const input = document.getElementById('pi-input') as HTMLInputElement;
+          if (input) {
+            input.classList.add('bg-red-500/20');
+            setTimeout(() => input.classList.remove('bg-red-500/20'), 300);
+          }
         }
       } else {
-        setCurrentIndex(prev => prev + 1);
-        
-        // Célébrer si on atteint la fin
-        if (currentIndex + 1 === targetDecimals.length) {
-          endGame();
-        }
+        // User deleted character
+        setUserInput(newInput);
+        setCurrentIndex(newInput.length);
       }
-    } else if (newInput.length < currentIndex) {
-      // L'utilisateur a effacé
-      setCurrentIndex(newInput.length);
+    } else {
+      // Hidden mode - original logic
+      setUserInput(newInput);
+
+      if (newInput.length > currentIndex) {
+        // L'utilisateur a ajouté un chiffre
+        const expectedChar = targetDecimals[currentIndex];
+        const actualChar = newInput[currentIndex];
+        
+        if (actualChar !== expectedChar) {
+          setErrors(prev => prev + 1);
+          // Vibration feedback si disponible
+          if (navigator.vibrate) {
+            navigator.vibrate(100);
+          }
+          
+          // Effacer le dernier caractère incorrect
+          setUserInput(newInput.slice(0, -1));
+          
+          // Montrer brièvement l'erreur
+          const input = document.getElementById('pi-input') as HTMLInputElement;
+          if (input) {
+            input.classList.add('bg-red-500/20');
+            setTimeout(() => input.classList.remove('bg-red-500/20'), 300);
+          }
+        } else {
+          setCurrentIndex(prev => prev + 1);
+          
+          // Célébrer si on atteint la fin
+          if (currentIndex + 1 === targetDecimals.length) {
+            endGame();
+          }
+        }
+      } else if (newInput.length < currentIndex) {
+        // L'utilisateur a effacé
+        setCurrentIndex(newInput.length);
+      }
     }
-  }, [gameMode, currentIndex, targetDecimals]);
+  }, [gameMode, currentIndex, targetDecimals, userInput]);
 
   const endGame = () => {
     setEndTime(Date.now());
@@ -334,10 +373,17 @@ export default function PiMemoryPage() {
                 </>
               ) : (
                 <>
-                  <span className="text-purple-300">{targetDecimals.substring(0, currentIndex)}</span>
-                  <span className="text-purple-300">{userInput.substring(currentIndex)}</span>
-                  <span className="text-purple-500/30">
-                    {targetDecimals.substring(currentIndex + userInput.length - currentIndex)}
+                  {/* Progressive reveal mode - show what user has typed correctly */}
+                  <span className="text-purple-300">{userInput}</span>
+                  {/* Show next target character faintly */}
+                  {currentIndex < targetDecimals.length && (
+                    <span className="text-purple-500/30 animate-pulse">
+                      {targetDecimals[currentIndex]}
+                    </span>
+                  )}
+                  {/* Show remaining characters very faintly */}
+                  <span className="text-purple-500/10">
+                    {targetDecimals.substring(currentIndex + 1)}
                   </span>
                 </>
               )}
@@ -360,6 +406,19 @@ export default function PiMemoryPage() {
               >
                 Prochain chiffre: <span className="text-purple-300 font-bold">{targetDecimals[currentIndex]}</span>
               </motion.div>
+            )}
+            
+            {/* Progressive display for reveal mode */}
+            {gameMode === 'reveal' && (
+              <div className="mt-4 text-sm text-purple-300">
+                <p>Progression: {currentIndex}/{targetDecimals.length} décimales</p>
+                <div className="w-full bg-purple-900/30 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(currentIndex / targetDecimals.length) * 100}%` }}
+                  />
+                </div>
+              </div>
             )}
           </div>
 

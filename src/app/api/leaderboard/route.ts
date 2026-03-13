@@ -179,11 +179,13 @@ export async function GET(req: NextRequest) {
       // Get stats based on mode
       const stats = mode === 'solo' ? user.soloStatistics : user.multiplayerStatistics;
       
-      // Calculate accuracy (solo only - multiplayer doesn't track questions)
-      const accuracy = calculateLeaderboardAccuracy({
-        totalQuestions: stats?.totalQuestions || 0,
-        totalCorrect: stats?.totalCorrect || 0
-      }, mode as 'solo' | 'multiplayer');
+      // Calculate accuracy (solo only - multiplayer uses win rate)
+      const accuracy = mode === 'solo' 
+        ? calculateLeaderboardAccuracy({
+            totalQuestions: stats?.totalQuestions || 0,
+            totalCorrect: stats?.totalCorrect || 0
+          }, mode as 'solo' | 'multiplayer')
+        : 0; // For multiplayer, accuracy is 0 (we show win rate instead)
       
       // Calculate win rate (multiplayer only)
       const totalGames = mode === 'solo' 

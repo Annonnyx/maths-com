@@ -44,21 +44,33 @@ export function calculateAccuracyFromScore(stats: AccuracyStats): number {
  * @param mode - Mode de jeu ('solo' ou 'multiplayer')
  * @returns Précision en pourcentage ou null pour multiplayer
  */
-export function calculateLeaderboardAccuracy(stats: AccuracyStats, mode: 'solo' | 'multiplayer'): number | null {
+export function calculateLeaderboardAccuracy(stats: AccuracyStats, mode: 'solo' | 'multiplayer'): number {
   if (mode === 'multiplayer') {
-    return null; // Le multijoueur ne suit pas les précisions
+    return 0; // Le multijoueur utilise win rate à la place
   }
   
-  return calculateAccuracy(stats);
+  const { totalQuestions = 0, totalCorrect = 0 } = stats;
+  
+  if (totalQuestions === 0) {
+    return 0;
+  }
+  
+  return Math.round((totalCorrect / totalQuestions) * 100);
 }
 
 /**
  * Formate les statistiques avec précision standardisée
  * @param stats - Statistiques brutes
+ * @param mode - Mode de jeu ('solo' ou 'multiplayer')
  * @returns Statistiques formatées avec précision
  */
-export function formatStatsWithAccuracy(stats: AccuracyStats) {
-  const accuracy = calculateAccuracy(stats);
+export function formatStatsWithAccuracy(stats: AccuracyStats, mode: 'solo' | 'multiplayer') {
+  const accuracy = mode === 'solo' 
+    ? calculateLeaderboardAccuracy({
+        totalQuestions: stats?.totalQuestions || 0,
+        totalCorrect: stats?.totalCorrect || 0
+      }, mode)
+    : 0; // For multiplayer, accuracy is 0 (we show win rate instead)
   
   return {
     totalTests: stats.totalTests || 0,

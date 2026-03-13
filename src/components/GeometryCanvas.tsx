@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   MousePointer2, 
@@ -17,7 +17,9 @@ import {
   Info,
   ZoomIn,
   ZoomOut,
-  Maximize
+  Maximize,
+  Minimize,
+  Move3d
 } from 'lucide-react';
 
 interface Point {
@@ -72,6 +74,7 @@ export default function GeometryCanvas({
   onShapeCreated
 }: GeometryCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [points, setPoints] = useState<Point[]>(initialPoints);
   const [lines, setLines] = useState<Line[]>([]);
   const [circles, setCircles] = useState<CircleShape[]>([]);
@@ -90,11 +93,16 @@ export default function GeometryCanvas({
   const [symmetryAxis, setSymmetryAxis] = useState<{x1: number, y1: number, x2: number, y2: number} | null>(null);
   const [pythagoreTriangle, setPythagoreTriangle] = useState<string[] | null>(null);
   const [vectors, setVectors] = useState<{id: string, startId: string, endId: string, color: string}[]>([]);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const [functionInput, setFunctionInput] = useState('');
+  const [showFunctionInput, setShowFunctionInput] = useState(false);
 
   // Grid settings
   const gridSize = 20;
-  const gridWidth = width / scale;
-  const gridHeight = height / scale;
+  const gridWidth = (width / scale) + 100; // Extended grid for zoom out
+  const gridHeight = (height / scale) + 100;
 
   const snapToGrid = (value: number) => {
     if (!showGridState) return value;
@@ -104,11 +112,98 @@ export default function GeometryCanvas({
   const getMousePosition = (e: React.MouseEvent) => {
     if (!svgRef.current) return { x: 0, y: 0 };
     const rect = svgRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left - pan.x) / scale;
+    const y = (e.clientY - rect.top - pan.y) / scale;
     return {
-      x: snapToGrid((e.clientX - rect.left - pan.x) / scale),
-      y: snapToGrid((e.clientY - rect.top - pan.y) / scale)
+      x: snapToGrid(x),
+      y: snapToGrid(y)
     };
   };
+
+  const handleWheel = useCallback((e: WheelEvent) => {
+    if (!containerRef.current) return;
+    
+    e.preventDefault();
+    
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    const newScale = Math.max(0.1, Math.min(5, scale * delta));
+    
+    // Zoom towards mouse position
+    const rect = containerRef.current.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    const worldX = (mouseX - pan.x) / scale;
+    const worldY = (mouseY - pan.y) / scale;
+    
+    const newPanX = mouseX - worldX * newScale;
+    const newPanY = mouseY - worldY * newScale;
+    
+    setScale(newScale);
+    setPan({ x: newPanX, y: newPanY });
+  }, [scale, pan]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+      // Middle mouse button or shift+left click for panning
+      e.preventDefault();
+      setIsPanning(true);
+      setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    }
+  }, [pan]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (isPanning) {
+      const newPanX = e.clientX - panStart.x;
+      const newPanY = e.clientY - panStart.y;
+      setPan({ x: newPanX, y: newPanY });
+    }
+  }, [isPanning, panStart]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+    
+    if (!isFullscreen) {
+      containerRef.current.requestFullscreen?.();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen?.();
+      setIsFullscreen(false);
+    }
+  }, [isFullscreen]);
+
+  const resetView = useCallback(() => {
+    setScale(1);
+    setPan({ x: 0, y: 0 });
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [handleWheel, handleMouseMove, handleMouseUp]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const handleSvgClick = (e: React.MouseEvent) => {
     if (readOnly || isDragging) return;
@@ -366,8 +461,29 @@ export default function GeometryCanvas({
     { id: 'delete', icon: Trash2, label: 'Effacer', color: 'text-red-400' },
   ] as const;
 
+  const handleZoomIn = () => {
+    setScale(prev => Math.min(5, prev * 1.2));
+  };
+
+  const handleZoomOut = () => {
+    setScale(prev => Math.max(0.1, prev / 1.2));
+  };
+
+  const handleFunctionSubmit = () => {
+    // Parse and plot function
+    console.log('Function to plot:', functionInput);
+    setShowFunctionInput(false);
+    setFunctionInput('');
+  };
+
   return (
-    <div className="bg-[#12121a] rounded-xl border border-gray-800 overflow-hidden">
+    <div 
+      ref={containerRef}
+      className={`bg-[#12121a] rounded-xl border border-gray-800 overflow-hidden ${
+        isFullscreen ? 'fixed inset-0 z-50 rounded-none' : ''
+      }`}
+      onMouseDown={handleMouseDown}
+    >
       {/* Toolbar */}
       <div className="flex items-center gap-2 p-3 bg-[#1a1a2e] border-b border-gray-800">
         {tools.map(tool => (
@@ -390,6 +506,45 @@ export default function GeometryCanvas({
         
         <div className="w-px h-6 bg-gray-700 mx-2" />
         
+        {/* View Controls */}
+        <button
+          onClick={handleZoomIn}
+          className="p-2 rounded-lg hover:bg-gray-800 transition-all"
+          title="Zoomer"
+        >
+          <ZoomIn className="w-5 h-5 text-gray-400" />
+        </button>
+        
+        <button
+          onClick={handleZoomOut}
+          className="p-2 rounded-lg hover:bg-gray-800 transition-all"
+          title="Dézoomer"
+        >
+          <ZoomOut className="w-5 h-5 text-gray-400" />
+        </button>
+        
+        <button
+          onClick={resetView}
+          className="p-2 rounded-lg hover:bg-gray-800 transition-all"
+          title="Réinitialiser la vue"
+        >
+          <Move3d className="w-5 h-5 text-gray-400" />
+        </button>
+        
+        <button
+          onClick={toggleFullscreen}
+          className="p-2 rounded-lg hover:bg-gray-800 transition-all"
+          title="Plein écran"
+        >
+          {isFullscreen ? (
+            <Minimize className="w-5 h-5 text-gray-400" />
+          ) : (
+            <Maximize className="w-5 h-5 text-gray-400" />
+          )}
+        </button>
+        
+        <div className="w-px h-6 bg-gray-700 mx-2" />
+        
         <button
           onClick={() => setShowGrid(!showGridState)}
           className={`p-2 rounded-lg transition-all ${showGridState ? 'bg-indigo-500/20' : 'hover:bg-gray-800'}`}
@@ -404,6 +559,14 @@ export default function GeometryCanvas({
           title="Mesures"
         >
           <Calculator className={`w-5 h-5 ${showMeasurements ? 'text-indigo-400' : 'text-gray-400'}`} />
+        </button>
+        
+        <button
+          onClick={() => setShowFunctionInput(!showFunctionInput)}
+          className={`p-2 rounded-lg transition-all ${showFunctionInput ? 'bg-indigo-500/20' : 'hover:bg-gray-800'}`}
+          title="Fonctions"
+        >
+          <Info className={`w-5 h-5 ${showFunctionInput ? 'text-indigo-400' : 'text-gray-400'}`} />
         </button>
         
         <div className="flex-1" />
@@ -425,382 +588,198 @@ export default function GeometryCanvas({
         </button>
       </div>
       
+      {/* Function Input */}
+      {showFunctionInput && (
+        <div className="p-3 bg-[#1a1a2e] border-b border-gray-800">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={functionInput}
+              onChange={(e) => setFunctionInput(e.target.value)}
+              placeholder="Entrez une fonction (ex: 2*x+1, sin(x), x^2)..."
+              className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+              onKeyPress={(e) => e.key === 'Enter' && handleFunctionSubmit()}
+            />
+            <button
+              onClick={handleFunctionSubmit}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition-colors"
+            >
+              Tracer
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Canvas */}
-      <div className="relative">
+      <div className="relative" style={{ width: isFullscreen ? '100vw' : width, height: isFullscreen ? '100vh' : height }}>
         <svg
           ref={svgRef}
-          width={width}
-          height={height}
+          width={isFullscreen ? '100vw' : width}
+          height={isFullscreen ? '100vh' : height}
           onClick={handleSvgClick}
           className="bg-[#0f0f1a] cursor-crosshair"
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'none', cursor: isPanning ? 'grabbing' : 'crosshair' }}
         >
-          {/* Grid */}
-          {showGridState && (
-            <g opacity={0.3}>
-              {Array.from({ length: Math.ceil(gridWidth / gridSize) + 1 }).map((_, i) => (
-                <line
-                  key={`v${i}`}
-                  x1={i * gridSize}
-                  y1={0}
-                  x2={i * gridSize}
-                  y2={height}
-                  stroke="#4b5563"
-                  strokeWidth={0.5}
-                />
-              ))}
-              {Array.from({ length: Math.ceil(gridHeight / gridSize) + 1 }).map((_, i) => (
-                <line
-                  key={`h${i}`}
-                  x1={0}
-                  y1={i * gridSize}
-                  x2={width}
-                  y2={i * gridSize}
-                  stroke="#4b5563"
-                  strokeWidth={0.5}
-                />
-              ))}
-            </g>
-          )}
-          
-          {/* Axes */}
-          {showAxes && (
-            <g>
-              <line x1={width/2} y1={0} x2={width/2} y2={height} stroke="#6366f1" strokeWidth={1} opacity={0.5} />
-              <line x1={0} y1={height/2} x2={width} y2={height/2} stroke="#6366f1" strokeWidth={1} opacity={0.5} />
-            </g>
-          )}
-          
-          {/* Lines */}
-          {lines.map(line => {
-            const start = points.find(p => p.id === line.startId);
-            const end = points.find(p => p.id === line.endId);
-            if (!start || !end) return null;
-            
-            // Extend line for infinite lines
-            let x1 = start.x, y1 = start.y, x2 = end.x, y2 = end.y;
-            if (line.dashed) {
-              const dx = end.x - start.x;
-              const dy = end.y - start.y;
-              const length = Math.sqrt(dx*dx + dy*dy);
-              const factor = 1000 / length;
-              x1 = start.x - dx * factor;
-              y1 = start.y - dy * factor;
-              x2 = end.x + dx * factor;
-              y2 = end.y + dy * factor;
-            }
-            
-            return (
-              <line
-                key={line.id}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                stroke={line.color}
-                strokeWidth={2}
-                strokeDasharray={line.dashed ? "5,5" : undefined}
-              />
-            );
-          })}
-          
-          {/* Circles */}
-          {circles.map(circle => {
-            const center = points.find(p => p.id === circle.centerId);
-            const radiusPoint = points.find(p => p.id === circle.radiusPointId);
-            if (!center || !radiusPoint) return null;
-            const radius = calculateDistance(center, radiusPoint);
-            
-            return (
-              <g key={circle.id}>
-                <circle
-                  cx={center.x}
-                  cy={center.y}
-                  r={radius}
-                  fill="none"
-                  stroke={circle.color}
-                  strokeWidth={2}
-                />
-                {showMeasurements && (
-                  <text
-                    x={center.x + radius + 10}
-                    y={center.y}
-                    fill="#f59e0b"
-                    fontSize="12"
-                    fontFamily="monospace"
-                  >
-                    r = {radius.toFixed(1)}
-                  </text>
-                )}
+          <g transform={`translate(${pan.x}, ${pan.y}) scale(${scale})`}>
+            {/* Grid */}
+            {showGridState && (
+              <g opacity={0.3}>
+                {Array.from({ length: Math.ceil(gridWidth / gridSize) + 1 }).map((_, i) => (
+                  <line
+                    key={`v${i}`}
+                    x1={i * gridSize - (pan.x / scale)}
+                    y1={-(pan.y / scale)}
+                    x2={i * gridSize - (pan.x / scale)}
+                    y2={height / scale - (pan.y / scale)}
+                    stroke="#4b5563"
+                    strokeWidth={0.5 / scale}
+                  />
+                ))}
+                {Array.from({ length: Math.ceil(gridHeight / gridSize) + 1 }).map((_, i) => (
+                  <line
+                    key={`h${i}`}
+                    x1={-(pan.x / scale)}
+                    y1={i * gridSize - (pan.y / scale)}
+                    x2={width / scale - (pan.x / scale)}
+                    y2={i * gridSize - (pan.y / scale)}
+                    stroke="#4b5563"
+                    strokeWidth={0.5 / scale}
+                  />
+                ))}
               </g>
-            );
-          })}
-          
-          {/* Triangles */}
-          {triangles.map(triangle => {
-            const points_list = triangle.pointIds.map(id => points.find(p => p.id === id)).filter(Boolean) as Point[];
-            if (points_list.length !== 3) return null;
-            const path = `M ${points_list[0].x} ${points_list[0].y} L ${points_list[1].x} ${points_list[1].y} L ${points_list[2].x} ${points_list[2].y} Z`;
-            const area = calculateTriangleArea(triangle);
+            )}
             
-            return (
-              <g key={triangle.id}>
-                <path
-                  d={path}
-                  fill={triangle.fill ? `${triangle.color}20` : 'none'}
-                  stroke={triangle.color}
-                  strokeWidth={2}
-                />
-                {showMeasurements && (
-                  <text
-                    x={(points_list[0].x + points_list[1].x + points_list[2].x) / 3}
-                    y={(points_list[0].y + points_list[1].y + points_list[2].y) / 3}
-                    fill="#10b981"
-                    fontSize="12"
-                    fontFamily="monospace"
-                    textAnchor="middle"
-                  >
-                    A = {area.toFixed(1)}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-          
-          {/* Vectors */}
-          {vectors.map(vector => {
-            const start = points.find(p => p.id === vector.startId);
-            const end = points.find(p => p.id === vector.endId);
-            if (!start || !end) return null;
-            
-            const dx = end.x - start.x;
-            const dy = end.y - start.y;
-            const length = Math.sqrt(dx * dx + dy * dy);
-            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-            
-            return (
-              <g key={vector.id}>
-                {/* Vector line */}
-                <line
-                  x1={start.x}
-                  y1={start.y}
-                  x2={end.x}
-                  y2={end.y}
-                  stroke={vector.color}
-                  strokeWidth={2}
-                  markerEnd="url(#arrowhead)"
-                />
-                
-                {/* Arrow head */}
-                <defs>
-                  <marker
-                    id="arrowhead"
-                    markerWidth="10"
-                    markerHeight="7"
-                    refX="9"
-                    refY="3.5"
-                    orient="auto"
-                  >
-                    <polygon
-                      points="0 0, 10 3.5, 0 7"
-                      fill={vector.color}
-                    />
-                  </marker>
-                </defs>
-                
-                {/* Coordinates display */}
-                {showMeasurements && (
-                  <text
-                    x={(start.x + end.x) / 2 + 10}
-                    y={(start.y + end.y) / 2 - 10}
-                    fill="#f59e0b"
-                    fontSize="12"
-                    fontFamily="monospace"
-                  >
-                    ({dx.toFixed(1)}, {dy.toFixed(1)})
-                  </text>
-                )}
-                
-                {/* Length display */}
-                {showMeasurements && (
-                  <text
-                    x={(start.x + end.x) / 2}
-                    y={(start.y + end.y) / 2 + 20}
-                    fill="#f59e0b"
-                    fontSize="12"
-                    fontFamily="monospace"
-                    textAnchor="middle"
-                  >
-                    |v| = {length.toFixed(1)}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-          
-          {/* Symmetry axis */}
-          {symmetryAxis && (
-            <g>
-              <line
-                x1={symmetryAxis.x1}
-                y1={symmetryAxis.y1}
-                x2={symmetryAxis.x2}
-                y2={symmetryAxis.y2}
-                stroke="#10b981"
-                strokeWidth={2}
-                strokeDasharray="5,5"
-              />
-              <text
-                x={(symmetryAxis.x1 + symmetryAxis.x2) / 2 + 10}
-                y={(symmetryAxis.y1 + symmetryAxis.y2) / 2}
-                fill="#10b981"
-                fontSize="12"
-                fontFamily="monospace"
-              >
-                Axe de symétrie
-              </text>
-            </g>
-          )}
-          
-          {/* Pythagore visualization */}
-          {pythagoreTriangle && pythagoreTriangle.length === 3 && (() => {
-            const p1 = points.find(p => p.id === pythagoreTriangle![0]);
-            const p2 = points.find(p => p.id === pythagoreTriangle![1]);
-            const p3 = points.find(p => p.id === pythagoreTriangle![2]);
-            if (!p1 || !p2 || !p3) return null;
-            
-            // Find the right angle (assuming p2 is the right angle)
-            const a = calculateDistance(p2, p1);
-            const b = calculateDistance(p2, p3);
-            const c = calculateDistance(p1, p3);
-            
-            return (
+            {/* Axes */}
+            {showAxes && (
               <g>
-                {/* Triangle */}
-                <polygon
-                  points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`}
-                  fill="#8b5cf620"
-                  stroke="#8b5cf6"
-                  strokeWidth={2}
+                <line 
+                  x1={-(pan.x / scale)} 
+                  y1={height / (2 * scale) - (pan.y / scale)} 
+                  x2={width / scale - (pan.x / scale)} 
+                  y2={height / (2 * scale) - (pan.y / scale)} 
+                  stroke="#6366f1" 
+                  strokeWidth={1 / scale} 
+                  opacity={0.5} 
                 />
-                
-                {/* Squares on each side */}
-                {/* Square on side a */}
-                <rect
-                  x={Math.min(p2.x, p1.x)}
-                  y={Math.min(p2.y, p1.y)}
-                  width={Math.abs(p1.x - p2.x)}
-                  height={Math.abs(p1.y - p2.y)}
-                  fill="#22d3ee20"
-                  stroke="#22d3ee"
-                  strokeWidth={1}
+                <line 
+                  x1={width / (2 * scale) - (pan.x / scale)} 
+                  y1={-(pan.y / scale)} 
+                  x2={width / (2 * scale) - (pan.x / scale)} 
+                  y2={height / scale - (pan.y / scale)} 
+                  stroke="#6366f1" 
+                  strokeWidth={1 / scale} 
+                  opacity={0.5} 
                 />
-                
-                {/* Square on side b */}
-                <rect
-                  x={Math.min(p2.x, p3.x)}
-                  y={Math.min(p2.y, p3.y)}
-                  width={Math.abs(p3.x - p2.x)}
-                  height={Math.abs(p3.y - p2.y)}
-                  fill="#10b98120"
-                  stroke="#10b981"
-                  strokeWidth={1}
-                />
-                
-                {/* Square on hypotenuse */}
-                {
-                  (() => {
-                    const hypAngle = Math.atan2(p3.y - p1.y, p3.x - p1.x);
-                    const hypPerpAngle = hypAngle + Math.PI / 2;
-                    const squareSizeHyp = c / Math.sqrt(2);
-                    
-                    return (
-                      <g transform={`translate(${(p1.x + p3.x) / 2}, ${(p1.y + p3.y) / 2}) rotate(${hypPerpAngle * 180 / Math.PI})`}>
-                        <rect
-                          x={-squareSizeHyp / 2}
-                          y={-squareSizeHyp / 2}
-                          width={squareSizeHyp}
-                          height={squareSizeHyp}
-                          fill="#ef444420"
-                          stroke="#ef4444"
-                          strokeWidth={1}
-                        />
-                      </g>
-                    );
-                  })()
-                }
-                
-                {/* Pythagore theorem display */}
-                {showMeasurements && (
-                  <text
-                    x={(p1.x + p2.x + p3.x) / 3}
-                    y={Math.max(p1.y, p2.y, p3.y) + 40}
-                    fill="#f59e0b"
-                    fontSize="14"
-                    fontFamily="monospace"
-                    textAnchor="middle"
-                  >
-                    a² + b² = c²
-                  </text>
-                )}
-                
-                {showMeasurements && (
-                  <text
-                    x={(p1.x + p2.x + p3.x) / 3}
-                    y={Math.max(p1.y, p2.y, p3.y) + 60}
-                    fill="#f59e0b"
-                    fontSize="12"
-                    fontFamily="monospace"
-                    textAnchor="middle"
-                  >
-                    {a.toFixed(1)}² + {b.toFixed(1)}² = {c.toFixed(1)}²
-                  </text>
-                )}
               </g>
-            );
-          })()}
-          
-          {/* Points */}
-          {points.map(point => (
-            <g 
-              key={point.id} 
-              onMouseDown={(e) => handlePointDrag(e, point.id)}
-              className="cursor-move"
-            >
-              <circle
-                cx={point.x}
-                cy={point.y}
-                r={6}
-                fill={selectedPoint?.includes(point.id) ? '#f59e0b' : point.color}
-                stroke="#0f0f1a"
-                strokeWidth={2}
-                className="hover:r-8"
-              />
-              <text
-                x={point.x + 10}
-                y={point.y - 10}
-                fill="#9ca3af"
-                fontSize="12"
-                fontFamily="monospace"
+            )}
+            
+            {/* Lines */}
+            {lines.map(line => {
+              const start = points.find(p => p.id === line.startId);
+              const end = points.find(p => p.id === line.endId);
+              if (!start || !end) return null;
+              
+              // Extend line for infinite lines
+              let x1 = start.x, y1 = start.y, x2 = end.x, y2 = end.y;
+              if (line.dashed) {
+                const dx = end.x - start.x;
+                const dy = end.y - start.y;
+                const length = Math.sqrt(dx*dx + dy*dy);
+                const factor = 1000 / length;
+                x1 = start.x - dx * factor;
+                y1 = start.y - dy * factor;
+                x2 = end.x + dx * factor;
+                y2 = end.y + dy * factor;
+              }
+              
+              return (
+                <line
+                  key={line.id}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke={line.color}
+                  strokeWidth={2 / scale}
+                  strokeDasharray={line.dashed ? "5,5" : undefined}
+                />
+              );
+            })}
+            
+            {/* Circles */}
+            {circles.map(circle => {
+              const center = points.find(p => p.id === circle.centerId);
+              const radiusPoint = points.find(p => p.id === circle.radiusPointId);
+              if (!center || !radiusPoint) return null;
+              const radius = calculateDistance(center, radiusPoint);
+              
+              return (
+                <g key={circle.id}>
+                  <circle
+                    cx={center.x}
+                    cy={center.y}
+                    r={radius}
+                    fill="none"
+                    stroke={circle.color}
+                    strokeWidth={2 / scale}
+                  />
+                  {showMeasurements && (
+                    <text
+                      x={center.x + radius + 10 / scale}
+                      y={center.y}
+                      fill="#f59e0b"
+                      fontSize={12 / scale}
+                      fontFamily="monospace"
+                    >
+                      r = {radius.toFixed(1)}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+            
+            {/* Points */}
+            {points.map(point => (
+              <g 
+                key={point.id} 
+                onMouseDown={(e) => handlePointDrag(e, point.id)}
+                className="cursor-move"
               >
-                {point.label}({point.x/gridSize},{-(point.y - height/2)/gridSize})
-              </text>
-            </g>
-          ))}
-          
-          {/* Preview line */}
-          {tempLine && (
-            <line
-              x1={tempLine.start.x}
-              y1={tempLine.start.y}
-              x2={tempLine.end.x}
-              y2={tempLine.end.y}
-              stroke="#6366f1"
-              strokeWidth={1}
-              strokeDasharray="3,3"
-              opacity={0.5}
-            />
-          )}
+                <circle
+                  cx={point.x}
+                  cy={point.y}
+                  r={6 / scale}
+                  fill={selectedPoint?.includes(point.id) ? '#f59e0b' : point.color}
+                  stroke="#0f0f1a"
+                  strokeWidth={2 / scale}
+                  className="hover:r-8"
+                />
+                <text
+                  x={point.x + 10 / scale}
+                  y={point.y - 10 / scale}
+                  fill="#9ca3af"
+                  fontSize={12 / scale}
+                  fontFamily="monospace"
+                >
+                  {point.label}({Math.round(point.x/gridSize)},{-Math.round((point.y - height/2)/gridSize)})
+                </text>
+              </g>
+            ))}
+            
+            {/* Preview line */}
+            {tempLine && (
+              <line
+                x1={tempLine.start.x}
+                y1={tempLine.start.y}
+                x2={tempLine.end.x}
+                y2={tempLine.end.y}
+                stroke="#6366f1"
+                strokeWidth={1 / scale}
+                strokeDasharray="3,3"
+                opacity={0.5}
+              />
+            )}
+          </g>
         </svg>
         
         {/* Info panel */}

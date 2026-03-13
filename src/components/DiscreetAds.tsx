@@ -13,10 +13,9 @@ export function DiscreetAds({ showAds = true }: DiscreetAdsProps) {
 
   return (
     <>
-      {/* Pubs desktop - coins discrets */}
+      {/* Pubs desktop - coin discret top-right uniquement */}
       <div className="hidden md:block">
         <CornerAd position="top-right" />
-        <CornerAd position="bottom-left" />
       </div>
 
       {/* Pubs mobiles - plus petites et plus tardives */}
