@@ -8,7 +8,7 @@ import {
   ChevronRight, Calculator, Lightbulb, CheckCircle,
   ChevronDown, ChevronUp, Lock, Search, Triangle,
   Ruler, AlertCircle, Users, GraduationCap, Grid3X3,
-  Star, TrendingUp
+  Star, TrendingUp, Sparkles
 } from 'lucide-react';
 import { COURSES_BY_CLASS, CourseSection } from '@/lib/courses-data';
 import { FrenchClass, FRENCH_CLASSES, formatClassName } from '@/lib/french-classes';
@@ -105,7 +105,7 @@ export default function CoursesPage() {
   const [userClass] = useState<FrenchClass>('4e'); // Simuler l'utilisateur connecté
 
   // Filtrage des cours
-  const { coursesList, searchResults } = useMemo(() => {
+  const { coursesList, searchResults, showPiLink } = useMemo(() => {
     let allCourses = Object.entries(COURSES_BY_CLASS).flatMap(([className, course]) => ({
       ...course,
       className
@@ -118,7 +118,7 @@ export default function CoursesPage() {
       );
     }
 
-    // Recherche
+    // Recherche normale
     const searchResults = searchQuery 
       ? allCourses.filter(course => 
           course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -129,9 +129,13 @@ export default function CoursesPage() {
         )
       : [];
 
+    // Détection du mode caché Pi
+    const showPiLink = searchQuery === '3.14' || searchQuery === 'pi' || searchQuery === 'π';
+
     return {
       coursesList: allCourses,
-      searchResults
+      searchResults,
+      showPiLink
     };
   }, [selectedCycle, searchQuery]);
 
@@ -229,7 +233,7 @@ export default function CoursesPage() {
             {/* Bouton d'entraînement */}
             <div className="mb-8">
               <Link 
-                href={`/courses/${course.id}/practice`}
+                href={`/courses/${course.className.toLowerCase()}/practice`}
                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-semibold text-lg transition-all transform hover:scale-[1.02] shadow-lg"
               >
                 <Target className="w-6 h-6" />
@@ -372,7 +376,38 @@ export default function CoursesPage() {
               </div>
             )}
 
-            {searchQuery && searchResults.length === 0 && (
+            {/* Lien caché vers le mode Pi */}
+            {showPiLink && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-8"
+              >
+                <Link href="/courses/pi-memory" className="block">
+                  <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-xl border border-purple-500/30 hover:border-purple-500/50 p-6 transition-all hover:scale-[1.02]">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-purple-600/30 rounded-lg">
+                        <span className="text-2xl font-bold">π</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold mb-1">Défi Secret : Maîtrise de π</h3>
+                        <p className="text-gray-300 text-sm">
+                          Mode caché débloqué ! Teste ta mémoire avec les décimales de Pi
+                        </p>
+                      </div>
+                      <div className="text-purple-400">
+                        <Sparkles className="w-8 h-8" />
+                      </div>
+                    </div>
+                    <div className="mt-4 text-sm text-purple-300">
+                      🎯 Mode Caché : Mémorise les décimales sans les voir • 🎮 Mode Révélation : Teste ta vitesse de frappe
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            )}
+
+            {searchQuery && searchResults.length === 0 && !showPiLink && (
               <div className="text-center py-12">
                 <Search className="w-16 h-16 text-gray-500 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">Aucun résultat</h3>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   MousePointer2, 
@@ -26,7 +26,9 @@ import {
   Play,
   HelpCircle,
   X,
-  Check
+  Check,
+  Compass,
+  Ruler as Measure
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -90,7 +92,13 @@ export default function GeometryCanvas() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [tempPoints, setTempPoints] = useState<Point[]>([]);
   const [showGrid, setShowGrid] = useState(true);
+  const [showAxes, setShowAxes] = useState(true);
+  const [showAngles, setShowAngles] = useState(false);
+  const [showLengths, setShowLengths] = useState(false);
   const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [functionInput, setFunctionInput] = useState('');
   const [showFunctionInput, setShowFunctionInput] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -112,31 +120,51 @@ export default function GeometryCanvas() {
   const colors = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899'];
 
   useEffect(() => {
-    // Charger les travaux sauvegardés depuis localStorage
     const saved = localStorage.getItem('geometry-works');
     if (saved) {
       setSavedWorks(JSON.parse(saved));
     }
   }, []);
 
-  const handleCanvasClick = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (!canvasRef.current || selectedTool === 'move') return;
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
+  const getMousePosition = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (!canvasRef.current) return { x: 0, y: 0 };
+    
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left - 200) / scale;
-    const y = (e.clientY - rect.top - 200) / scale;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    // Convertir en coordonnées du canvas avec offset et scale
+    const canvasX = (mouseX - offset.x) / scale;
+    const canvasY = (mouseY - offset.y) / scale;
+    
+    return { x: canvasX, y: canvasY };
+  }, [scale, offset]);
 
+  const handleCanvasClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (selectedTool === 'move' || isDragging) return;
+    
+    const pos = getMousePosition(e);
+    
     if (selectedTool === 'point') {
       const newPoint: Point = {
         id: `point_${Date.now()}`,
-        x,
-        y,
+        x: pos.x,
+        y: pos.y,
         label: `A${points.length + 1}`,
         color: colors[points.length % colors.length]
       };
       setPoints([...points, newPoint]);
     } else if (selectedTool === 'line') {
-      const newPoint: Point = { id: `temp_${Date.now()}`, x, y };
+      const newPoint: Point = { id: `temp_${Date.now()}`, x: pos.x, y: pos.y };
       setTempPoints([...tempPoints, newPoint]);
 
       if (tempPoints.length === 1) {
@@ -151,7 +179,7 @@ export default function GeometryCanvas() {
         setTempPoints([]);
       }
     } else if (selectedTool === 'circle') {
-      const newPoint: Point = { id: `temp_${Date.now()}`, x, y };
+      const newPoint: Point = { id: `temp_${Date.now()}`, x: pos.x, y: pos.y };
       setTempPoints([...tempPoints, newPoint]);
 
       if (tempPoints.length === 1) {
@@ -166,7 +194,7 @@ export default function GeometryCanvas() {
         setTempPoints([]);
       }
     } else if (selectedTool === 'triangle') {
-      const newPoint: Point = { id: `temp_${Date.now()}`, x, y };
+      const newPoint: Point = { id: `temp_${Date.now()}`, x: pos.x, y: pos.y };
       setTempPoints([...tempPoints, newPoint]);
 
       if (tempPoints.length === 2) {
@@ -180,7 +208,34 @@ export default function GeometryCanvas() {
         setTempPoints([]);
       }
     }
-  };
+  }, [selectedTool, isDragging, getMousePosition, tempPoints, points, lines, circles, triangles]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (e.button === 2 || selectedTool === 'move') { // Clic droit ou outil déplacer
+      setIsDragging(true);
+      setDragStart({ x: e.clientX, y: e.clientY });
+      e.preventDefault();
+    }
+  }, [selectedTool]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (isDragging) {
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+      setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+      setDragStart({ x: e.clientX, y: e.clientY });
+    }
+  }, [isDragging, dragStart]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent<SVGSVGElement>) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    setScale(prev => Math.max(0.5, Math.min(3, prev * delta)));
+  }, []);
 
   const addFunction = () => {
     if (!functionInput.trim()) return;
@@ -229,6 +284,18 @@ export default function GeometryCanvas() {
     }
   };
 
+  const calculateDistance = (p1: Point, p2: Point): number => {
+    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+  };
+
+  const calculateAngle = (p1: Point, vertex: Point, p2: Point): number => {
+    const angle1 = Math.atan2(p1.y - vertex.y, p1.x - vertex.x);
+    const angle2 = Math.atan2(p2.y - vertex.y, p2.x - vertex.x);
+    return Math.abs(angle1 - angle2) * (180 / Math.PI);
+  };
+
+  const getPointById = useCallback((id: string) => points.find(p => p.id === id), [points]);
+
   const clearCanvas = () => {
     setPoints([]);
     setLines([]);
@@ -257,6 +324,14 @@ export default function GeometryCanvas() {
       setPoints(points.slice(0, -1));
     } else if (functions.length > 0) {
       setFunctions(functions.slice(0, -1));
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
     }
   };
 
@@ -295,41 +370,6 @@ export default function GeometryCanvas() {
     setSavedWorks(updatedWorks);
     localStorage.setItem('geometry-works', JSON.stringify(updatedWorks));
   };
-
-  const exportAsImage = () => {
-    if (!canvasRef.current) return;
-    
-    const svg = canvasRef.current;
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    
-    canvas.width = 800;
-    canvas.height = 600;
-    
-    img.onload = () => {
-      ctx?.drawImage(img, 0, 0);
-      const link = document.createElement('a');
-      link.download = `geometry-${Date.now()}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-    };
-    
-    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-  };
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  };
-
-  const getPointById = (id: string) => points.find(p => p.id === id);
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white ${isFullscreen ? 'p-0' : 'p-4'}`}>
@@ -396,6 +436,35 @@ export default function GeometryCanvas() {
                   {showGrid ? 'Masquer' : 'Afficher'} la grille
                 </button>
 
+                <button
+                  onClick={() => setShowAxes(!showAxes)}
+                  className="w-full p-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm flex items-center justify-center gap-2"
+                >
+                  <Compass className="w-4 h-4" />
+                  {showAxes ? 'Masquer' : 'Afficher'} les axes
+                </button>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setShowAngles(!showAngles)}
+                    className={`p-2 rounded-lg text-sm flex items-center justify-center gap-1 ${
+                      showAngles ? 'bg-blue-600/30 border border-blue-600/30' : 'bg-slate-700 hover:bg-slate-600'
+                    }`}
+                  >
+                    <Compass className="w-4 h-4" />
+                    Angles
+                  </button>
+                  <button
+                    onClick={() => setShowLengths(!showLengths)}
+                    className={`p-2 rounded-lg text-sm flex items-center justify-center gap-1 ${
+                      showLengths ? 'bg-blue-600/30 border border-blue-600/30' : 'bg-slate-700 hover:bg-slate-600'
+                    }`}
+                  >
+                    <Measure className="w-4 h-4" />
+                    Longueurs
+                  </button>
+                </div>
+
                 <div className="flex gap-2">
                   <button
                     onClick={() => setScale(Math.max(0.5, scale - 0.25))}
@@ -404,7 +473,7 @@ export default function GeometryCanvas() {
                     <ZoomOut className="w-4 h-4 mx-auto" />
                   </button>
                   <button
-                    onClick={() => setScale(Math.min(2, scale + 0.25))}
+                    onClick={() => setScale(Math.min(3, scale + 0.25))}
                     className="flex-1 p-2 bg-slate-700 hover:bg-slate-600 rounded-lg"
                   >
                     <ZoomIn className="w-4 h-4 mx-auto" />
@@ -435,14 +504,6 @@ export default function GeometryCanvas() {
                     Charger
                   </button>
                 </div>
-
-                <button
-                  onClick={exportAsImage}
-                  className="w-full p-2 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-600/30 rounded-lg text-sm flex items-center justify-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Exporter en image
-                </button>
 
                 <button
                   onClick={undo}
@@ -486,154 +547,260 @@ export default function GeometryCanvas() {
                     {selectedTool === 'circle' && 'Cliquez 2 points pour tracer un cercle'}
                     {selectedTool === 'triangle' && 'Cliquez 3 points pour tracer un triangle'}
                     {selectedTool === 'function' && 'Entrez une expression mathématique'}
-                    {selectedTool === 'move' && 'Utilisez pour déplacer des éléments'}
+                    {selectedTool === 'move' && 'Clic droit + glisser pour déplacer, molette pour zoomer'}
                   </div>
                 </div>
               </div>
 
-              <div className={`relative bg-slate-900 ${isFullscreen ? 'h-[calc(100vh-200px)]' : ''}`}>
+              <div className={`relative bg-slate-900 ${isFullscreen ? 'h-[calc(100vh-200px)]' : ''} overflow-hidden`}>
                 <svg
                   ref={canvasRef}
                   width="800"
                   height={isFullscreen ? "100%" : "600"}
                   className="w-full cursor-crosshair"
                   onClick={handleCanvasClick}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  onWheel={handleWheel}
+                  onContextMenu={(e) => e.preventDefault()}
                   viewBox="0 0 800 600"
                   preserveAspectRatio="xMidYMid meet"
+                  style={{ cursor: selectedTool === 'move' || isDragging ? 'grab' : 'crosshair' }}
                 >
-                  {/* Grid */}
-                  {showGrid && (
-                    <g className="opacity-20">
-                      {Array.from({ length: 21 }, (_, i) => (
-                        <line
-                          key={`v_${i}`}
-                          x1={i * 40}
-                          y1="0"
-                          x2={i * 40}
-                          y2="600"
-                          stroke="#64748b"
-                          strokeWidth="1"
+                  <g transform={`translate(${offset.x}, ${offset.y}) scale(${scale})`}>
+                    {/* Grid */}
+                    {showGrid && (
+                      <g className="opacity-20">
+                        {Array.from({ length: 21 }, (_, i) => (
+                          <line
+                            key={`v_${i}`}
+                            x1={i * 40}
+                            y1="0"
+                            x2={i * 40}
+                            y2="600"
+                            stroke="#64748b"
+                            strokeWidth="1"
+                          />
+                        ))}
+                        {Array.from({ length: 16 }, (_, i) => (
+                          <line
+                            key={`h_${i}`}
+                            x1="0"
+                            y1={i * 40}
+                            x2="800"
+                            y2={i * 40}
+                            stroke="#64748b"
+                            strokeWidth="1"
+                          />
+                        ))}
+                      </g>
+                    )}
+
+                    {/* Axes with graduations */}
+                    {showAxes && (
+                      <g>
+                        {/* X axis */}
+                        <line x1="0" y1="300" x2="800" y2="300" stroke="#475569" strokeWidth="2" />
+                        <text x="790" y="295" fill="white" fontSize="12" textAnchor="end">x</text>
+                        {Array.from({ length: 21 }, (_, i) => (
+                          <g key={`x_grad_${i}`}>
+                            <line x1={i * 40} y1="295" x2={i * 40} y2="305" stroke="#475569" strokeWidth="1" />
+                            {i % 2 === 0 && (
+                              <text x={i * 40} y="320" fill="#94a3b8" fontSize="10" textAnchor="middle">
+                                {i - 10}
+                              </text>
+                            )}
+                          </g>
+                        ))}
+                        
+                        {/* Y axis */}
+                        <line x1="400" y1="0" x2="400" y2="600" stroke="#475569" strokeWidth="2" />
+                        <text x="405" y="15" fill="white" fontSize="12">y</text>
+                        {Array.from({ length: 16 }, (_, i) => (
+                          <g key={`y_grad_${i}`}>
+                            <line x1="395" y1={i * 40} x2="405" y2={i * 40} stroke="#475569" strokeWidth="1" />
+                            {i % 2 === 0 && (
+                              <text x="385" y={i * 40 + 5} fill="#94a3b8" fontSize="10" textAnchor="end">
+                                {7.5 - i}
+                              </text>
+                            )}
+                          </g>
+                        ))}
+                      </g>
+                    )}
+
+                    {/* Functions */}
+                    {functions.map((func) => (
+                      func.visible && (
+                        <polyline
+                          key={func.id}
+                          points={func.points.map(p => `${p.x},${p.y}`).join(' ')}
+                          fill="none"
+                          stroke={func.color}
+                          strokeWidth="2"
                         />
-                      ))}
-                      {Array.from({ length: 16 }, (_, i) => (
-                        <line
-                          key={`h_${i}`}
-                          x1="0"
-                          y1={i * 40}
-                          x2="800"
-                          y2={i * 40}
-                          stroke="#64748b"
-                          strokeWidth="1"
+                      )
+                    ))}
+
+                    {/* Lines */}
+                    {lines.map((line) => {
+                      const start = getPointById(line.startId);
+                      const end = getPointById(line.endId);
+                      if (!start || !end) return null;
+                      
+                      return (
+                        <g key={line.id}>
+                          <line
+                            x1={start.x}
+                            y1={start.y}
+                            x2={end.x}
+                            y2={end.y}
+                            stroke={line.color}
+                            strokeWidth="2"
+                            strokeDasharray={line.dashed ? "5,5" : ""}
+                          />
+                          {showLengths && (
+                            <text
+                              x={(start.x + end.x) / 2}
+                              y={(start.y + end.y) / 2 - 10}
+                              fill="white"
+                              fontSize="12"
+                              textAnchor="middle"
+                              className="bg-slate-800/80 px-1 rounded"
+                            >
+                              {calculateDistance(start, end).toFixed(1)}
+                            </text>
+                          )}
+                        </g>
+                      );
+                    })}
+
+                    {/* Circles */}
+                    {circles.map((circle) => {
+                      const center = getPointById(circle.centerId);
+                      const radiusPoint = getPointById(circle.radiusPointId);
+                      if (!center || !radiusPoint) return null;
+                      const dx = radiusPoint.x - center.x;
+                      const dy = radiusPoint.y - center.y;
+                      const radius = Math.sqrt(dx * dx + dy * dy);
+                      
+                      return (
+                        <g key={circle.id}>
+                          <circle
+                            cx={center.x}
+                            cy={center.y}
+                            r={radius}
+                            fill="none"
+                            stroke={circle.color}
+                            strokeWidth="2"
+                          />
+                          {showLengths && (
+                            <text
+                              x={center.x}
+                              y={center.y - radius - 10}
+                              fill="white"
+                              fontSize="12"
+                              textAnchor="middle"
+                            >
+                              r = {radius.toFixed(1)}
+                            </text>
+                          )}
+                        </g>
+                      );
+                    })}
+
+                    {/* Triangles */}
+                    {triangles.map((triangle) => {
+                      const trianglePoints = triangle.pointIds.map(id => getPointById(id)).filter(Boolean);
+                      if (trianglePoints.length !== 3) return null;
+                      const pointsStr = trianglePoints.map(p => `${p!.x},${p!.y}`).join(' ');
+                      
+                      return (
+                        <g key={triangle.id}>
+                          <polygon
+                            points={pointsStr}
+                            fill={triangle.fill ? triangle.color : "none"}
+                            stroke={triangle.color}
+                            strokeWidth="2"
+                          />
+                          
+                          {/* Lengths */}
+                          {showLengths && trianglePoints.map((p1, i) => {
+                            const p2 = trianglePoints[(i + 1) % 3];
+                            if (!p1 || !p2) return null;
+                            return (
+                              <text
+                                key={`length_${i}`}
+                                x={(p1.x + p2.x) / 2}
+                                y={(p1.y + p2.y) / 2 - 10}
+                                fill="white"
+                                fontSize="12"
+                                textAnchor="middle"
+                              >
+                                {calculateDistance(p1, p2).toFixed(1)}
+                              </text>
+                            );
+                          })}
+                          
+                          {/* Angles */}
+                          {showAngles && trianglePoints.map((vertex, i) => {
+                            const p1 = trianglePoints[(i + 2) % 3];
+                            const p2 = trianglePoints[(i + 1) % 3];
+                            if (!p1 || !p2 || !vertex) return null;
+                            const angle = calculateAngle(p1, vertex, p2);
+                            
+                            return (
+                              <text
+                                key={`angle_${i}`}
+                                x={vertex.x + 15}
+                                y={vertex.y - 15}
+                                fill="white"
+                                fontSize="10"
+                              >
+                                {angle.toFixed(1)}°
+                              </text>
+                            );
+                          })}
+                        </g>
+                      );
+                    })}
+
+                    {/* Points */}
+                    {points.map((point) => (
+                      <g key={point.id}>
+                        <circle
+                          cx={point.x}
+                          cy={point.y}
+                          r="6"
+                          fill={point.color}
+                          className="cursor-pointer hover:opacity-80"
                         />
-                      ))}
-                      {/* Axes */}
-                      <line x1="200" y1="0" x2="200" y2="600" stroke="#475569" strokeWidth="2" />
-                      <line x1="0" y1="200" x2="800" y2="200" stroke="#475569" strokeWidth="2" />
-                    </g>
-                  )}
+                        <text
+                          x={point.x + 10}
+                          y={point.y - 10}
+                          fill="white"
+                          fontSize="12"
+                          className="select-none"
+                        >
+                          {point.label}
+                        </text>
+                      </g>
+                    ))}
 
-                  {/* Functions */}
-                  {functions.map((func) => (
-                    func.visible && (
-                      <polyline
-                        key={func.id}
-                        points={func.points.map(p => `${p.x},${p.y}`).join(' ')}
-                        fill="none"
-                        stroke={func.color}
-                        strokeWidth="2"
-                      />
-                    )
-                  ))}
-
-                  {/* Lines */}
-                  {lines.map((line) => {
-                    const start = getPointById(line.startId);
-                    const end = getPointById(line.endId);
-                    if (!start || !end) return null;
-                    return (
-                      <line
-                        key={line.id}
-                        x1={start.x * scale + 200}
-                        y1={start.y * scale + 200}
-                        x2={end.x * scale + 200}
-                        y2={end.y * scale + 200}
-                        stroke={line.color}
-                        strokeWidth="2"
-                        strokeDasharray={line.dashed ? "5,5" : ""}
-                      />
-                    );
-                  })}
-
-                  {/* Circles */}
-                  {circles.map((circle) => {
-                    const center = getPointById(circle.centerId);
-                    const radiusPoint = getPointById(circle.radiusPointId);
-                    if (!center || !radiusPoint) return null;
-                    const dx = radiusPoint.x - center.x;
-                    const dy = radiusPoint.y - center.y;
-                    const radius = Math.sqrt(dx * dx + dy * dy) * scale;
-                    return (
+                    {/* Temporary points */}
+                    {tempPoints.map((point) => (
                       <circle
-                        key={circle.id}
-                        cx={center.x * scale + 200}
-                        cy={center.y * scale + 200}
-                        r={radius}
-                        fill="none"
-                        stroke={circle.color}
-                        strokeWidth="2"
+                        key={point.id}
+                        cx={point.x}
+                        cy={point.y}
+                        r="4"
+                        fill="#94a3b8"
+                        className="opacity-50"
                       />
-                    );
-                  })}
-
-                  {/* Triangles */}
-                  {triangles.map((triangle) => {
-                    const trianglePoints = triangle.pointIds.map(id => getPointById(id)).filter(Boolean);
-                    if (trianglePoints.length !== 3) return null;
-                    const pointsStr = trianglePoints.map(p => `${p!.x * scale + 200},${p!.y * scale + 200}`).join(' ');
-                    return (
-                      <polygon
-                        key={triangle.id}
-                        points={pointsStr}
-                        fill={triangle.fill ? triangle.color : "none"}
-                        stroke={triangle.color}
-                        strokeWidth="2"
-                      />
-                    );
-                  })}
-
-                  {/* Points */}
-                  {points.map((point) => (
-                    <g key={point.id}>
-                      <circle
-                        cx={point.x * scale + 200}
-                        cy={point.y * scale + 200}
-                        r="6"
-                        fill={point.color}
-                        className="cursor-pointer hover:opacity-80"
-                      />
-                      <text
-                        x={point.x * scale + 200 + 10}
-                        y={point.y * scale + 200 - 10}
-                        fill="white"
-                        fontSize="12"
-                        className="select-none"
-                      >
-                        {point.label}
-                      </text>
-                    </g>
-                  ))}
-
-                  {/* Temporary points */}
-                  {tempPoints.map((point) => (
-                    <circle
-                      key={point.id}
-                      cx={point.x * scale + 200}
-                      cy={point.y * scale + 200}
-                      r="4"
-                      fill="#94a3b8"
-                      className="opacity-50"
-                    />
-                  ))}
+                    ))}
+                  </g>
                 </svg>
               </div>
             </div>
@@ -663,35 +830,35 @@ export default function GeometryCanvas() {
                     <li><strong>Cercle:</strong> Cliquez sur un centre puis un point pour définir le rayon</li>
                     <li><strong>Triangle:</strong> Cliquez sur 3 points pour tracer un triangle</li>
                     <li><strong>Fonction:</strong> Entrez une expression comme x^2, sin(x), 2*x+1</li>
+                    <li><strong>Déplacer:</strong> Clic droit + glisser pour déplacer la vue</li>
                   </ul>
                 </div>
 
                 <div className="bg-slate-900/50 p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2 text-green-400">⌨️ Expressions supportées</h4>
+                  <h4 className="font-semibold mb-2 text-green-400">🖱️ Contrôles avancés</h4>
                   <ul className="space-y-1 text-gray-300">
-                    <li>• Opérations: +, -, *, /, ^ (puissance)</li>
-                    <li>• Fonctions: sin(x), cos(x), tan(x), sqrt(x)</li>
-                    <li>• Exemples: x^2, 2*x+1, sin(x)+cos(x), sqrt(x^2+1)</li>
+                    <li>• <strong>Molette:</strong> Zoomer avant/arrière</li>
+                    <li>• <strong>Clic droit + glisser:</strong> Déplacer le canvas</li>
+                    <li>• <strong>Plein écran:</strong> Mode immersif</li>
+                    <li>• <strong>Axes gradués:</strong> Coordonnées précises</li>
                   </ul>
                 </div>
 
                 <div className="bg-slate-900/50 p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2 text-purple-400">💾 Sauvegarder et partager</h4>
+                  <h4 className="font-semibold mb-2 text-purple-400">📐 Mesures</h4>
+                  <ul className="space-y-1 text-gray-300">
+                    <li>• Activez <strong>Longueurs</strong> pour voir les distances</li>
+                    <li>• Activez <strong>Angles</strong> pour voir les angles des triangles</li>
+                    <li>• Les mesures s'affichent automatiquement</li>
+                  </ul>
+                </div>
+
+                <div className="bg-slate-900/50 p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2 text-orange-400">💾 Sauvegarder</h4>
                   <ul className="space-y-1 text-gray-300">
                     <li>• Utilisez "Sauver" pour enregistrer votre travail</li>
-                    <li>• "Charger" pour retrouver vos créations précédentes</li>
-                    <li>• "Exporter en image" pour télécharger votre figure</li>
-                    <li>• "Plein écran" pour une meilleure expérience</li>
-                  </ul>
-                </div>
-
-                <div className="bg-slate-900/50 p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2 text-orange-400">🎨 Astuces</h4>
-                  <ul className="space-y-1 text-gray-300">
-                    <li>• Utilisez "Annuler" pour corriger les erreurs</li>
-                    <li>• Le zoom vous aide à travailler précisément</li>
-                    <li>• La grille s'affiche/masque selon vos besoins</li>
-                    <li>• Les points sont automatiquement nommés (A, B, C...)</li>
+                    <li>• "Charger" pour retrouver vos créations</li>
+                    <li>• Les travaux sont sauvegardés localement</li>
                   </ul>
                 </div>
               </div>
