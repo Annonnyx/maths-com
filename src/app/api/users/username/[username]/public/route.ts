@@ -85,7 +85,7 @@ export async function GET(
       totalCorrect: user.soloStatistics.totalCorrect,
       averageTime: user.soloStatistics.averageTime,
       averageScore: user.soloStatistics.averageScore
-    }) : {
+    }, 'solo') : {
       totalTests: 0,
       totalQuestions: 0,
       correctAnswers: 0,
