@@ -866,20 +866,46 @@ function TestPage() {
                         <div className="flex items-center justify-between p-3 bg-[#1a1a2e] rounded-xl">
                           <span className="text-muted-foreground">Bonus de vitesse</span>
                           <span className={`font-semibold ${detailedResults.performance.speedBonus >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {detailedResults.performance.speedBonus >= 0 ? '+' : ''}{detailedResults.performance.speedBonus}
+                            {detailedResults.performance.speedBonus !== 0 
+                              ? `${detailedResults.performance.speedBonus >= 0 ? '+' : ''}${detailedResults.performance.speedBonus}`
+                              : detailedResults.score < 50 
+                                ? <span className="text-gray-500">Non applicable</span>
+                                : <span className="text-gray-500">+0</span>
+                            }
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-[#1a1a2e] rounded-xl">
                           <span className="text-muted-foreground">Bonus difficulté</span>
-                          <span className="font-semibold text-green-400">+{detailedResults.performance.difficultyBonus}</span>
+                          <span className={`font-semibold ${detailedResults.performance.difficultyBonus >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {detailedResults.performance.difficultyBonus !== 0 
+                              ? `+${detailedResults.performance.difficultyBonus}`
+                              : detailedResults.score < 50 
+                                ? <span className="text-gray-500">Non applicable</span>
+                                : <span className="text-gray-500">+0</span>
+                            }
+                          </span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-[#1a1a2e] rounded-xl">
                           <span className="text-muted-foreground">Bonus précision (questions difficiles)</span>
-                          <span className="font-semibold text-green-400">+{detailedResults.performance.accuracyBonus}</span>
+                          <span className={`font-semibold ${detailedResults.performance.accuracyBonus >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {detailedResults.performance.accuracyBonus !== 0 
+                              ? `+${detailedResults.performance.accuracyBonus}`
+                              : detailedResults.score < 50 
+                                ? <span className="text-gray-500">Non applicable</span>
+                                : <span className="text-gray-500">+0</span>
+                            }
+                          </span>
                         </div>
                         <div className="flex items-center justify-between p-3 bg-[#1a1a2e] rounded-xl">
                           <span className="text-muted-foreground">Bonus série</span>
-                          <span className="font-semibold text-green-400">+{detailedResults.performance.streakBonus}</span>
+                          <span className={`font-semibold ${detailedResults.performance.streakBonus >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {detailedResults.performance.streakBonus !== 0 
+                              ? `+${detailedResults.performance.streakBonus}`
+                              : detailedResults.score < 50 
+                                ? <span className="text-gray-500">Non applicable</span>
+                                : <span className="text-gray-500">+0</span>
+                            }
+                          </span>
                         </div>
                         <div className="border-t border-border pt-3">
                           <div className="flex items-center justify-between p-3 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl">

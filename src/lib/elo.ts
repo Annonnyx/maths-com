@@ -123,6 +123,9 @@ export function calculateEloChange(
     eloChange += Math.min(currentStreak * 3, 25); // Max +25 for streaks (was 50)
   }
   
+  // Cap the change between -16 and +16
+  eloChange = Math.max(-16, Math.min(16, eloChange));
+  
   return eloChange;
 }
 
@@ -169,63 +172,68 @@ export function calculateAdvancedEloChange(result: TestResult): {
     baseChange = 100; // Perfect score = flat 100 base
   }
   
-  // 2. SPEED BONUS/PENALTY - Always applied, even on failure
-  // Average time per question: target is 5 seconds for competitive
-  const avgTimePerQuestion = totalTimeSeconds / totalQuestions;
+  // 2. SPEED BONUS/PENALTY - Only applied if score >= 50%
   let speedBonus = 0;
-  
-  if (avgTimePerQuestion <= 3) {
-    speedBonus = 30; // Lightning fast
-  } else if (avgTimePerQuestion <= 5) {
-    speedBonus = 20; // Very fast
-  } else if (avgTimePerQuestion <= 8) {
-    speedBonus = 10; // Good speed
-  } else if (avgTimePerQuestion <= 12) {
-    speedBonus = 0; // Normal
-  } else if (avgTimePerQuestion <= 20) {
-    speedBonus = -10; // Slow
-  } else {
-    speedBonus = -20; // Too slow - penalty!
-  }
-  
-  // If score is very low, the time penalty is even worse
-  if (score < 50 && avgTimePerQuestion > 15) {
-    speedBonus -= 15; // Additional penalty for being slow AND wrong
-  }
-  
-  // 3. DIFFICULTY BONUS
-  const avgDifficulty = difficulties.reduce((a, b) => a + b, 0) / difficulties.length;
-  const difficultyBonus = Math.round((avgDifficulty - 5) * 3); // Bonus for higher difficulty questions
-  
-  // 4. ACCURACY BONUS for high difficulty questions
+  let difficultyBonus = 0;
   let accuracyBonus = 0;
-  const hardQuestionIndices = difficulties
-    .map((d, i) => d >= 7 ? i : -1)
-    .filter(i => i !== -1);
-  const hardQuestions = hardQuestionIndices.length;
   
-  // Use isCorrectArray if provided, otherwise fall back to old logic
-  let correctHardQuestions = 0;
-  if (isCorrectArray && isCorrectArray.length > 0) {
-    correctHardQuestions = hardQuestionIndices.filter(i => isCorrectArray[i]).length;
+  if (score >= 50) {
+    // Average time per question: target is 5 seconds for competitive
+    const avgTimePerQuestion = totalTimeSeconds / totalQuestions;
+    
+    if (avgTimePerQuestion <= 3) {
+      speedBonus = 30; // Lightning fast
+    } else if (avgTimePerQuestion <= 5) {
+      speedBonus = 20; // Very fast
+    } else if (avgTimePerQuestion <= 8) {
+      speedBonus = 10; // Good speed
+    } else if (avgTimePerQuestion <= 12) {
+      speedBonus = 0; // Normal
+    } else if (avgTimePerQuestion <= 20) {
+      speedBonus = -10; // Slow
+    } else {
+      speedBonus = -20; // Too slow - penalty!
+    }
+    
+    // 3. DIFFICULTY BONUS
+    const avgDifficulty = difficulties.reduce((a, b) => a + b, 0) / difficulties.length;
+    difficultyBonus = Math.round((avgDifficulty - 5) * 3); // Bonus for higher difficulty questions
+    
+    // 4. ACCURACY BONUS for high difficulty questions
+    const hardQuestionIndices = difficulties
+      .map((d, i) => d >= 7 ? i : -1)
+      .filter(i => i !== -1);
+    const hardQuestions = hardQuestionIndices.length;
+    
+    // Use isCorrectArray if provided, otherwise fall back to old logic
+    let correctHardQuestions = 0;
+    if (isCorrectArray && isCorrectArray.length > 0) {
+      correctHardQuestions = hardQuestionIndices.filter(i => isCorrectArray[i]).length;
+    } else {
+      // Fallback: assume first 'correctAnswers' are correct (buggy but backwards compatible)
+      correctHardQuestions = difficulties.filter((d, i) => d >= 7 && i < correctAnswers).length;
+    }
+    
+    if (hardQuestions > 0) {
+      const hardAccuracy = (correctHardQuestions / hardQuestions) * 100;
+      if (hardAccuracy >= 80) {
+        accuracyBonus = 25; // Master bonus
+      } else if (hardAccuracy >= 60) {
+        accuracyBonus = 15;
+      } else if (hardAccuracy >= 40) {
+        accuracyBonus = 5;
+      }
+    }
   } else {
-    // Fallback: assume first 'correctAnswers' are correct (buggy but backwards compatible)
-    correctHardQuestions = difficulties.filter((d, i) => d >= 7 && i < correctAnswers).length;
-  }
-  
-  if (hardQuestions > 0) {
-    const hardAccuracy = (correctHardQuestions / hardQuestions) * 100;
-    if (hardAccuracy >= 80) {
-      accuracyBonus = 25; // Master bonus
-    } else if (hardAccuracy >= 60) {
-      accuracyBonus = 15;
-    } else if (hardAccuracy >= 40) {
-      accuracyBonus = 5;
+    // For scores < 50%, apply additional penalties instead of bonuses
+    const avgTimePerQuestion = totalTimeSeconds / totalQuestions;
+    if (avgTimePerQuestion > 15) {
+      speedBonus = -15; // Additional penalty for being slow AND wrong
     }
   }
   
-  // 5. STREAK BONUS - REDUCED FOR SOLO
-  const streakBonus = Math.min(streak * 5, 50); // Max 50 for long streaks (was 80)
+  // 5. STREAK BONUS - Only applied if score >= 50%
+  const streakBonus = score >= 50 ? Math.min(streak * 5, 50) : 0; // Max 50 for long streaks, only for good performance
   
   // 6. ELO SCALING (more punishing for high Elo in solo)
   let eloScaling = 1;
@@ -239,9 +247,12 @@ export function calculateAdvancedEloChange(result: TestResult): {
     eloScaling = 1.1; // Beginners get smaller bonus (was 1.2)
   }
   
-  // Calculate final Elo change
+  // Calculate final Elo change with ±16 cap and integer rounding
   const rawChange = baseChange + speedBonus + difficultyBonus + accuracyBonus + streakBonus;
-  const eloChange = Math.round(rawChange * eloScaling);
+  const scaledChange = Math.round(rawChange * eloScaling);
+  
+  // Cap the change between -16 and +16
+  const eloChange = Math.max(-16, Math.min(16, scaledChange));
   
   return {
     eloChange,

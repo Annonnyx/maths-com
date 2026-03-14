@@ -44,10 +44,7 @@ export default function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 text-foreground hover:text-purple-400 transition-colors">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-foreground font-bold text-sm">M</span>
-              </div>
+            <Link href="/" className="flex items-center text-foreground hover:text-purple-400 transition-colors">
               <span className="font-bold text-xl">maths-app.com</span>
             </Link>
 
@@ -134,10 +131,7 @@ export default function Navigation() {
         <div className="px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 text-foreground hover:text-purple-400 transition-colors">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-foreground font-bold text-sm">M</span>
-              </div>
+            <Link href="/" className="flex items-center text-foreground hover:text-purple-400 transition-colors">
               <span className="font-bold text-xl">maths-app.com</span>
             </Link>
 
