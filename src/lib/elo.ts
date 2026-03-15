@@ -236,16 +236,18 @@ export function calculateAdvancedEloChange(result: TestResult): {
   // 5. STREAK BONUS - Only applied if score >= 50%
   const streakBonus = score >= 50 ? Math.min(streak * 5, 50) : 0; // Max 50 for long streaks, only for good performance
   
-  // 6. ELO SCALING (more punishing for high Elo in solo)
+  // 6. ELO SCALING - Reduce swings for very high and very low Elo players
   let eloScaling = 1;
-  if (currentElo >= 1400) {
-    eloScaling = 0.6; // S tier players get reduced gains (was 0.7)
-  } else if (currentElo >= 1200) {
-    eloScaling = 0.7; // A tier (was 0.8)
-  } else if (currentElo >= 1000) {
-    eloScaling = 0.8; // B tier (was 0.9)
+  if (currentElo >= 1500) {
+    eloScaling = 0.65; // S tier players: reduced gains and losses for stability
+  } else if (currentElo >= 1300) {
+    eloScaling = 0.75; // A tier
+  } else if (currentElo >= 1100) {
+    eloScaling = 0.85; // B tier
+  } else if (currentElo >= 900) {
+    eloScaling = 0.90; // C tier
   } else if (currentElo < 600) {
-    eloScaling = 1.1; // Beginners get smaller bonus (was 1.2)
+    eloScaling = 1.05; // F/E tier: slightly amplified gains to help beginners progress faster
   }
   
   // Calculate final Elo change with ±16 cap and integer rounding
