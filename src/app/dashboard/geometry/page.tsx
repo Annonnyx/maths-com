@@ -14,15 +14,21 @@ import {
   Circle,
   Save,
   Download,
-  Share2
+  Share2,
+  Plus,
+  FolderOpen
 } from 'lucide-react';
-import GeometryCanvas from '@/components/GeometryCanvas';
-import TrigonometryCourse from '@/components/TrigonometryCourse';
-import FunctionGraph from '@/components/FunctionGraph';
+import GeometryCanvas from '@/components/geometry/GeometryCanvas';
+import TrigonometryTool from '@/components/geometry/TrigonometryTool';
+import FunctionPlotter from '@/components/geometry/FunctionPlotter';
+import TemplateGallery from '@/components/geometry/TemplateGallery';
+import HistoryPanel from '@/components/geometry/HistoryPanel';
 
 export default function GeometryDashboardPage() {
   const [activeTab, setActiveTab] = useState<'canvas' | 'trig' | 'functions' | 'help'>('canvas');
-  const [savedDrawings, setSavedDrawings] = useState<{name: string; date: string}[]>([]);
+  const [savedDrawings, setSavedDrawings] = useState<{name: string; date: string; data: any}[]>([]);
+  const [showTemplateGallery, setShowTemplateGallery] = useState(false);
+  const [history, setHistory] = useState<any[]>([]);
 
   const tabs = [
     { id: 'canvas', label: 'Géométrie Libre', icon: Ruler },
@@ -107,6 +113,7 @@ export default function GeometryDashboardPage() {
                     <li>• Les points s'aimantent à la grille</li>
                     <li>• Glissez-déposez pour déplacer</li>
                     <li>• Clic droit sur un point pour le nommer</li>
+                    <li>• Utilisez les templates pour démarrer rapidement</li>
                   </ul>
                 </div>
                 
@@ -120,6 +127,7 @@ export default function GeometryDashboardPage() {
                     <li>• Aires des polygones calculées</li>
                     <li>• Rayons des cercles visibles</li>
                     <li>• Coordonnées des points affichées</li>
+                    <li>• Fonctions trigonométriques en temps réel</li>
                   </ul>
                 </div>
               </div>
@@ -146,13 +154,22 @@ export default function GeometryDashboardPage() {
                   </div>
                 )}
                 <button className="w-full mt-4 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 rounded-lg transition-colors text-sm">
-                  + Nouveau dessin
+                  <Plus className="w-3 h-3 inline mr-1" />
+                  Nouveau dessin
                 </button>
               </div>
               
               {/* Templates */}
               <div className="bg-[#12121a] rounded-xl border border-gray-800 p-4">
-                <h3 className="font-semibold mb-4">Templates rapides</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold">Templates rapides</h3>
+                  <button
+                    onClick={() => setShowTemplateGallery(!showTemplateGallery)}
+                    className="text-indigo-400 hover:text-indigo-300"
+                  >
+                    <FolderOpen className="w-4 h-4" />
+                  </button>
+                </div>
                 <div className="space-y-2">
                   <button className="w-full p-3 bg-gray-800 hover:bg-gray-700 rounded-lg text-left text-sm transition-colors">
                     📐 Triangle rectangle avec mesures
@@ -179,25 +196,31 @@ export default function GeometryDashboardPage() {
               </div>
               
               {/* History */}
-              <div className="bg-[#12121a] rounded-xl border border-gray-800 p-4">
-                <h3 className="font-semibold mb-4">Historique</h3>
-                <div className="text-sm text-gray-500">
-                  <p>• Point A créé (2,3)</p>
-                  <p>• Point B créé (5,7)</p>
-                  <p>• Segment AB créé</p>
-                </div>
-              </div>
+              <HistoryPanel history={history} />
             </div>
           </div>
         )}
         
+        {/* Template Gallery Overlay */}
+        {showTemplateGallery && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <TemplateGallery
+              onTemplateSelect={(template) => {
+                console.log('Template selected:', template);
+                setShowTemplateGallery(false);
+              }}
+              onClose={() => setShowTemplateGallery(false)}
+            />
+          </div>
+        )}
+        
         {activeTab === 'trig' && (
-          <TrigonometryCourse />
+          <TrigonometryTool width={800} height={600} showGrid={true} showAxes={true} />
         )}
         
         {activeTab === 'functions' && (
           <div className="space-y-6">
-            <FunctionGraph 
+            <FunctionPlotter 
               width={800} 
               height={500} 
               showGrid={true} 
@@ -211,11 +234,16 @@ export default function GeometryDashboardPage() {
                 <h4 className="font-semibold text-indigo-400 mb-2">Fonction affine</h4>
                 <p className="text-sm text-gray-400 mb-3">f(x) = 2x + 1</p>
                 <div className="bg-gray-800 rounded-lg p-3">
-                  <FunctionGraph 
+                  <FunctionPlotter 
                     width={300} 
                     height={200} 
-                    initialFunction="linear"
-                    initialParams={{ a: 2, b: 1 }}
+                    initialFunctions={[{
+                      id: 'linear_example',
+                      name: 'f',
+                      expression: '2*x + 1',
+                      color: '#3b82f6',
+                      visible: true
+                    }]}
                     readOnly={true}
                   />
                 </div>
@@ -225,11 +253,16 @@ export default function GeometryDashboardPage() {
                 <h4 className="font-semibold text-green-400 mb-2">Parabole</h4>
                 <p className="text-sm text-gray-400 mb-3">f(x) = x² - 4x + 3</p>
                 <div className="bg-gray-800 rounded-lg p-3">
-                  <FunctionGraph 
+                  <FunctionPlotter 
                     width={300} 
                     height={200} 
-                    initialFunction="quadratic"
-                    initialParams={{ a: 1, b: -4, c: 3 }}
+                    initialFunctions={[{
+                      id: 'quadratic_example',
+                      name: 'f',
+                      expression: 'x^2 - 4*x + 3',
+                      color: '#10b981',
+                      visible: true
+                    }]}
                     readOnly={true}
                   />
                 </div>
@@ -239,11 +272,16 @@ export default function GeometryDashboardPage() {
                 <h4 className="font-semibold text-cyan-400 mb-2">Sinus</h4>
                 <p className="text-sm text-gray-400 mb-3">f(x) = 2sin(x)</p>
                 <div className="bg-gray-800 rounded-lg p-3">
-                  <FunctionGraph 
+                  <FunctionPlotter 
                     width={300} 
                     height={200} 
-                    initialFunction="sine"
-                    initialParams={{ a: 2, b: 1 }}
+                    initialFunctions={[{
+                      id: 'sine_example',
+                      name: 'f',
+                      expression: '2*sin(x)',
+                      color: '#06b6d4',
+                      visible: true
+                    }]}
                     readOnly={true}
                   />
                 </div>
@@ -253,11 +291,16 @@ export default function GeometryDashboardPage() {
                 <h4 className="font-semibold text-yellow-400 mb-2">Exponentielle</h4>
                 <p className="text-sm text-gray-400 mb-3">f(x) = e^x</p>
                 <div className="bg-gray-800 rounded-lg p-3">
-                  <FunctionGraph 
+                  <FunctionPlotter 
                     width={300} 
                     height={200} 
-                    initialFunction="exponential"
-                    initialParams={{ a: 1, b: 1 }}
+                    initialFunctions={[{
+                      id: 'exp_example',
+                      name: 'f',
+                      expression: 'exp(x)',
+                      color: '#f59e0b',
+                      visible: true
+                    }]}
                     readOnly={true}
                   />
                 </div>
