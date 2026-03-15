@@ -9,7 +9,11 @@ const isBrowser = typeof window !== 'undefined';
 // Import JSXGraph only in browser environment
 let JXG: any = null;
 if (isBrowser) {
-  JXG = require('jsxgraph');
+  try {
+    JXG = require('jsxgraph');
+  } catch (e) {
+    console.error('JSXGraph not available:', e);
+  }
 }
 
 import { 
@@ -19,10 +23,8 @@ import {
   Calculator,
   Ruler,
   Circle,
-  Square,
   Triangle,
   Undo,
-  RotateCcw,
   Grid3X3,
   Info,
   ZoomIn,
@@ -134,7 +136,7 @@ export default function GeometryCanvas({
   const [circles, setCircles] = useState<GeometryCircle[]>([]);
   const [polygons, setPolygons] = useState<GeometryPolygon[]>([]);
   const [functions, setFunctions] = useState<GeometryFunction[]>([]);
-  const [selectedTool, setSelectedTool] = useState<GeometryTool>('select');
+  const [selectedTool, setSelectedTool] = useState<GeometryTool>('point');
   const [showGridState, setShowGridState] = useState(showGrid);
   const [showAxesState, setShowAxesState] = useState(showAxes);
   const [showMeasurements, setShowMeasurements] = useState(true);
@@ -142,121 +144,167 @@ export default function GeometryCanvas({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [functionInput, setFunctionInput] = useState('');
   const [showFunctionInput, setShowFunctionInput] = useState(false);
-  const [selectedColor, setSelectedColor] = useState('#3b82f6');
+  const [selectedColor, setSelectedColor] = useState('#00ff00');
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [savedDrawings, setSavedDrawings] = useState<{name: string; date: string; data: any}[]>([]);
   const [showPropertyPanel, setShowPropertyPanel] = useState(false);
   const [selectedObject, setSelectedObject] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Color palette
   const colors = [
-    '#3b82f6', '#ef4444', '#10b981', '#f59e0b', 
-    '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
+    '#00ff00', '#ff00ff', '#00ffff', '#ffff00', 
+    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'
   ];
 
   // Initialize JSXGraph board
   useEffect(() => {
-    if (!boardRef.current || !isBrowser || !JXG) return;
+    if (!boardRef.current || !isBrowser) return;
 
-    // Create JSXGraph board
-    const jsxBoard = JXG.JSXGraph.initBoard(boardRef.current, {
-      boundingbox: [-20, 20, 20, -20], // [xmin, ymax, xmax, ymin]
-      axis: showAxesState,
-      grid: showGridState,
-      showCopyright: false,
-      showNavigation: false,
-      pan: {
-        enabled: true,
-        needTwoFingers: false
-      },
-      zoom: {
-        wheel: true,
-        needShift: false,
-        factorX: 1.25,
-        factorY: 1.25,
-        min: 0.1,
-        max: 10
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Check if JSXGraph is available
+      if (!JXG) {
+        throw new Error('JSXGraph library not loaded');
       }
-    });
 
-    // Add fullscreen functionality
-    const handleFullscreen = () => {
-      if (!document.fullscreenElement) {
-        boardRef.current?.requestFullscreen().then(() => {
-          setIsFullscreen(true);
-          // Resize board to FULL SCREEN (entire screen)
-          setTimeout(() => {
-            jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
-            jsxBoard.update();
-          }, 100);
-        });
-      } else {
-        document.exitFullscreen().then(() => {
-          setIsFullscreen(false);
-          // Resize board back to original size
-          setTimeout(() => {
-            jsxBoard.resizeContainer(width, height);
-            jsxBoard.update();
-          }, 100);
-        });
-      }
-    };
+      // Create JSXGraph board with simplified options
+      const jsxBoard = JXG.JSXGraph.initBoard(boardRef.current, {
+        boundingbox: [-20, 20, 20, -20],
+        axis: showAxesState,
+        grid: showGridState,
+        showCopyright: false,
+        showNavigation: false,
+        pan: {
+          enabled: true,
+          needTwoFingers: false
+        },
+        zoom: {
+          wheel: true,
+          needShift: false,
+          factorX: 1.25,
+          factorY: 1.25,
+          min: 0.1,
+          max: 10
+        },
+        // Style configuration for dark theme
+        defaultAxes: {
+          x: {
+            strokeColor: '#ffffff',
+            strokeOpacity: 0.8,
+            strokeWidth: 1,
+            ticks: {
+              strokeColor: '#ffffff',
+              strokeOpacity: 0.6,
+              strokeWidth: 1,
+              majorHeight: 10,
+              minorHeight: 5,
+              label: {
+                strokeColor: '#ffffff',
+                fillColor: '#ffffff',
+                fontSize: 12
+              }
+            }
+          },
+          y: {
+            strokeColor: '#ffffff',
+            strokeOpacity: 0.8,
+            strokeWidth: 1,
+            ticks: {
+              strokeColor: '#ffffff',
+              strokeOpacity: 0.6,
+              strokeWidth: 1,
+              majorHeight: 10,
+              minorHeight: 5,
+              label: {
+                strokeColor: '#ffffff',
+                fillColor: '#ffffff',
+                fontSize: 12
+              }
+            }
+          }
+        },
+        defaultGrid: {
+          strokeColor: '#ffffff',
+          strokeOpacity: 0.1,
+          strokeWidth: 0.5,
+          gridX: 1,
+          gridY: 1
+        }
+      });
 
-    // Listen for fullscreen changes
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-      if (document.fullscreenElement && boardRef.current) {
-        // Fullscreen - use entire screen
-        jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
-      } else if (!document.fullscreenElement) {
-        // Exit fullscreen - back to original
-        jsxBoard.resizeContainer(width, height);
-      }
-      jsxBoard.update();
-    };
+      // Add fullscreen functionality
+      const handleFullscreen = () => {
+        if (!document.fullscreenElement) {
+          boardRef.current?.requestFullscreen().then(() => {
+            setIsFullscreen(true);
+            setTimeout(() => {
+              jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
+              jsxBoard.update();
+            }, 100);
+          }).catch(e => {
+            console.error('Fullscreen failed:', e);
+          });
+        } else {
+          document.exitFullscreen().then(() => {
+            setIsFullscreen(false);
+            setTimeout(() => {
+              jsxBoard.resizeContainer(width, height);
+              jsxBoard.update();
+            }, 100);
+          }).catch(e => {
+            console.error('Exit fullscreen failed:', e);
+          });
+        }
+      };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+      // Listen for fullscreen changes
+      const handleFullscreenChange = () => {
+        setIsFullscreen(!!document.fullscreenElement);
+        if (document.fullscreenElement && boardRef.current) {
+          jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
+        } else if (!document.fullscreenElement) {
+          jsxBoard.resizeContainer(width, height);
+        }
+        jsxBoard.update();
+      };
 
-    // Store fullscreen handler for cleanup
-    (jsxBoard as any).fullscreenHandler = handleFullscreen;
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+      (jsxBoard as any).fullscreenHandler = handleFullscreen;
 
-    // Add keyboard shortcuts
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'z') {
-        e.preventDefault();
-        handleUndo();
-      } else if (e.ctrlKey && e.key === 's') {
-        e.preventDefault();
-        handleSave();
-      } else if (e.key === 'Delete') {
-        e.preventDefault();
-        handleDeleteSelected();
-      } else if (e.key === 'f') {
-        e.preventDefault();
-        handleFullscreen();
-      } else if (e.key === 'g') {
-        e.preventDefault();
-        setShowGridState(!showGridState);
-      }
-    };
+      setBoard(jsxBoard);
+      setIsLoading(false);
 
-    document.addEventListener('keydown', handleKeyDown);
-
-    setBoard(jsxBoard);
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener('keydown', handleKeyDown);
-      JXG.JSXGraph.freeBoard(jsxBoard);
-    };
+      return () => {
+        document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        try {
+          if (jsxBoard) {
+            JXG.JSXGraph.freeBoard(jsxBoard);
+          }
+        } catch (e) {
+          console.error('Error freeing board:', e);
+        }
+      };
+    } catch (err) {
+      console.error('Error initializing JSXGraph:', err);
+      setError('Failed to initialize geometry board');
+      setIsLoading(false);
+    }
   }, [showAxesState, showGridState, width, height]);
 
   // Update grid and axes visibility
   useEffect(() => {
-    if (board) {
-      board.options.axis.show = showAxesState;
-      board.options.grid.show = showGridState;
-      board.update();
+    if (board && board.options) {
+      try {
+        board.options.axis.show = showAxesState;
+        board.options.grid.show = showGridState;
+        board.update();
+      } catch (e) {
+        console.error('Error updating board options:', e);
+      }
     }
   }, [showAxesState, showGridState, board]);
 
@@ -267,155 +315,255 @@ export default function GeometryCanvas({
     
     // Update JSXGraph interaction mode
     if (board) {
-      board.mode = board.BOARD_MODE_NONE; // We'll handle interactions manually
+      try {
+        board.mode = board.BOARD_MODE_NONE;
+      } catch (e) {
+        console.error('Error setting board mode:', e);
+      }
     }
   };
 
   // Create point
   const createPoint = useCallback((x: number, y: number, name?: string) => {
-    if (!board) return null;
+    if (!board || !JXG) return null;
 
-    const pointName = name || `P${points.length + 1}`;
-    const point = board.create('point', [x, y], {
-      name: showLabels ? pointName : '',
-      color: selectedColor,
-      size: 3,
-      strokeWidth: 2,
-      strokeColor: selectedColor,
-      fillColor: selectedColor,
-      withLabel: showLabels,
-      label: {
-        offset: [10, 10]
+    try {
+      const pointName = name || `P${points.length + 1}`;
+      const point = board.create('point', [x, y], {
+        name: showLabels ? pointName : '',
+        strokeColor: '#ffffff',
+        fillColor: selectedColor,
+        size: 5,
+        strokeWidth: 2,
+        withLabel: showLabels,
+        label: {
+          offset: [10, 10],
+          strokeColor: '#ffffff',
+          fillColor: '#ffffff',
+          fontSize: 14
+        }
+      });
+
+      const newPoint: GeometryPoint = {
+        id: `point_${Date.now()}`,
+        name: pointName,
+        x,
+        y,
+        color: selectedColor,
+        jsxgraphPoint: point
+      };
+
+      setPoints(prev => [...prev, newPoint]);
+      addToHistory('create', `Point ${pointName} créé (${x.toFixed(1)}, ${y.toFixed(1)})`);
+      
+      // Add click handler for point selection
+      if (point.on) {
+        point.on('down', () => {
+          if (selectedTool === 'select') {
+            setSelectedObject(newPoint);
+            setShowPropertyPanel(true);
+          } else if (selectedTool === 'delete') {
+            deletePoint(newPoint.id);
+          }
+        });
       }
-    });
 
-    const newPoint: GeometryPoint = {
-      id: `point_${Date.now()}`,
-      name: pointName,
-      x,
-      y,
-      color: selectedColor,
-      jsxgraphPoint: point
-    };
-
-    setPoints(prev => [...prev, newPoint]);
-    addToHistory('create', `Point ${pointName} créé (${x.toFixed(1)}, ${y.toFixed(1)})`);
-    
-    // Add click handler for point selection
-    point.on('down', () => {
-      if (selectedTool === 'select') {
-        setSelectedObject(newPoint);
-        setShowPropertyPanel(true);
-      } else if (selectedTool === 'delete') {
-        deletePoint(newPoint.id);
-      }
-    });
-
-    return newPoint;
+      return newPoint;
+    } catch (e) {
+      console.error('Error creating point:', e);
+      return null;
+    }
   }, [board, points, selectedColor, showLabels, selectedTool]);
 
-  // Create line/segment/vector
-  const createLine = useCallback((point1: GeometryPoint, point2: GeometryPoint, type: 'segment' | 'line' | 'vector') => {
-    if (!board) return null;
+  // Handle canvas click
+  const handleCanvasClick = (e: any) => {
+    if (readOnly || !board || !JXG) return;
 
-    let line;
-    const lineName = `${type.charAt(0).toUpperCase() + type.slice(1)}${lines.length + 1}`;
+    try {
+      const coords = board.getUsrCoordsOfMouse(e);
+      const x = coords[0];
+      const y = coords[1];
 
-    if (type === 'vector') {
-      // Create arrow for vector
-      line = board.create('arrow', [point1.jsxgraphPoint, point2.jsxgraphPoint], {
-        name: showLabels ? lineName : '',
-        color: selectedColor,
-        strokeWidth: 2,
-        withLabel: showLabels
-      });
-    } else if (type === 'segment') {
-      line = board.create('segment', [point1.jsxgraphPoint, point2.jsxgraphPoint], {
-        name: showLabels ? lineName : '',
-        color: selectedColor,
-        strokeWidth: 2,
-        withLabel: showLabels
-      });
-    } else {
-      line = board.create('line', [point1.jsxgraphPoint, point2.jsxgraphPoint], {
-        name: showLabels ? lineName : '',
-        color: selectedColor,
-        strokeWidth: 2,
-        withLabel: showLabels
-      });
+      switch (selectedTool) {
+        case 'point':
+          createPoint(x, y);
+          break;
+        case 'segment':
+        case 'line':
+        case 'vector':
+          console.log(`Creating ${selectedTool} - multi-point selection needed`);
+          break;
+        case 'circle':
+          console.log('Creating circle - center + radius point selection needed');
+          break;
+        case 'triangle':
+          console.log('Creating triangle - 3-point selection needed');
+          break;
+      }
+    } catch (error) {
+      console.error('Error handling canvas click:', error);
     }
+  };
 
-    const newLine: GeometryLine = {
-      id: `line_${Date.now()}`,
-      name: lineName,
-      pointIds: [point1.id, point2.id],
-      type,
-      color: selectedColor,
-      jsxgraphLine: line
-    };
+  // Add to history
+  const addToHistory = (action: string, description: string) => {
+    setHistory(prev => [{
+      id: `hist_${Date.now()}`,
+      action,
+      description,
+      timestamp: new Date()
+    }, ...prev].slice(0, 50));
+  };
 
-    setLines(prev => [...prev, newLine]);
-    addToHistory('create', `${lineName} créé`);
-
-    return newLine;
-  }, [board, lines, selectedColor, showLabels]);
-
-  // Create circle
-  const createCircle = useCallback((center: GeometryPoint, radiusPoint: GeometryPoint) => {
-    if (!board) return null;
-
-    const circle = board.create('circle', [center.jsxgraphPoint, radiusPoint.jsxgraphPoint], {
-      name: showLabels ? `C${circles.length + 1}` : '',
-      color: selectedColor,
-      strokeWidth: 2,
-      withLabel: showLabels
+  // Delete point
+  const deletePoint = (id: string) => {
+    setPoints(prev => {
+      const pointToRemove = prev.find(p => p.id === id);
+      if (pointToRemove && pointToRemove.jsxgraphPoint && board) {
+        try {
+          board.removeObject(pointToRemove.jsxgraphPoint);
+          addToHistory('delete', `Point ${pointToRemove.name} supprimé`);
+        } catch (e) {
+          console.error('Error removing point:', e);
+        }
+      }
+      return prev.filter(p => p.id !== id);
     });
+  };
 
-    const newCircle: GeometryCircle = {
-      id: `circle_${Date.now()}`,
-      name: `C${circles.length + 1}`,
-      centerId: center.id,
-      radiusPointId: radiusPoint.id,
-      color: selectedColor,
-      jsxgraphCircle: circle
+  // Clear all
+  const clearAll = () => {
+    if (board) {
+      try {
+        // Safely remove all objects
+        const objectsToRemove = [...board.objects];
+        objectsToRemove.forEach(obj => {
+          try {
+            if (obj && obj.exists && obj.exists()) {
+              board.removeObject(obj);
+            }
+          } catch (e) {
+            // Ignore errors for already removed objects
+          }
+        });
+      } catch (e) {
+        // If board.objects is not available, just reset the view
+        try {
+          board.suspendUpdate();
+          board.setBoundingBox([-20, 20, 20, -20]);
+          board.unsuspendUpdate();
+        } catch (e2) {
+          console.error('Error resetting board:', e2);
+        }
+      }
+    }
+    setPoints([]);
+    setLines([]);
+    setCircles([]);
+    setPolygons([]);
+    setFunctions([]);
+    addToHistory('clear', 'Canvas effacé');
+  };
+
+  // Handle save
+  const handleSave = () => {
+    const drawingData = {
+      points,
+      lines,
+      circles,
+      polygons,
+      functions,
+      timestamp: new Date().toISOString()
     };
+    
+    const drawingName = `Dessin_${new Date().toLocaleDateString('fr-FR')}`;
+    setSavedDrawings(prev => [...prev, {
+      name: drawingName,
+      date: new Date().toLocaleDateString('fr-FR'),
+      data: drawingData
+    }]);
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem(`geometry_drawing_${Date.now()}`, JSON.stringify(drawingData));
+      addToHistory('save', `Dessin sauvegardé: ${drawingName}`);
+    } catch (e) {
+      console.error('Error saving to localStorage:', e);
+    }
+  };
 
-    setCircles(prev => [...prev, newCircle]);
-    addToHistory('create', `Cercle créé`);
+  // Handle export
+  const handleExport = () => {
+    if (board) {
+      try {
+        const svg = board.renderer.svgRoot;
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const blob = new Blob([svgData], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `geometry_${Date.now()}.svg`;
+        a.click();
+        
+        URL.revokeObjectURL(url);
+        addToHistory('export', 'Dessin exporté en SVG');
+      } catch (e) {
+        console.error('Error exporting:', e);
+      }
+    }
+  };
 
-    return newCircle;
-  }, [board, circles, selectedColor, showLabels]);
+  // Handle share
+  const handleShare = () => {
+    try {
+      const shareUrl = `${window.location.origin}/dashboard/geometry?shared=${Date.now()}`;
+      navigator.clipboard.writeText(shareUrl);
+      addToHistory('share', 'Lien de partage copié');
+    } catch (e) {
+      console.error('Error sharing:', e);
+    }
+  };
 
-  // Create triangle
-  const createTriangle = useCallback((point1: GeometryPoint, point2: GeometryPoint, point3: GeometryPoint) => {
-    if (!board) return null;
+  // Handle undo
+  const handleUndo = () => {
+    console.log('Undo functionality to be implemented');
+  };
 
-    const triangle = board.create('polygon', [point1.jsxgraphPoint, point2.jsxgraphPoint, point3.jsxgraphPoint], {
-      name: showLabels ? `T${polygons.length + 1}` : '',
-      color: selectedColor,
-      fillColor: selectedColor + '33', // Add transparency
-      strokeWidth: 2,
-      withLabel: showLabels
-    });
+  // Handle zoom controls
+  const handleZoomIn = () => {
+    if (board) {
+      try {
+        board.zoomIn();
+      } catch (e) {
+        console.error('Error zooming in:', e);
+      }
+    }
+  };
 
-    const newPolygon: GeometryPolygon = {
-      id: `polygon_${Date.now()}`,
-      name: `T${polygons.length + 1}`,
-      pointIds: [point1.id, point2.id, point3.id],
-      color: selectedColor,
-      filled: true,
-      jsxgraphPolygon: triangle
-    };
+  const handleZoomOut = () => {
+    if (board) {
+      try {
+        board.zoomOut();
+      } catch (e) {
+        console.error('Error zooming out:', e);
+      }
+    }
+  };
 
-    setPolygons(prev => [...prev, newPolygon]);
-    addToHistory('create', `Triangle créé`);
-
-    return newPolygon;
-  }, [board, polygons, selectedColor, showLabels]);
+  const handleZoomReset = () => {
+    if (board) {
+      try {
+        board.zoom100();
+      } catch (e) {
+        console.error('Error resetting zoom:', e);
+      }
+    }
+  };
 
   // Handle function plotting
   const handleFunctionSubmit = () => {
-    if (!functionInput.trim() || !board) return;
+    if (!functionInput.trim() || !board || !JXG) return;
     
     try {
       const color = colors[functions.length % colors.length];
@@ -478,172 +626,15 @@ export default function GeometryCanvas({
     setFunctions(prev => {
       const funcToRemove = prev.find(f => f.id === id);
       if (funcToRemove && funcToRemove.jsxgraphFunction && board) {
-        board.removeObject(funcToRemove.jsxgraphFunction);
-        addToHistory('delete', `Fonction ${funcToRemove.name} supprimée`);
+        try {
+          board.removeObject(funcToRemove.jsxgraphFunction);
+          addToHistory('delete', `Fonction ${funcToRemove.name} supprimée`);
+        } catch (e) {
+          console.error('Error removing function:', e);
+        }
       }
       return prev.filter(f => f.id !== id);
     });
-  };
-
-  // Delete point
-  const deletePoint = (id: string) => {
-    setPoints(prev => {
-      const pointToRemove = prev.find(p => p.id === id);
-      if (pointToRemove && pointToRemove.jsxgraphPoint && board) {
-        board.removeObject(pointToRemove.jsxgraphPoint);
-        addToHistory('delete', `Point ${pointToRemove.name} supprimé`);
-      }
-      return prev.filter(p => p.id !== id);
-    });
-  };
-
-  // Delete selected object
-  const handleDeleteSelected = () => {
-    if (selectedObject) {
-      if (selectedObject.jsxgraphPoint) {
-        deletePoint(selectedObject.id);
-      } else if (selectedObject.jsxgraphLine) {
-        // Handle line deletion
-        setLines(prev => {
-          const lineToRemove = prev.find(l => l.id === selectedObject.id);
-          if (lineToRemove && lineToRemove.jsxgraphLine && board) {
-            board.removeObject(lineToRemove.jsxgraphLine);
-            addToHistory('delete', `${lineToRemove.name} supprimé`);
-          }
-          return prev.filter(l => l.id !== selectedObject.id);
-        });
-      }
-      setSelectedObject(null);
-      setShowPropertyPanel(false);
-    }
-  };
-
-  // Clear all
-  const clearAll = () => {
-    if (board) {
-      // Safely remove all objects
-      try {
-        const objectsToRemove = [...board.objects];
-        objectsToRemove.forEach(obj => {
-          try {
-            if (obj && obj.exists && obj.exists()) {
-              board.removeObject(obj);
-            }
-          } catch (e) {
-            // Ignore errors for already removed objects
-          }
-        });
-      } catch (e) {
-        // If board.objects is not available, just recreate the board
-        board.suspendUpdate();
-        board.setBoundingBox([-20, 20, 20, -20]);
-        board.unsuspendUpdate();
-      }
-    }
-    setPoints([]);
-    setLines([]);
-    setCircles([]);
-    setPolygons([]);
-    setFunctions([]);
-    addToHistory('clear', 'Canvas effacé');
-  };
-
-  // Add to history
-  const addToHistory = (action: string, description: string) => {
-    setHistory(prev => [{
-      id: `hist_${Date.now()}`,
-      action,
-      description,
-      timestamp: new Date()
-    }, ...prev].slice(0, 50)); // Keep last 50 actions
-  };
-
-  // Handle undo
-  const handleUndo = () => {
-    // Implementation would need to store previous states
-    console.log('Undo functionality to be implemented');
-  };
-
-  // Handle save
-  const handleSave = () => {
-    const drawingData = {
-      points,
-      lines,
-      circles,
-      polygons,
-      functions,
-      timestamp: new Date().toISOString()
-    };
-    
-    const drawingName = `Dessin_${new Date().toLocaleDateString('fr-FR')}`;
-    setSavedDrawings(prev => [...prev, {
-      name: drawingName,
-      date: new Date().toLocaleDateString('fr-FR'),
-      data: drawingData
-    }]);
-    
-    // Save to localStorage
-    localStorage.setItem(`geometry_drawing_${Date.now()}`, JSON.stringify(drawingData));
-    addToHistory('save', `Dessin sauvegardé: ${drawingName}`);
-  };
-
-  // Handle export
-  const handleExport = () => {
-    if (board) {
-      // Export as SVG
-      const svg = board.renderer.svgRoot;
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const blob = new Blob([svgData], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `geometry_${Date.now()}.svg`;
-      a.click();
-      
-      URL.revokeObjectURL(url);
-      addToHistory('export', 'Dessin exporté en SVG');
-    }
-  };
-
-  // Handle share
-  const handleShare = () => {
-    const shareUrl = `${window.location.origin}/dashboard/geometry?shared=${Date.now()}`;
-    navigator.clipboard.writeText(shareUrl);
-    addToHistory('share', 'Lien de partage copié');
-  };
-
-  // Handle canvas click
-  const handleCanvasClick = (e: any) => {
-    if (readOnly || !board) return;
-
-    try {
-      const coords = board.getUsrCoordsOfMouse(e);
-      const x = coords[0];
-      const y = coords[1];
-
-      switch (selectedTool) {
-        case 'point':
-          createPoint(x, y);
-          break;
-        case 'segment':
-        case 'line':
-        case 'vector':
-          // Implementation would need to handle multi-point selection
-          console.log(`Creating ${selectedTool} - multi-point selection needed`);
-          break;
-        case 'circle':
-          // Implementation would need to handle center + radius point selection
-          console.log('Creating circle - center + radius point selection needed');
-          break;
-        case 'triangle':
-          // Implementation would need to handle 3-point selection
-          console.log('Creating triangle - 3-point selection needed');
-          break;
-      }
-    } catch (error) {
-      console.error('Error handling canvas click:', error);
-    }
   };
 
   // Tools configuration
@@ -661,6 +652,27 @@ export default function GeometryCanvas({
     { id: 'delete', icon: Trash2, label: 'Effacer', color: 'text-red-400' },
   ] as const;
 
+  // If there's an error, show error message
+  if (error) {
+    return (
+      <div className="bg-[#12121a] rounded-xl border border-gray-800 overflow-hidden p-8">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Trash2 className="w-8 h-8 text-red-400" />
+          </div>
+          <h3 className="text-xl font-semibold text-red-400 mb-2">Erreur de chargement</h3>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+          >
+            Recharger la page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`bg-[#12121a] rounded-xl border border-gray-800 overflow-hidden ${
       isFullscreen ? 'fixed inset-0 z-50 rounded-none' : ''
@@ -673,10 +685,11 @@ export default function GeometryCanvas({
             <button
               key={tool.id}
               onClick={() => handleToolChange(tool.id as GeometryTool)}
+              disabled={readOnly}
               className={`p-2 rounded-lg transition-all ${
                 selectedTool === tool.id 
                   ? 'bg-indigo-500/30 border border-indigo-500/50' 
-                  : 'hover:bg-gray-800'
+                  : 'hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
               title={tool.label}
             >
@@ -688,10 +701,11 @@ export default function GeometryCanvas({
             <button
               key={tool.id}
               onClick={() => handleToolChange(tool.id as GeometryTool)}
+              disabled={readOnly}
               className={`p-2 rounded-lg transition-all ${
                 selectedTool === tool.id 
                   ? 'bg-indigo-500/30 border border-indigo-500/50' 
-                  : 'hover:bg-gray-800'
+                  : 'hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
               title={tool.label}
             >
@@ -705,7 +719,7 @@ export default function GeometryCanvas({
         {/* View Controls */}
         <div className="flex items-center gap-1">
           <button
-            onClick={() => board && board.zoomIn()}
+            onClick={handleZoomIn}
             className="p-2 rounded-lg hover:bg-gray-800 transition-all"
             title="Zoomer"
           >
@@ -713,7 +727,7 @@ export default function GeometryCanvas({
           </button>
           
           <button
-            onClick={() => board && board.zoomOut()}
+            onClick={handleZoomOut}
             className="p-2 rounded-lg hover:bg-gray-800 transition-all"
             title="Dézoomer"
           >
@@ -721,7 +735,7 @@ export default function GeometryCanvas({
           </button>
           
           <button
-            onClick={() => board && board.zoom100()}
+            onClick={handleZoomReset}
             className="p-2 rounded-lg hover:bg-gray-800 transition-all"
             title="Réinitialiser la vue"
           >
@@ -787,7 +801,8 @@ export default function GeometryCanvas({
             <button
               key={color}
               onClick={() => setSelectedColor(color)}
-              className={`w-6 h-6 rounded-full border-2 transition-all ${
+              disabled={readOnly}
+              className={`w-6 h-6 rounded-full border-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                 selectedColor === color ? 'border-white scale-110' : 'border-gray-600'
               }`}
               style={{ backgroundColor: color }}
@@ -802,7 +817,8 @@ export default function GeometryCanvas({
         <div className="flex items-center gap-1">
           <button
             onClick={handleUndo}
-            className="p-2 rounded-lg hover:bg-gray-800 transition-all"
+            disabled={readOnly}
+            className="p-2 rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             title="Annuler (Ctrl+Z)"
           >
             <Undo className="w-4 h-4 text-gray-400" />
@@ -810,7 +826,8 @@ export default function GeometryCanvas({
           
           <button
             onClick={handleSave}
-            className="p-2 rounded-lg hover:bg-gray-800 transition-all"
+            disabled={readOnly}
+            className="p-2 rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             title="Sauvegarder (Ctrl+S)"
           >
             <Save className="w-4 h-4 text-indigo-400" />
@@ -818,7 +835,8 @@ export default function GeometryCanvas({
           
           <button
             onClick={handleExport}
-            className="p-2 rounded-lg hover:bg-gray-800 transition-all"
+            disabled={readOnly}
+            className="p-2 rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             title="Exporter"
           >
             <Download className="w-4 h-4 text-green-400" />
@@ -826,7 +844,8 @@ export default function GeometryCanvas({
           
           <button
             onClick={handleShare}
-            className="p-2 rounded-lg hover:bg-gray-800 transition-all"
+            disabled={readOnly}
+            className="p-2 rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             title="Partager"
           >
             <Share2 className="w-4 h-4 text-purple-400" />
@@ -834,10 +853,11 @@ export default function GeometryCanvas({
           
           <button
             onClick={clearAll}
-            className="p-2 rounded-lg hover:bg-red-500/20 transition-all"
+            disabled={readOnly}
+            className="p-2 rounded-lg hover:bg-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             title="Tout effacer"
           >
-            <RotateCcw className="w-4 h-4 text-red-400" />
+            <RefreshCw className="w-4 h-4 text-red-400" />
           </button>
         </div>
       </div>
@@ -889,18 +909,33 @@ export default function GeometryCanvas({
       {/* Main Canvas Area */}
       <div className="relative">
         {/* JSXGraph Canvas */}
-        {!isBrowser ? (
+        {isLoading ? (
           <div 
             className="flex items-center justify-center text-gray-400"
             style={{ 
               width: isFullscreen ? '100vw' : width, 
-              height: isFullscreen ? '100vh' : height,
-              backgroundColor: '#0f0f1a'
+              height: isFullscreen ? '100vh' : height - (showFunctionInput ? 100 : 60),
+              backgroundColor: '#1a1a2e'
             }}
           >
             <div className="text-center">
               <RefreshCw className="w-8 h-8 mx-auto mb-2 animate-spin" />
               <p>Chargement de l'atelier de géométrie...</p>
+              <p className="text-xs mt-2">Initialisation de JSXGraph</p>
+            </div>
+          </div>
+        ) : !isBrowser ? (
+          <div 
+            className="flex items-center justify-center text-gray-400"
+            style={{ 
+              width: isFullscreen ? '100vw' : width, 
+              height: isFullscreen ? '100vh' : height - (showFunctionInput ? 100 : 60),
+              backgroundColor: '#1a1a2e'
+            }}
+          >
+            <div className="text-center">
+              <Info className="w-8 h-8 mx-auto mb-2" />
+              <p>Géométrie non disponible en mode serveur</p>
             </div>
           </div>
         ) : (
@@ -910,8 +945,8 @@ export default function GeometryCanvas({
             onClick={handleCanvasClick}
             style={{ 
               width: isFullscreen ? '100vw' : width, 
-              height: isFullscreen ? '100vh' : height,
-              backgroundColor: '#0f0f1a',
+              height: isFullscreen ? '100vh' : height - (showFunctionInput ? 100 : 60),
+              backgroundColor: '#1a1a2e',
               cursor: selectedTool === 'point' ? 'crosshair' : 'default'
             }}
           />
