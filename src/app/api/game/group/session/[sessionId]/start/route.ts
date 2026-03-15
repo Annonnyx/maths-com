@@ -27,9 +27,7 @@ export async function POST(
               select: {
                 id: true,
                 username: true,
-                displayName: true,
-                multiplayerElo: true,
-                multiplayerRankClass: true
+                displayName: true
               }
             }
           }

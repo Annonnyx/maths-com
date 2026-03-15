@@ -37,15 +37,9 @@ export async function POST(
       return NextResponse.json({ error: 'Game already started' }, { status: 400 });
     }
 
-    // Calculer la difficulté moyenne basée sur les joueurs
-    const players = await prisma.gamePlayer.findMany({
-      where: { sessionId },
-      include: { user: true }
-    });
-
-    const avgElo = players.reduce((sum, player) => sum + (player.user.multiplayerElo || 400), 0) / players.length;
-    const difficulty = Math.max(1, Math.min(10, Math.round(avgElo / 100)));
-
+    // Utiliser une difficulté mixte fixe pour les jeux de groupe (no ELO)
+    const difficulty = 5; // Mixed difficulty for group games
+    
     // Générer 10 questions synchronisées
     const questions = QuestionGeneratorFactory.generateMixedQuestions(difficulty, 10);
 
