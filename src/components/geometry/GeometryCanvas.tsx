@@ -178,13 +178,71 @@ export default function GeometryCanvas({
           boardRef.current.innerHTML = '';
         }
 
-        // Create JSXGraph board with minimal configuration
+        // Create JSXGraph board with proper configuration based on docs
         const jsxBoard = JXG.JSXGraph.initBoard('geometry-board', {
           boundingbox: [-20, 20, 20, -20],
+          keepaspectratio: false,
           axis: showAxesState,
           grid: showGridState,
           showCopyright: false,
-          showNavigation: false
+          showFullscreen: false,
+          showScreenshot: false,
+          showClearTraces: false,
+          showInfobox: false,
+          showNavigation: false,
+          defaultAxes: {
+            x: {
+              strokeColor: '#ffffff',
+              strokeWidth: 1,
+              withLabel: true,
+              label: {
+                position: '95% left',
+                offset: [-10, 10],
+                strokeColor: '#ffffff',
+                fillColor: '#ffffff',
+                fontSize: 12
+              },
+              ticks: {
+                strokeColor: '#ffffff',
+                strokeWidth: 1,
+                majorHeight: 10,
+                minorHeight: 5,
+                label: {
+                  strokeColor: '#ffffff',
+                  fillColor: '#ffffff',
+                  fontSize: 10
+                }
+              }
+            },
+            y: {
+              strokeColor: '#ffffff',
+              strokeWidth: 1,
+              withLabel: true,
+              label: {
+                position: '0.90fr right',
+                offset: [6, -6],
+                strokeColor: '#ffffff',
+                fillColor: '#ffffff',
+                fontSize: 12
+              },
+              ticks: {
+                strokeColor: '#ffffff',
+                strokeWidth: 1,
+                majorHeight: 10,
+                minorHeight: 5,
+                label: {
+                  strokeColor: '#ffffff',
+                  fillColor: '#ffffff',
+                  fontSize: 10
+                }
+              }
+            }
+          },
+          defaultGrid: {
+            strokeColor: '#ffffff',
+            strokeWidth: 0.5,
+            strokeOpacity: 0.1
+          }
         });
 
         // Set board ID
@@ -246,38 +304,6 @@ export default function GeometryCanvas({
     };
   }, []); // Empty dependency array - only run once
 
-  // Update grid and axes visibility and styling
-  useEffect(() => {
-    if (board && board.options) {
-      try {
-        // Update axes visibility
-        if (board.defaultAxes) {
-          if (board.defaultAxes.x) {
-            board.defaultAxes.x.setAttribute('visible', showAxesState);
-            board.defaultAxes.x.setAttribute('strokeColor', '#ffffff');
-            board.defaultAxes.x.setAttribute('strokeWidth', 1);
-          }
-          if (board.defaultAxes.y) {
-            board.defaultAxes.y.setAttribute('visible', showAxesState);
-            board.defaultAxes.y.setAttribute('strokeColor', '#ffffff');
-            board.defaultAxes.y.setAttribute('strokeWidth', 1);
-          }
-        }
-        
-        // Update grid visibility
-        if (board.defaultGrid) {
-          board.defaultGrid.setAttribute('visible', showGridState);
-          board.defaultGrid.setAttribute('strokeColor', '#ffffff');
-          board.defaultGrid.setAttribute('strokeOpacity', 0.1);
-        }
-        
-        board.update();
-      } catch (e) {
-        console.error('Error updating board options:', e);
-      }
-    }
-  }, [showAxesState, showGridState, board]);
-
   // Handle tool selection
   const handleToolChange = (tool: GeometryTool) => {
     setSelectedTool(tool);
@@ -310,8 +336,13 @@ export default function GeometryCanvas({
           offset: [10, 10],
           strokeColor: '#ffffff',
           fillColor: '#ffffff',
-          fontSize: 14
-        }
+          fontSize: 14,
+          position: 'top'
+        },
+        snapToGrid: false,
+        showInfobox: false,
+        attractorDistance: 0.1,
+        attractors: []
       });
 
       const newPoint: GeometryPoint = {
