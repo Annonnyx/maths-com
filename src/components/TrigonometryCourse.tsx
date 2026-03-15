@@ -10,7 +10,6 @@ import {
   Play,
   ChevronRight
 } from 'lucide-react';
-import TrigonometryTool from '@/components/geometry/TrigonometryTool';
 
 export default function TrigonometryCourse() {
   const [activeSection, setActiveSection] = useState(0);
@@ -27,7 +26,9 @@ export default function TrigonometryCourse() {
             <p className="text-gray-300 mb-4">
               Le cercle trigonométrique est un cercle de rayon 1 centré à l'origine (0,0) d'un repère orthonormé.
             </p>
-            <TrigonometryTool width={800} height={400} showGrid={true} showAxes={true} />
+            <div className="w-full h-96 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400">
+              Visualisation du cercle trigonométrique
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
