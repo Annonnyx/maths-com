@@ -43,10 +43,7 @@ export default function Navigation() {
       <nav className="hidden md:block fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center text-foreground hover:text-purple-400 transition-colors">
-              <span className="font-bold text-xl">maths-app.com</span>
-            </Link>
+            {/* Logo removed - no branding needed in navigation */}
 
             {/* Navigation Links */}
             <div className="flex items-center space-x-1">
@@ -130,10 +127,7 @@ export default function Navigation() {
       <nav className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center text-foreground hover:text-purple-400 transition-colors">
-              <span className="font-bold text-xl">maths-app.com</span>
-            </Link>
+            {/* Logo removed - no branding needed in navigation */}
 
             {/* Mobile Menu Button */}
             <button
