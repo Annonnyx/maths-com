@@ -2,19 +2,62 @@ import { GeneratedQuestion, QuestionGenerator, randomInt, randomFloat, randomCho
 
 export class ArithmeticGenerator implements QuestionGenerator {
   generate(difficulty: number): GeneratedQuestion {
-    const generators = [
-      () => this.generateAddition(difficulty),
-      () => this.generateSubtraction(difficulty),
-      () => this.generateMultiplication(difficulty),
-      () => this.generateDivision(difficulty),
-      () => this.generatePower(difficulty),
-      () => this.generateRoot(difficulty),
-      () => this.generatePercentage(difficulty),
-      () => this.generateFraction(difficulty),
-    ];
+    // Weight distribution to avoid pattern over-representation
+    // Higher difficulty levels should have more operation variety
+    let generators: Array<() => GeneratedQuestion> = [];
+    let weights: number[] = [];
+    
+    if (difficulty <= 2) {
+      // Beginners: focus on basic addition/subtraction
+      generators = [
+        () => this.generateAddition(difficulty),
+        () => this.generateSubtraction(difficulty),
+        () => this.generateAddition(difficulty), // Higher weight
+      ];
+      weights = [0.35, 0.35, 0.30];
+    } else if (difficulty <= 4) {
+      // Early intermediate: introduce multiplication/division
+      generators = [
+        () => this.generateAddition(difficulty),
+        () => this.generateSubtraction(difficulty),
+        () => this.generateMultiplication(difficulty),
+        () => this.generateDivision(difficulty),
+      ];
+      weights = [0.25, 0.25, 0.25, 0.25];
+    } else if (difficulty <= 7) {
+      // Intermediate: all basic ops + powers/roots
+      generators = [
+        () => this.generateMultiplication(difficulty),
+        () => this.generateDivision(difficulty),
+        () => this.generatePower(difficulty),
+        () => this.generateRoot(difficulty),
+        () => this.generatePercentage(difficulty),
+      ];
+      weights = [0.25, 0.25, 0.20, 0.15, 0.15];
+    } else {
+      // Advanced: all operations with equal distribution
+      generators = [
+        () => this.generateMultiplication(difficulty),
+        () => this.generateDivision(difficulty),
+        () => this.generatePower(difficulty),
+        () => this.generateRoot(difficulty),
+        () => this.generatePercentage(difficulty),
+        () => this.generateFraction(difficulty),
+      ];
+      weights = [0.20, 0.20, 0.20, 0.15, 0.15, 0.10];
+    }
 
-    const generator = randomChoice(generators);
-    return generator();
+    // Weighted random selection
+    const random = Math.random();
+    let cumulative = 0;
+    for (let i = 0; i < weights.length; i++) {
+      cumulative += weights[i];
+      if (random <= cumulative) {
+        return generators[i]();
+      }
+    }
+    
+    return generators[generators.length - 1]();
   }
 
   private generateAddition(difficulty: number): GeneratedQuestion {
