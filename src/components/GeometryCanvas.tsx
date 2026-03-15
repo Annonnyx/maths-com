@@ -98,11 +98,26 @@ export default function GeometryCanvas({
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [functionInput, setFunctionInput] = useState('');
   const [showFunctionInput, setShowFunctionInput] = useState(false);
+  const [plottedFunctions, setPlottedFunctions] = useState<Array<{
+    id: string;
+    expression: string;
+    color: string;
+    points: Array<{x: number, y: number}>;
+  }>>([]);
 
-  // Grid settings
+  // Grid settings - dynamic based on zoom and viewport
   const gridSize = 20;
-  const gridWidth = (width / scale) + 100; // Extended grid for zoom out
-  const gridHeight = (height / scale) + 100;
+  const viewportWidth = isFullscreen ? window.innerWidth : width;
+  const viewportHeight = isFullscreen ? window.innerHeight : height;
+  
+  // Calculate grid bounds based on current zoom and pan
+  const gridLeft = Math.floor((-pan.x / scale - gridSize) / gridSize) * gridSize;
+  const gridRight = Math.ceil(((viewportWidth - pan.x) / scale + gridSize) / gridSize) * gridSize;
+  const gridTop = Math.floor((-pan.y / scale - gridSize) / gridSize) * gridSize;
+  const gridBottom = Math.ceil(((viewportHeight - pan.y) / scale + gridSize) / gridSize) * gridSize;
+  
+  const gridWidth = gridRight - gridLeft;
+  const gridHeight = gridBottom - gridTop;
 
   const snapToGrid = (value: number) => {
     if (!showGridState) return value;
@@ -112,11 +127,22 @@ export default function GeometryCanvas({
   const getMousePosition = (e: React.MouseEvent) => {
     if (!svgRef.current) return { x: 0, y: 0 };
     const rect = svgRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left - pan.x) / scale;
-    const y = (e.clientY - rect.top - pan.y) / scale;
+    
+    // Convert screen coordinates to SVG coordinates
+    const svgX = e.clientX - rect.left;
+    const svgY = e.clientY - rect.top;
+    
+    // Convert SVG coordinates to world coordinates (accounting for pan and scale)
+    const worldX = (svgX - pan.x) / scale;
+    const worldY = (svgY - pan.y) / scale;
+    
+    // Convert to mathematical coordinate system (origin at center, y-axis inverted)
+    const mathX = worldX;
+    const mathY = worldY;
+    
     return {
-      x: snapToGrid(x),
-      y: snapToGrid(y)
+      x: snapToGrid(mathX),
+      y: snapToGrid(mathY)
     };
   };
 
@@ -168,13 +194,47 @@ export default function GeometryCanvas({
     if (!containerRef.current) return;
     
     if (!isFullscreen) {
-      containerRef.current.requestFullscreen?.();
-      setIsFullscreen(true);
+      const element = containerRef.current;
+      const requestFullscreen = (element as any).requestFullscreen || 
+                             (element as any).webkitRequestFullscreen || 
+                             (element as any).mozRequestFullScreen || 
+                             (element as any).msRequestFullscreen;
+      
+      if (requestFullscreen) {
+        requestFullscreen.call(element);
+      }
     } else {
-      document.exitFullscreen?.();
-      setIsFullscreen(false);
+      const exitFullscreen = (document as any).exitFullscreen || 
+                           (document as any).webkitExitFullscreen || 
+                           (document as any).mozCancelFullScreen || 
+                           (document as any).msExitFullscreen;
+      
+      if (exitFullscreen) {
+        exitFullscreen.call(document);
+      }
     }
   }, [isFullscreen]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!(document as any).fullscreenElement || 
+                     !!(document as any).webkitFullscreenElement ||
+                     !!(document as any).mozFullScreenElement ||
+                     !!(document as any).msFullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, []);
 
   const resetView = useCallback(() => {
     setScale(1);
@@ -195,15 +255,6 @@ export default function GeometryCanvas({
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [handleWheel, handleMouseMove, handleMouseUp]);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
 
   const handleSvgClick = (e: React.MouseEvent) => {
     if (readOnly || isDragging) return;
@@ -387,9 +438,18 @@ export default function GeometryCanvas({
     if (!point) return;
     
     const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!svgRef.current) return;
+      const rect = svgRef.current.getBoundingClientRect();
+      
+      // Convert screen coordinates to world coordinates
+      const svgX = moveEvent.clientX - rect.left;
+      const svgY = moveEvent.clientY - rect.top;
+      const worldX = (svgX - pan.x) / scale;
+      const worldY = (svgY - pan.y) / scale;
+      
       const newPos = {
-        x: snapToGrid((moveEvent.clientX - (svgRef.current?.getBoundingClientRect().left || 0) - pan.x) / scale),
-        y: snapToGrid((moveEvent.clientY - (svgRef.current?.getBoundingClientRect().top || 0) - pan.y) / scale)
+        x: snapToGrid(worldX),
+        y: snapToGrid(worldY)
       };
       
       setPoints(prev => prev.map(p => 
@@ -470,10 +530,68 @@ export default function GeometryCanvas({
   };
 
   const handleFunctionSubmit = () => {
-    // Parse and plot function
-    console.log('Function to plot:', functionInput);
-    setShowFunctionInput(false);
-    setFunctionInput('');
+    if (!functionInput.trim()) return;
+    
+    try {
+      const points = generateFunctionPoints(functionInput);
+      const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+      const color = colors[plottedFunctions.length % colors.length];
+      
+      setPlottedFunctions(prev => [...prev, {
+        id: `func${Date.now()}`,
+        expression: functionInput,
+        color,
+        points
+      }]);
+      
+      setFunctionInput('');
+      setShowFunctionInput(false);
+    } catch (error) {
+      console.error('Invalid function expression:', error);
+    }
+  };
+
+  const generateFunctionPoints = (expression: string): Array<{x: number, y: number}> => {
+    const points = [];
+    const step = 0.1;
+    const xMin = gridLeft;
+    const xMax = gridRight;
+    
+    // Create a safe evaluation context
+    const safeEval = (expr: string, x: number): number => {
+      try {
+        // Replace common math functions and constants
+        const processedExpr = expr
+          .replace(/sin/g, 'Math.sin')
+          .replace(/cos/g, 'Math.cos')
+          .replace(/tan/g, 'Math.tan')
+          .replace(/sqrt/g, 'Math.sqrt')
+          .replace(/abs/g, 'Math.abs')
+          .replace(/log/g, 'Math.log')
+          .replace(/exp/g, 'Math.exp')
+          .replace(/pi/g, 'Math.PI')
+          .replace(/e/g, 'Math.E')
+          .replace(/\^/g, '**')
+          .replace(/x/g, `(${x})`);
+        
+        return Function('"use strict"; return (' + processedExpr + ')')();
+      } catch (e) {
+        return NaN;
+      }
+    };
+    
+    for (let x = xMin; x <= xMax; x += step) {
+      const y = safeEval(expression, x);
+      if (!isNaN(y) && isFinite(y)) {
+        points.push({ x, y });
+      }
+    }
+    
+    return points;
+  };
+
+  const removeFunction = (id: string) => {
+    setPlottedFunctions(prev => prev.filter(f => f.id !== id));
   };
 
   return (
@@ -591,12 +709,12 @@ export default function GeometryCanvas({
       {/* Function Input */}
       {showFunctionInput && (
         <div className="p-3 bg-[#1a1a2e] border-b border-gray-800">
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-2">
             <input
               type="text"
               value={functionInput}
               onChange={(e) => setFunctionInput(e.target.value)}
-              placeholder="Entrez une fonction (ex: 2*x+1, sin(x), x^2)..."
+              placeholder="Entrez une fonction (ex: 2*x+1, sin(x), x^2, sqrt(x))..."
               className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
               onKeyPress={(e) => e.key === 'Enter' && handleFunctionSubmit()}
             />
@@ -607,6 +725,28 @@ export default function GeometryCanvas({
               Tracer
             </button>
           </div>
+          
+          {/* Function List */}
+          {plottedFunctions.length > 0 && (
+            <div className="space-y-1">
+              <div className="text-xs text-gray-400 mb-1">Fonctions tracées:</div>
+              {plottedFunctions.map(func => (
+                <div key={func.id} className="flex items-center gap-2 text-xs">
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: func.color }}
+                  />
+                  <span className="text-gray-300 font-mono">{func.expression}</span>
+                  <button
+                    onClick={() => removeFunction(func.id)}
+                    className="ml-auto text-red-400 hover:text-red-300"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
       
@@ -624,24 +764,26 @@ export default function GeometryCanvas({
             {/* Grid */}
             {showGridState && (
               <g opacity={0.3}>
+                {/* Vertical lines */}
                 {Array.from({ length: Math.ceil(gridWidth / gridSize) + 1 }).map((_, i) => (
                   <line
                     key={`v${i}`}
-                    x1={i * gridSize - (pan.x / scale)}
-                    y1={-(pan.y / scale)}
-                    x2={i * gridSize - (pan.x / scale)}
-                    y2={height / scale - (pan.y / scale)}
+                    x1={gridLeft + i * gridSize}
+                    y1={gridTop}
+                    x2={gridLeft + i * gridSize}
+                    y2={gridBottom}
                     stroke="#4b5563"
                     strokeWidth={0.5 / scale}
                   />
                 ))}
+                {/* Horizontal lines */}
                 {Array.from({ length: Math.ceil(gridHeight / gridSize) + 1 }).map((_, i) => (
                   <line
                     key={`h${i}`}
-                    x1={-(pan.x / scale)}
-                    y1={i * gridSize - (pan.y / scale)}
-                    x2={width / scale - (pan.x / scale)}
-                    y2={i * gridSize - (pan.y / scale)}
+                    x1={gridLeft}
+                    y1={gridTop + i * gridSize}
+                    x2={gridRight}
+                    y2={gridTop + i * gridSize}
                     stroke="#4b5563"
                     strokeWidth={0.5 / scale}
                   />
@@ -653,19 +795,19 @@ export default function GeometryCanvas({
             {showAxes && (
               <g>
                 <line 
-                  x1={-(pan.x / scale)} 
-                  y1={height / (2 * scale) - (pan.y / scale)} 
-                  x2={width / scale - (pan.x / scale)} 
-                  y2={height / (2 * scale) - (pan.y / scale)} 
+                  x1={gridLeft} 
+                  y1={0} 
+                  x2={gridRight} 
+                  y2={0} 
                   stroke="#6366f1" 
                   strokeWidth={1 / scale} 
                   opacity={0.5} 
                 />
                 <line 
-                  x1={width / (2 * scale) - (pan.x / scale)} 
-                  y1={-(pan.y / scale)} 
-                  x2={width / (2 * scale) - (pan.x / scale)} 
-                  y2={height / scale - (pan.y / scale)} 
+                  x1={0} 
+                  y1={gridTop} 
+                  x2={0} 
+                  y2={gridBottom} 
                   stroke="#6366f1" 
                   strokeWidth={1 / scale} 
                   opacity={0.5} 
@@ -779,6 +921,19 @@ export default function GeometryCanvas({
                 opacity={0.5}
               />
             )}
+            
+            {/* Plotted Functions */}
+            {plottedFunctions.map(func => (
+              <g key={func.id}>
+                <polyline
+                  points={func.points.map(p => `${p.x},${p.y}`).join(' ')}
+                  fill="none"
+                  stroke={func.color}
+                  strokeWidth={2 / scale}
+                  opacity={0.8}
+                />
+              </g>
+            ))}
           </g>
         </svg>
         
@@ -793,6 +948,9 @@ export default function GeometryCanvas({
             <p>Segments: {lines.filter(l => !l.dashed).length}</p>
             <p>Cercles: {circles.length}</p>
             <p>Triangles: {triangles.length}</p>
+            {plottedFunctions.length > 0 && (
+              <p>Fonctions: {plottedFunctions.length}</p>
+            )}
           </div>
         </div>
       </div>
@@ -811,6 +969,7 @@ export default function GeometryCanvas({
           {selectedTool === 'pythagore' && 'Cliquez sur 3 points pour visualiser le théorème de Pythagore'}
           {selectedTool === 'select' && 'Cliquez et déplacez les points'}
           {selectedTool === 'delete' && 'Cliquez sur un point pour le supprimer'}
+          {showFunctionInput && 'Entrez une expression mathématique et cliquez sur Tracer'}
         </p>
       </div>
     </div>
