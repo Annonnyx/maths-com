@@ -23,6 +23,7 @@
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.34.0",
+    "jsxgraph": "^1.12.2",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "next-auth": "^4.24.13",
