@@ -165,108 +165,86 @@ export default function GeometryCanvas({
     setIsLoading(true);
     setError(null);
 
-    try {
-      // Check if JSXGraph is available
-      if (!JXG) {
-        throw new Error('JSXGraph library not loaded');
-      }
-
-      // Clear any existing board first
-      if (boardRef.current.children.length > 0) {
-        boardRef.current.innerHTML = '';
-      }
-
-      // Create JSXGraph board with basic configuration
-      const jsxBoard = JXG.JSXGraph.initBoard(boardRef.current.id || 'jxgbox', {
-        boundingbox: [-20, 20, 20, -20],
-        axis: showAxesState,
-        grid: showGridState,
-        showCopyright: false,
-        showNavigation: false,
-        pan: {
-          enabled: true,
-          needTwoFingers: false
-        },
-        zoom: {
-          wheel: true,
-          needShift: false,
-          factorX: 1.25,
-          factorY: 1.25,
-          min: 0.1,
-          max: 10
+    // Simple timeout to ensure DOM is ready
+    const timer = setTimeout(() => {
+      try {
+        // Check if JSXGraph is available
+        if (!JXG) {
+          throw new Error('JSXGraph library not loaded');
         }
-      });
 
-      // Set board ID if not present
-      if (!boardRef.current.id) {
-        boardRef.current.id = 'jxgbox_' + Date.now();
-      }
+        // Clear any existing content
+        if (boardRef.current) {
+          boardRef.current.innerHTML = '';
+        }
 
-      // Add fullscreen functionality
-      const handleFullscreen = () => {
-        if (!document.fullscreenElement) {
-          boardRef.current?.requestFullscreen().then(() => {
-            setIsFullscreen(true);
-            setTimeout(() => {
-              if (jsxBoard && boardRef.current) {
-                jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
-                jsxBoard.update();
+        // Create JSXGraph board with minimal configuration
+        const jsxBoard = JXG.JSXGraph.initBoard('geometry-board', {
+          boundingbox: [-20, 20, 20, -20],
+          axis: showAxesState,
+          grid: showGridState,
+          showCopyright: false,
+          showNavigation: false
+        });
+
+        // Set board ID
+        if (boardRef.current) {
+          boardRef.current.id = 'geometry-board';
+        }
+
+        // Simple fullscreen handler
+        const handleFullscreen = () => {
+          if (!document.fullscreenElement && boardRef.current) {
+            boardRef.current.requestFullscreen().then(() => {
+              setIsFullscreen(true);
+              if (jsxBoard) {
+                setTimeout(() => {
+                  jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
+                  jsxBoard.update();
+                }, 100);
               }
-            }, 100);
-          }).catch(e => {
-            console.error('Fullscreen failed:', e);
-          });
-        } else {
-          document.exitFullscreen().then(() => {
-            setIsFullscreen(false);
-            setTimeout(() => {
-              if (jsxBoard && boardRef.current) {
-                jsxBoard.resizeContainer(width, height);
-                jsxBoard.update();
+            });
+          } else if (document.fullscreenElement) {
+            document.exitFullscreen().then(() => {
+              setIsFullscreen(false);
+              if (jsxBoard) {
+                setTimeout(() => {
+                  jsxBoard.resizeContainer(width, height);
+                  jsxBoard.update();
+                }, 100);
               }
-            }, 100);
-          }).catch(e => {
-            console.error('Exit fullscreen failed:', e);
-          });
-        }
-      };
-
-      // Listen for fullscreen changes
-      const handleFullscreenChange = () => {
-        setIsFullscreen(!!document.fullscreenElement);
-        if (document.fullscreenElement && jsxBoard && boardRef.current) {
-          jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
-        } else if (!document.fullscreenElement && jsxBoard && boardRef.current) {
-          jsxBoard.resizeContainer(width, height);
-        }
-        if (jsxBoard) {
-          jsxBoard.update();
-        }
-      };
-
-      document.addEventListener('fullscreenchange', handleFullscreenChange);
-      (jsxBoard as any).fullscreenHandler = handleFullscreen;
-
-      setBoard(jsxBoard);
-      setIsLoading(false);
-
-      return () => {
-        document.removeEventListener('fullscreenchange', handleFullscreenChange);
-        try {
-          if (jsxBoard) {
-            // Safely free the board
-            JXG.JSXGraph.freeBoard(jsxBoard);
+            });
           }
-        } catch (e) {
-          console.error('Error freeing board:', e);
-        }
-      };
-    } catch (err) {
-      console.error('Error initializing JSXGraph:', err);
-      setError('Failed to initialize geometry board');
-      setIsLoading(false);
-    }
-  }, [showAxesState, showGridState, width, height]);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreen);
+        (jsxBoard as any).fullscreenHandler = handleFullscreen;
+
+        setBoard(jsxBoard);
+        setIsLoading(false);
+
+        // Cleanup function
+        return () => {
+          document.removeEventListener('fullscreenchange', handleFullscreen);
+          if (jsxBoard) {
+            try {
+              JXG.JSXGraph.freeBoard(jsxBoard);
+            } catch (e) {
+              console.error('Error freeing board:', e);
+            }
+          }
+        };
+      } catch (err) {
+        console.error('Error initializing JSXGraph:', err);
+        setError('Failed to initialize geometry board');
+        setIsLoading(false);
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []); // Empty dependency array - only run once
 
   // Update grid and axes visibility and styling
   useEffect(() => {
@@ -983,7 +961,7 @@ export default function GeometryCanvas({
           </div>
         ) : (
           <div 
-            id={`jxgbox_${Date.now()}`}
+            id="geometry-board"
             ref={boardRef}
             className="jxgbox" 
             onClick={handleCanvasClick}
