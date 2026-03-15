@@ -521,7 +521,24 @@ export default function GeometryCanvas({
   // Clear all
   const clearAll = () => {
     if (board) {
-      board.removeObject(board.objects);
+      // Safely remove all objects
+      try {
+        const objectsToRemove = [...board.objects];
+        objectsToRemove.forEach(obj => {
+          try {
+            if (obj && obj.exists && obj.exists()) {
+              board.removeObject(obj);
+            }
+          } catch (e) {
+            // Ignore errors for already removed objects
+          }
+        });
+      } catch (e) {
+        // If board.objects is not available, just recreate the board
+        board.suspendUpdate();
+        board.setBoundingBox([-20, 20, 20, -20]);
+        board.unsuspendUpdate();
+      }
     }
     setPoints([]);
     setLines([]);
@@ -600,28 +617,32 @@ export default function GeometryCanvas({
   const handleCanvasClick = (e: any) => {
     if (readOnly || !board) return;
 
-    const coords = board.getUsrCoordsOfMouse(e);
-    const x = coords[0];
-    const y = coords[1];
+    try {
+      const coords = board.getUsrCoordsOfMouse(e);
+      const x = coords[0];
+      const y = coords[1];
 
-    switch (selectedTool) {
-      case 'point':
-        createPoint(x, y);
-        break;
-      case 'segment':
-      case 'line':
-      case 'vector':
-        // Implementation would need to handle multi-point selection
-        console.log(`Creating ${selectedTool} - multi-point selection needed`);
-        break;
-      case 'circle':
-        // Implementation would need to handle center + radius point selection
-        console.log('Creating circle - center + radius point selection needed');
-        break;
-      case 'triangle':
-        // Implementation would need to handle 3-point selection
-        console.log('Creating triangle - 3-point selection needed');
-        break;
+      switch (selectedTool) {
+        case 'point':
+          createPoint(x, y);
+          break;
+        case 'segment':
+        case 'line':
+        case 'vector':
+          // Implementation would need to handle multi-point selection
+          console.log(`Creating ${selectedTool} - multi-point selection needed`);
+          break;
+        case 'circle':
+          // Implementation would need to handle center + radius point selection
+          console.log('Creating circle - center + radius point selection needed');
+          break;
+        case 'triangle':
+          // Implementation would need to handle 3-point selection
+          console.log('Creating triangle - 3-point selection needed');
+          break;
+      }
+    } catch (error) {
+      console.error('Error handling canvas click:', error);
     }
   };
 

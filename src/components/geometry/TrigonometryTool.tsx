@@ -219,12 +219,24 @@ export default function TrigonometryTool({
       setTanLine(tanL);
     }
 
-    // Create angle arc
+    // Create angle arc - JSXGraph needs two points for the arc
+    const arcPoint1 = board.create('point', [1, 0], {
+      visible: false,
+      name: ''
+    });
+    
+    const arcPoint2 = board.create('point', [
+      () => Math.cos(angle),
+      () => Math.sin(angle)
+    ], {
+      visible: false,
+      name: ''
+    });
+
     const arc = board.create('arc', [
-      [0, 0],
-      1,
-      0,
-      () => angle
+      [0, 0], // center
+      arcPoint1, // first point
+      arcPoint2  // second point
     ], {
       strokeColor: '#ec4899',
       strokeWidth: 2,
