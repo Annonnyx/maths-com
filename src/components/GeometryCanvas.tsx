@@ -105,44 +105,50 @@ export default function GeometryCanvas({
     points: Array<{x: number, y: number}>;
   }>>([]);
 
-  // Grid settings - dynamic based on zoom and viewport
-  const gridSize = 20;
+  // Grid settings - dynamic grid size based on scale for better visual representation
   const viewportWidth = isFullscreen ? window.innerWidth : width;
   const viewportHeight = isFullscreen ? window.innerHeight : height;
   
-  // Calculate grid bounds based on current zoom and pan
-  const gridLeft = Math.floor((-pan.x / scale - gridSize) / gridSize) * gridSize;
-  const gridRight = Math.ceil(((viewportWidth - pan.x) / scale + gridSize) / gridSize) * gridSize;
-  const gridTop = Math.floor((-pan.y / scale - gridSize) / gridSize) * gridSize;
-  const gridBottom = Math.ceil(((viewportHeight - pan.y) / scale + gridSize) / gridSize) * gridSize;
+  // Calculate dynamic grid size: aim for ~30px between grid lines on screen
+  const minGridPixels = 20;
+  let gridSize = 20;
+  if (scale < 1) {
+    gridSize = 20 / scale; // Larger grid steps when zoomed out
+  } else if (scale > 1) {
+    gridSize = 20; // Fixed grid steps when zoomed in
+  }
   
-  const gridWidth = gridRight - gridLeft;
-  const gridHeight = gridBottom - gridTop;
+  // Align grid boundaries to snap to gridSize multiples
+  const gridLeft = Math.floor((-pan.x / scale) / gridSize) * gridSize;
+  const gridRight = Math.ceil((viewportWidth / scale - pan.x / scale) / gridSize) * gridSize;
+  const gridTop = Math.floor((-pan.y / scale) / gridSize) * gridSize;
+  const gridBottom = Math.ceil((viewportHeight / scale - pan.y / scale) / gridSize) * gridSize;
 
   const snapToGrid = (value: number) => {
     if (!showGridState) return value;
     return Math.round(value / gridSize) * gridSize;
   };
 
+  // FIXED: Proper coordinate conversion from screen to mathematical coordinates
   const getMousePosition = (e: React.MouseEvent) => {
     if (!svgRef.current) return { x: 0, y: 0 };
     const rect = svgRef.current.getBoundingClientRect();
     
-    // Convert screen coordinates to SVG coordinates
-    const svgX = e.clientX - rect.left;
-    const svgY = e.clientY - rect.top;
+    // 1. Convert from screen to SVG coordinates
+    const screenX = e.clientX - rect.left;
+    const screenY = e.clientY - rect.top;
     
-    // Convert SVG coordinates to world coordinates (accounting for pan and scale)
-    const worldX = (svgX - pan.x) / scale;
-    const worldY = (svgY - pan.y) / scale;
+    // 2. Account for pan and scale to get world coordinates
+    // Formula: world = (screen - pan) / scale
+    const worldX = (screenX - pan.x) / scale;
+    const worldY = (screenY - pan.y) / scale;
     
-    // Convert to mathematical coordinate system (origin at center, y-axis inverted)
-    const mathX = worldX;
-    const mathY = worldY;
+    // 3. SVG coordinates are already correct since we use transform="translate(pan) scale"
+    // No additional y-inversion needed as our coordinate system uses SVG's default (top-left origin)
     
     return {
-      x: snapToGrid(mathX),
-      y: snapToGrid(mathY)
+      x: snapToGrid(worldX),
+      y: snapToGrid(worldY)
     };
   };
 
@@ -553,28 +559,44 @@ export default function GeometryCanvas({
 
   const generateFunctionPoints = (expression: string): Array<{x: number, y: number}> => {
     const points = [];
-    const step = 0.1;
-    const xMin = gridLeft;
-    const xMax = gridRight;
+    const step = Math.max(0.05, gridSize / 100); // Adaptive step size based on grid
+    const xMin = gridLeft - gridSize * 5;
+    const xMax = gridRight + gridSize * 5;
     
-    // Create a safe evaluation context
-    const safeEval = (expr: string, x: number): number => {
+    // Create a safe evaluation context with proper error handling
+    const safeEval = (expr: string, xValue: number): number => {
       try {
-        // Replace common math functions and constants
+        // Sanitize and prepare the expression
         const processedExpr = expr
-          .replace(/sin/g, 'Math.sin')
-          .replace(/cos/g, 'Math.cos')
-          .replace(/tan/g, 'Math.tan')
-          .replace(/sqrt/g, 'Math.sqrt')
-          .replace(/abs/g, 'Math.abs')
-          .replace(/log/g, 'Math.log')
-          .replace(/exp/g, 'Math.exp')
-          .replace(/pi/g, 'Math.PI')
-          .replace(/e/g, 'Math.E')
+          // Math functions - must be done first
+          .replace(/\bsin\s*\(/g, 'Math.sin(')
+          .replace(/\bcos\s*\(/g, 'Math.cos(')
+          .replace(/\btan\s*\(/g, 'Math.tan(')
+          .replace(/\bsqrt\s*\(/g, 'Math.sqrt(')
+          .replace(/\babs\s*\(/g, 'Math.abs(')
+          .replace(/\blog\s*\(/g, 'Math.log(')
+          .replace(/\bln\s*\(/g, 'Math.log(')
+          .replace(/\bexp\s*\(/g, 'Math.exp(')
+          .replace(/\basin\s*\(/g, 'Math.asin(')
+          .replace(/\bacos\s*\(/g, 'Math.acos(')
+          .replace(/\batan\s*\(/g, 'Math.atan(')
+          // Constants
+          .replace(/\bpi\b/gi, 'Math.PI')
+          .replace(/\be\b/g, 'Math.E')
+          // Operators
           .replace(/\^/g, '**')
-          .replace(/x/g, `(${x})`);
+          // Replace x with the actual value (wrapped in parens to maintain precedence)
+          .replace(/x/g, `(${xValue})`);
         
-        return Function('"use strict"; return (' + processedExpr + ')')();
+        // Use Function constructor for safer evaluation than eval()
+        const fn = new Function('Math', `"use strict"; return (${processedExpr})`);
+        const result = fn(Math);
+        
+        // Validate result
+        if (typeof result !== 'number' || !isFinite(result)) {
+          return NaN;
+        }
+        return result;
       } catch (e) {
         return NaN;
       }
@@ -582,7 +604,7 @@ export default function GeometryCanvas({
     
     for (let x = xMin; x <= xMax; x += step) {
       const y = safeEval(expression, x);
-      if (!isNaN(y) && isFinite(y)) {
+      if (!isNaN(y) && isFinite(y) && Math.abs(y) < 10000) { // Prevent plotting of extreme values
         points.push({ x, y });
       }
     }
@@ -761,55 +783,73 @@ export default function GeometryCanvas({
           style={{ touchAction: 'none', cursor: isPanning ? 'grabbing' : 'crosshair' }}
         >
           <g transform={`translate(${pan.x}, ${pan.y}) scale(${scale})`}>
-            {/* Grid */}
+            {/* Grid - Dynamically scaled with zoom */}
             {showGridState && (
               <g opacity={0.3}>
-                {/* Vertical lines */}
-                {Array.from({ length: Math.ceil(gridWidth / gridSize) + 1 }).map((_, i) => (
-                  <line
-                    key={`v${i}`}
-                    x1={gridLeft + i * gridSize}
-                    y1={gridTop}
-                    x2={gridLeft + i * gridSize}
-                    y2={gridBottom}
-                    stroke="#4b5563"
-                    strokeWidth={0.5 / scale}
-                  />
-                ))}
-                {/* Horizontal lines */}
-                {Array.from({ length: Math.ceil(gridHeight / gridSize) + 1 }).map((_, i) => (
-                  <line
-                    key={`h${i}`}
-                    x1={gridLeft}
-                    y1={gridTop + i * gridSize}
-                    x2={gridRight}
-                    y2={gridTop + i * gridSize}
-                    stroke="#4b5563"
-                    strokeWidth={0.5 / scale}
-                  />
-                ))}
+                {/* Vertical lines - properly calculated for dynamic grid */}
+                {(() => {
+                  const gridWidth = gridRight - gridLeft;
+                  const verticalCount = Math.ceil(gridWidth / gridSize) + 1;
+                  return Array.from({ length: verticalCount }).map((_, i) => (
+                    <line
+                      key={`v${i}`}
+                      x1={gridLeft + i * gridSize}
+                      y1={gridTop}
+                      x2={gridLeft + i * gridSize}
+                      y2={gridBottom}
+                      stroke="#4b5563"
+                      strokeWidth={Math.max(0.5, 0.5 / scale)}
+                    />
+                  ));
+                })()}
+                {/* Horizontal lines - properly calculated for dynamic grid */}
+                {(() => {
+                  const gridHeight = gridBottom - gridTop;
+                  const horizontalCount = Math.ceil(gridHeight / gridSize) + 1;
+                  return Array.from({ length: horizontalCount }).map((_, i) => (
+                    <line
+                      key={`h${i}`}
+                      x1={gridLeft}
+                      y1={gridTop + i * gridSize}
+                      x2={gridRight}
+                      y2={gridTop + i * gridSize}
+                      stroke="#4b5563"
+                      strokeWidth={Math.max(0.5, 0.5 / scale)}
+                    />
+                  ));
+                })()}
               </g>
             )}
             
-            {/* Axes */}
+            {/* Axes - Always visible and properly scaled */}
             {showAxes && (
               <g>
+                {/* X-axis (horizontal) */}
                 <line 
                   x1={gridLeft} 
                   y1={0} 
                   x2={gridRight} 
                   y2={0} 
                   stroke="#6366f1" 
-                  strokeWidth={1 / scale} 
-                  opacity={0.5} 
+                  strokeWidth={Math.max(1, 1 / scale)} 
+                  opacity={0.7} 
                 />
+                {/* Y-axis (vertical) */}
                 <line 
                   x1={0} 
                   y1={gridTop} 
                   x2={0} 
                   y2={gridBottom} 
                   stroke="#6366f1" 
-                  strokeWidth={1 / scale} 
+                  strokeWidth={Math.max(1, 1 / scale)} 
+                  opacity={0.7} 
+                />
+                {/* Origin point for reference */}
+                <circle 
+                  cx={0} 
+                  cy={0} 
+                  r={Math.max(2, 3 / scale)} 
+                  fill="#6366f1" 
                   opacity={0.5} 
                 />
               </g>
@@ -890,21 +930,37 @@ export default function GeometryCanvas({
                 <circle
                   cx={point.x}
                   cy={point.y}
-                  r={6 / scale}
+                  r={Math.max(6 / scale, 2)}
                   fill={selectedPoint?.includes(point.id) ? '#f59e0b' : point.color}
                   stroke="#0f0f1a"
-                  strokeWidth={2 / scale}
-                  className="hover:r-8"
+                  strokeWidth={Math.max(2 / scale, 1)}
+                  style={{ transition: 'fill 0.2s' }}
                 />
                 <text
-                  x={point.x + 10 / scale}
-                  y={point.y - 10 / scale}
+                  x={point.x + Math.max(10 / scale, 5)}
+                  y={point.y - Math.max(10 / scale, 5)}
                   fill="#9ca3af"
-                  fontSize={12 / scale}
+                  fontSize={Math.max(12 / scale, 8)}
                   fontFamily="monospace"
+                  textAnchor="start"
+                  dominantBaseline="auto"
                 >
-                  {point.label}({Math.round(point.x/gridSize)},{-Math.round((point.y - height/2)/gridSize)})
+                  {point.label}
                 </text>
+                {/* Show coordinates on hover or selection */}
+                {showMeasurements && (
+                  <text
+                    x={point.x + Math.max(10 / scale, 5)}
+                    y={point.y + Math.max(20 / scale, 10)}
+                    fill="#6b7280"
+                    fontSize={Math.max(10 / scale, 7)}
+                    fontFamily="monospace"
+                    textAnchor="start"
+                    opacity={0.7}
+                  >
+                    ({point.x.toFixed(1)}, {point.y.toFixed(1)})
+                  </text>
+                )}
               </g>
             ))}
             
