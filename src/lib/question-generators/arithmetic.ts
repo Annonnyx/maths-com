@@ -350,56 +350,35 @@ export class ArithmeticGenerator implements QuestionGenerator {
       question: `${base}^${exponent} = ?`,
       answers,
       correct: result.toString(),
-      explanation: `${base}^${exponent} = ${base} × ${base} ${exponent > 2 ? `× ${base}`.repeat(exponent - 2) : ''} = ${result}`,
+      explanation: `${base}^${exponent} = ${Array(exponent).fill(base).join(' × ')} = ${result}`,
       difficulty
     };
   }
 
   private generateRoot(difficulty: number): GeneratedQuestion {
-    let result: number;
-    
-    switch (difficulty) {
-      case 1:
-        result = randomInt(1, 10);
-        break;
-      case 2:
-        result = randomInt(4, 25);
-        break;
-      case 3:
-        result = randomInt(9, 49);
-        break;
-      case 4:
-        result = randomInt(16, 100);
-        break;
-      case 5:
-        result = randomInt(25, 144);
-        break;
-      case 6:
-        result = randomInt(36, 196);
-        break;
-      case 7:
-        result = randomInt(49, 225);
-        break;
-      case 8:
-        result = randomInt(64, 256);
-        break;
-      case 9:
-        result = randomInt(81, 324);
-        break;
-      case 10:
-        result = randomInt(100, 400);
-        break;
-      default:
-        result = randomInt(4, 25);
-    }
+    // Generate perfect squares only
+    const perfectSquares: Record<number, number[]> = {
+      1: [1, 4, 9, 16, 25, 36, 49, 64, 81, 100],
+      2: [4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169],
+      3: [9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225],
+      4: [16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256],
+      5: [25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324, 361],
+      6: [36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400],
+      7: [49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400, 441],
+      8: [64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400, 441, 484],
+      9: [81, 100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400, 441, 484, 529],
+      10: [100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400, 441, 484, 529, 576, 625]
+    };
 
-    const number = result * result;
+    const squares = perfectSquares[difficulty] || perfectSquares[2];
+    const number = randomChoice(squares);
+    const result = Math.sqrt(number);
     const wrongAnswers = [
       (result + 1).toString(),
       (result - 1).toString(),
       (result + 2).toString(),
-      Math.sqrt(number / 2).toString(),
-    ].filter(ans => ans !== result.toString() && Number(ans) > 0);
+      number > 4 ? Math.sqrt(number / 2).toString() : (result + 3).toString(),
+    ].filter(ans => ans !== result.toString() && Number(ans) > 0 && !isNaN(Number(ans)));
 
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
@@ -551,7 +530,7 @@ export class ArithmeticGenerator implements QuestionGenerator {
         questionText = `${numerator1}/${denominator1} × ${numerator2}/${denominator2} = ?`;
         break;
       case 'divide':
-        result = (numerator1 * denominator2) / (denominator2 * denominator1);
+        result = (numerator1 * denominator2) / (denominator1 * numerator2);
         questionText = `${numerator1}/${denominator1} ÷ ${numerator2}/${denominator2} = ?`;
         break;
     }

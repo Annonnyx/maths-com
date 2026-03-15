@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Exercise, QuestionHistory, generateAdaptiveQuestion } from './adaptive-exercises';
-import { calculateEloChange, clampElo } from '~lib/elo';
+import { calculateEloChange, clampElo } from '@/lib/elo';
+import { logger } from '@/lib/logger';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,6 +12,7 @@ export class AdaptiveExerciseManager {
   private userId: string | null = null;
   private questionHistory: QuestionHistory[] = [];
   private recentPerformance: { correct: boolean; time: number }[] = [];
+  private currentStreak: number = 0;
 
   constructor(userId: string | null = null) {
     this.userId = userId;
@@ -33,18 +35,18 @@ export class AdaptiveExerciseManager {
         .limit(50); // Load last 50 questions
 
       if (error) {
-        console.error('Error loading question history:', error);
+        logger.error('Error loading question history', error);
         return;
       }
 
       this.questionHistory = data?.map(item => ({
-        question_id: item.questionId,
-        answered_at: new Date(item.answeredAt),
+        question_id: item.question_id,
+        answered_at: new Date(item.answered_at),
         correct: item.correct,
-        elo_at_moment: (item as any).eloAtMoment
+        elo_at_moment: item.elo_at_moment
       })) || [];
     } catch (error) {
-      console.error('Error in loadQuestionHistory:', error);
+      logger.error('Error in loadQuestionHistory', error);
     }
   }
 
@@ -110,7 +112,7 @@ export class AdaptiveExerciseManager {
     // Calculate ELO change using new algorithm
     const scoreReal = isCorrect ? 1 : 0;
     const maxTime = 60; // placeholder
-    const streak = 0; // TODO: track streak in adaptive mode
+    const streak = this.currentStreak;
     
     const eloChange = calculateEloChange(
       currentElo,
@@ -133,6 +135,10 @@ export class AdaptiveExerciseManager {
           question_id: exercise.id,
           answered_at: new Date().toISOString(),
           correct: isCorrect,
+          time_spent: responseTime,
+          difficulty: exercise.difficulty.toString(),
+          subject: 'maths',
+          type: 'calculation',
           elo_at_moment: currentElo
         });
 
@@ -143,7 +149,7 @@ export class AdaptiveExerciseManager {
       // Update user ELO
       const { error: eloError } = await supabase
         .from('users')
-        .update({ elo: newElo })
+        .update({ soloElo: newElo })
         .eq('id', this.userId);
 
       if (eloError) {
@@ -163,11 +169,18 @@ export class AdaptiveExerciseManager {
         this.questionHistory = this.questionHistory.slice(0, 50);
       }
 
-      // Update recent performance
+      // Update recent performance and streak
       this.recentPerformance.push({
         correct: isCorrect,
         time: responseTime
       });
+
+      // Update streak
+      if (isCorrect) {
+        this.currentStreak++;
+      } else {
+        this.currentStreak = 0;
+      }
 
       // Keep only last 10 performances for adaptation
       if (this.recentPerformance.length > 10) {
@@ -243,7 +256,7 @@ export class AdaptiveExerciseManager {
         .reverse()
         .map((q, index) => ({
           date: q.answered_at.toLocaleDateString(),
-          elo: (q as any).eloAtMoment // Garder tel quel car c'est l'historique
+          elo: q.elo_at_moment
         }));
 
       return {
@@ -282,6 +295,7 @@ export class AdaptiveExerciseManager {
       } else {
         this.questionHistory = [];
         this.recentPerformance = [];
+        this.currentStreak = 0;
       }
     } catch (error) {
       console.error('Error in clearHistory:', error);

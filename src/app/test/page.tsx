@@ -14,7 +14,7 @@ import {
 import { useSound } from '@/components/SoundProvider';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
 import { Exercise, generateTest, generateEvaluationTest, generateFocusedTest, getOperationTypesForCourse, validateAnswer } from '@/lib/exercises';
-import { calculateEloChange, getPerformanceTier, getRankFromElo, RANK_COLORS, RANK_BG_COLORS } from '~lib/elo';
+import { calculateEloChange, getPerformanceTier, getRankFromElo, RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
 import { getClassFromDifficulty, formatClassName } from '@/lib/french-classes';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 

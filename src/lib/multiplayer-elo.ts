@@ -1,5 +1,5 @@
 import { MultiplayerGame, MultiplayerStats, TimeControl, GameType } from './multiplayer';
-import { calculateEloChange, clampElo } from '~lib/elo';
+import { calculateEloChange, clampElo } from '@/lib/elo';
 import { User } from '@/types';
 import { getRankFromElo } from './elo';
 
@@ -21,10 +21,10 @@ export function calculateMultiplayerEloChange(
     playerElo,
     opponentElo,
     scoreReal,
-    undefined,
-    undefined,
-    0,
-    true // multijoueur => pas de modificateur temps
+    30, // Average response time for multiplayer
+    60, // Max time per question
+    0,  // No streak tracking in multiplayer
+    true // multiplayer mode
   );
 
   // Arrondir à l’entier le plus proche

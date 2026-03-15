@@ -86,10 +86,27 @@ export class AdaptiveQuestionGenerator {
       generators.push(this.algebra);
     }
 
-    // Select random generator
-    const generator = generators[Math.floor(Math.random() * generators.length)];
+    // Select generator with weighted distribution for better balance
+    const weights = generators.map((_, index) => {
+      // Arithmetic should be most common at lower levels
+      if (index === 0) return baseDifficulty <= 4 ? 0.6 : 0.3;
+      // Other domains get higher weight at appropriate levels
+      return baseDifficulty <= 4 ? 0.4 / (generators.length - 1) : 0.7 / (generators.length - 1);
+    });
     
-    return generator.generate(baseDifficulty);
+    const random = Math.random();
+    let cumulative = 0;
+    let selectedGenerator = generators[0];
+    
+    for (let i = 0; i < generators.length; i++) {
+      cumulative += weights[i];
+      if (random <= cumulative) {
+        selectedGenerator = generators[i];
+        break;
+      }
+    }
+    
+    return selectedGenerator.generate(baseDifficulty);
   }
 
   generateMixedForLevel(level: FrenchClass, count: number = 10): GeneratedQuestion[] {

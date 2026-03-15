@@ -11,29 +11,29 @@ export const RANK_CLASSES = [
 
 export type RankClass = typeof RANK_CLASSES[number];
 
-// Elo thresholds for each rank
+// Elo thresholds for each rank - consistent 100 point gaps
 export const RANK_THRESHOLDS: Record<RankClass, { min: number; max: number }> = {
-  'F-': { min: 0, max: 499 },
-  'F': { min: 500, max: 599 },
-  'F+': { min: 600, max: 699 },
-  'E-': { min: 700, max: 799 },
-  'E': { min: 800, max: 899 },
-  'E+': { min: 900, max: 999 },
-  'D-': { min: 1000, max: 1099 },
-  'D': { min: 1100, max: 1199 },
-  'D+': { min: 1200, max: 1299 },
-  'C-': { min: 1300, max: 1399 },
-  'C': { min: 1400, max: 1499 },
-  'C+': { min: 1500, max: 1649 },
-  'B-': { min: 1650, max: 1799 },
-  'B': { min: 1800, max: 1949 },
-  'B+': { min: 1950, max: 2099 },
-  'A-': { min: 2100, max: 2299 },
-  'A': { min: 2300, max: 2499 },
-  'A+': { min: 2500, max: 2749 },
-  'S-': { min: 2750, max: 2999 },
-  'S': { min: 3000, max: 3499 },
-  'S+': { min: 3500, max: Infinity }
+  'F-': { min: 0, max: 399 },
+  'F': { min: 400, max: 499 },
+  'F+': { min: 500, max: 599 },
+  'E-': { min: 600, max: 699 },
+  'E': { min: 700, max: 799 },
+  'E+': { min: 800, max: 899 },
+  'D-': { min: 900, max: 999 },
+  'D': { min: 1000, max: 1099 },
+  'D+': { min: 1100, max: 1199 },
+  'C-': { min: 1200, max: 1299 },
+  'C': { min: 1300, max: 1399 },
+  'C+': { min: 1400, max: 1499 },
+  'B-': { min: 1500, max: 1599 },
+  'B': { min: 1600, max: 1699 },
+  'B+': { min: 1700, max: 1799 },
+  'A-': { min: 1800, max: 1899 },
+  'A': { min: 1900, max: 1999 },
+  'A+': { min: 2000, max: 2099 },
+  'S-': { min: 2100, max: 2249 },
+  'S': { min: 2250, max: 2499 },
+  'S+': { min: 2500, max: Infinity }
 };
 
 // Colors for each rank tier
@@ -56,6 +56,11 @@ export const RANK_BG_COLORS: Record<string, string> = {
   'A': 'bg-orange-500/20 border-orange-500',
   'S': 'bg-yellow-500/20 border-yellow-500'
 };
+
+// Clamp ELO within reasonable bounds
+export function clampElo(elo: number): number {
+  return Math.max(0, Math.min(4000, elo));
+}
 
 // Get rank class from Elo
 export function getRankFromElo(elo: number): RankClass {
@@ -84,47 +89,43 @@ export function getRankProgress(elo: number, rank: RankClass): number {
   return Math.min(100, Math.max(0, (progress / range) * 100));
 }
 
-// Calculate Elo change based on test performance - SOLO MODE (harder progression)
+// Calculate Elo change based on performance vs expected
 export function calculateEloChange(
-  correctAnswers: number,
-  totalQuestions: number = 20,
-  currentStreak: number = 0
+  playerElo: number,
+  questionElo: number,  
+  score: number, // 0 or 1
+  responseTime: number,
+  maxTime: number,
+  streak: number,
+  isMultiplayer: boolean
 ): number {
-  const score = (correctAnswers / totalQuestions) * 100;
+  // Expected score using Elo formula
+  const expectedScore = 1 / (1 + Math.pow(10, (questionElo - playerElo) / 400));
   
-  // Base Elo change based on score - SOLO IS HARDER NOW
-  let eloChange = 0;
+  // K-factor: higher for multiplayer, lower for high Elo players
+  let kFactor = isMultiplayer ? 32 : 24;
   
-  if (score < 50) {
-    // Below 10/20 = lose more Elo in solo
-    eloChange = -Math.round((50 - score) * 3); // Increased penalty
-  } else if (score < 60) {
-    // 10-11/20 = minimal gain (nerfed)
-    eloChange = Math.round((score - 50) * 1);
-  } else if (score < 70) {
-    // 12-13/20 = small gain
-    eloChange = Math.round((score - 50) * 1.5);
-  } else if (score < 80) {
-    // 14-15/20 = moderate gain
-    eloChange = Math.round((score - 50) * 2);
-  } else if (score < 90) {
-    // 16-17/20 = good gain
-    eloChange = Math.round((score - 50) * 2.5);
-  } else if (score < 100) {
-    // 18-19/20 = very good gain
-    eloChange = Math.round((score - 50) * 3);
-  } else {
-    // 20/20 = excellent gain + perfect bonus (nerfed from +50 to +30)
-    eloChange = Math.round((score - 50) * 3) + 30;
+  // Reduce K-factor for high Elo players to prevent inflation
+  if (playerElo > 2000) kFactor *= 0.7;
+  else if (playerElo > 1500) kFactor *= 0.85;
+  
+  // Time bonus/penalty
+  let timeBonus = 0;
+  const timeRatio = responseTime / maxTime;
+  if (score === 1) { // Only apply time bonus for correct answers
+    if (timeRatio < 0.3) timeBonus = 5; // Very fast
+    else if (timeRatio < 0.5) timeBonus = 3; // Fast
+    else if (timeRatio > 1.5) timeBonus = -2; // Slow
   }
   
-  // Streak bonus - REDUCED for solo
-  if (currentStreak > 0) {
-    eloChange += Math.min(currentStreak * 3, 25); // Max +25 for streaks (was 50)
-  }
+  // Streak bonus (max +10)
+  const streakBonus = Math.min(streak * 2, 10);
   
-  // Cap the change between -16 and +16
-  eloChange = Math.max(-16, Math.min(16, eloChange));
+  // Calculate change
+  let eloChange = Math.round(kFactor * (score - expectedScore) + timeBonus + streakBonus);
+  
+  // Cap changes to prevent extreme swings
+  eloChange = Math.max(-20, Math.min(20, eloChange));
   
   return eloChange;
 }
@@ -266,34 +267,34 @@ export function calculateAdvancedEloChange(result: TestResult): {
   };
 }
 
-// Calculate rank tier for display
+// Calculate rank tier for display - adjusted for new Elo system
 export function getPerformanceTier(eloChange: number): {
   tier: 'SS' | 'S' | 'A' | 'B' | 'C' | 'D' | 'F';
   color: string;
   message: string;
 } {
-  if (eloChange >= 150) return { tier: 'SS', color: 'text-purple-400', message: 'Légendaire!' };
-  if (eloChange >= 100) return { tier: 'S', color: 'text-yellow-400', message: 'Exceptionnel!' };
-  if (eloChange >= 60) return { tier: 'A', color: 'text-green-400', message: 'Excellent!' };
-  if (eloChange >= 30) return { tier: 'B', color: 'text-blue-400', message: 'Très bien!' };
-  if (eloChange >= 10) return { tier: 'C', color: 'text-teal-400', message: 'Bien joué!' };
-  if (eloChange >= 0) return { tier: 'D', color: 'text-gray-400', message: 'Passable' };
+  if (eloChange >= 15) return { tier: 'SS', color: 'text-purple-400', message: 'Légendaire!' };
+  if (eloChange >= 10) return { tier: 'S', color: 'text-yellow-400', message: 'Exceptionnel!' };
+  if (eloChange >= 5) return { tier: 'A', color: 'text-green-400', message: 'Excellent!' };
+  if (eloChange >= 2) return { tier: 'B', color: 'text-blue-400', message: 'Très bien!' };
+  if (eloChange >= 0) return { tier: 'C', color: 'text-teal-400', message: 'Bien joué!' };
+  if (eloChange >= -3) return { tier: 'D', color: 'text-gray-400', message: 'Passable' };
   return { tier: 'F', color: 'text-red-400', message: 'À réviser...' };
 }
 
-// Get operation types unlocked at each level
+// Get operation types unlocked at each level - adjusted for new rank system
 export function getUnlockedOperations(elo: number): string[] {
   const operations = ['addition', 'mental_math', 'logic'];
   
-  if (elo >= 450) operations.push('subtraction');
-  if (elo >= 500) operations.push('percentage');
-  if (elo >= 550) operations.push('multiplication');
-  if (elo >= 600) operations.push('fraction');
-  if (elo >= 700) operations.push('division');
-  if (elo >= 800) operations.push('equation');
-  if (elo >= 900) operations.push('power');
-  if (elo >= 1000) operations.push('root');
-  if (elo >= 1100) operations.push('factorization');
+  if (elo >= 400) operations.push('subtraction');  // F rank
+  if (elo >= 500) operations.push('percentage');  // F+ rank
+  if (elo >= 600) operations.push('multiplication'); // E- rank
+  if (elo >= 700) operations.push('fraction');    // E rank
+  if (elo >= 800) operations.push('division');    // E+ rank
+  if (elo >= 900) operations.push('equation');    // D- rank
+  if (elo >= 1000) operations.push('power');      // D rank
+  if (elo >= 1100) operations.push('root');       // D+ rank
+  if (elo >= 1200) operations.push('factorization'); // C- rank
   
   return operations;
 }
