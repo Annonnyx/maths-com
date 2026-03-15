@@ -171,8 +171,13 @@ export default function GeometryCanvas({
         throw new Error('JSXGraph library not loaded');
       }
 
-      // Create JSXGraph board with simplified options
-      const jsxBoard = JXG.JSXGraph.initBoard(boardRef.current, {
+      // Clear any existing board first
+      if (boardRef.current.children.length > 0) {
+        boardRef.current.innerHTML = '';
+      }
+
+      // Create JSXGraph board with basic configuration
+      const jsxBoard = JXG.JSXGraph.initBoard(boardRef.current.id || 'jxgbox', {
         boundingbox: [-20, 20, 20, -20],
         axis: showAxesState,
         grid: showGridState,
@@ -189,52 +194,13 @@ export default function GeometryCanvas({
           factorY: 1.25,
           min: 0.1,
           max: 10
-        },
-        // Style configuration for dark theme
-        defaultAxes: {
-          x: {
-            strokeColor: '#ffffff',
-            strokeOpacity: 0.8,
-            strokeWidth: 1,
-            ticks: {
-              strokeColor: '#ffffff',
-              strokeOpacity: 0.6,
-              strokeWidth: 1,
-              majorHeight: 10,
-              minorHeight: 5,
-              label: {
-                strokeColor: '#ffffff',
-                fillColor: '#ffffff',
-                fontSize: 12
-              }
-            }
-          },
-          y: {
-            strokeColor: '#ffffff',
-            strokeOpacity: 0.8,
-            strokeWidth: 1,
-            ticks: {
-              strokeColor: '#ffffff',
-              strokeOpacity: 0.6,
-              strokeWidth: 1,
-              majorHeight: 10,
-              minorHeight: 5,
-              label: {
-                strokeColor: '#ffffff',
-                fillColor: '#ffffff',
-                fontSize: 12
-              }
-            }
-          }
-        },
-        defaultGrid: {
-          strokeColor: '#ffffff',
-          strokeOpacity: 0.1,
-          strokeWidth: 0.5,
-          gridX: 1,
-          gridY: 1
         }
       });
+
+      // Set board ID if not present
+      if (!boardRef.current.id) {
+        boardRef.current.id = 'jxgbox_' + Date.now();
+      }
 
       // Add fullscreen functionality
       const handleFullscreen = () => {
@@ -242,8 +208,10 @@ export default function GeometryCanvas({
           boardRef.current?.requestFullscreen().then(() => {
             setIsFullscreen(true);
             setTimeout(() => {
-              jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
-              jsxBoard.update();
+              if (jsxBoard && boardRef.current) {
+                jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
+                jsxBoard.update();
+              }
             }, 100);
           }).catch(e => {
             console.error('Fullscreen failed:', e);
@@ -252,8 +220,10 @@ export default function GeometryCanvas({
           document.exitFullscreen().then(() => {
             setIsFullscreen(false);
             setTimeout(() => {
-              jsxBoard.resizeContainer(width, height);
-              jsxBoard.update();
+              if (jsxBoard && boardRef.current) {
+                jsxBoard.resizeContainer(width, height);
+                jsxBoard.update();
+              }
             }, 100);
           }).catch(e => {
             console.error('Exit fullscreen failed:', e);
@@ -264,12 +234,14 @@ export default function GeometryCanvas({
       // Listen for fullscreen changes
       const handleFullscreenChange = () => {
         setIsFullscreen(!!document.fullscreenElement);
-        if (document.fullscreenElement && boardRef.current) {
+        if (document.fullscreenElement && jsxBoard && boardRef.current) {
           jsxBoard.resizeContainer(window.innerWidth, window.innerHeight);
-        } else if (!document.fullscreenElement) {
+        } else if (!document.fullscreenElement && jsxBoard && boardRef.current) {
           jsxBoard.resizeContainer(width, height);
         }
-        jsxBoard.update();
+        if (jsxBoard) {
+          jsxBoard.update();
+        }
       };
 
       document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -282,6 +254,7 @@ export default function GeometryCanvas({
         document.removeEventListener('fullscreenchange', handleFullscreenChange);
         try {
           if (jsxBoard) {
+            // Safely free the board
             JXG.JSXGraph.freeBoard(jsxBoard);
           }
         } catch (e) {
@@ -295,12 +268,31 @@ export default function GeometryCanvas({
     }
   }, [showAxesState, showGridState, width, height]);
 
-  // Update grid and axes visibility
+  // Update grid and axes visibility and styling
   useEffect(() => {
     if (board && board.options) {
       try {
-        board.options.axis.show = showAxesState;
-        board.options.grid.show = showGridState;
+        // Update axes visibility
+        if (board.defaultAxes) {
+          if (board.defaultAxes.x) {
+            board.defaultAxes.x.setAttribute('visible', showAxesState);
+            board.defaultAxes.x.setAttribute('strokeColor', '#ffffff');
+            board.defaultAxes.x.setAttribute('strokeWidth', 1);
+          }
+          if (board.defaultAxes.y) {
+            board.defaultAxes.y.setAttribute('visible', showAxesState);
+            board.defaultAxes.y.setAttribute('strokeColor', '#ffffff');
+            board.defaultAxes.y.setAttribute('strokeWidth', 1);
+          }
+        }
+        
+        // Update grid visibility
+        if (board.defaultGrid) {
+          board.defaultGrid.setAttribute('visible', showGridState);
+          board.defaultGrid.setAttribute('strokeColor', '#ffffff');
+          board.defaultGrid.setAttribute('strokeOpacity', 0.1);
+        }
+        
         board.update();
       } catch (e) {
         console.error('Error updating board options:', e);
@@ -435,28 +427,79 @@ export default function GeometryCanvas({
   const clearAll = () => {
     if (board) {
       try {
-        // Safely remove all objects
-        const objectsToRemove = [...board.objects];
-        objectsToRemove.forEach(obj => {
-          try {
-            if (obj && obj.exists && obj.exists()) {
-              board.removeObject(obj);
+        // Remove all objects safely using suspendUpdate
+        board.suspendUpdate();
+        
+        // Remove each object type separately
+        [...points].forEach(point => {
+          if (point.jsxgraphPoint && board.removeObject) {
+            try {
+              board.removeObject(point.jsxgraphPoint);
+            } catch (e) {
+              // Ignore errors for already removed objects
             }
-          } catch (e) {
-            // Ignore errors for already removed objects
           }
         });
+        
+        [...lines].forEach(line => {
+          if (line.jsxgraphLine && board.removeObject) {
+            try {
+              board.removeObject(line.jsxgraphLine);
+            } catch (e) {
+              // Ignore errors for already removed objects
+            }
+          }
+        });
+        
+        [...circles].forEach(circle => {
+          if (circle.jsxgraphCircle && board.removeObject) {
+            try {
+              board.removeObject(circle.jsxgraphCircle);
+            } catch (e) {
+              // Ignore errors for already removed objects
+            }
+          }
+        });
+        
+        [...polygons].forEach(polygon => {
+          if (polygon.jsxgraphPolygon && board.removeObject) {
+            try {
+              board.removeObject(polygon.jsxgraphPolygon);
+            } catch (e) {
+              // Ignore errors for already removed objects
+            }
+          }
+        });
+        
+        [...functions].forEach(func => {
+          if (func.jsxgraphFunction && board.removeObject) {
+            try {
+              board.removeObject(func.jsxgraphFunction);
+            } catch (e) {
+              // Ignore errors for already removed objects
+            }
+          }
+        });
+        
+        // Reset the view
+        board.setBoundingBox([-20, 20, 20, -20]);
+        board.unsuspendUpdate();
+        board.update();
       } catch (e) {
-        // If board.objects is not available, just reset the view
+        console.error('Error clearing board:', e);
+        // Fallback: just reset the view
         try {
           board.suspendUpdate();
           board.setBoundingBox([-20, 20, 20, -20]);
           board.unsuspendUpdate();
+          board.update();
         } catch (e2) {
           console.error('Error resetting board:', e2);
         }
       }
     }
+    
+    // Clear all state
     setPoints([]);
     setLines([]);
     setCircles([]);
@@ -940,6 +983,7 @@ export default function GeometryCanvas({
           </div>
         ) : (
           <div 
+            id={`jxgbox_${Date.now()}`}
             ref={boardRef}
             className="jxgbox" 
             onClick={handleCanvasClick}
