@@ -158,19 +158,22 @@ export default function GeometryCanvas({
     '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'
   ];
 
-  // Initialize JSXGraph board
+  // Initialize JSXGraph board - simplified approach
   useEffect(() => {
     if (!boardRef.current || !isBrowser) return;
 
-    setIsLoading(true);
-    setError(null);
-
-    // Simple timeout to ensure DOM is ready
-    const timer = setTimeout(() => {
+    // Simple flag to prevent multiple initializations
+    let isInitialized = false;
+    
+    const initBoard = () => {
+      if (isInitialized || !boardRef.current) return;
+      
       try {
         // Check if JSXGraph is available
         if (!JXG) {
-          throw new Error('JSXGraph library not loaded');
+          console.error('JSXGraph not available');
+          setIsLoading(false);
+          return;
         }
 
         // Clear any existing content
@@ -178,77 +181,41 @@ export default function GeometryCanvas({
           boardRef.current.innerHTML = '';
         }
 
-        // Create JSXGraph board with proper configuration based on docs
+        // Create JSXGraph board with minimal options
         const jsxBoard = JXG.JSXGraph.initBoard('geometry-board', {
           boundingbox: [-20, 20, 20, -20],
-          keepaspectratio: false,
-          axis: showAxesState,
-          grid: showGridState,
+          axis: true,
+          grid: true,
           showCopyright: false,
-          showFullscreen: false,
-          showScreenshot: false,
-          showClearTraces: false,
-          showInfobox: false,
-          showNavigation: false,
-          defaultAxes: {
-            x: {
-              strokeColor: '#ffffff',
-              strokeWidth: 1,
-              withLabel: true,
-              label: {
-                position: '95% left',
-                offset: [-10, 10],
-                strokeColor: '#ffffff',
-                fillColor: '#ffffff',
-                fontSize: 12
-              },
-              ticks: {
-                strokeColor: '#ffffff',
-                strokeWidth: 1,
-                majorHeight: 10,
-                minorHeight: 5,
-                label: {
-                  strokeColor: '#ffffff',
-                  fillColor: '#ffffff',
-                  fontSize: 10
-                }
-              }
-            },
-            y: {
-              strokeColor: '#ffffff',
-              strokeWidth: 1,
-              withLabel: true,
-              label: {
-                position: '0.90fr right',
-                offset: [6, -6],
-                strokeColor: '#ffffff',
-                fillColor: '#ffffff',
-                fontSize: 12
-              },
-              ticks: {
-                strokeColor: '#ffffff',
-                strokeWidth: 1,
-                majorHeight: 10,
-                minorHeight: 5,
-                label: {
-                  strokeColor: '#ffffff',
-                  fillColor: '#ffffff',
-                  fontSize: 10
-                }
-              }
-            }
-          },
-          defaultGrid: {
-            strokeColor: '#ffffff',
-            strokeWidth: 0.5,
-            strokeOpacity: 0.1
-          }
+          showNavigation: false
         });
 
-        // Set board ID
-        if (boardRef.current) {
-          boardRef.current.id = 'geometry-board';
-        }
+        // Apply styling after board is created
+        setTimeout(() => {
+          if (jsxBoard && jsxBoard.defaultAxes) {
+            try {
+              // Style axes
+              if (jsxBoard.defaultAxes.x) {
+                jsxBoard.defaultAxes.x.setAttribute('strokeColor', '#ffffff');
+                jsxBoard.defaultAxes.x.setAttribute('strokeWidth', 1);
+              }
+              if (jsxBoard.defaultAxes.y) {
+                jsxBoard.defaultAxes.y.setAttribute('strokeColor', '#ffffff');
+                jsxBoard.defaultAxes.y.setAttribute('strokeWidth', 1);
+              }
+              
+              // Style grid
+              if (jsxBoard.defaultGrid) {
+                jsxBoard.defaultGrid.setAttribute('strokeColor', '#ffffff');
+                jsxBoard.defaultGrid.setAttribute('strokeOpacity', 0.1);
+              }
+              
+              jsxBoard.update();
+            } catch (e) {
+              console.error('Error styling board:', e);
+            }
+          }
+        }, 100);
 
         // Simple fullscreen handler
         const handleFullscreen = () => {
@@ -280,6 +247,7 @@ export default function GeometryCanvas({
 
         setBoard(jsxBoard);
         setIsLoading(false);
+        isInitialized = true;
 
         // Cleanup function
         return () => {
@@ -297,12 +265,15 @@ export default function GeometryCanvas({
         setError('Failed to initialize geometry board');
         setIsLoading(false);
       }
-    }, 100);
+    };
+
+    // Wait a bit for DOM to be ready
+    const timer = setTimeout(initBoard, 200);
 
     return () => {
       clearTimeout(timer);
     };
-  }, []); // Empty dependency array - only run once
+  }, []); // Only run once
 
   // Handle tool selection
   const handleToolChange = (tool: GeometryTool) => {
@@ -336,13 +307,8 @@ export default function GeometryCanvas({
           offset: [10, 10],
           strokeColor: '#ffffff',
           fillColor: '#ffffff',
-          fontSize: 14,
-          position: 'top'
-        },
-        snapToGrid: false,
-        showInfobox: false,
-        attractorDistance: 0.1,
-        attractors: []
+          fontSize: 14
+        }
       });
 
       const newPoint: GeometryPoint = {
