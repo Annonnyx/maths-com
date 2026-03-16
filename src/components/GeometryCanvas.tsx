@@ -19,7 +19,8 @@ import {
   ZoomOut,
   Maximize,
   Minimize,
-  Move3d
+  Move3d,
+  Tag
 } from 'lucide-react';
 
 interface Point {
@@ -90,6 +91,7 @@ export default function GeometryCanvas({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [showMeasurements, setShowMeasurements] = useState(true);
+  const [showTicks, setShowTicks] = useState(true); // NOUVEAU: État pour les graduations
   const [symmetryAxis, setSymmetryAxis] = useState<{x1: number, y1: number, x2: number, y2: number} | null>(null);
   const [pythagoreTriangle, setPythagoreTriangle] = useState<string[] | null>(null);
   const [vectors, setVectors] = useState<{id: string, startId: string, endId: string, color: string}[]>([]);
@@ -702,6 +704,14 @@ export default function GeometryCanvas({
         </button>
         
         <button
+          onClick={() => setShowTicks(!showTicks)}
+          className={`p-2 rounded-lg transition-all ${showTicks ? 'bg-indigo-500/20' : 'hover:bg-gray-800'}`}
+          title="Graduations"
+        >
+          <Tag className={`w-5 h-5 ${showTicks ? 'text-indigo-400' : 'text-gray-400'}`} />
+        </button>
+        
+        <button
           onClick={() => setShowFunctionInput(!showFunctionInput)}
           className={`p-2 rounded-lg transition-all ${showFunctionInput ? 'bg-indigo-500/20' : 'hover:bg-gray-800'}`}
           title="Fonctions"
@@ -834,6 +844,40 @@ export default function GeometryCanvas({
                   strokeWidth={Math.max(1, 1 / scale)} 
                   opacity={0.7} 
                 />
+                {/* X-axis ticks */}
+                {showTicks && (
+                  <>
+                    {Array.from({length: Math.floor((gridRight - gridLeft) / 5) + 1}, (_, i) => {
+                      const x = Math.ceil(gridLeft / 5) * 5 + i * 5;
+                      if (x < gridLeft || x > gridRight) return null;
+                      return (
+                        <g key={`x-tick-${x}`}>
+                          <line 
+                            x1={x} 
+                            y1={-3 / scale} 
+                            x2={x} 
+                            y2={3 / scale} 
+                            stroke="#6366f1" 
+                            strokeWidth={Math.max(1, 1 / scale)} 
+                            opacity={0.5} 
+                          />
+                          {x !== 0 && (
+                            <text 
+                              x={x} 
+                              y={8 / scale} 
+                              fill="#6366f1" 
+                              fontSize={Math.max(8, 10 / scale)} 
+                              textAnchor="middle" 
+                              opacity={0.7}
+                            >
+                              {x}
+                            </text>
+                          )}
+                        </g>
+                      );
+                    })}
+                  </>
+                )}
                 {/* Y-axis (vertical) */}
                 <line 
                   x1={0} 
@@ -844,6 +888,40 @@ export default function GeometryCanvas({
                   strokeWidth={Math.max(1, 1 / scale)} 
                   opacity={0.7} 
                 />
+                {/* Y-axis ticks */}
+                {showTicks && (
+                  <>
+                    {Array.from({length: Math.floor((gridBottom - gridTop) / 5) + 1}, (_, i) => {
+                      const y = Math.ceil(gridTop / 5) * 5 + i * 5;
+                      if (y < gridTop || y > gridBottom) return null;
+                      return (
+                        <g key={`y-tick-${y}`}>
+                          <line 
+                            x1={-3 / scale} 
+                            y1={y} 
+                            x2={3 / scale} 
+                            y2={y} 
+                            stroke="#6366f1" 
+                            strokeWidth={Math.max(1, 1 / scale)} 
+                            opacity={0.5} 
+                          />
+                          {y !== 0 && (
+                            <text 
+                              x={-8 / scale} 
+                              y={y + 3 / scale} 
+                              fill="#6366f1" 
+                              fontSize={Math.max(8, 10 / scale)} 
+                              textAnchor="end" 
+                              opacity={0.7}
+                            >
+                              {y}
+                            </text>
+                          )}
+                        </g>
+                      );
+                    })}
+                  </>
+                )}
                 {/* Origin point for reference */}
                 <circle 
                   cx={0} 

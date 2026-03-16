@@ -2,6 +2,7 @@
 // Basé sur le programme scolaire français : CP, CE1, CE2, CM1, CM2, 6e, 5e, 4e, 3e, 2de, 1re, Tle, Sup1, Sup2, Sup3, Pro
 
 import { RankClass, RANK_CLASSES, RANK_THRESHOLDS } from './elo';
+import { ELO_LEVEL_RANGES, getLevelFromElo } from './question-generators/elo-ranges';
 
 // Définition des classes françaises
 export const FRENCH_CLASSES = [
@@ -73,8 +74,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Nombres jusqu\'à 1000, additions/soustractions simples, tables de 2-5',
     color: '#4ade80', // vert clair
     icon: '🌱',
-    minElo: 0,
-    maxElo: 549
+    minElo: ELO_LEVEL_RANGES.CP.min,
+    maxElo: ELO_LEVEL_RANGES.CP.max
   },
   'CE1': {
     name: 'CE1',
@@ -84,8 +85,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Nombres jusqu\'à 1000, tables complètes, division simple',
     color: '#22d3ee', // cyan
     icon: '🌿',
-    minElo: 550,
-    maxElo: 649
+    minElo: ELO_LEVEL_RANGES.CE1.min,
+    maxElo: ELO_LEVEL_RANGES.CE1.max
   },
   'CE2': {
     name: 'CE2',
@@ -95,8 +96,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Nombres jusqu\'à 10 000, fractions simples, début géométrie',
     color: '#38bdf8', // bleu clair
     icon: '🍃',
-    minElo: 650,
-    maxElo: 799
+    minElo: ELO_LEVEL_RANGES.CE2.min,
+    maxElo: ELO_LEVEL_RANGES.CE2.max
   },
   'CM1': {
     name: 'CM1',
@@ -106,8 +107,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Grands nombres, décimaux, fractions, périmètre/aire',
     color: '#60a5fa', // bleu
     icon: '🌳',
-    minElo: 800,
-    maxElo: 999
+    minElo: ELO_LEVEL_RANGES.CM1.min,
+    maxElo: ELO_LEVEL_RANGES.CM1.max
   },
   'CM2': {
     name: 'CM2',
@@ -117,8 +118,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Toutes opérations, pourcentages, solides, symétrie',
     color: '#818cf8', // indigo
     icon: '🌲',
-    minElo: 1000,
-    maxElo: 1199
+    minElo: ELO_LEVEL_RANGES.CM2.min,
+    maxElo: ELO_LEVEL_RANGES.CM2.max
   },
   '6e': {
     name: '6e',
@@ -128,8 +129,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Priorité opératoire, nombres décimaux, axes de symétrie',
     color: '#a78bfa', // violet
     icon: '📚',
-    minElo: 1200,
-    maxElo: 1399
+    minElo: ELO_LEVEL_RANGES['6e'].min,
+    maxElo: ELO_LEVEL_RANGES['6e'].max
   },
   '5e': {
     name: '5e',
@@ -139,8 +140,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Nombres relatifs, fractions, début algèbre',
     color: '#c084fc', // violet clair
     icon: '📖',
-    minElo: 1400,
-    maxElo: 1599
+    minElo: ELO_LEVEL_RANGES['5e'].min,
+    maxElo: ELO_LEVEL_RANGES['5e'].max
   },
   '4e': {
     name: '4e',
@@ -150,8 +151,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Puissances, identités remarquables, Théorème de Pythagore',
     color: '#e879f9', // rose violet
     icon: '📐',
-    minElo: 1600,
-    maxElo: 1799
+    minElo: ELO_LEVEL_RANGES['4e'].min,
+    maxElo: ELO_LEVEL_RANGES['4e'].max
   },
   '3e': {
     name: '3e',
@@ -161,8 +162,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Théorème de Thalès, trigonométrie, fonctions',
     color: '#f472b6', // rose
     icon: '🎓',
-    minElo: 1800,
-    maxElo: 1999
+    minElo: ELO_LEVEL_RANGES['3e'].min,
+    maxElo: ELO_LEVEL_RANGES['3e'].max
   },
   '2de': {
     name: '2de',
@@ -172,8 +173,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Ensembles de nombres, intervalles, statistiques',
     color: '#fb7185', // rose rouge
     icon: '🎯',
-    minElo: 2000,
-    maxElo: 2299
+    minElo: ELO_LEVEL_RANGES['2de'].min,
+    maxElo: ELO_LEVEL_RANGES['2de'].max
   },
   '1re': {
     name: '1re',
@@ -183,8 +184,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Dérivation, suites, probabilités avancées',
     color: '#fda4af', // rose pâle
     icon: '🏆',
-    minElo: 2300,
-    maxElo: 2499
+    minElo: ELO_LEVEL_RANGES['1re'].min,
+    maxElo: ELO_LEVEL_RANGES['1re'].max
   },
   'Tle': {
     name: 'Tle',
@@ -194,8 +195,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Intégrales, équations différentielles, lois binomiales',
     color: '#fcd34d', // jaune
     icon: '👑',
-    minElo: 2500,
-    maxElo: 2749
+    minElo: ELO_LEVEL_RANGES['Tle'].min,
+    maxElo: ELO_LEVEL_RANGES['Tle'].max
   },
   'Sup1': {
     name: 'Sup1',
@@ -205,8 +206,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Algèbre linéaire avancée, topologie, L1/M1',
     color: '#fbbf24', // ambre
     icon: '🔬',
-    minElo: 2750,
-    maxElo: 2999
+    minElo: ELO_LEVEL_RANGES.Sup1.min,
+    maxElo: ELO_LEVEL_RANGES.Sup1.max
   },
   'Sup2': {
     name: 'Sup2',
@@ -216,8 +217,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Analyse complexe, géométrie différentielle, L2/M2',
     color: '#f59e0b', // orange
     icon: '⚗️',
-    minElo: 3000,
-    maxElo: 3499
+    minElo: ELO_LEVEL_RANGES.Sup2.min,
+    maxElo: ELO_LEVEL_RANGES.Sup2.max
   },
   'Sup3': {
     name: 'Sup3',
@@ -227,8 +228,8 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Recherche, L3/M3/Doctorat',
     color: '#d97706', // orange foncé
     icon: '🔭',
-    minElo: 3500,
-    maxElo: 3999
+    minElo: ELO_LEVEL_RANGES.Sup3.min,
+    maxElo: ELO_LEVEL_RANGES.Sup3.max
   },
   'Pro': {
     name: 'Pro',
@@ -238,20 +239,14 @@ export const CLASS_INFO: Record<FrenchClass, ClassInfo> = {
     description: 'Niveau expert - Tous les concepts mathématiques avancés',
     color: '#dc2626', // rouge
     icon: '⭐',
-    minElo: 4000,
-    maxElo: Infinity
+    minElo: ELO_LEVEL_RANGES.Pro.min,
+    maxElo: ELO_LEVEL_RANGES.Pro.max
   }
 };
 
 // Fonction pour obtenir la classe actuelle d'un joueur selon son ELO
 export function getClassFromElo(elo: number): FrenchClass {
-  for (const className of FRENCH_CLASSES) {
-    const info = CLASS_INFO[className];
-    if (elo >= info.minElo && elo <= info.maxElo) {
-      return className;
-    }
-  }
-  return 'CP';
+  return getLevelFromElo(elo) as FrenchClass;
 }
 
 // Fonction pour obtenir les classes débloquées selon le rang

@@ -1,13 +1,33 @@
+// Import from elo-ranges.ts as the source of truth
+export { SchoolLevel, ELO_LEVEL_RANGES, ALL_LEVELS, getLevelFromElo } from './elo-ranges';
+
+// Re-export for local use
+import { SchoolLevel as ImportedSchoolLevel } from './elo-ranges';
+type SchoolLevel = ImportedSchoolLevel;
+
 export interface GeneratedQuestion {
+  id: string;
+  type: 'numeric' | 'mcq' | 'expression';
+  domain: DomainType;
+  level: SchoolLevel;
+  difficultyElo: number;
   question: string;
-  answers: string[];
-  correct: string;
+  answer: string;
   explanation: string;
-  difficulty: number;
+  timeEstimate?: number;
+  options?: string[]; // For MCQ
+  acceptableAnswers?: string[]; // For numeric/expression with multiple valid answers
 }
 
-export interface QuestionGenerator {
-  generate(difficulty: number): GeneratedQuestion;
+export interface GenerationContext {
+  userElo: number;
+  excludeGeometry?: boolean;
+}
+
+export interface LevelGenerator {
+  getEloRange(): { min: number; max: number };
+  getAvailableDomains(excludeGeometry?: boolean): DomainType[];
+  generate(context: GenerationContext): GeneratedQuestion;
 }
 
 export type DomainType = 
@@ -16,7 +36,8 @@ export type DomainType =
   | 'geometry'
   | 'functions'
   | 'statistics'
-  | 'complex';
+  | 'complex'
+  | 'calculation';
 
 // Helper functions for random generation
 export function randomInt(min: number, max: number): number {
@@ -38,4 +59,8 @@ export function shuffleArray<T>(array: T[]): T[] {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
+}
+
+export function hashQuestion(level: string, domain: string, params: any[]): string {
+  return `${level}-${domain}-${params.join('-')}`;
 }

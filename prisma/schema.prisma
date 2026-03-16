@@ -1,888 +1,682 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["multiSchema"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  schemas   = ["public"]
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public"]
 }
 
 model User {
-  @@schema("public")
-  id            String    @id @default(cuid())
-  email         String    @unique
-  username      String    @unique
-  password      String?
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  
-  // Profile (COMMUN)
-  displayName   String?   @map("display_name")
-  avatarUrl     String?   @map("avatar_url")
-  classe        String?   // Classe scolaire calculée
-  birthYear     Int?      @map("birth_year")
-  
-  // Banner customization (COMMUN)
-  bannerUrl     String?   @map("banner_url")
-  selectedBadgeIds String? @map("selected_badge_ids") // JSON array of up to 3 badge IDs to display on banner
-  customBannerId String?  @map("custom_banner_id")  // Reference to custom banner if using one
-  
-  // Admin flags (COMMUN)
-  isAdmin       Boolean   @default(false) @map("is_admin")
-  
-  // Teacher information (COMMUN)
-  isTeacher     Boolean   @default(false) @map("is_teacher")
-  school         String?
-  subject        String?
-  acceptJoinRequests Boolean @default(true) @map("accept_join_requests")
-  
-  // SOLO Ranking System
-  soloElo           Int       @default(400) @map("solo_elo")
-  soloRankClass     String    @default("F-") @map("solo_rank_class")
-  soloBestElo       Int       @default(400) @map("solo_best_elo")
-  soloBestRankClass String    @default("F-") @map("solo_best_rank_class")
-  
-  // MULTIPLAYER Ranking System
-  multiplayerElo           Int       @default(400) @map("multiplayer_elo")
-  multiplayerRankClass     String    @default("F-") @map("multiplayer_rank_class")
-  multiplayerBestElo       Int       @default(400) @map("multiplayer_best_elo")
-  multiplayerBestRankClass String    @default("F-") @map("multiplayer_best_rank_class")
-  
-  // SOLO Streak tracking
-  soloCurrentStreak Int @default(0) @map("solo_current_streak")
-  soloBestStreak Int @default(0) @map("solo_best_streak")
-  lastTestDate DateTime? @map("last_test_date")
-  
-  // Online status (COMMUN)
-  isOnline     Boolean @default(false) @map("is_online")
-  lastSeenAt   DateTime @default(now()) @map("last_seen_at")
-  
-  // Discord integration (COMMUN)
-  discordId       String?   @unique @map("discord_id")
-  discordUsername   String? @map("discord_username")
-  discordLinkedAt   DateTime? @map("discord_linked_at")
-  discordLinkCode   String?   @unique @map("discord_link_code")
-  
-  // Relations
-  soloStatistics SoloStatistics?
-  multiplayerStatistics MultiplayerStatistics?
-  soloTests SoloTest[]
-  questionHistory QuestionHistory[]
-  exerciseAttempts ExerciseAttempt[]
-  
-  // Badge relations (COMMUN)
-  userBadges   UserBadge[]
-  
-  // Custom banner relations (COMMUN)
-  customBanners CustomBanner[] @relation("UserBanners")
-  createdBanners CustomBanner[] @relation("BannerCreator")
-  
-  // Multiplayer relations
-  sentFriendships Friendship[] @relation("User1")
-  receivedFriendships Friendship[] @relation("User2")
-  sentMessages Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
-  player1Games MultiplayerGame[] @relation("Player1Games")
-  player2Games MultiplayerGame[] @relation("Player2Games")
-  
-  // Challenge relations
-  sentChallenges Challenge[] @relation("Challenger")
-  receivedChallenges Challenge[] @relation("Challenged")
-  
-  // Teacher relations (COMMUN)
-  teacherRequests TeacherRequest[]
-  sentJoinRequests ClassJoinRequest[] @relation("TeacherJoinRequests")
-  receivedJoinRequests ClassJoinRequest[] @relation("StudentJoinRequests")
-  
-  // Notification relations (COMMUN)
-  notifications Notification[]
-  sentNotifications Notification[] @relation("NotificationSender")
-  
-  // Course practice history (COMMUN)
-  coursePracticeHistories CoursePracticeHistory[]
-  
-  // Game session relations (COMMUN)
-  hostedSessions    GameSession[] @relation("HostedSessions")
-  gamePlayerships  GamePlayer[] @relation("GamePlayerships")
-
-  // Class group relations (COMMUN)
-  taughtGroups    ClassGroup[]     @relation("GroupTeacher")
-  groupMemberships ClassGroupMember[]
-  groupMessages   ClassMessage[]
-  assignmentSubmissions AssignmentSubmission[]
-  
-  // First-time setup (COMMUN)
-  hasCompletedOnboarding Boolean @default(false) @map("has_completed_onboarding")
+  id                       String                   @id @default(cuid())
+  email                    String                   @unique
+  username                 String                   @unique
+  password                 String?
+  createdAt                DateTime                 @default(now()) @map("created_at")
+  updatedAt                DateTime                 @updatedAt @map("updated_at")
+  displayName              String?                  @map("display_name")
+  avatarUrl                String?                  @map("avatar_url")
+  classe                   String?
+  birthYear                Int?                     @map("birth_year")
+  bannerUrl                String?                  @map("banner_url")
+  selectedBadgeIds         String?                  @map("selected_badge_ids")
+  customBannerId           String?                  @map("custom_banner_id")
+  isAdmin                  Boolean                  @default(false) @map("is_admin")
+  isTeacher                Boolean                  @default(false) @map("is_teacher")
+  school                   String?
+  subject                  String?
+  acceptJoinRequests       Boolean                  @default(true) @map("accept_join_requests")
+  soloElo                  Int                      @default(400) @map("solo_elo")
+  soloRankClass            String                   @default("F-") @map("solo_rank_class")
+  soloBestElo              Int                      @default(400) @map("solo_best_elo")
+  soloBestRankClass        String                   @default("F-") @map("solo_best_rank_class")
+  multiplayerElo           Int                      @default(400) @map("multiplayer_elo")
+  multiplayerRankClass     String                   @default("F-") @map("multiplayer_rank_class")
+  multiplayerBestElo       Int                      @default(400) @map("multiplayer_best_elo")
+  multiplayerBestRankClass String                   @default("F-") @map("multiplayer_best_rank_class")
+  soloCurrentStreak        Int                      @default(0) @map("solo_current_streak")
+  soloBestStreak           Int                      @default(0) @map("solo_best_streak")
+  lastTestDate             DateTime?                @map("last_test_date")
+  isOnline                 Boolean                  @default(false) @map("is_online")
+  lastSeenAt               DateTime                 @default(now()) @map("last_seen_at")
+  discordId                String?                  @unique @map("discord_id")
+  discordUsername          String?                  @map("discord_username")
+  discordLinkedAt          DateTime?                @map("discord_linked_at")
+  discordLinkCode          String?                  @unique @map("discord_link_code")
+  hasCompletedOnboarding   Boolean                  @default(false) @map("has_completed_onboarding")
+  QuestionHistory          public_QuestionHistory[]
+  assignmentSubmissions    AssignmentSubmission[]
+  receivedChallenges       Challenge[]              @relation("Challenged")
+  sentChallenges           Challenge[]              @relation("Challenger")
+  groupMemberships         ClassGroupMember[]
+  taughtGroups             ClassGroup[]             @relation("GroupTeacher")
+  receivedJoinRequests     ClassJoinRequest[]       @relation("StudentJoinRequests")
+  sentJoinRequests         ClassJoinRequest[]       @relation("TeacherJoinRequests")
+  groupMessages            ClassMessage[]
+  coursePracticeHistories  CoursePracticeHistory[]
+  createdBanners           CustomBanner[]           @relation("BannerCreator")
+  exerciseAttempts         ExerciseAttempt[]
+  sentFriendships          Friendship[]             @relation("User1")
+  receivedFriendships      Friendship[]             @relation("User2")
+  gamePlayerships          GamePlayer[]             @relation("GamePlayerships")
+  hostedSessions           GameSession[]            @relation("HostedSessions")
+  receivedMessages         Message[]                @relation("ReceivedMessages")
+  sentMessages             Message[]                @relation("SentMessages")
+  player1Games             MultiplayerGame[]        @relation("Player1Games")
+  player2Games             MultiplayerGame[]        @relation("Player2Games")
+  multiplayerStatistics    MultiplayerStatistics?
+  sentNotifications        Notification[]           @relation("NotificationSender")
+  notifications            Notification[]
+  questionHistory          QuestionHistory[]
+  soloStatistics           SoloStatistics?
+  soloTests                SoloTest[]
+  teacherRequests          TeacherRequest[]
+  userBadges               UserBadge[]
+  customBanners            CustomBanner[]           @relation("UserBanners")
 
   @@map("users")
+  @@schema("public")
 }
 
-// SOLO Statistics (renommé depuis Statistics)
 model SoloStatistics {
-  @@schema("public")
-  id     String @id @default(cuid())
-  userId String @unique @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Global solo stats
-  totalTests      Int @default(0)
-  totalQuestions  Int @default(0)
-  totalCorrect    Int @default(0)
-  totalTime       Int @default(0) // in seconds
-  
-  // Average performance
-  averageScore    Float @default(0)
-  averageTime     Float @default(0) // in seconds per test
-  
-  // By operation type
-  additionTests      Int @default(0)
-  additionCorrect    Int @default(0)
-  additionTotal      Int @default(0)
-  
-  subtractionTests   Int @default(0)
-  subtractionCorrect Int @default(0)
-  subtractionTotal   Int @default(0)
-  
-  multiplicationTests   Int @default(0)
-  multiplicationCorrect Int @default(0)
-  multiplicationTotal   Int @default(0)
-  
-  divisionTests      Int @default(0)
-  divisionCorrect    Int @default(0)
-  divisionTotal      Int @default(0)
-  
-  powerTests      Int @default(0)
-  powerCorrect    Int @default(0)
-  powerTotal      Int @default(0)
-  
-  rootTests       Int @default(0)
-  rootCorrect     Int @default(0)
-  rootTotal       Int @default(0)
-  
-  factorizationTests   Int @default(0)
-  factorizationCorrect Int @default(0)
-  factorizationTotal   Int @default(0)
-  
-  // Weak points (stored as JSON)
-  weakPoints      String? // JSON array of weak operation types
-  
-  // Elo history (stored as JSON)
-  eloHistory      String? // JSON array of {date, elo} objects
-  
-  updatedAt DateTime @updatedAt
-  
+  id                    String   @id @default(cuid())
+  userId                String   @unique @map("user_id")
+  totalTests            Int      @default(0)
+  totalQuestions        Int      @default(0)
+  totalCorrect          Int      @default(0)
+  totalTime             Int      @default(0)
+  averageScore          Float    @default(0)
+  averageTime           Float    @default(0)
+  additionTests         Int      @default(0)
+  additionCorrect       Int      @default(0)
+  additionTotal         Int      @default(0)
+  subtractionTests      Int      @default(0)
+  subtractionCorrect    Int      @default(0)
+  subtractionTotal      Int      @default(0)
+  multiplicationTests   Int      @default(0)
+  multiplicationCorrect Int      @default(0)
+  multiplicationTotal   Int      @default(0)
+  divisionTests         Int      @default(0)
+  divisionCorrect       Int      @default(0)
+  divisionTotal         Int      @default(0)
+  powerTests            Int      @default(0)
+  powerCorrect          Int      @default(0)
+  powerTotal            Int      @default(0)
+  rootTests             Int      @default(0)
+  rootCorrect           Int      @default(0)
+  rootTotal             Int      @default(0)
+  factorizationTests    Int      @default(0)
+  factorizationCorrect  Int      @default(0)
+  factorizationTotal    Int      @default(0)
+  weakPoints            String?
+  eloHistory            String?
+  updatedAt             DateTime @updatedAt
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("solo_statistics")
+  @@schema("public")
 }
 
-// SOLO Tests (renommé depuis Test)
 model SoloTest {
-  @@schema("public")
-  id          String   @id @default(cuid()) @map("id")
-  userId      String @map("user_id")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Test metadata
-  startedAt   DateTime @default(now())
-  completedAt DateTime?
-  
-  // Scoring
-  totalQuestions Int @default(20)
-  correctAnswers Int @default(0)
-  score          Int // 0-100 percentage
-  timeTaken      Int // in seconds
-  
-  // Elo changes (SOLO)
-  eloBefore Int
-  eloAfter  Int
-  eloChange Int
-  
-  // Time bonus
-  timeBonus  Int @default(0)
-  
-  // Perfect score tracking
-  isPerfect   Boolean @default(false)
-  isStreakTest Boolean @default(false)
-  
-  // Questions
-  questions SoloQuestion[]
-  
+  id             String         @id @default(cuid()) @map("id")
+  userId         String         @map("user_id")
+  startedAt      DateTime       @default(now())
+  completedAt    DateTime?
+  totalQuestions Int            @default(20)
+  correctAnswers Int            @default(0)
+  score          Int
+  timeTaken      Int
+  eloBefore      Int
+  eloAfter       Int
+  eloChange      Int
+  timeBonus      Int            @default(0)
+  isPerfect      Boolean        @default(false)
+  isStreakTest   Boolean        @default(false)
+  questions      SoloQuestion[]
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("solo_tests")
+  @@schema("public")
 }
 
-// SOLO Questions (renommé depuis Question)
 model SoloQuestion {
-  @@schema("public")
-  id       String @id @default(cuid()) @map("id")
-  testId     String @map("test_id")
-  test     SoloTest   @relation(fields: [testId], references: [id], onDelete: Cascade)
-  
-  // Question content
-  type        String // addition, subtraction, multiplication, division, power, root, factorization
-  difficulty  Int    // 1-10
+  id          String   @id @default(cuid()) @map("id")
+  testId      String   @map("test_id")
+  type        String
+  difficulty  Int
   question    String
   answer      String
   userAnswer  String?
   isCorrect   Boolean?
-  timeTaken   Int?    // in milliseconds
-  
-  // For correction display
+  timeTaken   Int?
   explanation String?
-  
-  // Order in test
   order       Int
-  
+  test        SoloTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+
   @@map("solo_questions")
+  @@schema("public")
 }
 
-// Game session system for Kahoot-style multiplayer (COMMUN)
 model GameSession {
-  @@schema("public")
-  id            String    @id @default(cuid()) @map("id")
-  code          String    @unique @db.VarChar(6)
-  hostId        String @map("host_id")
-  status        String    @default("waiting") // waiting, active, finished
-  quizId        String?
-  maxPlayers    Int       @default(20)
-  currentQuestionIndex Int @default(0)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                   String           @id @default(cuid()) @map("id")
+  code                 String           @unique @db.VarChar(6)
+  hostId               String           @map("host_id")
+  status               String           @default("waiting")
+  quizId               String?
+  maxPlayers           Int              @default(20)
+  currentQuestionIndex Int              @default(0)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  players              GamePlayer[]
+  host                 User             @relation("HostedSessions", fields: [hostId], references: [id])
+  gameQuestions      GameQuestion[]
 
-  // Relations
-  host          User        @relation("HostedSessions", fields: [hostId], references: [id])
-  players       GamePlayer[]
-  kahootQuestions KahootQuestion[]
-  
   @@map("game_sessions")
+  @@schema("public")
 }
 
 model GamePlayer {
-  @@schema("public")
-  id            String    @id @default(cuid()) @map("id")
-  sessionId     String @map("session_id")
-  userId        String @map("user_id")
-  score         Int       @default(0)
-  joinedAt      DateTime  @default(now())
-  isReady       Boolean   @default(false)
-  updatedAt     DateTime  @updatedAt
+  id        String      @id @default(cuid()) @map("id")
+  sessionId String      @map("session_id")
+  userId    String      @map("user_id")
+  score     Int         @default(0)
+  joinedAt  DateTime    @default(now())
+  isReady   Boolean     @default(false)
+  updatedAt DateTime    @updatedAt
+  session   GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user      User        @relation("GamePlayerships", fields: [userId], references: [id], onDelete: Cascade)
 
-  // Relations
-  session       GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  user          User        @relation("GamePlayerships", fields: [userId], references: [id], onDelete: Cascade)
-  
   @@map("game_players")
+  @@schema("public")
 }
 
-// Kahoot questions for synchronized group play (COMMUN)
-model KahootQuestion {
+model GameQuestion {
+  id         String      @id @default(cuid()) @map("id")
+  sessionId  String      @map("session_id")
+  question   String
+  answer     String
+  type       String
+  difficulty Int
+  order      Int
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  session    GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("game_questions")
   @@schema("public")
-  id            String   @id @default(cuid()) @map("id")
-  sessionId     String @map("session_id")
-  question      String
-  answer        String
-  type          String   // operation type
-  difficulty    Int
-  order         Int
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Relations
-  session       GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  
-  @@map("kahoot_questions")
 }
 
 model ExerciseAttempt {
-  @@schema("public")
-  id        String   @id @default(cuid()) @map("id")
-  userId    String @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Exercise details
-  type        String // operation type
-  difficulty  Int
-  question    String
-  answer      String
-  userAnswer  String
-  isCorrect   Boolean
-  timeTaken   Int // in milliseconds
-  
-  // Feedback
-  feedbackShown Boolean @default(false)
-  
-  createdAt   DateTime @default(now())
-  
-  @@map("exercise_attempts")
-}
-
-// Course content for learning (COMMUN)
-model Course {
-  @@schema("public")
-  id          String @id @default(cuid()) @map("id")
-  title       String
-  slug        String @unique
-  description String
-  content     String // Markdown content
-  
-  // Metadata
-  difficulty  Int    // 1-10
-  order       Int
-  isPublished Boolean @default(true)
-  
-  // Related operation types
-  relatedTypes String? // JSON array of operation types
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  practiceHistories CoursePracticeHistory[]
-  
-  @@map("courses")
-}
-
-// Multiplayer friendship system
-model Friendship {
-  @@schema("public")
-  id        String   @id @default(cuid()) @map("id")
-  user1Id   String @map("user1_id")
-  user2Id   String @map("user2_id")
-  status    String   // pending, accepted, blocked
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  user1     User     @relation("User1", fields: [user1Id], references: [id], onDelete: Cascade)
-  user2     User     @relation("User2", fields: [user2Id], references: [id], onDelete: Cascade)
-  
-  @@unique([user1Id, user2Id])
-  @@map("friendships")
-}
-
-// Message system for friends and challenges
-model Message {
-  @@schema("public")
-  id         String   @id @default(cuid()) @map("id")
-  senderId   String @map("sender_id")
-  receiverId String @map("receiver_id")
-  content    String
-  type       String   // friend_request, challenge, chat, system
-  read       Boolean  @default(false)
-  metadata   String?  // JSON metadata for challenges, etc.
-  createdAt  DateTime @default(now())
-  
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
-  
-  @@map("messages")
-}
-
-// Multiplayer games
-model MultiplayerGame {
-  @@schema("public")
-  id          String    @id @default(cuid()) @map("id")
-  player1Id   String @map("player1_id")
-  player2Id   String?   // null if waiting for opponent
-  status      String    // waiting, playing, finished, aborted
-  gameType    String    // friendly, ranked, random
-  timeControl String    // lightning, blitz, rapid, classical, thinking
-  timeLimit   Int       // in seconds (120, 180, 300, 480, 720)
-  player1Elo  Int
-  player2Elo  Int?
-  player1Score Int      @default(0)
-  player2Score Int      @default(0)
-  winner      String?
-  startedAt   DateTime?
-  finishedAt  DateTime?
-  createdAt   DateTime  @default(now())
-  
-  // Game settings
-  questionCount Int @default(20)
-  difficulty    String @default("mixed") // easy, medium, hard, mixed
-  
-  player1     User      @relation("Player1Games", fields: [player1Id], references: [id], onDelete: Cascade)
-  player2     User?     @relation("Player2Games", fields: [player2Id], references: [id], onDelete: Cascade)
-  questions   MultiplayerQuestion[]
-  
-  @@map("multiplayer_games")
-}
-
-// Questions in multiplayer games
-model MultiplayerQuestion {
-  @@schema("public")
-  id            String @id @default(cuid()) @map("id")
-  gameId        String @map("game_id")
+  id            String   @id @default(cuid()) @map("id")
+  userId        String   @map("user_id")
+  type          String
+  difficulty    Int
   question      String
   answer        String
-  type          String // operation type
-  difficulty    Int
-  order         Int
-  
-  // Player answers and timing
-  player1Answer String?
-  player2Answer String?
-  player1Time   Int?    // in milliseconds
-  player2Time   Int?    // in milliseconds
+  userAnswer    String
+  isCorrect     Boolean
+  timeTaken     Int
+  feedbackShown Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("exercise_attempts")
+  @@schema("public")
+}
+
+model Course {
+  id                String                  @id @default(cuid()) @map("id")
+  title             String
+  slug              String                  @unique
+  description       String
+  content           String
+  difficulty        Int
+  order             Int
+  isPublished       Boolean                 @default(true)
+  relatedTypes      String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  practiceHistories CoursePracticeHistory[]
+
+  @@map("courses")
+  @@schema("public")
+}
+
+model Friendship {
+  id        String   @id @default(cuid()) @map("id")
+  user1Id   String   @map("user1_id")
+  user2Id   String   @map("user2_id")
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user1     User     @relation("User1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2     User     @relation("User2", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  @@unique([user1Id, user2Id])
+  @@map("friendships")
+  @@schema("public")
+}
+
+model Message {
+  id         String   @id @default(cuid()) @map("id")
+  senderId   String   @map("sender_id")
+  receiverId String   @map("receiver_id")
+  content    String
+  type       String
+  read       Boolean  @default(false)
+  metadata   String?
+  createdAt  DateTime @default(now())
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+  @@schema("public")
+}
+
+model MultiplayerGame {
+  id            String                @id @default(cuid()) @map("id")
+  player1Id     String                @map("player1_id")
+  player2Id     String?
+  status        String
+  gameType      String
+  timeControl   String
+  timeLimit     Int
+  player1Elo    Int
+  player2Elo    Int?
+  player1Score  Int                   @default(0)
+  player2Score  Int                   @default(0)
+  winner        String?
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime              @default(now())
+  questionCount Int                   @default(20)
+  difficulty    String                @default("mixed")
+  player1       User                  @relation("Player1Games", fields: [player1Id], references: [id], onDelete: Cascade)
+  player2       User?                 @relation("Player2Games", fields: [player2Id], references: [id], onDelete: Cascade)
+  questions     MultiplayerQuestion[]
+
+  @@map("multiplayer_games")
+  @@schema("public")
+}
+
+model MultiplayerQuestion {
+  id             String          @id @default(cuid()) @map("id")
+  gameId         String          @map("game_id")
+  question       String
+  answer         String
+  type           String
+  difficulty     Int
+  order          Int
+  player1Answer  String?
+  player2Answer  String?
+  player1Time    Int?
+  player2Time    Int?
   player1Correct Boolean?
   player2Correct Boolean?
-  
-  game          MultiplayerGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  
+  game           MultiplayerGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
   @@map("multiplayer_questions")
+  @@schema("public")
 }
 
-// Multiplayer statistics (separate from solo stats)
 model MultiplayerStatistics {
-  @@schema("public")
-  id     String @id @default(cuid()) @map("id")
-  userId String @unique @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Overall multiplayer stats
-  totalGames     Int @default(0)
-  totalWins      Int @default(0)
-  totalLosses    Int @default(0)
-  totalDraws     Int @default(0)
-  
-  // By time control
-  lightningGames Int @default(0)
-  lightningWins  Int @default(0)
-  blitzGames      Int @default(0)
-  blitzWins       Int @default(0)
-  rapidGames      Int @default(0)
-  rapidWins       Int @default(0)
-  classicalGames  Int @default(0)
-  classicalWins   Int @default(0)
-  thinkingGames   Int @default(0)
-  thinkingWins    Int @default(0)
-  
-  // Performance metrics
-  averageScore    Float @default(0)
-  averageTime     Float @default(0) // average time per question
-  multiplayerCurrentStreak      Int @default(0)
-  multiplayerBestStreak      Int @default(0)
-  
-  // Head to head records (stored as JSON)
-  headToHead      String? // JSON array of {opponentId, wins, losses, draws}
-  
-  updatedAt DateTime @updatedAt
-  
+  id                       String   @id @default(cuid()) @map("id")
+  userId                   String   @unique @map("user_id")
+  totalGames               Int      @default(0)
+  totalWins                Int      @default(0)
+  totalLosses              Int      @default(0)
+  totalDraws               Int      @default(0)
+  lightningGames           Int      @default(0)
+  lightningWins            Int      @default(0)
+  blitzGames               Int      @default(0)
+  blitzWins                Int      @default(0)
+  rapidGames               Int      @default(0)
+  rapidWins                Int      @default(0)
+  classicalGames           Int      @default(0)
+  classicalWins            Int      @default(0)
+  thinkingGames            Int      @default(0)
+  thinkingWins             Int      @default(0)
+  averageScore             Float    @default(0)
+  averageTime              Float    @default(0)
+  multiplayerCurrentStreak Int      @default(0)
+  multiplayerBestStreak    Int      @default(0)
+  headToHead               String?
+  updatedAt                DateTime @updatedAt
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("multiplayer_statistics")
+  @@schema("public")
 }
 
-// Challenge system for friendly and ranked matches
 model Challenge {
-  @@schema("public")
-  id           String   @id @default(cuid()) @map("id")
-  challengerId String @map("challenger_id")
-  challengedId String @map("challenged_id")
-  
-  // Game settings
-  gameType     String   @default("pending") // 'ranked' or 'friendly'
-  timeControl  String   // 'lightning', 'blitz', 'rapid', 'classical', 'thinking'
-  timeLimit    Int      // in seconds
-  questionCount Int     @default(20)
-  difficulty   String   @default("mixed") // 'easy', 'medium', 'hard', 'mixed'
-  
-  // Status and timing
-  status       String   @default("pending") // 'pending', 'accepted', 'declined', 'expired', 'completed'
-  createdAt    DateTime @default(now())
-  expiresAt    DateTime
-  respondedAt  DateTime?
-  
-  // Relations
-  challenger   User     @relation("Challenger", fields: [challengerId], references: [id])
-  challenged   User     @relation("Challenged", fields: [challengedId], references: [id])
-  
+  id            String    @id @default(cuid()) @map("id")
+  challengerId  String    @map("challenger_id")
+  challengedId  String    @map("challenged_id")
+  gameType      String    @default("pending")
+  timeControl   String
+  timeLimit     Int
+  questionCount Int       @default(20)
+  difficulty    String    @default("mixed")
+  status        String    @default("pending")
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime
+  respondedAt   DateTime?
+  challenged    User      @relation("Challenged", fields: [challengedId], references: [id])
+  challenger    User      @relation("Challenger", fields: [challengerId], references: [id])
+
   @@map("challenges")
+  @@schema("public")
 }
 
-// Custom banners for admin uploads (COMMUN)
 model CustomBanner {
-  @@schema("public")
-  id          String   @id @default(cuid()) @map("id")
-  name        String
-  description String?
-  imageUrl    String   // Path to uploaded image
-  thumbnailUrl String?  // Thumbnail version
-  isPremium   Boolean  @default(false) // Free or premium banner
-  isActive    Boolean  @default(true)  // Whether banner is available
-  createdBy   String   // Admin who created it
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  creator     User     @relation("BannerCreator", fields: [createdBy], references: [id])
-  users       User[]   @relation("UserBanners")
-  
+  id           String   @id @default(cuid()) @map("id")
+  name         String
+  description  String?
+  imageUrl     String
+  thumbnailUrl String?
+  isPremium    Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  createdBy    String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  creator      User     @relation("BannerCreator", fields: [createdBy], references: [id])
+  users        User[]   @relation("UserBanners")
+
   @@map("custom_banners")
+  @@schema("public")
 }
 
-// Badge system for achievements
 model Badge {
-  @@schema("public")
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String
-  icon        String   // Icon name or path
-  category    String   // achievement, rank, special, etc.
-  rarity      String   @default("common") // common, rare, epic, legendary
-  condition   String   // Description of how to earn it
-  isHidden    Boolean  @default(false) @map("is_hidden") // Secret badges
-  
-  // Requirements (JSON for flexibility)
-  requirements String? @map("requirements") // JSON: {type, value, etc.}
-  
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  
-  // Relations
-  userBadges  UserBadge[]
-  
+  id           String      @id @default(cuid())
+  name         String      @unique
+  description  String
+  icon         String
+  category     String
+  createdAt    DateTime    @default(now())
+  rarity       String      @default("common")
+  condition    String?
+  isHidden     Boolean     @default(false) @map("is_hidden")
+  requirements String?     @map("requirements")
+  updatedAt    DateTime?   @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  userBadges   UserBadge[]
+
+  @@index([category])
+  @@index([category], map: "idx_badges_category")
   @@map("badges")
+  @@schema("public")
 }
 
-// User-Badge many-to-many relationship with metadata
 model UserBadge {
-  @@schema("public")
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
-  badgeId   String   @map("badge_id")
-  
-  earnedAt  DateTime @default(now()) @map("earned_at")
-  isNew     Boolean  @default(true) @map("is_new") // Not yet viewed by user
-  
-  // Relations
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  
+  id       String   @id @default(cuid())
+  userId   String   @map("user_id")
+  badgeId  String   @map("badge_id")
+  earnedAt DateTime @default(now())
+  isNew    Boolean  @default(true) @map("is_new")
+  badge    Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, badgeId])
+  @@index([badgeId], map: "idx_user_badges_badge_id")
+  @@index([userId], map: "idx_user_badges_user_id")
+  @@index([badgeId])
+  @@index([userId])
   @@map("user_badges")
+  @@schema("public")
 }
 
 model TeacherRequest {
-  @@schema("public")
-  id          String   @id @default(cuid()) @map("id")
-  userId      String @map("user_id")
-  name        String
-  email       String
-  school      String
-  subject     String
-  message     String?
-  status      String   @default("pending") // pending, approved, rejected
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  user        User     @relation(fields: [userId], references: [id])
-  
+  id        String   @id @default(cuid()) @map("id")
+  userId    String   @map("user_id")
+  name      String
+  email     String
+  school    String
+  subject   String
+  message   String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+
   @@map("teacher_requests")
+  @@schema("public")
 }
 
 model FaqSubmission {
-  @@schema("public")
   id          String   @id @default(cuid()) @map("id")
-  type        String   // bug, question, suggestion
+  type        String
   title       String
   description String
   email       String?
   category    String
-  status      String   @default("pending") // pending, resolved, closed
+  status      String   @default("pending")
   userAgent   String?
   ip          String?
   createdAt   DateTime @default(now())
-  
+
   @@map("faq_submissions")
+  @@schema("public")
 }
 
 model ClassGroup {
-  @@schema("public")
-  id          String   @id @default(cuid()) @map("id")
+  id          String             @id @default(cuid()) @map("id")
   name        String
-  teacherId   String @map("teacher_id")
+  teacherId   String             @map("teacher_id")
   description String?
-  level       String?  @map("level")  // 6eme, 5eme, etc.
-  subject     String   @default("maths") @map("subject") // maths, physique, etc.
-  maxStudents Int      @default(30) @map("maxstudents") // 0 = illimité
-  isPrivate   Boolean  @default(false)
-  inviteCode  String?  @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  teacher     User     @relation("GroupTeacher", fields: [teacherId], references: [id])
-  members     ClassGroupMember[]
-  messages    ClassMessage[]
+  isPrivate   Boolean            @default(false)
+  inviteCode  String?            @unique
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  level       String?            @map("level") @db.VarChar(50)
+  subject     String?            @default("maths") @map("subject") @db.VarChar(50)
+  maxStudents Int?               @default(30) @map("maxstudents")
   assignments ClassAssignment[]
-  
+  members     ClassGroupMember[]
+  teacher     User               @relation("GroupTeacher", fields: [teacherId], references: [id])
+  messages    ClassMessage[]
+
   @@map("class_groups")
+  @@schema("public")
 }
 
 model ClassGroupMember {
-  @@schema("public")
-  id        String   @id @default(cuid()) @map("id")
-  groupId   String @map("group_id")
-  userId    String @map("user_id")
-  role      String   @default("student") // teacher, student
-  joinedAt  DateTime @default(now())
-  
-  // Relations
-  group     ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id       String     @id @default(cuid()) @map("id")
+  groupId  String     @map("group_id")
+  userId   String     @map("user_id")
+  role     String     @default("student")
+  joinedAt DateTime   @default(now())
+  group    ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([groupId, userId])
   @@map("class_group_members")
+  @@schema("public")
 }
 
 model ClassMessage {
-  @@schema("public")
-  id        String   @id @default(cuid()) @map("id")
-  groupId   String @map("group_id")
-  userId    String @map("user_id")
-  content   String
-  
-  // Message type
-  type      String   @default("discussion") // announcement (notification aux élèves), teacher_feed (fil du prof), discussion (discussion générale), system
-  
-  // For announcements - track who read it
-  readBy    String?  @map("read_by") // JSON array of user IDs who read the message
-  
-  // For teacher announcements - require confirmation
-  requiresConfirmation Boolean @default(false) @map("requires_confirmation")
-  confirmedBy String? @map("confirmed_by") // JSON array of user IDs who confirmed
-  
-  // Attachments (optional)
-  attachments String? @map("attachments") // JSON array of {type, url, name}
-  
-  // Pin important messages
-  isPinned  Boolean @default(false) @map("is_pinned")
-  pinnedAt  DateTime? @map("pinned_at")
-  pinnedBy  String? @map("pinned_by")
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  group     ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id                   String     @id @default(cuid()) @map("id")
+  groupId              String     @map("group_id")
+  userId               String     @map("user_id")
+  content              String
+  type                 String     @default("text")
+  createdAt            DateTime   @default(now())
+  readBy               String?    @map("read_by")
+  requiresConfirmation Boolean    @default(false) @map("requires_confirmation")
+  confirmedBy          String?    @map("confirmed_by")
+  attachments          String?    @map("attachments")
+  isPinned             Boolean    @default(false) @map("is_pinned")
+  pinnedAt             DateTime?  @map("pinned_at")
+  pinnedBy             String?    @map("pinned_by")
+  updatedAt            DateTime?  @default(now()) @updatedAt @db.Timestamp(6)
+  group                ClassGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user                 User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("class_messages")
+  @@schema("public")
 }
 
 model QuestionHistory {
-  @@schema("public")
   id          String   @id @default(cuid()) @map("id")
-  userId      String @map("user_id")
-  questionId  String @map("question_id")
+  userId      String   @map("user_id")
+  questionId  String   @map("question_id")
   answeredAt  DateTime @default(now())
   correct     Boolean
-  timeSpent   Int? @default(0) @map("time_spent") // en millisecondes
-  difficulty  String? @default("mixed") // easy, medium, hard
-  subject     String? @default("maths")
-  type        String? @default("calculation") // calculation, logic, etc.
   eloAtMoment Int
-  
-  // Relations
-  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("question_history")
+  @@schema("public")
 }
 
 model ClassJoinRequest {
-  @@schema("public")
-  id          String   @id @default(cuid())
-  studentId   String
-  teacherId   String
-  status      String   @default("pending") // pending, accepted, refused
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  student     User @relation("StudentJoinRequests", fields: [studentId], references: [id], onDelete: Cascade)
-  teacher     User @relation("TeacherJoinRequests", fields: [teacherId], references: [id], onDelete: Cascade)
-  
+  id        String   @id @default(cuid())
+  studentId String
+  teacherId String
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  student   User     @relation("StudentJoinRequests", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher   User     @relation("TeacherJoinRequests", fields: [teacherId], references: [id], onDelete: Cascade)
+
   @@map("class_join_requests")
+  @@schema("public")
 }
 
 model Notification {
-  @@schema("public")
-  id            String   @id @default(cuid())
-  userId        String
-  type          String   // friend_request, friend_accepted, challenge, message, class_request, class_accepted, teacher_request_approved, discord_linked
-  title         String
-  message       String
-  senderId      String?
-  senderName    String?
+  id              String   @id @default(cuid())
+  userId          String
+  type            String
+  title           String
+  message         String
+  senderId        String?
+  senderName      String?
   senderAvatarUrl String?
-  metadata      Json?
-  isRead        Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Relations
-  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sender        User? @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)
-  
+  metadata        Json?
+  isRead          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  sender          User?    @relation("NotificationSender", fields: [senderId], references: [id])
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("notifications")
+  @@schema("public")
 }
 
 model CoursePracticeHistory {
-  @@schema("public")
-  id                String   @id @default(cuid())
-  userId            String
-  courseId          String
-  score             Int      // 0-100
-  questionsCount    Int
-  correctAnswers    Int
-  timeSpentSeconds  Int
-  difficultyLevel   Int      // 1-10
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  // Relations
-  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course            Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  
+  id               String   @id @default(cuid())
+  userId           String
+  courseId         String
+  score            Int
+  questionsCount   Int
+  correctAnswers   Int
+  timeSpentSeconds Int
+  difficultyLevel  Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("course_practice_history")
+  @@schema("public")
 }
 
-// Class Assignment System
 model ClassAssignment {
-  @@schema("public")
-  id          String   @id @default(cuid())
-  classId     String   @map("class_id")
-  title       String
-  description String?
-  
-  // Configuration
-  questionCount Int    @default(10) @map("question_count")
-  difficulty    String @default("mixed") // easy, medium, hard, mixed
-  schoolLevel   String? @map("school_level") // CP, CE1, CE2, CM1, CM2, 6eme, 5eme, 4eme, 3eme, 2nde, 1ere, Terminale
-  timeLimit     Int?   @map("time_limit") // en minutes, null = pas de limite
-  
-  // Scoring options
-  negativePoints Boolean @default(false) @map("negative_points") // points négatifs pour mauvaises réponses
-  
-  // Question generation type
-  questionSource String @default("auto") @map("question_source") // auto = générées auto, manual = créées manuellement
-  
-  // Operation types (JSON array) - uniquement pour questions auto
-  operationTypes String? @map("operation_types") // ["addition", "subtraction", ...]
-  
-  // Due date
-  dueDate     DateTime? @map("due_date")
-  
-  // Status
-  status      String   @default("active") // active, closed, draft
-  
-  // Sharing
-  shareCode   String?  @unique @map("share_code") // Code pour partage via lien/QR
-  shareEnabled Boolean @default(false) @map("share_enabled")
-  
-  // Timestamps
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  
-  // Relations
-  class       ClassGroup @relation(fields: [classId], references: [id], onDelete: Cascade)
-  questions   AssignmentQuestion[]
-  submissions AssignmentSubmission[]
-  
+  id             String                 @id @default(dbgenerated("(gen_random_uuid())::text"))
+  classId        String                 @map("class_id")
+  title          String
+  description    String?
+  questionCount  Int?                   @default(10) @map("question_count")
+  difficulty     String?                @default("mixed")
+  timeLimit      Int?                   @map("time_limit")
+  operationTypes String?                @map("operation_types")
+  dueDate        DateTime?              @map("due_date") @db.Timestamptz(6)
+  status         String?                @default("active")
+  createdAt      DateTime?              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime?              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  questions      AssignmentQuestion[]
+  submissions    AssignmentSubmission[]
+  class          ClassGroup             @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([classId], map: "idx_class_assignments_class_id")
+  @@index([status], map: "idx_class_assignments_status")
   @@map("class_assignments")
+  @@schema("public")
 }
 
-// Questions generated for an assignment
 model AssignmentQuestion {
-  @@schema("public")
-  id           String   @id @default(cuid())
-  assignmentId String   @map("assignment_id")
-  
-  // Question type
-  questionType String   @default("single") @map("question_type") // single, multiple, free_text
-  
-  // Question content
+  id           String             @id @default(dbgenerated("(gen_random_uuid())::text"))
+  assignmentId String             @map("assignment_id")
   question     String
-  answer       String?  // Réponse simple (pour single) ou null pour autres types
-  type         String   // addition, subtraction, etc. (pour questions auto)
-  difficulty   Int      // 1-10
-  order        Int      // Position dans le devoir
-  points       Int      @default(1) // Points pour cette question
-  
-  // For multiple choice questions
-  options      String?  @map("options") // JSON array of {id, text} for multiple choice
-  correctAnswers String? @map("correct_answers") // JSON array of correct option IDs for multiple
-  
-  // For free text questions requiring manual grading
-  requiresManualGrading Boolean @default(false) @map("requires_manual_grading")
-  acceptedAnswers String? @map("accepted_answers") // JSON array of accepted keywords/phrases for auto-checking free text
-  
-  // Relations
-  assignment   ClassAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  answer       String
+  type         String
+  difficulty   Int
+  order        Int
   answers      AssignmentAnswer[]
-  
+  assignment   ClassAssignment    @relation(fields: [assignmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([assignmentId], map: "idx_assignment_questions_assignment_id")
   @@map("assignment_questions")
+  @@schema("public")
 }
 
-// Student submissions for assignments
 model AssignmentSubmission {
-  @@schema("public")
-  id             String   @id @default(cuid())
-  assignmentId   String   @map("assignment_id")
-  studentId      String   @map("student_id")
-  
-  // Status
-  status         String   @default("in_progress") // in_progress, submitted, graded
-  
-  // Scoring
-  score          Int?     // 0-100, null si pas encore noté
-  correctCount   Int      @default(0) @map("correct_count")
-  totalAnswered  Int      @default(0) @map("total_answered")
-  timeSpent      Int?     @map("time_spent") // en secondes
-  
-  // Timestamps
-  startedAt      DateTime @default(now()) @map("started_at")
-  submittedAt    DateTime? @map("submitted_at")
-  gradedAt       DateTime? @map("graded_at")
-  gradedBy       String?  @map("graded_by") // teacherId ou auto
-  
-  // Relations
-  assignment     ClassAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  student        User @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  answers        AssignmentAnswer[]
-  
+  id            String             @id @default(dbgenerated("(gen_random_uuid())::text"))
+  assignmentId  String             @map("assignment_id")
+  studentId     String             @map("student_id")
+  status        String?            @default("in_progress")
+  score         Int?
+  correctCount  Int?               @default(0) @map("correct_count")
+  totalAnswered Int?               @default(0) @map("total_answered")
+  timeSpent     Int?               @map("time_spent")
+  startedAt     DateTime?          @default(now()) @map("started_at") @db.Timestamptz(6)
+  submittedAt   DateTime?          @map("submitted_at") @db.Timestamptz(6)
+  gradedAt      DateTime?          @map("graded_at") @db.Timestamptz(6)
+  gradedBy      String?            @map("graded_by")
+  answers       AssignmentAnswer[]
+  assignment    ClassAssignment    @relation(fields: [assignmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  student       User               @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
   @@unique([assignmentId, studentId])
+  @@index([assignmentId], map: "idx_assignment_submissions_assignment_id")
+  @@index([studentId], map: "idx_assignment_submissions_student_id")
   @@map("assignment_submissions")
+  @@schema("public")
 }
 
-// Individual answers for assignment questions
 model AssignmentAnswer {
-  @@schema("public")
-  id           String   @id @default(cuid())
-  submissionId String   @map("submission_id")
-  questionId   String   @map("question_id")
-  
-  // Answer - format depends on question type
-  userAnswer   String?  @map("user_answer") // For single answer or free text
-  selectedOptions String? @map("selected_options") // JSON array of selected option IDs for multiple choice
-  
-  // Grading
-  isCorrect    Boolean?
-  pointsEarned Int?     @default(0) @map("points_earned") // Points earned (can be negative if negativePoints enabled)
-  timeTaken    Int?     @map("time_taken") // en millisecondes
-  
-  // Manual grading for free text
-  manuallyGraded Boolean @default(false) @map("manually_graded")
-  gradedBy     String?  @map("graded_by") // teacherId
-  gradedAt     DateTime? @map("graded_at")
-  feedback     String?  // Feedback from teacher
-  
-  // Relations
-  submission   AssignmentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  question     AssignmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  
+  id           String               @id @default(dbgenerated("(gen_random_uuid())::text"))
+  submissionId String               @map("submission_id")
+  questionId   String               @map("question_id")
+  userAnswer   String?              @map("user_answer")
+  is_correct   Boolean?
+  timeTaken    Int?                 @map("time_taken")
+  question     AssignmentQuestion   @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  submission   AssignmentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
   @@unique([submissionId, questionId])
+  @@index([submissionId], map: "idx_assignment_answers_submission_id")
   @@map("assignment_answers")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model public_QuestionHistory {
+  id            String    @id @default(dbgenerated("(gen_random_uuid())::text"))
+  user_id       String
+  question_id   String
+  answered_at   DateTime? @default(now()) @db.Timestamptz(6)
+  correct       Boolean
+  time_spent    Int?      @default(0)
+  difficulty    String?   @default("mixed")
+  subject       String?   @default("maths")
+  type          String?   @default("calculation")
+  elo_at_moment Int
+  users         User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([answered_at], map: "idx_question_history_answered_at")
+  @@index([user_id], map: "idx_question_history_user_id")
+  @@index([user_id, question_id], map: "idx_question_history_user_question")
+  @@map("QuestionHistory")
+  @@schema("public")
 }
