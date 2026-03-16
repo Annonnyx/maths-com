@@ -25,18 +25,6 @@ export default function OnboardingFlow({ onComplete, onSkip }: OnboardingFlowPro
       color: "from-yellow-400 to-orange-500"
     },
     {
-      title: "Système de classes",
-      description: "Progresse de F- à S+ en améliorant ton Elo. Chaque nouveau rang débloque de nouvelles opérations.",
-      icon: TrendingUp,
-      color: "from-indigo-400 to-purple-500"
-    },
-    {
-      title: "Tests chronométrés",
-      description: "Affronte 20 questions contre la montre. Plus tu réponds vite et correctement, plus tu gagnes d'Elo !",
-      icon: Target,
-      color: "from-green-400 to-teal-500"
-    },
-    {
       title: "Prêt à commencer ?",
       description: "Fais ton test d'évaluation pour découvrir ton niveau actuel et commencer ta progression.",
       icon: Calculator,

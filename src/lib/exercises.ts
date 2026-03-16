@@ -560,8 +560,8 @@ function getFrenchClassOperations(className: FrenchClass): OperationType[] {
 export function generateEvaluationTest(count: number = 20, excludeGeometry: boolean = false): Exercise[] {
   // Import the new adaptive system
   const { generateAdaptiveTest } = require('./adaptive-exercises');
-  // Start with a low ELO for evaluation (CP level)
-  return generateAdaptiveTest(100, count);
+  // Start with a medium ELO for evaluation (around CM1/CM2 level)
+  return generateAdaptiveTest(1200, count);
 }
 
 // Generate multiplayer questions using adaptive algorithm

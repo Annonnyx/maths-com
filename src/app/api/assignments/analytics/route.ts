@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
 
     // Statistiques par élève
     const studentStats = assignment.submissions.map(s => {
-      const correctCount = s.answers.filter(a => a.isCorrect).length;
+      const correctCount = s.answers.filter(a => a.is_correct).length;
       const totalQuestions = assignment.questions.length;
       
       return {
@@ -122,9 +122,9 @@ export async function GET(request: NextRequest) {
         percentage: totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0,
         answers: s.answers.map(a => ({
           questionId: a.questionId,
-          answer: a.userAnswer || a.selectedOptions,
-          isCorrect: a.isCorrect,
-          points: a.pointsEarned
+          answer: a.userAnswer,
+          isCorrect: a.is_correct,
+          points: 0 // No points field
         }))
       };
     });

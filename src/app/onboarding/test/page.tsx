@@ -51,7 +51,7 @@ export default function OnboardingTestPage() {
 
     const generateInitialTest = async () => {
       try {
-        const questions = generateEvaluationTest(30); // 30 questions avec système existant
+        const questions = generateEvaluationTest(15); // 15 questions avec système adaptatif
         setState(prev => ({ ...prev, questions, startTime: Date.now() }));
         setIsGenerating(false);
       } catch (error) {
