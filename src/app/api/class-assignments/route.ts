@@ -129,14 +129,10 @@ export async function POST(request: NextRequest) {
         description,
         questionCount,
         difficulty,
-        negativePoints,
-        questionSource,
-        operationTypes: questionSource === 'auto' ? JSON.stringify(operationTypes) : null,
+        operationTypes: operationTypes ? JSON.stringify(operationTypes) : null,
         timeLimit,
         dueDate: dueDate ? new Date(dueDate) : null,
-        status: 'active',
-        shareCode,
-        shareEnabled
+        status: 'active'
       }
     });
 
@@ -146,17 +142,11 @@ export async function POST(request: NextRequest) {
       // Use manually created questions
       questions = manualQuestions.map((q: any, index: number) => ({
         assignmentId: assignment.id,
-        type: q.type,
+        type: q.type || 'manual',
         question: q.question,
         answer: q.answer || null,
-        type: 'manual',
         difficulty: q.difficulty || 5,
         order: index,
-        points: q.points || 1,
-        options: q.options ? JSON.stringify(q.options) : null,
-        correctAnswers: q.correctAnswers ? JSON.stringify(q.correctAnswers) : null,
-        requiresManualGrading: q.requiresManualGrading || false,
-        acceptedAnswers: q.acceptedAnswers ? JSON.stringify(q.acceptedAnswers) : null
       }));
     } else if (schoolLevel) {
       // Use new adaptive question generator based on school level
@@ -174,10 +164,6 @@ export async function POST(request: NextRequest) {
           type: q.type || 'calculation',
           difficultyElo: q.difficultyElo || 1000,
           order: i,
-          options: null,
-          correctAnswers: null,
-          requiresManualGrading: false,
-          acceptedAnswers: null
         });
       }
     } else {
@@ -185,17 +171,11 @@ export async function POST(request: NextRequest) {
       const generatedQuestions = generateQuestions(questionCount, difficulty, operationTypes);
       questions = generatedQuestions.map((q, index) => ({
         assignmentId: assignment.id,
-        type: 'single',
+        type: q.type || 'single',
         question: q.question,
         answer: q.answer,
-        type: q.type,
-        difficulty: q.difficulty,
+        difficulty: q.difficulty || 5,
         order: index,
-        points: 1,
-        options: null,
-        correctAnswers: null,
-        requiresManualGrading: false,
-        acceptedAnswers: null
       }));
     }
     

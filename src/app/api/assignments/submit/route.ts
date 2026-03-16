@@ -14,12 +14,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Vérifier que le devoir existe et que le partage est activé
+    // Vérifier que le devoir existe
     const assignment = await prisma.classAssignment.findFirst({
       where: {
         id: assignmentId,
-        shareCode,
-        share_enabled: true
       }
     });
 
@@ -96,12 +94,11 @@ export async function PATCH(request: NextRequest) {
       await prisma.assignmentAnswer.updateMany({
         where: {
           submissionId,
-          questionId: answer.questionId
+          questionId: answer.questionId,
         },
         data: {
           userAnswer: answer.value,
           is_correct: answer.isCorrect || false,
-          points: answer.points || 0
         }
       });
     }
@@ -120,9 +117,9 @@ export async function PATCH(request: NextRequest) {
       });
 
       // Calculer le score total
-      const totalPoints = submission.answers.reduce((sum, a) => sum + (a.pointsEarned || 0), 0);
-      const maxPoints = submission.answers.length;
-      const percentage = (totalPoints / maxPoints) * 100;
+      const correctAnswers = submission.answers.filter(a => a.is_correct).length;
+      const totalQuestions = submission.answers.length;
+      const percentage = (correctAnswers / totalQuestions) * 100;
 
       await prisma.assignmentSubmission.update({
         where: { id: submissionId },
@@ -167,9 +164,7 @@ export async function GET(request: NextRequest) {
                 id: true,
                 question: true,
                 type: true,
-                options: true,
                 difficulty: true,
-                points: true,
                 order: true
               }
             }
@@ -186,19 +181,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Parser les options des questions
-    const questionsWithParsedOptions = submission.assignment.questions.map(q => ({
-      ...q,
-      options: q.options ? JSON.parse(q.options) : null
-    }));
-
     return NextResponse.json({
       submission: {
         ...submission,
-        assignment: {
-          ...submission.assignment,
-          questions: questionsWithParsedOptions
-        }
+        questions: submission.assignment.questions
       }
     });
 

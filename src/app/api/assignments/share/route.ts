@@ -46,14 +46,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Devoir non trouvé' }, { status: 404 });
     }
 
-    if (!assignment.shareEnabled) {
-      return NextResponse.json({ error: 'Le partage est désactivé pour ce devoir' }, { status: 403 });
-    }
-
     // Ne pas renvoyer les réponses correctes pour les questions
     const sanitizedQuestions = assignment.questions.map(q => ({
       ...q,
-      options: q.options ? JSON.parse(q.options) : null
+      // Pas d'options dans AssignmentQuestion, juste retourner la question telle quelle
     }));
 
     return NextResponse.json({
@@ -64,9 +60,7 @@ export async function GET(request: NextRequest) {
         questionCount: assignment.questionCount,
         difficulty: assignment.difficulty,
         timeLimit: assignment.timeLimit,
-        negative_points: assignment.negativePoints,
         dueDate: assignment.dueDate,
-        share_code: assignment.shareCode,
         class: assignment.class,
         questions: sanitizedQuestions
       }
