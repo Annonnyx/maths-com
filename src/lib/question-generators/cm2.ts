@@ -149,7 +149,7 @@ export class CM2Generator implements LevelGenerator {
   private generateAdvancedMixedOperations(context: GenerationContext): GeneratedQuestion {
     const ops = getScaledOperands(context.userElo, 'CM2');
     const a = ops.addition();
-    const { c: multA, d: multB } = ops.multiplication();
+    const { a: multA, b: multB } = ops.multiplication();
     const { divisor: div, quotient: quot } = ops.division();
     const b = ops.addition();
     

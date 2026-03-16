@@ -50,8 +50,8 @@ export async function GET(
       question: {
         id: currentQuestion.id,
         question: currentQuestion.question,
-        answers: generatedQuestion.answers,
-        correct: currentQuestion.answer,
+        options: generatedQuestion.options,
+        answer: currentQuestion.answer,
         type: currentQuestion.type,
         difficulty: currentQuestion.difficulty,
         order: currentQuestion.order,

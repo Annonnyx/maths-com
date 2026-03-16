@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    if (group.maxStudents > 0 && currentMembers >= group.maxStudents) {
+    if (group.maxStudents && group.maxStudents > 0 && currentMembers >= group.maxStudents) {
       return NextResponse.json({ error: 'Class is full' }, { status: 400 });
     }
 

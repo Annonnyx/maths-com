@@ -81,13 +81,14 @@ export async function GET(request: NextRequest) {
       : 0;
 
     const totalPoints = completedAssignments.reduce((sum, s) => {
-      return sum + s.answers.reduce((aSum, a) => aSum + (a.pointsEarned || 0), 0);
+      const correctAnswers = s.answers.filter(a => a.is_correct).length;
+      return sum + (correctAnswers * 10); // 10 points per correct answer
     }, 0);
 
     // Progression dans le temps
     const progressByMonth: Record<string, { completed: number; avgScore: number }> = {};
     completedAssignments.forEach(s => {
-      const month = new Date(s.submittedAt || s.startedAt).toLocaleDateString('fr-FR', {
+      const month = new Date(s.submittedAt || s.startedAt || new Date()).toLocaleDateString('fr-FR', {
         year: 'numeric',
         month: 'short'
       });
@@ -100,7 +101,7 @@ export async function GET(request: NextRequest) {
     // Calculer les moyennes par mois
     Object.keys(progressByMonth).forEach(month => {
       const monthSubmissions = completedAssignments.filter(s => 
-        new Date(s.submittedAt || s.startedAt).toLocaleDateString('fr-FR', {
+        new Date(s.submittedAt || s.startedAt || new Date()).toLocaleDateString('fr-FR', {
           year: 'numeric',
           month: 'short'
         }) === month
@@ -113,14 +114,13 @@ export async function GET(request: NextRequest) {
     const difficultyStats: Record<number, { total: number; correct: number }> = {};
     submissions.forEach(s => {
       s.answers.forEach(a => {
-        // On récupère la difficulté depuis la question associée
-        // Pour simplifier, on utilise les points comme proxy de difficulté
-        const difficulty = Math.ceil((a.pointsEarned || 0) / 2) || 1;
+        // On utilise une difficulté par défaut puisque le champ n'existe pas
+        const difficulty = 1; // Default difficulty
         if (!difficultyStats[difficulty]) {
           difficultyStats[difficulty] = { total: 0, correct: 0 };
         }
         difficultyStats[difficulty].total++;
-        if (a.isCorrect) {
+        if (a.is_correct) {
           difficultyStats[difficulty].correct++;
         }
       });
@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
       status: s.status,
       score: s.score,
       completedAt: s.submittedAt,
-      correctCount: s.answers.filter(a => a.isCorrect).length,
+      correctCount: s.answers.filter(a => a.is_correct).length,
       totalQuestions: s.answers.length
     }));
 

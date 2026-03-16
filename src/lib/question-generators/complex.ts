@@ -1,5 +1,9 @@
-import { GeneratedQuestion, QuestionGenerator, randomInt, randomFloat, randomChoice, shuffleArray } from './types';
 
+import { GeneratedQuestion, randomInt, randomChoice, shuffleArray, SchoolLevel, DomainType, hashQuestion } from './types';
+
+export interface QuestionGenerator {
+  generate(difficulty: number): GeneratedQuestion;
+}
 export class ComplexGenerator implements QuestionGenerator {
   generate(difficulty: number): GeneratedQuestion {
     const generators = [
@@ -80,11 +84,15 @@ export class ComplexGenerator implements QuestionGenerator {
     const answers = shuffleArray([result, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('complex', 'complex', [a, b, c, d, operation]),
+      type: 'mcq' as const,
+      domain: 'complex' as DomainType,
+      level: 'terminale' as SchoolLevel,
       question: questionText,
-      answers,
-      correct: result,
+      options: answers,
+      answer: result,
       explanation,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -161,11 +169,15 @@ export class ComplexGenerator implements QuestionGenerator {
     const answers = shuffleArray([resultString, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('complex', 'complex', [matrixA, matrixB, operation]),
+      type: 'mcq' as const,
+      domain: 'complex' as DomainType,
+      level: 'terminale' as SchoolLevel,
       question: questionText,
-      answers,
-      correct: resultString,
+      options: answers,
+      answer: resultString,
       explanation,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -221,11 +233,15 @@ export class ComplexGenerator implements QuestionGenerator {
     const answers = shuffleArray([result, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('complex', 'complex', [vertices, edges, questionType]),
+      type: 'mcq' as const,
+      domain: 'complex' as DomainType,
+      level: 'terminale' as SchoolLevel,
       question: questionText,
-      answers,
-      correct: result,
+      options: answers,
+      answer: result,
       explanation,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 }

@@ -87,9 +87,6 @@ export async function GET(
     const correctAnswers = questionHistory.filter(q => q.correct).length;
     const wrongAnswers = totalQuestions - correctAnswers;
     const averageScore = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
-    const averageTime = totalQuestions > 0 
-      ? questionHistory.reduce((sum, q) => sum + (q.timeSpent || 0), 0) / totalQuestions 
-      : 0;
     const accuracy = totalQuestions > 0 ? averageScore : 0;
 
     // Statistiques par étudiant
@@ -100,9 +97,6 @@ export async function GET(
       const studentCorrect = studentHistory.filter(q => q.correct).length;
       const studentTotal = studentHistory.length;
       const studentAverage = studentTotal > 0 ? (studentCorrect / studentTotal) * 100 : 0;
-      const studentAvgTime = studentTotal > 0 
-        ? studentHistory.reduce((sum, q) => sum + (q.timeSpent || 0), 0) / studentTotal 
-        : 0;
 
       return {
         id: student?.user.id || studentId,
@@ -114,7 +108,6 @@ export async function GET(
         correctAnswers: studentCorrect,
         wrongAnswers: studentTotal - studentCorrect,
         averageScore: studentAverage,
-        averageTime: studentAvgTime,
         accuracy: studentAverage,
         lastActivity: studentHistory.length > 0 
           ? studentHistory[studentHistory.length - 1].answeredAt 
@@ -124,7 +117,7 @@ export async function GET(
 
     // Performance par matière
     const subjectPerformance = questionHistory.reduce((acc, q) => {
-      const subject = q.subject || 'unknown';
+      const subject = 'unknown'; // Subject field doesn't exist in question history
       if (!acc[subject]) {
         acc[subject] = { total: 0, correct: 0, subject };
       }
@@ -142,7 +135,7 @@ export async function GET(
 
     // Performance par difficulté
     const difficultyPerformance = questionHistory.reduce((acc, q) => {
-      const difficulty = q.difficulty || 'unknown';
+      const difficulty = 'unknown'; // Difficulty field doesn't exist in question history
       if (!acc[difficulty]) {
         acc[difficulty] = { total: 0, correct: 0, difficulty };
       }
@@ -193,7 +186,6 @@ export async function GET(
       },
       globalStats: {
         averageScore,
-        averageTime,
         totalQuestions,
         correctAnswers,
         wrongAnswers,

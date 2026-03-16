@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
             question: true,
             answer: true,
             userAnswer: true,
-            is_correct: true,
+            isCorrect: true,
             timeTaken: true,
             order: true
           }

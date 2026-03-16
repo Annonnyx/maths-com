@@ -50,9 +50,9 @@ export async function POST(
           data: {
             sessionId,
             question: q.question,
-            answer: q.correct,
-            type: q.answers[0], // Pour l'instant, on utilise la première réponse comme type
-            difficulty: q.difficulty,
+            answer: q.answer,
+            type: q.type || 'mcq',
+            difficulty: q.difficultyElo,
             order: index
           }
         })

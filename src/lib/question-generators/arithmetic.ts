@@ -1,5 +1,9 @@
-import { GeneratedQuestion, QuestionGenerator, randomInt, randomFloat, randomChoice, shuffleArray } from './types';
 
+import { GeneratedQuestion, randomInt, randomChoice, shuffleArray, getLevelFromElo } from './types';
+
+export interface QuestionGenerator {
+  generate(difficulty: number): GeneratedQuestion;
+}
 export class ArithmeticGenerator implements QuestionGenerator {
   generate(difficulty: number): GeneratedQuestion {
     // Weight distribution to avoid pattern over-representation
@@ -119,11 +123,15 @@ export class ArithmeticGenerator implements QuestionGenerator {
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `arithmetic-addition-${Date.now()}-${Math.random()}`,
+      type: 'mcq' as const,
+      domain: 'arithmetic' as const,
+      level: getLevelFromElo(difficulty * 100),
       question: `${a} + ${b} = ?`,
-      answers,
-      correct: result.toString(),
+      options: answers,
+      answer: result.toString(),
       explanation: `${a} + ${b} = ${result}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -186,11 +194,15 @@ export class ArithmeticGenerator implements QuestionGenerator {
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `arithmetic-subtraction-${Date.now()}-${Math.random()}`,
+      type: 'mcq' as const,
+      domain: 'arithmetic' as const,
+      level: getLevelFromElo(difficulty * 100),
       question: `${a} - ${b} = ?`,
-      answers,
-      correct: result.toString(),
+      options: answers,
+      answer: result.toString(),
       explanation: `${a} - ${b} = ${result}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -254,11 +266,15 @@ export class ArithmeticGenerator implements QuestionGenerator {
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `arithmetic-multiplication-${Date.now()}-${Math.random()}`,
+      type: 'mcq' as const,
+      domain: 'arithmetic' as const,
+      level: getLevelFromElo(difficulty * 100),
       question: `${a} × ${b} = ?`,
-      answers,
-      correct: result.toString(),
+      options: answers,
+      answer: result.toString(),
       explanation: `${a} × ${b} = ${result}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -322,11 +338,15 @@ export class ArithmeticGenerator implements QuestionGenerator {
     const answers = shuffleArray([quotient.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `arithmetic-division-${Date.now()}-${Math.random()}`,
+      type: 'mcq' as const,
+      domain: 'arithmetic' as const,
+      level: getLevelFromElo(difficulty * 100),
       question: `${dividend} ÷ ${divisor} = ?`,
-      answers,
-      correct: quotient.toString(),
+      options: answers,
+      answer: quotient.toString(),
       explanation: `${dividend} ÷ ${divisor} = ${quotient}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -390,11 +410,15 @@ export class ArithmeticGenerator implements QuestionGenerator {
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `arithmetic-power-${Date.now()}-${Math.random()}`,
+      type: 'mcq' as const,
+      domain: 'arithmetic' as const,
+      level: getLevelFromElo(difficulty * 100),
       question: `${base}^${exponent} = ?`,
-      answers,
-      correct: result.toString(),
+      options: answers,
+      answer: result.toString(),
       explanation: `${base}^${exponent} = ${Array(exponent).fill(base).join(' × ')} = ${result}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -426,11 +450,15 @@ export class ArithmeticGenerator implements QuestionGenerator {
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `arithmetic-root-${Date.now()}-${Math.random()}`,
+      type: 'mcq' as const,
+      domain: 'arithmetic' as const,
+      level: getLevelFromElo(difficulty * 100),
       question: `√${number} = ?`,
-      answers,
-      correct: result.toString(),
+      options: answers,
+      answer: result.toString(),
       explanation: `√${number} = ${result} car ${result} × ${result} = ${number}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -494,11 +522,15 @@ export class ArithmeticGenerator implements QuestionGenerator {
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `arithmetic-percentage-${Date.now()}-${Math.random()}`,
+      type: 'mcq' as const,
+      domain: 'arithmetic' as const,
+      level: getLevelFromElo(difficulty * 100),
       question: `${percentage}% de ${base} = ?`,
-      answers,
-      correct: result.toString(),
+      options: answers,
+      answer: result.toString(),
       explanation: `${percentage}% de ${base} = (${percentage}/100) × ${base} = ${result}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -588,11 +620,15 @@ export class ArithmeticGenerator implements QuestionGenerator {
     const answers = shuffleArray([roundedResult.toString(), ...wrongAnswers.slice(0, 3).map(a => a.toString())]);
 
     return {
+      id: `arithmetic-fraction-${Date.now()}-${Math.random()}`,
+      type: 'mcq' as const,
+      domain: 'arithmetic' as const,
+      level: getLevelFromElo(difficulty * 100),
       question: questionText,
-      answers,
-      correct: roundedResult.toString(),
+      options: answers,
+      answer: roundedResult.toString(),
       explanation: `${questionText.replace(' = ?', '')} = ${roundedResult}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 }

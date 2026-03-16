@@ -1,5 +1,9 @@
-import { GeneratedQuestion, QuestionGenerator, randomInt, randomFloat, randomChoice, shuffleArray } from './types';
 
+import { GeneratedQuestion, randomInt, randomChoice, shuffleArray, getLevelFromElo } from './types';
+
+export interface QuestionGenerator {
+  generate(difficulty: number): GeneratedQuestion;
+}
 export class FunctionsGenerator implements QuestionGenerator {
   generate(difficulty: number): GeneratedQuestion {
     const generators = [
@@ -10,7 +14,7 @@ export class FunctionsGenerator implements QuestionGenerator {
       () => this.generateLimit(difficulty),
     ];
 
-    // Select generators based on difficulty
+    // Select generators based on difficultyElo: difficulty * 100,
     const availableGenerators = difficulty <= 6 
       ? generators.slice(0, 1) // Only linear functions
       : difficulty <= 8 
@@ -21,6 +25,11 @@ export class FunctionsGenerator implements QuestionGenerator {
 
     const generator = randomChoice(availableGenerators);
     return generator();
+  }
+
+  private getLevelFromDifficulty(difficulty: number) {
+    const elo = difficulty * 100;
+    return getLevelFromElo(elo);
   }
 
   private generateLinearFunction(difficulty: number): GeneratedQuestion {
@@ -74,11 +83,15 @@ export class FunctionsGenerator implements QuestionGenerator {
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `functions-linear-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: this.getLevelFromDifficulty(difficulty),
       question: `Soit f(x) = ${a}x ${b >= 0 ? '+' : ''} ${b}. Calcule f(${x}).`,
-      answers,
-      correct: result.toString(),
+      options: answers,
+      answer: result.toString(),
       explanation: `f(${x}) = ${a} × ${x} ${b >= 0 ? '+' : ''} ${b} = ${a * x} ${b >= 0 ? '+' : ''} ${b} = ${result}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -125,11 +138,15 @@ export class FunctionsGenerator implements QuestionGenerator {
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `functions-quadratic-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: this.getLevelFromDifficulty(difficulty),
       question: `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Calcule f(${x}).`,
-      answers,
-      correct: result.toString(),
+      options: answers,
+      answer: result.toString(),
       explanation: `f(${x}) = ${a} × ${x}² ${b >= 0 ? '+' : ''} ${b} × ${x} ${c >= 0 ? '+' : ''} ${c} = ${a} × ${x * x} ${b >= 0 ? '+' : ''} ${b * x} ${c >= 0 ? '+' : ''} ${c} = ${result}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -203,11 +220,15 @@ export class FunctionsGenerator implements QuestionGenerator {
     const answers = shuffleArray([derivative, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `functions-derivative-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: this.getLevelFromDifficulty(difficulty),
       question: questionText,
-      answers,
-      correct: derivative,
+      options: answers,
+      answer: derivative,
       explanation,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -242,11 +263,15 @@ export class FunctionsGenerator implements QuestionGenerator {
     const answers = shuffleArray([variation, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `functions-variation-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: this.getLevelFromDifficulty(difficulty),
       question: `Soit f(x) = ${a}(x - ${vertex})². Sur quel intervalle la fonction est-elle ${variation} ?`,
-      answers,
-      correct: interval,
+      options: answers,
+      answer: interval,
       explanation: `Comme a = ${a} ${a > 0 ? '> 0' : '< 0'}, la parabole est ${a > 0 ? 'ouverte vers le haut' : 'ouverte vers le bas'}. La fonction est ${variation} sur ${interval}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -304,11 +329,15 @@ export class FunctionsGenerator implements QuestionGenerator {
     const answers = shuffleArray([limit, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `functions-limit-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: this.getLevelFromDifficulty(difficulty),
       question: questionText,
-      answers,
-      correct: limit,
+      options: answers,
+      answer: limit,
       explanation,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 }

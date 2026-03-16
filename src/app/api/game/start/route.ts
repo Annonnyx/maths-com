@@ -57,9 +57,9 @@ export async function POST(request: NextRequest) {
       data: questions.map((q, index) => ({
         sessionId: gameSession.id,
         question: q.question,
-        answer: q.answers[0], // Utiliser la première réponse
-        type: 'mixed', // Type par défaut
-        difficulty: q.difficulty,
+        answer: q.answer,
+        type: q.type || 'mixed',
+        difficulty: q.difficultyElo,
         order: index + 1
       }))
     });

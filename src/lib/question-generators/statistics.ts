@@ -1,4 +1,7 @@
-import { GeneratedQuestion, randomInt, randomFloat, randomChoice, shuffleArray } from './types';
+import { GeneratedQuestion, randomInt, randomFloat, randomChoice, shuffleArray, hashQuestion, SchoolLevel } from './types';
+export interface QuestionGenerator {
+  generate(difficulty: number): GeneratedQuestion;
+}
 
 export interface QuestionGenerator {
   generate(difficulty: number): GeneratedQuestion;
@@ -13,7 +16,7 @@ export class StatisticsGenerator implements QuestionGenerator {
       () => this.generateBinomial(difficulty),
     ];
 
-    // Select generators based on difficulty
+    // Select generators based on difficultyElo: difficulty * 100,
     const availableGenerators = difficulty <= 4 
       ? generators.slice(0, 2) // Only mean and median
       : difficulty <= 7 
@@ -66,11 +69,16 @@ export class StatisticsGenerator implements QuestionGenerator {
     const answers = shuffleArray([roundedMean.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('statistics', 'mean', [numbers.join(',')]),
+      type: 'mcq',
+      domain: 'statistics',
+      level: 'statistics' as SchoolLevel,
+      difficultyElo: difficulty * 100,
       question: `Calcule la moyenne de cette série : ${numbers.join(', ')}`,
-      answers,
-      correct: roundedMean.toString(),
+      options: answers,
+      answer: roundedMean.toString(),
       explanation: `Moyenne = (${numbers.join(' + ')}) / ${numbers.length} = ${numbers.reduce((sum, num) => sum + num, 0)} / ${numbers.length} = ${roundedMean}`,
-      difficulty
+      timeEstimate: 60,
     };
   }
 
@@ -124,11 +132,16 @@ export class StatisticsGenerator implements QuestionGenerator {
     const answers = shuffleArray([median.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('statistics', 'median', [numbers.join(',')]),
+      type: 'mcq',
+      domain: 'statistics',
+      level: 'statistics' as SchoolLevel,
+      difficultyElo: difficulty * 100,
       question: `Calcule la médiane de cette série : ${numbers.join(', ')}`,
-      answers,
-      correct: median.toString(),
+      options: answers,
+      answer: median.toString(),
       explanation: `Série ordonnée : ${sortedNumbers.join(', ')}. Médiane = ${sortedNumbers.length % 2 === 1 ? `le ${Math.floor(sortedNumbers.length / 2) + 1}ème terme = ${median}` : `la moyenne des ${sortedNumbers.length / 2}ème et ${sortedNumbers.length / 2 + 1}ème termes = (${sortedNumbers[sortedNumbers.length / 2 - 1]} + ${sortedNumbers[sortedNumbers.length / 2]}) / 2 = ${median}`}`,
-      difficulty
+      timeEstimate: 80,
     };
   }
 
@@ -166,11 +179,16 @@ export class StatisticsGenerator implements QuestionGenerator {
     const answers = shuffleArray([probability.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('statistics', 'probability', [totalItems, favorableItems]),
+      type: 'mcq',
+      domain: 'statistics',
+      level: 'statistics' as SchoolLevel,
+      difficultyElo: difficulty * 100,
       question: `Dans une urne contenant ${totalItems} boules, ${favorableItems} sont rouges. Quelle est la probabilité de tirer une boule rouge ?`,
-      answers,
-      correct: probability.toString(),
+      options: answers,
+      answer: probability.toString(),
       explanation: `Probabilité = cas favorables / cas possibles = ${favorableItems} / ${totalItems} = ${probability} (${percentage}%)`,
-      difficulty
+      timeEstimate: 70,
     };
   }
 
@@ -212,11 +230,16 @@ export class StatisticsGenerator implements QuestionGenerator {
     const answers = shuffleArray([roundedProbability.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('statistics', 'binomial', [n, p, k]),
+      type: 'mcq',
+      domain: 'statistics',
+      level: 'statistics' as SchoolLevel,
+      difficultyElo: difficulty * 100,
       question: `On lance ${n} fois une pièce de probabilité pile = ${p}. Quelle est la probabilité d'obtenir exactement ${k} piles ?`,
-      answers,
-      correct: roundedProbability.toString(),
+      options: answers,
+      answer: roundedProbability.toString(),
       explanation: `Loi binomiale : P(X = ${k}) = C(${n}, ${k}) × ${p}^${k} × ${(1 - p)}^${n - k} = ${binomialCoefficient} × ${Math.pow(p, k).toFixed(3)} × ${Math.pow(1 - p, n - k).toFixed(3)} ≈ ${roundedProbability}`,
-      difficulty
+      timeEstimate: 90,
     };
   }
 

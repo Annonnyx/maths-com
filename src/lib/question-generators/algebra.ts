@@ -1,4 +1,11 @@
-import { GeneratedQuestion, QuestionGenerator, randomInt, randomFloat, randomChoice, shuffleArray } from './types';
+import { GeneratedQuestion, randomInt, randomFloat, randomChoice, shuffleArray } from './types';
+export interface QuestionGenerator {
+  generate(difficulty: number): GeneratedQuestion;
+}
+
+export interface QuestionGenerator {
+  generate(difficulty: number): GeneratedQuestion;
+}
 
 export class AlgebraGenerator implements QuestionGenerator {
   generate(difficulty: number): GeneratedQuestion {
@@ -10,7 +17,7 @@ export class AlgebraGenerator implements QuestionGenerator {
       () => this.generateFactorization(difficulty),
     ];
 
-    // Select generators based on difficulty
+    // Select generators based on difficultyElo: difficulty * 100,
     const availableGenerators = difficulty <= 3 
       ? generators.slice(0, 1) // Only linear equations
       : difficulty <= 6 
@@ -94,11 +101,16 @@ export class AlgebraGenerator implements QuestionGenerator {
     const answers = shuffleArray([x.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `algebra-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'algebra',
+      level: 'CM2',
+      difficultyElo: difficulty * 100,
       question: `${a}x + ${b} = ${result}`,
-      answers,
-      correct: x.toString(),
+      answer: x.toString(),
+      options: answers,
       explanation: `${a}x + ${b} = ${result} → ${a}x = ${result - b} → x = ${x}`,
-      difficulty
+      timeEstimate: 30
     };
   }
 
@@ -191,11 +203,16 @@ export class AlgebraGenerator implements QuestionGenerator {
     const answers = shuffleArray([correctRoot.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `algebra-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'algebra',
+      level: '3e',
       question: `${a}x² + ${b}x + ${c} = 0`,
-      answers,
-      correct: correctRoot.toString(),
+      options: answers,
+      answer: correctRoot.toString(),
       explanation: `Δ = ${b}² - 4×${a}×${c} = ${b * b - 4 * a * c}, √Δ = ${sqrtDiscriminant.toFixed(2)}, x = (-${b} ± ${sqrtDiscriminant.toFixed(2)})/(2×${a}) = {${correctRoot.toFixed(2)}, ${((-b - sqrtDiscriminant) / (2 * a)).toFixed(2)}}`,
-      difficulty
+      difficultyElo: difficulty * 100,
+      timeEstimate: 45
     };
   }
 
@@ -275,11 +292,16 @@ export class AlgebraGenerator implements QuestionGenerator {
     const answers = shuffleArray([x.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `algebra-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'algebra',
+      level: '3e',
+      difficultyElo: difficulty * 100,
       question: `${a1}x + ${b1}y = ${c1}\n${a2}x + ${b2}y = ${c2}\nQue vaut x ?`,
-      answers,
-      correct: x.toString(),
+      options: answers,
+      answer: x.toString(),
       explanation: `Par substitution ou élimination : x = ${x}`,
-      difficulty
+      timeEstimate: 60
     };
   }
 
@@ -325,13 +347,18 @@ export class AlgebraGenerator implements QuestionGenerator {
     const answers = shuffleArray([expanded, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `algebra-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'algebra',
+      level: '3e',
+      difficultyElo: difficulty * 100,
       question: c === 0 
         ? `Développe : (${a}x + ${b})²`
         : `Développe : (${a}x + ${b})² + ${c}`,
-      answers,
-      correct: expanded,
+      options: answers,
+      answer: expanded,
       explanation: `(${a}x + ${b})² = ${a}²x² + 2×${a}×${b}x + ${b}² = ${expanded}`,
-      difficulty
+      timeEstimate: 45
     };
   }
 
@@ -383,11 +410,16 @@ export class AlgebraGenerator implements QuestionGenerator {
     const answers = shuffleArray([factorized, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `algebra-${Date.now()}-${Math.random()}`,
+      type: 'mcq',
+      domain: 'algebra',
+      level: '3e',
+      difficultyElo: difficulty * 100,
       question: `Factorise : x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}`,
-      answers,
-      correct: factorized,
+      options: answers,
+      answer: factorized,
       explanation: `x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c} = (x${r1 > 0 ? '+' : ''}${r1})(x${r2 > 0 ? '+' : ''}${r2})`,
-      difficulty
+      timeEstimate: 50
     };
   }
 }

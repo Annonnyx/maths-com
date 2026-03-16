@@ -1,5 +1,9 @@
-import { GeneratedQuestion, QuestionGenerator, randomInt, randomFloat, randomChoice, shuffleArray } from './types';
 
+import { GeneratedQuestion, randomChoice, randomInt, shuffleArray, hashQuestion } from './types';
+
+export interface QuestionGenerator {
+  generate(difficulty: number): GeneratedQuestion;
+}
 export class GeometryGenerator implements QuestionGenerator {
   generate(difficulty: number): GeneratedQuestion {
     const generators = [
@@ -11,7 +15,7 @@ export class GeometryGenerator implements QuestionGenerator {
       () => this.generateVolume(difficulty),
     ];
 
-    // Select generators based on difficulty
+    // Select generators based on difficultyElo: difficulty * 100,
     const availableGenerators = difficulty <= 3 
       ? generators.slice(3, 5) // Only areas and perimeters
       : difficulty <= 6 
@@ -77,11 +81,15 @@ export class GeometryGenerator implements QuestionGenerator {
     const answers = shuffleArray([c.toFixed(1), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('geometry', 'pythagoras', [a, b]),
+      type: 'mcq',
+      domain: 'geometry',
+      level: '4e',
       question: `Dans un triangle rectangle, les côtés de l'angle droit mesurent ${a} cm et ${b} cm. Quelle est la longueur de l'hypoténuse ?`,
-      answers,
-      correct: c.toFixed(1),
+      options: answers,
+      answer: c.toFixed(1),
       explanation: `Pythagore : c² = a² + b² = ${a}² + ${b}² = ${a * a} + ${b * b} = ${a * a + b * b}, donc c = √${a * a + b * b} ≈ ${c.toFixed(1)} cm`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -130,11 +138,15 @@ export class GeometryGenerator implements QuestionGenerator {
     const answers = shuffleArray([ae.toFixed(1), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('geometry', 'thales', [ab, ac, ad]),
+      type: 'mcq',
+      domain: 'geometry',
+      level: '4e',
       question: `Dans une configuration de Thalès, si AB = ${ab} cm, AC = ${ac} cm et AD = ${ad} cm, quelle est la longueur AE ?`,
-      answers,
-      correct: ae.toFixed(1),
+      options: answers,
+      answer: ae.toFixed(1),
       explanation: `Thalès : AD/AB = AE/AC, donc AE = (AD × AC) / AB = (${ad} × ${ac}) / ${ab} = ${ae.toFixed(1)} cm`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -204,11 +216,15 @@ export class GeometryGenerator implements QuestionGenerator {
     const answers = shuffleArray([result.toFixed(3), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('geometry', 'trigonometry', [angle, questionType, opposite, adjacent, hypotenuse]),
+      type: 'mcq',
+      domain: 'geometry',
+      level: '4e',
       question: questionText,
-      answers,
-      correct: result.toFixed(3),
+      options: answers,
+      answer: result.toFixed(3),
       explanation: `${questionType}(${angle}°) = ${questionType === 'sin' ? 'opposé/hypoténuse' : questionType === 'cos' ? 'adjacent/hypoténuse' : 'opposé/adjacent'} = ${questionType === 'sin' ? opposite : questionType === 'cos' ? adjacent : opposite}/${questionType === 'sin' ? hypotenuse.toFixed(1) : questionType === 'cos' ? hypotenuse.toFixed(1) : adjacent} = ${result.toFixed(3)}`,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -307,11 +323,15 @@ export class GeometryGenerator implements QuestionGenerator {
     const answers = shuffleArray([area.toFixed(1), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('geometry', 'area', [shape, dimensions]),
+      type: 'mcq',
+      domain: 'geometry',
+      level: difficulty <= 3 ? 'CM2' : '4e',
       question: questionText,
-      answers,
-      correct: area.toFixed(1),
+      options: answers,
+      answer: area.toFixed(1),
       explanation,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -385,11 +405,15 @@ export class GeometryGenerator implements QuestionGenerator {
     const answers = shuffleArray([perimeter.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('geometry', 'perimeter', [shape, dimensions]),
+      type: 'mcq',
+      domain: 'geometry',
+      level: difficulty <= 2 ? 'CM2' : '4e',
       question: questionText,
-      answers,
-      correct: perimeter.toString(),
+      options: answers,
+      answer: perimeter.toString(),
       explanation,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 
@@ -457,11 +481,15 @@ export class GeometryGenerator implements QuestionGenerator {
     const answers = shuffleArray([volume.toFixed(1), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: hashQuestion('geometry', 'volume', [shape, dimensions]),
+      type: 'mcq',
+      domain: 'geometry',
+      level: '4e',
       question: questionText,
-      answers,
-      correct: volume.toFixed(1),
+      options: answers,
+      answer: volume.toFixed(1),
       explanation,
-      difficulty
+      difficultyElo: difficulty * 100,
     };
   }
 }

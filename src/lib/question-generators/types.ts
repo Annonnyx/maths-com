@@ -17,7 +17,7 @@ export interface GeneratedQuestion {
   explanation: string;
   timeEstimate?: number;
   options?: string[]; // For MCQ
-  acceptableAnswers?: string[]; // For numeric/expression with multiple valid answers
+  acceptableAnswers?: string[]; // For numeric/expression with multiple valid options: []
 }
 
 export interface GenerationContext {

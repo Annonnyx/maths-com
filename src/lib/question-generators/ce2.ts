@@ -82,7 +82,7 @@ export class CE2Generator implements LevelGenerator {
     const ops = getScaledOperands(context.userElo, 'CE2');
     const a = ops.addition();
     const b = ops.addition();
-    const { c: multA, d: multB } = ops.multiplication();
+    const { a: multA, b: multB } = ops.multiplication();
     const multResult = multA * multB;
     const finalResult = a + multResult;
     

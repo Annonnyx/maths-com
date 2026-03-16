@@ -44,7 +44,7 @@ function normalizeLevel(level: FrenchClass): SchoolLevel {
     'CP': 'CP', 'CE1': 'CE1', 'CE2': 'CE2', 'CM1': 'CM1', 'CM2': 'CM2',
     '6ème': '6e', '5ème': '5e', '4ème': '4e', '3ème': '3e', '1ère': '1re', 'Terminale': 'Tle',
     // Frontend variants
-    '6eme': '6e', '5eme': '5e', '4eme': '4e', '3eme': '3e', '1ere': '1re',
+    '6eme': '6e', '5eme': '5e', '4eme': '4e', '3eme': '3e',
     // Short variants
     '2de': '2de', '1re': '1re', 'Tle': 'Tle', 'Pro': 'Pro', 'Sup1': 'Sup1', 'Sup2': 'Sup2', 'Sup3': 'Sup3'
   };
@@ -79,7 +79,7 @@ export class AdaptiveQuestionGenerator {
   }
 
   generateNext(options?: { excludeGeometry?: boolean }): GeneratedQuestion {
-    // Use weighted level selection instead of fixed difficulty
+    // Use weighted level selection instead of fixed difficultyElo: difficulty * 100,
     const targetLevel = selectLevelByWeight(this.userElo);
     
     const generator = this.generators.get(targetLevel);
@@ -125,7 +125,7 @@ export class AdaptiveQuestionGenerator {
   }
 
   // Legacy method for backward compatibility
-  generateForLevel(level: FrenchClass, options?: { difficulty?: string }): GeneratedQuestion {
+  generateForLevel(level: FrenchClass, options?: { difficulty?: string; excludeGeometry?: boolean }): GeneratedQuestion {
     const normalizedLevel = normalizeLevel(level);
     const generator = this.generators.get(normalizedLevel);
     
@@ -137,7 +137,7 @@ export class AdaptiveQuestionGenerator {
       return generator.generate(context);
     }
 
-    return this.generateDomainBased(normalizedLevel, options);
+    return this.generateDomainBased(normalizedLevel, { excludeGeometry: options?.excludeGeometry });
   }
 }
 
