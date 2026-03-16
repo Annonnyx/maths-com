@@ -31,7 +31,7 @@ export async function GET(
     }
 
     // Récupérer la question actuelle synchronisée
-    const currentQuestion = await prisma.kahootQuestion.findFirst({
+    const currentQuestion = await prisma.gameQuestion.findFirst({
       where: {
         sessionId,
         order: gameSession.currentQuestionIndex
@@ -58,7 +58,7 @@ export async function GET(
         timeLimit: 30 // 30 secondes par question
       },
       currentIndex: gameSession.currentQuestionIndex,
-      totalQuestions: await prisma.kahootQuestion.count({
+      totalQuestions: await prisma.gameQuestion.count({
         where: { sessionId }
       })
     });

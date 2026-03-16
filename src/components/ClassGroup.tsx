@@ -76,8 +76,8 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
         
         const formattedQuestions = generatedQuestions.map(q => ({
           question: q.question,
-          options: [...q.answers],
-          correct: q.answers.indexOf(q.correct)
+          options: [...q.options],
+          correct: q.options.indexOf(q.answer)
         }));
 
         setQuestions(formattedQuestions);

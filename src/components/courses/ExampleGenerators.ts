@@ -1,4 +1,4 @@
-import { randomInt, randomChoice } from '../../../lib/question-generators/types';
+import { randomInt, randomChoice } from '../../../src/lib/question-generators/types';
 import type { GeneratedExample } from './InteractiveCourseSection';
 
 // Générateurs d'exemples par niveau et par chapitre

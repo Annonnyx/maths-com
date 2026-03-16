@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     questions = QuestionGeneratorFactory.generateMixedQuestions(difficulty, 20);
 
     // Insérer les questions dans la base de données
-    const createdQuestions = await prisma.kahootQuestion.createMany({
+    const createdQuestions = await prisma.gameQuestion.createMany({
       data: questions.map((q, index) => ({
         sessionId: gameSession.id,
         question: q.question,

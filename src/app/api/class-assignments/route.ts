@@ -129,7 +129,6 @@ export async function POST(request: NextRequest) {
         description,
         questionCount,
         difficulty,
-        schoolLevel,
         negativePoints,
         questionSource,
         operationTypes: questionSource === 'auto' ? JSON.stringify(operationTypes) : null,
@@ -147,7 +146,7 @@ export async function POST(request: NextRequest) {
       // Use manually created questions
       questions = manualQuestions.map((q: any, index: number) => ({
         assignmentId: assignment.id,
-        questionType: q.type,
+        type: q.type,
         question: q.question,
         answer: q.answer || null,
         type: 'manual',
@@ -170,13 +169,11 @@ export async function POST(request: NextRequest) {
         const q = generator.generateForLevel(frenchClass, { difficulty });
         questions.push({
           assignmentId: assignment.id,
-          questionType: 'single',
           question: q.question,
-          answer: q.correct, // Use 'correct' property for the answer
-          type: 'calculation', // Default type since GeneratedQuestion doesn't have 'type'
-          difficulty: q.difficulty || 5,
+          answer: q.answer, 
+          type: q.type || 'calculation',
+          difficultyElo: q.difficultyElo || 1000,
           order: i,
-          points: 1,
           options: null,
           correctAnswers: null,
           requiresManualGrading: false,
@@ -188,7 +185,7 @@ export async function POST(request: NextRequest) {
       const generatedQuestions = generateQuestions(questionCount, difficulty, operationTypes);
       questions = generatedQuestions.map((q, index) => ({
         assignmentId: assignment.id,
-        questionType: 'single',
+        type: 'single',
         question: q.question,
         answer: q.answer,
         type: q.type,

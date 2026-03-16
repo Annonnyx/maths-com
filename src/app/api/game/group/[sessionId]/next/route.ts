@@ -37,7 +37,7 @@ export async function POST(
     }
 
     // Compter le nombre total de questions
-    const totalQuestions = await prisma.kahootQuestion.count({
+    const totalQuestions = await prisma.gameQuestion.count({
       where: { sessionId }
     });
 
@@ -65,7 +65,7 @@ export async function POST(
     });
 
     // Récupérer la nouvelle question
-    const nextQuestion = await prisma.kahootQuestion.findFirst({
+    const nextQuestion = await prisma.gameQuestion.findFirst({
       where: {
         sessionId,
         order: updatedSession.currentQuestionIndex

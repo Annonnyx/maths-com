@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
       return {
         questionId: q.id,
         question: q.question,
-        questionType: q.type,
+        type: q.type,
         difficulty: q.difficulty,
         totalAnswers,
         correctAnswers,
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
         answers: s.answers.map(a => ({
           questionId: a.questionId,
           answer: a.userAnswer,
-          isCorrect: a.is_correct,
+          is_correct: a.is_correct,
           points: 0 // No points field
         }))
       };

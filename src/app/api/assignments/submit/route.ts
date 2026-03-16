@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       where: {
         id: assignmentId,
         shareCode,
-        shareEnabled: true
+        share_enabled: true
       }
     });
 
@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
         submissionId: submission.id,
         questionId: q.id,
         userAnswer: '',
-        isCorrect: false,
-        pointsEarned: 0
+        is_correct: false,
+        points: 0
       }))
     });
 
@@ -100,8 +100,8 @@ export async function PATCH(request: NextRequest) {
         },
         data: {
           userAnswer: answer.value,
-          isCorrect: answer.isCorrect || false,
-          pointsEarned: answer.points || 0
+          is_correct: answer.isCorrect || false,
+          points: answer.points || 0
         }
       });
     }
@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
               select: {
                 id: true,
                 question: true,
-                questionType: true,
+                type: true,
                 options: true,
                 difficulty: true,
                 points: true,

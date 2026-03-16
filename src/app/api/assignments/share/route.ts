@@ -64,9 +64,9 @@ export async function GET(request: NextRequest) {
         questionCount: assignment.questionCount,
         difficulty: assignment.difficulty,
         timeLimit: assignment.timeLimit,
-        negativePoints: assignment.negativePoints,
+        negative_points: assignment.negativePoints,
         dueDate: assignment.dueDate,
-        shareCode: assignment.shareCode,
+        share_code: assignment.shareCode,
         class: assignment.class,
         questions: sanitizedQuestions
       }

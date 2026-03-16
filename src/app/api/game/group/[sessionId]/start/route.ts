@@ -46,7 +46,7 @@ export async function POST(
     // Sauvegarder les questions dans la base de données
     const savedQuestions = await Promise.all(
       questions.map((q, index) =>
-        prisma.kahootQuestion.create({
+        prisma.gameQuestion.create({
           data: {
             sessionId,
             question: q.question,

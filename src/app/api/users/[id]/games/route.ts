@@ -64,7 +64,7 @@ export async function GET(
         score: game.score,
         totalQuestions: game.totalQuestions,
         accuracy: (game.correctAnswers / game.totalQuestions) * 100,
-        timeSpent: game.timeTaken,
+        time_spent: game.timeTaken,
         completedAt: game.startedAt,
         difficulty: 5, // Default difficulty since not in schema
         operation: 'mixed', // Default operation since not in schema
@@ -81,7 +81,7 @@ export async function GET(
           score: isPlayer1 ? game.player1Score : game.player2Score,
           totalQuestions: game.questionCount,
           accuracy: 0, // Not tracked in multiplayer games
-          timeSpent: game.timeLimit * 1000, // Approximate
+          time_spent: game.timeLimit * 1000, // Approximate
           completedAt: game.createdAt,
           difficulty: 5, // Default difficulty
           opponent,
