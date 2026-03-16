@@ -23,7 +23,7 @@ export class CM1Generator implements LevelGenerator {
   }
 
   generate(context: GenerationContext): GeneratedQuestion {
-    const domain = randomChoice(this.getAvailableDomains(context.excludeGeometry ?? false));
+    const domain = randomChoice(this.getAvailableDomains(context.excludeGeometry ?? false ?? false));
     switch (domain) {
       case 'calculation': return this.generateCalculation(context);
       case 'arithmetic':  return this.generateArithmetic(context);

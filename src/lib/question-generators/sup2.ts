@@ -22,7 +22,7 @@ export class Sup2Generator implements LevelGenerator {
   }
 
   generate(context: GenerationContext): GeneratedQuestion {
-    const domain = randomChoice(this.getAvailableDomains(context.excludeGeometry));
+    const domain = randomChoice(this.getAvailableDomains(context.excludeGeometry ?? false));
     switch (domain) {
       case 'algebra':    return this.generateAlgebra();
       case 'functions':  return this.generateAnalysis();

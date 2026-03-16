@@ -209,3 +209,15 @@ export type {
   SchoolLevel,
   GenerationContext,
 };
+
+// Legacy function for multiplayer compatibility
+export function generateMultiplayerQuestions(
+  player1Elo: number,
+  player2Elo: number,
+  count: number = 20,
+  excludeGeometry: boolean = false
+): GeneratedQuestion[] {
+  const avgElo = Math.round((player1Elo + player2Elo) / 2);
+  const gen = new AdaptiveQuestionGenerator(avgElo);
+  return gen.generateMixed(count, { excludeGeometry });
+}

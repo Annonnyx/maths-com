@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     const assignment = await prisma.classAssignment.findUnique({
-      where: { shareCode },
+      where: { id: shareCode }, // Utiliser l'ID temporairement
       include: {
         class: {
           select: {
@@ -34,10 +34,8 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             question: true,
-            questionType: true,
-            options: true,
+            type: true,
             difficulty: true,
-            points: true,
             order: true
           }
         }

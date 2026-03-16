@@ -1,5 +1,6 @@
 // Import from elo-ranges.ts as the source of truth
-export { SchoolLevel, ELO_LEVEL_RANGES, ALL_LEVELS, getLevelFromElo } from './elo-ranges';
+export type { SchoolLevel } from './elo-ranges';
+export { ELO_LEVEL_RANGES, ALL_LEVELS, getLevelFromElo } from './elo-ranges';
 
 // Re-export for local use
 import { SchoolLevel as ImportedSchoolLevel } from './elo-ranges';
