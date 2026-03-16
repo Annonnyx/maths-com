@@ -10,7 +10,10 @@
     "lint": "next lint",
     "seed": "tsx prisma/seed.ts",
     "migrate:data": "SQLITE_DATABASE_URL=\"file:./prisma/prisma/dev.db\" tsx prisma/migrate-sqlite-to-postgres.ts",
-    "sitemap": "next-sitemap"
+    "sitemap": "next-sitemap",
+    "sitemap:com": "next-sitemap --config next-sitemap.config.com.js",
+    "sitemap:fr": "next-sitemap --config next-sitemap.config.fr.js",
+    "sitemap:all": "npm run sitemap:com && npm run sitemap:fr"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -1,24 +1,9 @@
 # *
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /dashboard*
-Disallow: /profile*
-Disallow: /settings
-Disallow: /notifications
-Disallow: /friends
-Disallow: /messages
-Disallow: /history
-Disallow: /class-*
-Disallow: /discord/
-Disallow: /onboarding/
-Disallow: /assignment-*
-Disallow: /take-assignment/
 
 # Host
-Host: https://maths-app.com
+Host: https://www.maths-app.fr
 
 # Sitemaps
-Sitemap: https://maths-app.com/sitemap-clean.xml
-Sitemap: https://maths-app.com/sitemap.xml
+Sitemap: https://www.maths-app.fr/sitemap.xml
