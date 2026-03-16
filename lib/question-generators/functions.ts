@@ -6,21 +6,11 @@ export class FunctionsGenerator implements QuestionGenerator {
       () => this.generateLinearFunction(difficulty),
       () => this.generateQuadraticFunction(difficulty),
       () => this.generateDerivative(difficulty),
-      () => this.generateVariation(difficulty),
-      () => this.generateLimit(difficulty),
+      () => this.generateParabolaAnalysis(difficulty),
+      () => this.generateLimits(difficulty),
     ];
 
-    // Select generators based on difficulty
-    const availableGenerators = difficulty <= 6 
-      ? generators.slice(0, 1) // Only linear functions
-      : difficulty <= 8 
-        ? generators.slice(0, 2) // + quadratic functions
-        : difficulty <= 9 
-          ? generators.slice(0, 4) // + derivatives and variations
-          : generators; // All generators
-
-    const generator = randomChoice(availableGenerators);
-    return generator();
+    return randomChoice(generators)();
   }
 
   private generateLinearFunction(difficulty: number): GeneratedQuestion {
@@ -28,57 +18,42 @@ export class FunctionsGenerator implements QuestionGenerator {
     
     switch (difficulty) {
       case 1:
-        a = randomInt(1, 3);
-        b = randomInt(0, 5);
-        x = randomInt(0, 3);
+        a = randomInt(1, 5);
+        b = randomInt(1, 10);
+        x = randomInt(1, 5);
         break;
       case 2:
-        a = randomInt(1, 5);
-        b = randomInt(-2, 8);
-        x = randomInt(0, 5);
-        break;
-      case 3:
-        a = randomInt(1, 8);
-        b = randomInt(-5, 10);
-        x = randomInt(-2, 6);
-        break;
-      case 4:
-        a = randomInt(2, 10);
-        b = randomInt(-8, 15);
-        x = randomInt(-5, 8);
-        break;
-      case 5:
-        a = randomInt(3, 12);
-        b = randomInt(-10, 20);
-        x = randomInt(-8, 10);
-        break;
-      case 6:
-        a = randomInt(5, 15);
-        b = randomInt(-15, 25);
-        x = randomInt(-10, 12);
+        a = randomInt(-5, 5);
+        b = randomInt(-10, 10);
+        x = randomInt(-5, 5);
         break;
       default:
-        a = randomInt(1, 5);
-        b = randomInt(0, 5);
-        x = randomInt(0, 3);
+        a = randomInt(-10, 10);
+        b = randomInt(-20, 20);
+        x = randomInt(-10, 10);
     }
 
     const result = a * x + b;
     const wrongAnswers = [
       (result + a).toString(),
       (result - a).toString(),
-      (a * x).toString(),
-      (b).toString(),
+      (a * x - b).toString(),
+      (x + b).toString(),
     ].filter(ans => ans !== result.toString());
 
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `linear-function-${Date.now()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: 'Sup1',
+      difficultyElo: 2800,
       question: `Soit f(x) = ${a}x ${b >= 0 ? '+' : ''} ${b}. Calcule f(${x}).`,
-      answers,
-      correct: result.toString(),
+      answer: result.toString(),
       explanation: `f(${x}) = ${a} × ${x} ${b >= 0 ? '+' : ''} ${b} = ${a * x} ${b >= 0 ? '+' : ''} ${b} = ${result}`,
-      difficulty
+      options: answers,
+      timeEstimate: 60
     };
   }
 
@@ -86,229 +61,189 @@ export class FunctionsGenerator implements QuestionGenerator {
     let a: number, b: number, c: number, x: number;
     
     switch (difficulty) {
-      case 7:
+      case 3:
         a = randomInt(1, 3);
         b = randomInt(-5, 5);
         c = randomInt(-5, 5);
         x = randomInt(-3, 3);
         break;
-      case 8:
-        a = randomInt(1, 4);
-        b = randomInt(-8, 8);
-        c = randomInt(-8, 8);
-        x = randomInt(-5, 5);
-        break;
-      case 9:
+      default:
         a = randomInt(1, 5);
         b = randomInt(-10, 10);
         c = randomInt(-10, 10);
-        x = randomInt(-6, 6);
-        break;
-      case 10:
-        a = randomInt(1, 6);
-        b = randomInt(-12, 12);
-        c = randomInt(-12, 12);
-        x = randomInt(-8, 8);
-        break;
-      default:
-        a = 1; b = 0; c = 0; x = 2;
+        x = randomInt(-5, 5);
     }
 
     const result = a * x * x + b * x + c;
     const wrongAnswers = [
       (result + a).toString(),
       (result - a).toString(),
-      (a * x + b).toString(),
+      (a * x + b * x + c).toString(),
       (x * x + b * x + c).toString(),
     ].filter(ans => ans !== result.toString());
 
     const answers = shuffleArray([result.toString(), ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `quadratic-function-${Date.now()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: 'Sup1',
+      difficultyElo: 2900,
       question: `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Calcule f(${x}).`,
-      answers,
-      correct: result.toString(),
+      answer: result.toString(),
       explanation: `f(${x}) = ${a} × ${x}² ${b >= 0 ? '+' : ''} ${b} × ${x} ${c >= 0 ? '+' : ''} ${c} = ${a} × ${x * x} ${b >= 0 ? '+' : ''} ${b * x} ${c >= 0 ? '+' : ''} ${c} = ${result}`,
-      difficulty
+      options: answers,
+      timeEstimate: 90
     };
   }
 
   private generateDerivative(difficulty: number): GeneratedQuestion {
     let a: number, b: number, c: number;
-    let functionType: 'linear' | 'quadratic' | 'cubic';
+    let questionText: string;
+    let derivative: string;
+    let explanation: string;
     
     switch (difficulty) {
-      case 9:
-        functionType = randomChoice(['linear', 'quadratic']);
-        if (functionType === 'linear') {
-          a = randomInt(2, 8);
-          b = randomInt(-5, 10);
-          c = 0; // Not used for linear
-        } else {
-          a = randomInt(1, 4);
-          b = randomInt(-6, 6);
-          c = randomInt(-5, 5);
-        }
-        break;
-      case 10:
-        functionType = randomChoice(['linear', 'quadratic', 'cubic']);
-        if (functionType === 'linear') {
-          a = randomInt(3, 10);
-          b = randomInt(-8, 15);
-          c = 0; // Not used for linear
-        } else if (functionType === 'quadratic') {
-          a = randomInt(2, 6);
-          b = randomInt(-8, 8);
-          c = randomInt(-8, 8);
-        } else {
-          a = randomInt(1, 3);
-          b = randomInt(2, 6);
-          c = randomInt(-5, 5);
-        }
-        break;
-      default:
-        functionType = 'linear';
-        a = 2; b = 3; c = 0;
-    }
-
-    let derivative: string;
-    let questionText: string;
-    let explanation: string;
-
-    switch (functionType) {
-      case 'linear':
-        derivative = a.toString();
-        questionText = `Soit f(x) = ${a}x ${b >= 0 ? '+' : ''} ${b}. Quelle est f'(x) ?`;
+      case 4:
+        a = randomInt(1, 5);
+        b = randomInt(-5, 5);
+        questionText = `Soit f(x) = ${a}x ${b >= 0 ? '+' : ''} ${b}. Quelle est la dérivée f'(x) ?`;
+        derivative = `${a}`;
         explanation = `La dérivée de ${a}x est ${a}, et la dérivée de ${b} est 0. Donc f'(x) = ${a}`;
         break;
-      case 'quadratic':
+      case 5:
+        a = randomInt(1, 3);
+        b = randomInt(-5, 5);
+        c = randomInt(-5, 5);
+        questionText = `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Quelle est la dérivée f'(x) ?`;
         derivative = `${2 * a}x ${b >= 0 ? '+' : ''} ${b}`;
-        questionText = `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Quelle est f'(x) ?`;
         explanation = `La dérivée de ${a}x² est ${2 * a}x, la dérivée de ${b}x est ${b}, et la dérivée de ${c} est 0. Donc f'(x) = ${2 * a}x ${b >= 0 ? '+' : ''} ${b}`;
         break;
-      case 'cubic':
-        derivative = `${3 * a}x² ${2 * b >= 0 ? '+' : ''} ${2 * b}`;
-        questionText = `Soit f(x) = ${a}x³ ${b >= 0 ? '+' : ''} ${b}x² ${c >= 0 ? '+' : ''} ${c}x. Quelle est f'(x) ?`;
-        explanation = `La dérivée de ${a}x³ est ${3 * a}x², la dérivée de ${b}x² est ${2 * b}x, et la dérivée de ${c}x est ${c}. Donc f'(x) = ${3 * a}x² ${2 * b >= 0 ? '+' : ''} ${2 * b}x ${c >= 0 ? '+' : ''} ${c}`;
-        break;
+      default:
+        a = randomInt(1, 3);
+        b = randomInt(1, 3);
+        c = randomInt(-5, 5);
+        d = randomInt(-5, 5);
+        questionText = `Soit f(x) = ${a}x³ ${b >= 0 ? '+' : ''} ${b}x² ${c >= 0 ? '+' : ''} ${c}x ${d >= 0 ? '+' : ''} ${d}. Quelle est la dérivée f'(x) ?`;
+        derivative = `${3 * a}x² ${b >= 0 ? '+' : ''} ${2 * b}x ${c >= 0 ? '+' : ''} ${c}`;
+        explanation = `La dérivée de ${a}x³ est ${3 * a}x², la dérivée de ${b}x² est ${2 * b}x, la dérivée de ${c}x est ${c}, et la dérivée de ${d} est 0. Donc f'(x) = ${3 * a}x² ${b >= 0 ? '+' : ''} ${2 * b}x ${c >= 0 ? '+' : ''} ${c}`;
     }
 
     const wrongAnswers = [
-      `${a}x`,
-      `${2 * a}x`,
-      `${a}`,
-      `${3 * a}x²`,
+      derivative.replace(/[0-9]/g, (match) => (parseInt(match) + 1).toString()),
+      derivative.replace(/[0-9]/g, (match) => (parseInt(match) - 1).toString()),
+      derivative.replace(/x/g, ''),
+      derivative.replace(/x²/g, 'x'),
     ].filter(ans => ans !== derivative);
 
     const answers = shuffleArray([derivative, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `derivative-${Date.now()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: 'Sup2',
+      difficultyElo: 3100,
       question: questionText,
-      answers,
-      correct: derivative,
+      answer: derivative,
       explanation,
-      difficulty
+      options: answers,
+      timeEstimate: 120
     };
   }
 
-  private generateVariation(difficulty: number): GeneratedQuestion {
+  private generateParabolaAnalysis(difficulty: number): GeneratedQuestion {
     let a: number, vertex: number;
+    let variation: string;
+    let interval: string;
     
     switch (difficulty) {
-      case 9:
-        a = randomChoice([-3, -2, -1, 1, 2, 3]);
+      case 6:
+        a = randomChoice([1, 2, -1, -2]);
         vertex = randomInt(-5, 5);
-        break;
-      case 10:
-        a = randomChoice([-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]);
-        vertex = randomInt(-8, 8);
+        variation = a > 0 ? 'croissante' : 'décroissante';
+        interval = a > 0 ? `[${vertex}, +∞)` : `(-∞, ${vertex}]`;
         break;
       default:
-        a = 1; vertex = 0;
+        a = randomChoice([3, 4, -3, -4]);
+        vertex = randomInt(-10, 10);
+        variation = a > 0 ? 'croissante' : 'décroissante';
+        interval = a > 0 ? `[${vertex}, +∞)` : `(-∞, ${vertex}]`;
     }
 
-    const variation = a > 0 ? 'croissante' : 'décroissante';
-    const interval = a > 0 
-      ? `[${vertex}; +∞)` 
-      : `]-∞; ${vertex}]`;
-
     const wrongAnswers = [
-      a > 0 ? 'décroissante' : 'croissante',
-      a > 0 ? `]-∞; ${vertex}]` : `[${vertex}; +∞)`,
-      'constante',
-      'alternée',
-    ];
+      a > 0 ? `(-∞, ${vertex}]` : `[${vertex}, +∞)`,
+      a > 0 ? `[${vertex - 1}, +∞)` : `(-∞, ${vertex + 1}]`,
+      a > 0 ? `[${vertex + 1}, +∞)` : `(-∞, ${vertex - 1}]`,
+      `ℝ`,
+    ].filter(ans => ans !== interval);
 
-    const answers = shuffleArray([variation, ...wrongAnswers.slice(0, 3)]);
+    const answers = shuffleArray([interval, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `parabola-${Date.now()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: 'Sup2',
+      difficultyElo: 3200,
       question: `Soit f(x) = ${a}(x - ${vertex})². Sur quel intervalle la fonction est-elle ${variation} ?`,
-      answers,
-      correct: interval,
+      answer: interval,
       explanation: `Comme a = ${a} ${a > 0 ? '> 0' : '< 0'}, la parabole est ${a > 0 ? 'ouverte vers le haut' : 'ouverte vers le bas'}. La fonction est ${variation} sur ${interval}`,
-      difficulty
+      options: answers,
+      timeEstimate: 90
     };
   }
 
-  private generateLimit(difficulty: number): GeneratedQuestion {
-    let a: number, b: number, limitType: 'infinity' | 'zero' | 'finite';
+  private generateLimits(difficulty: number): GeneratedQuestion {
+    let questionText: string;
+    let limit: string;
+    let explanation: string;
     
     switch (difficulty) {
-      case 10:
-        limitType = randomChoice(['infinity', 'zero', 'finite']);
-        if (limitType === 'infinity') {
-          a = randomInt(1, 5);
-          b = randomInt(1, 5);
-        } else if (limitType === 'zero') {
-          a = randomInt(1, 5);
-          b = randomInt(1, 5);
-        } else {
-          a = randomInt(2, 8);
-          b = randomInt(-10, 10);
-        }
+      case 7:
+        const a1 = randomInt(1, 5);
+        const b1 = randomInt(-5, 5);
+        questionText = `Calcule limₓ→+∞ (${a1}x + ${b1})`;
+        limit = '+∞';
+        explanation = `Quand x → +∞, ${a1}x → +∞, donc ${a1}x + ${b1} → +∞`;
+        break;
+      case 8:
+        const a2 = randomInt(-5, -1);
+        const b2 = randomInt(-5, 5);
+        questionText = `Calcule limₓ→+∞ (${a2}x + ${b2})`;
+        limit = '-∞';
+        explanation = `Quand x → +∞, ${a2}x → -∞ (car a2 < 0), donc ${a2}x + ${b2} → -∞`;
         break;
       default:
-        limitType = 'finite';
-        a = 2; b = 3;
-    }
-
-    let limit: string;
-    let questionText: string;
-    let explanation: string;
-
-    switch (limitType) {
-      case 'infinity':
+        const a3 = randomInt(1, 3);
+        const b3 = randomInt(1, 3);
+        const c3 = randomInt(-5, 5);
+        questionText = `Calcule limₓ→+∞ (${a3}x² ${b3 >= 0 ? '+' : ''} ${b3}x ${c3 >= 0 ? '+' : ''} ${c3})`;
         limit = '+∞';
-        questionText = `Calcule limₓ→+∞ (${a}x + ${b})`;
-        explanation = `Quand x tend vers +∞, ${a}x tend vers +∞ et ${b} devient négligeable. Donc la limite est +∞`;
-        break;
-      case 'zero':
-        limit = '0';
-        questionText = `Calcule limₓ→+∞ (${a}/x + ${b}/x²)`;
-        explanation = `Quand x tend vers +∞, ${a}/x tend vers 0 et ${b}/x² tend vers 0. Donc la limite est 0`;
-        break;
-      case 'finite':
-        limit = a.toString();
-        questionText = `Calcule limₓ→+∞ (${a} + ${b}/x)`;
-        explanation = `Quand x tend vers +∞, ${b}/x tend vers 0. Donc la limite est ${a}`;
-        break;
+        explanation = `Quand x → +∞, le terme ${a3}x² domine, et ${a3}x² → +∞, donc la limite est +∞`;
     }
 
     const wrongAnswers = [
-      '-∞',
+      limit === '+∞' ? '-∞' : '+∞',
+      '0',
       '1',
-      'n\'existe pas',
-      (a + b).toString(),
+      `limₓ→-∞ (...)`,
     ].filter(ans => ans !== limit);
 
     const answers = shuffleArray([limit, ...wrongAnswers.slice(0, 3)]);
 
     return {
+      id: `limits-${Date.now()}`,
+      type: 'mcq',
+      domain: 'functions',
+      level: 'Sup3',
+      difficultyElo: 3500,
       question: questionText,
-      answers,
-      correct: limit,
+      answer: limit,
       explanation,
-      difficulty
+      options: answers,
+      timeEstimate: 90
     };
   }
 }
