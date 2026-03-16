@@ -62,8 +62,8 @@ export class Sup1Generator implements LevelGenerator {
 
   private generateLinearSystemRank(): GeneratedQuestion {
     const n = randomInt(2, 4);
-    const type = randomChoice(['unique', 'infinite', 'none']);
-    const answers = {
+    const type = randomChoice<'unique' | 'infinite' | 'none'>(['unique', 'infinite', 'none']);
+    const answers: Record<string, string> = {
       unique: '1 solution unique',
       infinite: 'infinité de solutions',
       none: 'aucune solution',

@@ -124,7 +124,7 @@ export class FunctionsGenerator implements QuestionGenerator {
         a = randomInt(1, 3);
         b = randomInt(1, 3);
         c = randomInt(-5, 5);
-        d = randomInt(-5, 5);
+        const d = randomInt(-5, 5);
         questionText = `Soit f(x) = ${a}x³ ${b >= 0 ? '+' : ''} ${b}x² ${c >= 0 ? '+' : ''} ${c}x ${d >= 0 ? '+' : ''} ${d}. Quelle est la dérivée f'(x) ?`;
         derivative = `${3 * a}x² ${b >= 0 ? '+' : ''} ${2 * b}x ${c >= 0 ? '+' : ''} ${c}`;
         explanation = `La dérivée de ${a}x³ est ${3 * a}x², la dérivée de ${b}x² est ${2 * b}x, la dérivée de ${c}x est ${c}, et la dérivée de ${d} est 0. Donc f'(x) = ${3 * a}x² ${b >= 0 ? '+' : ''} ${2 * b}x ${c >= 0 ? '+' : ''} ${c}`;

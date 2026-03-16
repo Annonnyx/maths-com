@@ -208,11 +208,11 @@ export type {
   DomainType,
   SchoolLevel,
   GenerationContext,
-  FrenchClass,
+  // FrenchClass is already exported above
 };
 
 // Export main classes
-export { AdaptiveQuestionGenerator, QuestionGeneratorFactory };
+// All classes are already exported above
 
 // Legacy function for multiplayer compatibility
 export function generateMultiplayerQuestions(

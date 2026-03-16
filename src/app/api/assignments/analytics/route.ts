@@ -28,10 +28,9 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             question: true,
-            questionType: true,
+            type: true,
             difficulty: true,
-            order: true,
-            points: true
+            order: true
           }
         },
         submissions: {
@@ -41,9 +40,7 @@ export async function GET(request: NextRequest) {
                 id: true,
                 questionId: true,
                 userAnswer: true,
-                selectedOptions: true,
-                isCorrect: true,
-                pointsEarned: true,
+                is_correct: true,
                 timeTaken: true
               }
             },
@@ -80,14 +77,14 @@ export async function GET(request: NextRequest) {
         s.answers.filter(a => a.questionId === q.id)
       );
       
-      const correctAnswers = questionAnswers.filter(a => a.isCorrect).length;
+      const correctAnswers = questionAnswers.filter(a => a.is_correct).length;
       const totalAnswers = questionAnswers.length;
       const successRate = totalAnswers > 0 ? (correctAnswers / totalAnswers) * 100 : 0;
       
       // Réponses les plus fréquentes (pour les questions à réponse libre)
       const answerFrequency: Record<string, number> = {};
       questionAnswers.forEach(a => {
-        const ans = a.userAnswer || a.selectedOptions || '(vide)';
+        const ans = a.userAnswer || '(vide)';
         answerFrequency[ans] = (answerFrequency[ans] || 0) + 1;
       });
       
@@ -98,15 +95,12 @@ export async function GET(request: NextRequest) {
       return {
         questionId: q.id,
         question: q.question,
-        questionType: q.questionType,
+        questionType: q.type,
         difficulty: q.difficulty,
-        points: q.points,
         totalAnswers,
         correctAnswers,
         successRate,
-        averagePoints: totalAnswers > 0 
-          ? questionAnswers.reduce((sum, a) => sum + (a.pointsEarned || 0), 0) / totalAnswers 
-          : 0,
+        averagePoints: 0, // No points field in AssignmentAnswer
         topAnswers
       };
     });
