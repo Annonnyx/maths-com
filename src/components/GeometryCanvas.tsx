@@ -86,7 +86,7 @@ export default function GeometryCanvas({
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
   const [tempLine, setTempLine] = useState<{start: Point; end: Point} | null>(null);
   const [measurement, setMeasurement] = useState<{type: string; value: number} | null>(null);
-  const [scale, setScale] = useState(20); // 20 pixels par unité pour un meilleur équilibre
+  const [scale, setScale] = useState(20); // 20 pixels par unité
   const [pan, setPan] = useState({ x: width / 2, y: height / 2 }); // Centrer sur 0
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
