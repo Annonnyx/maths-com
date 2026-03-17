@@ -86,7 +86,7 @@ export default function GeometryCanvas({
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
   const [tempLine, setTempLine] = useState<{start: Point; end: Point} | null>(null);
   const [measurement, setMeasurement] = useState<{type: string; value: number} | null>(null);
-  const [scale, setScale] = useState(20); // 20 pixels par unité
+  const [scale, setScale] = useState(40); // 40 pixels par unité pour des cases plus grandes
   const [pan, setPan] = useState({ x: width / 2, y: height / 2 }); // Centrer sur 0
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -137,7 +137,7 @@ export default function GeometryCanvas({
     // 2. Account for pan and scale to get world coordinates
     // Formula: world = (screen - pan) / scale
     const worldX = (screenX - pan.x) / scale;
-    const worldY = (screenY - pan.y) / scale;
+    const worldY = -(screenY - pan.y) / scale; // Inverser Y pour que positif soit vers le haut
     
     // 3. SVG coordinates are already correct since we use transform="translate(pan) scale"
     // No additional y-inversion needed as our coordinate system uses SVG's default (top-left origin)
@@ -162,7 +162,7 @@ export default function GeometryCanvas({
     const mouseY = e.clientY - rect.top;
     
     const worldX = (mouseX - pan.x) / scale;
-    const worldY = (mouseY - pan.y) / scale;
+    const worldY = -(mouseY - pan.y) / scale; // Inverser Y pour le zoom
     
     const newPanX = mouseX - worldX * newScale;
     const newPanY = mouseY - worldY * newScale;
