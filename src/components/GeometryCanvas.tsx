@@ -111,8 +111,8 @@ export default function GeometryCanvas({
   const viewportWidth = isFullscreen ? window.innerWidth : width;
   const viewportHeight = isFullscreen ? window.innerHeight : height;
   
-  // Grid size - 6x plus grand pour des carreaux plus visibles
-  const gridSize = 6;
+  // Grid size - 1 carreau = 1 unité
+  const gridSize = 1;
   
   // Align grid boundaries to snap to gridSize multiples
   const gridLeft = Math.floor((-pan.x / scale) / gridSize) * gridSize;
