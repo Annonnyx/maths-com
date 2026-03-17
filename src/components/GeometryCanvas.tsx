@@ -111,8 +111,8 @@ export default function GeometryCanvas({
   const viewportWidth = isFullscreen ? window.innerWidth : width;
   const viewportHeight = isFullscreen ? window.innerHeight : height;
   
-  // Fixed grid size: 1 unit = 1 carreau
-  const gridSize = 1;
+  // Grid size - 6x plus grand pour des carreaux plus visibles
+  const gridSize = 6;
   
   // Align grid boundaries to snap to gridSize multiples
   const gridLeft = Math.floor((-pan.x / scale) / gridSize) * gridSize;
@@ -786,47 +786,44 @@ export default function GeometryCanvas({
           className="bg-[#0f0f1a] cursor-crosshair"
           style={{ touchAction: 'none', cursor: isPanning ? 'grabbing' : 'crosshair' }}
         >
-          <g transform={`translate(${pan.x}, ${pan.y})`}>
-            {/* Grid - Fixed size, not affected by zoom */}
+          <g transform={`translate(${pan.x}, ${pan.y}) scale(${scale})`}>
+            {/* Grid - Affected by zoom with larger base size */}
             {showGridState && (
               <g opacity={0.3}>
-                {/* Vertical lines - Fixed spacing of 20 pixels */}
+                {/* Vertical lines - Larger base spacing */}
                 {(() => {
-                  const pixelGridSize = 20; // Fixed 20 pixels between lines
-                  const verticalCount = Math.ceil(viewportWidth / pixelGridSize) + 1;
+                  const gridWidth = gridRight - gridLeft;
+                  const verticalCount = Math.ceil(gridWidth / gridSize) + 1;
                   return Array.from({ length: verticalCount }).map((_, i) => (
                     <line
                       key={`v${i}`}
-                      x1={i * pixelGridSize}
-                      y1={0}
-                      x2={i * pixelGridSize}
-                      y2={viewportHeight}
+                      x1={gridLeft + i * gridSize}
+                      y1={gridTop}
+                      x2={gridLeft + i * gridSize}
+                      y2={gridBottom}
                       stroke="#4b5563"
-                      strokeWidth={0.5}
+                      strokeWidth={Math.max(0.5, 0.5 / scale)}
                     />
                   ));
                 })()}
-                {/* Horizontal lines - Fixed spacing of 20 pixels */}
+                {/* Horizontal lines - Larger base spacing */}
                 {(() => {
-                  const pixelGridSize = 20; // Fixed 20 pixels between lines
-                  const horizontalCount = Math.ceil(viewportHeight / pixelGridSize) + 1;
+                  const gridHeight = gridBottom - gridTop;
+                  const horizontalCount = Math.ceil(gridHeight / gridSize) + 1;
                   return Array.from({ length: horizontalCount }).map((_, i) => (
                     <line
                       key={`h${i}`}
-                      x1={0}
-                      y1={i * pixelGridSize}
-                      x2={viewportWidth}
-                      y2={i * pixelGridSize}
+                      x1={gridLeft}
+                      y1={gridTop + i * gridSize}
+                      x2={gridRight}
+                      y2={gridTop + i * gridSize}
                       stroke="#4b5563"
-                      strokeWidth={0.5}
+                      strokeWidth={Math.max(0.5, 0.5 / scale)}
                     />
                   ));
                 })()}
               </g>
             )}
-            
-            {/* Axes and content - Affected by zoom */}
-            <g transform={`scale(${scale})`}>
             
             {/* Axes - Always visible and properly scaled */}
             {showAxes && (
@@ -1192,8 +1189,6 @@ export function GeometryMini({
             </text>
           </g>
         ))}
-            </g>
-          </g>
       </svg>
     </div>
   );
