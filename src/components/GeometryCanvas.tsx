@@ -154,7 +154,7 @@ export default function GeometryCanvas({
     e.preventDefault();
     
     const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    const newScale = Math.max(0.1, Math.min(5, scale * delta));
+    const newScale = Math.max(0.1, Math.min(10, scale * delta));
     
     // Zoom towards mouse position
     const rect = containerRef.current.getBoundingClientRect();
@@ -524,7 +524,7 @@ export default function GeometryCanvas({
   ] as const;
 
   const handleZoomIn = () => {
-    setScale(prev => Math.min(5, prev * 1.2));
+    setScale(prev => Math.min(10, prev * 1.2));
   };
 
   const handleZoomOut = () => {
