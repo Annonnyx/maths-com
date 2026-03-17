@@ -86,8 +86,8 @@ export default function GeometryCanvas({
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
   const [tempLine, setTempLine] = useState<{start: Point; end: Point} | null>(null);
   const [measurement, setMeasurement] = useState<{type: string; value: number} | null>(null);
-  const [scale, setScale] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [scale, setScale] = useState(20); // 20 pixels par unité pour avoir 1 carreau = 1 unité
+  const [pan, setPan] = useState({ x: width / 2, y: height / 2 }); // Centrer sur 0
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [showMeasurements, setShowMeasurements] = useState(true);
@@ -107,18 +107,12 @@ export default function GeometryCanvas({
     points: Array<{x: number, y: number}>;
   }>>([]);
 
-  // Grid settings - dynamic grid size based on scale for better visual representation
+  // Grid settings - 1 carreau = 1 unité
   const viewportWidth = isFullscreen ? window.innerWidth : width;
   const viewportHeight = isFullscreen ? window.innerHeight : height;
   
-  // Calculate dynamic grid size: aim for ~30px between grid lines on screen
-  const minGridPixels = 20;
-  let gridSize = 20;
-  if (scale < 1) {
-    gridSize = 20 / scale; // Larger grid steps when zoomed out
-  } else if (scale > 1) {
-    gridSize = 20; // Fixed grid steps when zoomed in
-  }
+  // Fixed grid size: 1 unit = 1 carreau
+  const gridSize = 1;
   
   // Align grid boundaries to snap to gridSize multiples
   const gridLeft = Math.floor((-pan.x / scale) / gridSize) * gridSize;
@@ -561,7 +555,7 @@ export default function GeometryCanvas({
 
   const generateFunctionPoints = (expression: string): Array<{x: number, y: number}> => {
     const points = [];
-    const step = Math.max(0.05, gridSize / 100); // Adaptive step size based on grid
+    const step = 0.1; // Fixed step size for smooth function plotting
     const xMin = gridLeft - gridSize * 5;
     const xMax = gridRight + gridSize * 5;
     
@@ -696,19 +690,19 @@ export default function GeometryCanvas({
         </button>
         
         <button
-          onClick={() => setShowMeasurements(!showMeasurements)}
-          className={`p-2 rounded-lg transition-all ${showMeasurements ? 'bg-indigo-500/20' : 'hover:bg-gray-800'}`}
-          title="Mesures"
-        >
-          <Calculator className={`w-5 h-5 ${showMeasurements ? 'text-indigo-400' : 'text-gray-400'}`} />
-        </button>
-        
-        <button
           onClick={() => setShowTicks(!showTicks)}
           className={`p-2 rounded-lg transition-all ${showTicks ? 'bg-indigo-500/20' : 'hover:bg-gray-800'}`}
           title="Graduations"
         >
           <Tag className={`w-5 h-5 ${showTicks ? 'text-indigo-400' : 'text-gray-400'}`} />
+        </button>
+        
+        <button
+          onClick={() => setShowMeasurements(!showMeasurements)}
+          className={`p-2 rounded-lg transition-all ${showMeasurements ? 'bg-indigo-500/20' : 'hover:bg-gray-800'}`}
+          title="Mesures"
+        >
+          <Calculator className={`w-5 h-5 ${showMeasurements ? 'text-indigo-400' : 'text-gray-400'}`} />
         </button>
         
         <button
@@ -847,8 +841,8 @@ export default function GeometryCanvas({
                 {/* X-axis ticks */}
                 {showTicks && (
                   <>
-                    {Array.from({length: Math.floor((gridRight - gridLeft) / 5) + 1}, (_, i) => {
-                      const x = Math.ceil(gridLeft / 5) * 5 + i * 5;
+                    {Array.from({length: Math.floor((gridRight - gridLeft) / 1) + 1}, (_, i) => {
+                      const x = Math.ceil(gridLeft / 1) * 1 + i * 1;
                       if (x < gridLeft || x > gridRight) return null;
                       return (
                         <g key={`x-tick-${x}`}>
@@ -891,8 +885,8 @@ export default function GeometryCanvas({
                 {/* Y-axis ticks */}
                 {showTicks && (
                   <>
-                    {Array.from({length: Math.floor((gridBottom - gridTop) / 5) + 1}, (_, i) => {
-                      const y = Math.ceil(gridTop / 5) * 5 + i * 5;
+                    {Array.from({length: Math.floor((gridBottom - gridTop) / 1) + 1}, (_, i) => {
+                      const y = Math.ceil(gridTop / 1) * 1 + i * 1;
                       if (y < gridTop || y > gridBottom) return null;
                       return (
                         <g key={`y-tick-${y}`}>
