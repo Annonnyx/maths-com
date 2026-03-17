@@ -86,7 +86,7 @@ export default function GeometryCanvas({
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
   const [tempLine, setTempLine] = useState<{start: Point; end: Point} | null>(null);
   const [measurement, setMeasurement] = useState<{type: string; value: number} | null>(null);
-  const [scale, setScale] = useState(40); // 40 pixels par unité pour des cases plus grandes
+  const [scale, setScale] = useState(20); // 20 pixels par unité pour des cases plus grandes
   const [pan, setPan] = useState({ x: width / 2, y: height / 2 }); // Centrer sur 0
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -162,7 +162,7 @@ export default function GeometryCanvas({
     const mouseY = e.clientY - rect.top;
     
     const worldX = (mouseX - pan.x) / scale;
-    const worldY = -(mouseY - pan.y) / scale; // Inverser Y pour le zoom
+    const worldY = (mouseY - pan.y) / scale; 
     
     const newPanX = mouseX - worldX * newScale;
     const newPanY = mouseY - worldY * newScale;
@@ -786,44 +786,47 @@ export default function GeometryCanvas({
           className="bg-[#0f0f1a] cursor-crosshair"
           style={{ touchAction: 'none', cursor: isPanning ? 'grabbing' : 'crosshair' }}
         >
-          <g transform={`translate(${pan.x}, ${pan.y}) scale(${scale})`}>
-            {/* Grid - Dynamically scaled with zoom */}
+          <g transform={`translate(${pan.x}, ${pan.y})`}>
+            {/* Grid - Fixed size, not affected by zoom */}
             {showGridState && (
               <g opacity={0.3}>
-                {/* Vertical lines - properly calculated for dynamic grid */}
+                {/* Vertical lines - Fixed spacing of 20 pixels */}
                 {(() => {
-                  const gridWidth = gridRight - gridLeft;
-                  const verticalCount = Math.ceil(gridWidth / gridSize) + 1;
+                  const pixelGridSize = 20; // Fixed 20 pixels between lines
+                  const verticalCount = Math.ceil(viewportWidth / pixelGridSize) + 1;
                   return Array.from({ length: verticalCount }).map((_, i) => (
                     <line
                       key={`v${i}`}
-                      x1={gridLeft + i * gridSize}
-                      y1={gridTop}
-                      x2={gridLeft + i * gridSize}
-                      y2={gridBottom}
+                      x1={i * pixelGridSize}
+                      y1={0}
+                      x2={i * pixelGridSize}
+                      y2={viewportHeight}
                       stroke="#4b5563"
-                      strokeWidth={Math.max(0.5, 0.5 / scale)}
+                      strokeWidth={0.5}
                     />
                   ));
                 })()}
-                {/* Horizontal lines - properly calculated for dynamic grid */}
+                {/* Horizontal lines - Fixed spacing of 20 pixels */}
                 {(() => {
-                  const gridHeight = gridBottom - gridTop;
-                  const horizontalCount = Math.ceil(gridHeight / gridSize) + 1;
+                  const pixelGridSize = 20; // Fixed 20 pixels between lines
+                  const horizontalCount = Math.ceil(viewportHeight / pixelGridSize) + 1;
                   return Array.from({ length: horizontalCount }).map((_, i) => (
                     <line
                       key={`h${i}`}
-                      x1={gridLeft}
-                      y1={gridTop + i * gridSize}
-                      x2={gridRight}
-                      y2={gridTop + i * gridSize}
+                      x1={0}
+                      y1={i * pixelGridSize}
+                      x2={viewportWidth}
+                      y2={i * pixelGridSize}
                       stroke="#4b5563"
-                      strokeWidth={Math.max(0.5, 0.5 / scale)}
+                      strokeWidth={0.5}
                     />
                   ));
                 })()}
               </g>
             )}
+            
+            {/* Axes and content - Affected by zoom */}
+            <g transform={`scale(${scale})`}>
             
             {/* Axes - Always visible and properly scaled */}
             {showAxes && (
@@ -1189,6 +1192,8 @@ export function GeometryMini({
             </text>
           </g>
         ))}
+            </g>
+          </g>
       </svg>
     </div>
   );
