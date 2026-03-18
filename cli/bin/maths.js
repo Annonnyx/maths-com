@@ -69,7 +69,12 @@ duelCommand
   .action((code) => duel('join', { code }))
 
 // Gérer les erreurs
-program.exitOverride()
+program.exitOverride((err) => {
+  if (err.code === 'commander.help' || err.code === 'commander.version') {
+    process.exit(0)
+  }
+  throw err
+})
 
 process.on('uncaughtException', (err) => {
   console.error('❌ Erreur inattendue:', err.message)

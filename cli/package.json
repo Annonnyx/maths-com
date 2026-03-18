@@ -1,6 +1,6 @@
 {
   "name": "maths-cli",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "CLI officielle de maths-app.fr",
   "type": "module",
   "bin": { "maths": "./bin/maths.js" },

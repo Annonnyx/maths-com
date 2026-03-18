@@ -8,6 +8,7 @@ import {
   Check, Moon, Zap, Target, Shield
 } from 'lucide-react';
 import ToggleSwitch from '@/components/ToggleSwitch';
+import ApiKeysManager from '@/components/ApiKeysManager';
 
 // Local storage hooks that work without contexts
 function useLocalNotifSettings() {
@@ -239,6 +240,11 @@ export default function SettingsPage() {
               />
             </div>
           </div>
+        </section>
+
+        {/* API Keys */}
+        <section className="bg-card rounded-2xl border border-border p-6">
+          <ApiKeysManager />
         </section>
       </main>
     </div>
