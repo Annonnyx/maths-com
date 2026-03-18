@@ -1,51 +1,95 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  MousePointer2, 
-  Trash2, 
-  Circle,
-  Square,
-  Hexagon,
-  Undo,
-  Grid3X3,
-  ZoomIn,
-  ZoomOut,
-  RefreshCw,
-  Download,
-  Ruler,
-  Move
-} from 'lucide-react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
-interface GeometryPoint {
-  id: string;
-  x: number;
-  y: number;
-  color: string;
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const TOOLS = [
+  { id: 'select',    icon: '↖', label: 'Sélectionner',   group: 'base' },
+  { id: 'point',     icon: '•', label: 'Point',           group: 'create' },
+  { id: 'segment',   icon: '╱', label: 'Segment',         group: 'create' },
+  { id: 'line',      icon: '↔', label: 'Droite',          group: 'create' },
+  { id: 'ray',       icon: '→', label: 'Demi-droite',     group: 'create' },
+  { id: 'circle',    icon: '○', label: 'Cercle',          group: 'create' },
+  { id: 'triangle',  icon: '△', label: 'Triangle',        group: 'create' },
+  { id: 'polygon',   icon: '⬡', label: 'Polygone',        group: 'create' },
+  { id: 'rectangle', icon: '▭', label: 'Rectangle',       group: 'create' },
+  { id: 'function',  icon: '∫', label: 'Fonction',        group: 'create' },
+  { id: 'angle',     icon: '∠', label: 'Angle',           group: 'measure' },
+  { id: 'distance',  icon: '↕', label: 'Distance',        group: 'measure' },
+  { id: 'midpoint',  icon: '⊕', label: 'Milieu',          group: 'measure' },
+  { id: 'perp',      icon: '⊥', label: 'Perpendiculaire', group: 'measure' },
+  { id: 'parallel',  icon: '∥', label: 'Parallèle',       group: 'measure' },
+  { id: 'text',      icon: 'T', label: 'Texte',           group: 'annotate' },
+];
+
+const COLORS = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#34495e','#ffffff','#000000'];
+
+const PRESETS = [
+  { label: 'Théorème de Pythagore', fn: (board) => createPythagoras(board) },
+  { label: 'Cercle trigonométrique', fn: (board) => createUnitCircle(board) },
+  { label: 'Triangle équilatéral',   fn: (board) => createEquilateral(board) },
+];
+
+// ─── JSXGraph loader ──────────────────────────────────────────────────────────
+
+function loadJSXGraph() {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== 'undefined' && (window as any).JXG) { 
+      resolve((window as any).JXG); 
+      return; 
+    }
+    
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraph.css';
+    document.head.appendChild(css);
+    
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js';
+    script.onload = () => resolve((window as any).JXG);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
 }
 
-interface GeometryLine {
-  id: string;
-  start: { x: number; y: number };
-  end: { x: number; y: number };
-  color: string;
+// ─── Preset constructors ──────────────────────────────────────────────────────
+
+function createPythagoras(board: any) {
+  const A = board.create('point', [0, 0], { name: 'A', size: 4, color: '#3498db' });
+  const B = board.create('point', [4, 0], { name: 'B', size: 4, color: '#3498db' });
+  const C = board.create('point', [0, 3], { name: 'C', size: 4, color: '#3498db' });
+  board.create('polygon', [A, B, C], { fillColor: '#3498db', fillOpacity: 0.15, strokeColor: '#3498db' });
+  board.create('angle', [B, A, C], { name: '90°', radius: 0.5, orthotype: 'square' });
+  board.create('segment', [A, B], { strokeColor: '#e74c3c', label: { autoPosition: true } });
+  board.create('segment', [A, C], { strokeColor: '#2ecc71', label: { autoPosition: true } });
+  board.create('segment', [B, C], { strokeColor: '#9b59b6', label: { autoPosition: true } });
 }
 
-interface GeometryCircle {
-  id: string;
-  center: { x: number; y: number };
-  radius: number;
-  color: string;
+function createUnitCircle(board: any) {
+  const O = board.create('point', [0, 0], { name: 'O', size: 4, color: '#3498db', fixed: true });
+  board.create('circle', [O, 1], { strokeColor: '#3498db', strokeWidth: 2, fillOpacity: 0 });
+  const P = board.create('glider', [1, 0, board.create('circle', [O, 1], { visible: false })],
+    { name: 'P', size: 5, color: '#e74c3c' });
+  board.create('segment', [O, P], { strokeColor: '#e74c3c', strokeWidth: 1.5 });
+  const Px = board.create('point', [() => P.X(), 0], { name: '', size: 3, color: '#e67e22', fixed: true });
+  board.create('segment', [P, Px], { strokeColor: '#2ecc71', strokeWidth: 1, dash: 2 });
+  board.create('segment', [O, Px], { strokeColor: '#e67e22', strokeWidth: 2 });
+  board.create('text', [-2.8, 1.4, () => `cos θ = ${P.X().toFixed(3)}\nsin θ = ${P.Y().toFixed(3)}`],
+    { fontSize: 14, color: '#34495e' });
 }
 
-interface GeometryPolygon {
-  id: string;
-  points: { x: number; y: number }[];
-  color: string;
+function createEquilateral(board: any) {
+  const A = board.create('point', [0, 0],   { name: 'A', size: 4, color: '#3498db' });
+  const B = board.create('point', [4, 0],   { name: 'B', size: 4, color: '#3498db' });
+  const C = board.create('point', [2, 3.46],{ name: 'C', size: 4, color: '#3498db' });
+  board.create('polygon', [A, B, C], { fillColor: '#2ecc71', fillOpacity: 0.2, strokeColor: '#2ecc71', strokeWidth: 2 });
+  board.create('angle', [C, A, B], { name: '60°', radius: 0.7 });
+  board.create('angle', [A, B, C], { name: '60°', radius: 0.7 });
+  board.create('angle', [B, C, A], { name: '60°', radius: 0.7 });
 }
 
-type GeometryTool = 'select' | 'point' | 'line' | 'circle' | 'rectangle' | 'hexagon' | 'delete';
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 interface GeometryCanvasProps {
   width?: number;
@@ -62,635 +106,736 @@ export default function GeometryCanvas({
   showAxes: initialShowAxes = true,
   onExport 
 }: GeometryCanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [currentTool, setCurrentTool] = useState<GeometryTool>('select');
-  const [points, setPoints] = useState<GeometryPoint[]>([]);
-  const [lines, setLines] = useState<GeometryLine[]>([]);
-  const [circles, setCircles] = useState<GeometryCircle[]>([]);
-  const [polygons, setPolygons] = useState<GeometryPolygon[]>([]);
-  const [selectedObject, setSelectedObject] = useState<string | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
-  const [currentColor, setCurrentColor] = useState('#3b82f6');
-  const [showGrid, setShowGrid] = useState(initialShowGrid);
-  const [showAxes, setShowAxes] = useState(initialShowAxes);
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [history, setHistory] = useState<any[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const [isPanning, setIsPanning] = useState(false);
-  const [lastPanPoint, setLastPanPoint] = useState<{ x: number; y: number } | null>(null);
+  const boardRef      = useRef<HTMLDivElement>(null);
+  const jxgBoardRef   = useRef<any>(null);
+  const containerRef  = useRef<HTMLDivElement>(null);
+  const tempPointsRef = useRef<any[]>([]);
+  const historyRef    = useRef<string[]>([]);
+  const redoStackRef  = useRef<string[]>([]);
 
-  // Convert canvas coordinates to world coordinates
-  const canvasToWorld = useCallback((canvasX: number, canvasY: number) => {
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return { x: 0, y: 0 };
-    
-    return {
-      x: (canvasX - rect.left - pan.x) / zoom,
-      y: (canvasY - rect.top - pan.y) / zoom
-    };
-  }, [pan, zoom]);
+  const [tool, setTool]               = useState('select');
+  const [loaded, setLoaded]           = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showGrid, setShowGrid]       = useState(initialShowGrid);
+  const [showAxes, setShowAxes]       = useState(initialShowAxes);
+  const [snapGrid, setSnapGrid]       = useState(false);
+  const [color, setColor]             = useState('#3498db');
+  const [strokeWidth, setStrokeWidth] = useState(2);
+  const [fillOpacity, setFillOpacity] = useState(0.15);
+  const [showFnPanel, setShowFnPanel] = useState(false);
+  const [fnExpr, setFnExpr]           = useState('Math.sin(x)');
+  const [fnColor, setFnColor]         = useState('#e74c3c');
+  const [showTextPanel, setShowTextPanel] = useState(false);
+  const [textContent, setTextContent] = useState('');
+  const [status, setStatus]           = useState('Prêt — cliquez pour créer des objets');
+  const [objectCount, setObjectCount] = useState(0);
+  const [showPresets, setShowPresets] = useState(false);
+  const toolRef = useRef(tool);
+  toolRef.current = tool;
 
-  // Save state to history
-  const saveToHistory = useCallback(() => {
-    const state = {
-      points: [...points],
-      lines: [...lines],
-      circles: [...circles],
-      polygons: [...polygons]
-    };
-    
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(state);
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  }, [points, lines, circles, polygons, history, historyIndex]);
+  // ─── Board init ────────────────────────────────────────────────────────────
 
-  // Draw grid with proper spacing
-  const drawGrid = useCallback((ctx: CanvasRenderingContext2D) => {
-    if (!showGrid) return;
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     
-    ctx.strokeStyle = '#374151';
-    ctx.lineWidth = 0.5;
-    
-    // Grid size in world coordinates (20 units = 1 grid square)
-    const gridSize = 20;
-    const scaledGridSize = gridSize * zoom;
-    
-    // Calculate offset to keep grid aligned with origin
-    const offsetX = (pan.x % scaledGridSize + scaledGridSize) % scaledGridSize;
-    const offsetY = (pan.y % scaledGridSize + scaledGridSize) % scaledGridSize;
-    
-    // Draw vertical lines
-    for (let x = offsetX; x < width; x += scaledGridSize) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-      ctx.stroke();
-    }
-    
-    // Draw horizontal lines
-    for (let y = offsetY; y < height; y += scaledGridSize) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
-    
-    // Draw origin lines (thicker)
-    ctx.strokeStyle = '#6b7280';
-    ctx.lineWidth = 1;
-    
-    // X-axis (horizontal through origin)
-    const yAxis = height / 2 + pan.y;
-    if (yAxis >= 0 && yAxis <= height) {
-      ctx.beginPath();
-      ctx.moveTo(0, yAxis);
-      ctx.lineTo(width, yAxis);
-      ctx.stroke();
-    }
-    
-    // Y-axis (vertical through origin)
-    const xAxis = width / 2 + pan.x;
-    if (xAxis >= 0 && xAxis <= width) {
-      ctx.beginPath();
-      ctx.moveTo(xAxis, 0);
-      ctx.lineTo(xAxis, height);
-      ctx.stroke();
-    }
-  }, [showGrid, zoom, pan, width, height]);
+    loadJSXGraph().then((JXG: any) => {
+      if (!boardRef.current) return;
+      
+      const board = JXG.JSXGraph.initBoard('jxg-board', {
+        boundingbox: [-10, 10, 10, -10],
+        axis: showAxes,
+        grid: showGrid,
+        pan: { enabled: true, needTwoFingers: false, needShift: false },
+        zoom: { enabled: true, wheel: true, min: 0.01, max: 100 },
+        showCopyright: false,
+        showNavigation: false,
+        keepaspectratio: true,
+        defaultAxes: {
+          x: { strokeColor: '#888', ticks: { visible: true, strokeColor: '#888', label: { fontSize: 11, color: '#888' } } },
+          y: { strokeColor: '#888', ticks: { visible: true, strokeColor: '#888', label: { fontSize: 11, color: '#888' } } },
+        },
+      });
 
-  // Draw axes with labels
-  const drawAxes = useCallback((ctx: CanvasRenderingContext2D) => {
-    if (!showAxes) return;
-    
-    ctx.strokeStyle = '#9ca3af';
-    ctx.lineWidth = 2;
-    ctx.fillStyle = '#9ca3af';
-    ctx.font = '12px monospace';
-    
-    // Calculate center
-    const centerX = width / 2 + pan.x;
-    const centerY = height / 2 + pan.y;
-    
-    // X-axis
-    ctx.beginPath();
-    ctx.moveTo(0, centerY);
-    ctx.lineTo(width, centerY);
-    ctx.stroke();
-    
-    // Y-axis
-    ctx.beginPath();
-    ctx.moveTo(centerX, 0);
-    ctx.lineTo(centerX, height);
-    ctx.stroke();
-    
-    // Origin label
-    ctx.fillText('(0,0)', centerX + 5, centerY - 5);
-    
-    // X-axis labels
-    for (let i = -20; i <= 20; i += 5) {
-      if (i === 0) continue;
-      const x = centerX + i * zoom;
-      if (x > 0 && x < width) {
-        ctx.fillText(i.toString(), x - 5, centerY + 15);
-      }
-    }
-    
-    // Y-axis labels
-    for (let i = -20; i <= 20; i += 5) {
-      if (i === 0) continue;
-      const y = centerY - i * zoom;
-      if (y > 0 && y < height) {
-        ctx.fillText(i.toString(), centerX + 5, y + 3);
-      }
-    }
-  }, [showAxes, zoom, pan, width, height]);
-
-  // Draw all objects
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    // Set background
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(0, 0, width, height);
-    
-    // Apply transformations
-    ctx.save();
-    ctx.translate(pan.x, pan.y);
-    ctx.scale(zoom, zoom);
-    
-    // Draw grid
-    drawGrid(ctx);
-    
-    // Draw axes
-    drawAxes(ctx);
-    
-    // Draw lines
-    lines.forEach(line => {
-      ctx.strokeStyle = line.color;
-      ctx.lineWidth = 2 / zoom;
-      ctx.beginPath();
-      ctx.moveTo(line.start.x, line.start.y);
-      ctx.lineTo(line.end.x, line.end.y);
-      ctx.stroke();
-    });
-    
-    // Draw circles
-    circles.forEach(circle => {
-      ctx.strokeStyle = circle.color;
-      ctx.lineWidth = 2 / zoom;
-      ctx.beginPath();
-      ctx.arc(circle.center.x, circle.center.y, circle.radius, 0, Math.PI * 2);
-      ctx.stroke();
-    });
-    
-    // Draw polygons
-    polygons.forEach(polygon => {
-      ctx.fillStyle = polygon.color + '40';
-      ctx.strokeStyle = polygon.color;
-      ctx.lineWidth = 2 / zoom;
-      ctx.beginPath();
-      polygon.points.forEach((point, index) => {
-        if (index === 0) {
-          ctx.moveTo(point.x, point.y);
-        } else {
-          ctx.lineTo(point.x, point.y);
+      // Override pan to right-click only
+      board.on('mousedown', (e: any) => {
+        if (e.button === 2) {
+          board.startPan(e);
+          e.preventDefault();
         }
       });
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    });
-    
-    // Draw points
-    points.forEach(point => {
-      ctx.fillStyle = point.color;
-      ctx.beginPath();
-      ctx.arc(point.x, point.y, 5 / zoom, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    
-    // Highlight selected object
-    if (selectedObject) {
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 2 / zoom;
-      ctx.setLineDash([5 / zoom, 5 / zoom]);
-      
-      // Check if it's a point
-      const point = points.find(p => p.id === selectedObject);
-      if (point) {
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, 8 / zoom, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-      
-      ctx.setLineDash([]);
-    }
-    
-    // Draw preview line when drawing
-    if (isDrawing && startPoint && currentTool === 'line') {
-      ctx.strokeStyle = currentColor + '80';
-      ctx.lineWidth = 2 / zoom;
-      ctx.setLineDash([5 / zoom, 5 / zoom]);
-      
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const rect = canvas.getBoundingClientRect();
-        ctx.beginPath();
-        ctx.moveTo(startPoint.x, startPoint.y);
-        // This would need mouse position tracking
-        ctx.stroke();
-      }
-      
-      ctx.setLineDash([]);
-    }
-    
-    ctx.restore();
-  }, [points, lines, circles, polygons, selectedObject, drawGrid, drawAxes, zoom, pan, width, height, isDrawing, startPoint, currentTool, currentColor]);
 
-  // Handle canvas click
-  const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const { x, y } = canvasToWorld(e.clientX, e.clientY);
-    
-    switch (currentTool) {
-      case 'point':
-        const newPoint: GeometryPoint = {
-          id: `point-${Date.now()}`,
-          x,
-          y,
-          color: currentColor
-        };
-        setPoints([...points, newPoint]);
-        saveToHistory();
-        break;
-        
-      case 'line':
-        if (!isDrawing) {
-          setStartPoint({ x, y });
-          setIsDrawing(true);
-        } else {
-          const newLine: GeometryLine = {
-            id: `line-${Date.now()}`,
-            start: startPoint!,
-            end: { x, y },
-            color: currentColor
-          };
-          setLines([...lines, newLine]);
-          setIsDrawing(false);
-          setStartPoint(null);
-          saveToHistory();
-        }
-        break;
-        
-      case 'circle':
-        if (!isDrawing) {
-          setStartPoint({ x, y });
-          setIsDrawing(true);
-        } else {
-          const radius = Math.sqrt(Math.pow(x - startPoint!.x, 2) + Math.pow(y - startPoint!.y, 2));
-          const newCircle: GeometryCircle = {
-            id: `circle-${Date.now()}`,
-            center: startPoint!,
-            radius,
-            color: currentColor
-          };
-          setCircles([...circles, newCircle]);
-          setIsDrawing(false);
-          setStartPoint(null);
-          saveToHistory();
-        }
-        break;
-        
-      case 'rectangle':
-        if (!isDrawing) {
-          setStartPoint({ x, y });
-          setIsDrawing(true);
-        } else {
-          const newPolygon: GeometryPolygon = {
-            id: `rect-${Date.now()}`,
-            points: [
-              startPoint!,
-              { x, y: startPoint!.y },
-              { x, y },
-              { x: startPoint!.x, y }
-            ],
-            color: currentColor
-          };
-          setPolygons([...polygons, newPolygon]);
-          setIsDrawing(false);
-          setStartPoint(null);
-          saveToHistory();
-        }
-        break;
-        
-      case 'hexagon':
-        if (!isDrawing) {
-          setStartPoint({ x, y });
-          setIsDrawing(true);
-        } else {
-          const radius = Math.sqrt(Math.pow(x - startPoint!.x, 2) + Math.pow(y - startPoint!.y, 2));
-          const hexPoints: { x: number; y: number }[] = [];
-          for (let i = 0; i < 6; i++) {
-            const angle = (Math.PI / 3) * i;
-            hexPoints.push({
-              x: startPoint!.x + radius * Math.cos(angle),
-              y: startPoint!.y + radius * Math.sin(angle)
-            });
-          }
-          const newPolygon: GeometryPolygon = {
-            id: `hex-${Date.now()}`,
-            points: hexPoints,
-            color: currentColor
-          };
-          setPolygons([...polygons, newPolygon]);
-          setIsDrawing(false);
-          setStartPoint(null);
-          saveToHistory();
-        }
-        break;
-    }
-  }, [currentTool, isDrawing, startPoint, points, lines, circles, polygons, currentColor, canvasToWorld, saveToHistory]);
+      board.containerObj.addEventListener('contextmenu', (e: Event) => e.preventDefault());
 
-  // Handle mouse down for panning
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (e.shiftKey || currentTool === 'select') {
-      setIsPanning(true);
-      setLastPanPoint({ x: e.clientX, y: e.clientY });
-      e.preventDefault();
-    }
-  }, [currentTool]);
-
-  // Handle mouse move for panning
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isPanning && lastPanPoint) {
-      const dx = e.clientX - lastPanPoint.x;
-      const dy = e.clientY - lastPanPoint.y;
-      setPan(prev => ({ x: prev.x + dx, y: prev.y + dy }));
-      setLastPanPoint({ x: e.clientX, y: e.clientY });
-    }
-  }, [isPanning, lastPanPoint]);
-
-  // Handle mouse up
-  const handleMouseUp = useCallback(() => {
-    setIsPanning(false);
-    setLastPanPoint(null);
-  }, []);
-
-  // Handle wheel for zooming
-  const handleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    const newZoom = Math.max(0.1, Math.min(5, zoom * delta));
-    setZoom(newZoom);
-  }, [zoom]);
-
-  // Undo function
-  const undo = useCallback(() => {
-    if (historyIndex > 0) {
-      const prevState = history[historyIndex - 1];
-      setPoints(prevState.points);
-      setLines(prevState.lines);
-      setCircles(prevState.circles);
-      setPolygons(prevState.polygons);
-      setHistoryIndex(historyIndex - 1);
-    }
-  }, [history, historyIndex]);
-
-  // Redo function
-  const redo = useCallback(() => {
-    if (historyIndex < history.length - 1) {
-      const nextState = history[historyIndex + 1];
-      setPoints(nextState.points);
-      setLines(nextState.lines);
-      setCircles(nextState.circles);
-      setPolygons(nextState.polygons);
-      setHistoryIndex(historyIndex + 1);
-    }
-  }, [history, historyIndex]);
-
-  // Clear all
-  const clearAll = useCallback(() => {
-    setPoints([]);
-    setLines([]);
-    setCircles([]);
-    setPolygons([]);
-    setSelectedObject(null);
-    saveToHistory();
-  }, [saveToHistory]);
-
-  // Reset view
-  const resetView = useCallback(() => {
-    setZoom(1);
-    setPan({ x: 0, y: 0 });
-  }, []);
-
-  // Export function
-  const exportCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const dataURL = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = 'geometry.png';
-    link.href = dataURL;
-    link.click();
-    
-    if (onExport) {
-      onExport({
-        points,
-        lines,
-        circles,
-        polygons
+      board.on('mouseup', () => {
+        if (board.mode === board.BOARD_MODE_PAN) board.stopPan();
       });
+
+      jxgBoardRef.current = board;
+      setLoaded(true);
+      attachClickHandler(board, JXG);
+    });
+
+    return () => {
+      if (jxgBoardRef.current) {
+        try { (window as any).JXG?.JSXGraph.freeBoard(jxgBoardRef.current); } catch (_) {}
+      }
+    };
+  }, [showAxes, showGrid]);
+
+  // ─── Click handler ─────────────────────────────────────────────────────────
+
+  const attachClickHandler = (board: any, JXG: any) => {
+    board.on('up', (e: any) => {
+      if (e.button === 2) return;
+      const currentTool = toolRef.current;
+      if (currentTool === 'select' || currentTool === 'angle' || currentTool === 'distance' || currentTool === 'function' || currentTool === 'text') return;
+
+      const coords = board.getUsrCoordsOfMouse(e);
+      let x = coords[1];
+      let y = coords[2];
+
+      if (snapGridRef.current) {
+        x = Math.round(x);
+        y = Math.round(y);
+      }
+
+      handleToolClick(board, JXG, currentTool, x, y);
+    });
+  };
+
+  const snapGridRef = useRef(snapGrid);
+  useEffect(() => { snapGridRef.current = snapGrid; }, [snapGrid]);
+
+  const colorRef      = useRef(color);
+  const strokeWRef    = useRef(strokeWidth);
+  const fillOpRef     = useRef(fillOpacity);
+  useEffect(() => { colorRef.current = color; }, [color]);
+  useEffect(() => { strokeWRef.current = strokeWidth; }, [strokeWidth]);
+  useEffect(() => { fillOpRef.current = fillOpacity; }, [fillOpacity]);
+
+  const handleToolClick = useCallback((board: any, JXG: any, currentTool: string, x: number, y: number) => {
+    const col = colorRef.current;
+    const sw  = strokeWRef.current;
+    const fo  = fillOpRef.current;
+
+    const makePoint = (px: number, py: number, name = '') => board.create('point', [px, py], {
+      name, size: 4, color: col, strokeColor: col, fillColor: col,
+      label: { fontSize: 12 },
+    });
+
+    if (currentTool === 'point') {
+      const p = makePoint(x, y, nextName());
+      saveHistory(); setObjectCount(c => c + 1);
+      setStatus(`Point ${p.name} créé en (${x.toFixed(2)}, ${y.toFixed(2)})`);
+      return;
     }
-  }, [points, lines, circles, polygons, onExport]);
 
-  // Redraw when state changes
+    // Multi-click tools
+    const tmp = tempPointsRef.current;
+
+    const needs: Record<string, number> = { segment: 2, line: 2, ray: 2, circle: 2, triangle: 3, polygon: -1, rectangle: 2, midpoint: 2, perp: 2, parallel: 2 };
+    const n = needs[currentTool] ?? 1;
+
+    const pt = makePoint(x, y, '');
+    pt.setAttribute({ size: 3, color: '#aaa', strokeColor: '#aaa', fillColor: '#aaa' });
+    tmp.push(pt);
+
+    const remaining = n === -1 ? '...' : n - tmp.length;
+    setStatus(`${tmp.length} point(s) sélectionné(s) — ${n === -1 ? 'Entrée pour finir' : `encore ${remaining}`}`);
+
+    if (n !== -1 && tmp.length < n) return;
+
+    // Enough points — create object
+    tmp.forEach(p => p.setAttribute({ size: 4, color: col, strokeColor: col, fillColor: col }));
+
+    saveHistory();
+
+    try {
+      if (currentTool === 'segment') {
+        board.create('segment', [tmp[0], tmp[1]], { strokeColor: col, strokeWidth: sw, label: { visible: true, autoPosition: true } });
+      } else if (currentTool === 'line') {
+        board.create('line', [tmp[0], tmp[1]], { strokeColor: col, strokeWidth: sw });
+      } else if (currentTool === 'ray') {
+        board.create('arrow', [tmp[0], tmp[1]], { strokeColor: col, strokeWidth: sw });
+      } else if (currentTool === 'circle') {
+        board.create('circle', [tmp[0], tmp[1]], { strokeColor: col, strokeWidth: sw, fillColor: col, fillOpacity: fo });
+      } else if (currentTool === 'triangle') {
+        const poly = board.create('polygon', [tmp[0], tmp[1], tmp[2]], {
+          fillColor: col, fillOpacity: fo, strokeColor: col, strokeWidth: sw,
+        });
+        // Auto angle display
+        board.create('angle', [tmp[2], tmp[0], tmp[1]], { name: '', radius: 0.5, strokeColor: '#e67e22' });
+        board.create('angle', [tmp[0], tmp[1], tmp[2]], { name: '', radius: 0.5, strokeColor: '#e67e22' });
+        board.create('angle', [tmp[1], tmp[2], tmp[0]], { name: '', radius: 0.5, strokeColor: '#e67e22' });
+      } else if (currentTool === 'rectangle') {
+        const [p1, p2] = tmp;
+        const p3 = board.create('point', [p2.X(), p1.Y()], { visible: false });
+        const p4 = board.create('point', [p1.X(), p2.Y()], { visible: false });
+        board.create('polygon', [p1, p3, p2, p4], {
+          fillColor: col, fillOpacity: fo, strokeColor: col, strokeWidth: sw,
+        });
+      } else if (currentTool === 'midpoint') {
+        board.create('midpoint', [tmp[0], tmp[1]], { name: 'M', size: 5, color: col });
+      } else if (currentTool === 'perp') {
+        const seg = board.create('segment', [tmp[0], tmp[1]], { visible: false });
+        board.create('perpendicular', [seg, tmp[0]], { strokeColor: col, strokeWidth: sw });
+      } else if (currentTool === 'parallel') {
+        const seg = board.create('segment', [tmp[0], tmp[1]], { visible: false });
+        board.create('parallel', [seg, tmp[1]], { strokeColor: col, strokeWidth: sw });
+      }
+      setObjectCount(c => c + 1);
+    } catch (err: any) {
+      setStatus(`Erreur: ${err.message}`);
+    }
+
+    tempPointsRef.current = [];
+    setStatus('Prêt');
+  }, []);
+
+  // Polygon via Enter key
   useEffect(() => {
-    draw();
-  }, [draw]);
+    if (typeof window === 'undefined') return;
+    
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && tool === 'polygon' && tempPointsRef.current.length >= 3) {
+        const board = jxgBoardRef.current;
+        if (!board) return;
+        const tmp = tempPointsRef.current;
+        tmp.forEach(p => p.setAttribute({ size: 4, color, strokeColor: color, fillColor: color }));
+        board.create('polygon', tmp, { fillColor: color, fillOpacity, strokeColor: color, strokeWidth });
+        tempPointsRef.current = [];
+        saveHistory();
+        setObjectCount(c => c + 1);
+        setStatus('Polygone créé');
+      }
+      if (e.key === 'Escape') {
+        tempPointsRef.current.forEach(p => { try { jxgBoardRef.current?.removeObject(p); } catch(_){} });
+        tempPointsRef.current = [];
+        setStatus('Annulé');
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [tool, color, fillOpacity, strokeWidth]);
 
-  // Initialize canvas
+  // ─── History ───────────────────────────────────────────────────────────────
+
+  const saveHistory = () => {
+    const board = jxgBoardRef.current;
+    if (!board) return;
+    const snap = JSON.stringify(board.getBoundingBox());
+    historyRef.current.push(snap);
+    redoStackRef.current = [];
+  };
+
+  // ─── Tool status messages ──────────────────────────────────────────────────
+
+  const toolHints: Record<string, string> = {
+    select: 'Clic gauche pour sélectionner · Clic droit pour déplacer la vue · Molette pour zoomer',
+    point: 'Clic gauche pour placer un point',
+    segment: 'Cliquez 2 points pour créer un segment',
+    line: 'Cliquez 2 points pour créer une droite infinie',
+    ray: 'Cliquez 2 points pour créer une demi-droite',
+    circle: 'Cliquez le centre puis un point sur le cercle',
+    triangle: 'Cliquez 3 points — les angles s\'affichent automatiquement',
+    polygon: 'Cliquez les sommets · Entrée pour fermer · Échap pour annuler',
+    rectangle: 'Cliquez 2 coins opposés',
+    function: 'Saisissez une expression dans le panneau de droite',
+    angle: 'Outil d\'affichage — sélectionnez 3 points existants',
+    distance: 'Outil de mesure — sélectionnez 2 points existants',
+    midpoint: 'Cliquez 2 points pour créer leur milieu',
+    perp: 'Cliquez 2 points pour la perpendiculaire',
+    parallel: 'Cliquez 2 points pour la parallèle',
+    text: 'Saisissez le texte dans le panneau de droite',
+  };
+
+  const handleSetTool = (id: string) => {
+    setTool(id);
+    tempPointsRef.current.forEach(p => { try { jxgBoardRef.current?.removeObject(p); } catch(_){} });
+    tempPointsRef.current = [];
+    setStatus(toolHints[id] || 'Prêt');
+    if (id === 'function') setShowFnPanel(true); else setShowFnPanel(false);
+    if (id === 'text') setShowTextPanel(true); else setShowTextPanel(false);
+  };
+
+  // ─── Name counter ──────────────────────────────────────────────────────────
+
+  const nameCounter = useRef(0);
+  const nextName = () => {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const i = nameCounter.current++;
+    return i < 26 ? letters[i] : letters[Math.floor(i / 26) - 1] + letters[i % 26];
+  };
+
+  // ─── Grid / Axes toggle ────────────────────────────────────────────────────
+
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    canvas.width = width;
-    canvas.height = height;
-    
-    // Initialize history
-    saveToHistory();
-  }, [width, height, saveToHistory]);
+    const board = jxgBoardRef.current;
+    if (!board) return;
+    board.grids.forEach((g: any) => g.setAttribute({ visible: showGrid }));
+    board.update();
+  }, [showGrid]);
 
-  const tools = [
-    { id: 'select', icon: MousePointer2, label: 'Sélectionner' },
-    { id: 'point', icon: Circle, label: 'Point' },
-    { id: 'line', icon: Ruler, label: 'Ligne' },
-    { id: 'circle', icon: Circle, label: 'Cercle' },
-    { id: 'rectangle', icon: Square, label: 'Rectangle' },
-    { id: 'hexagon', icon: Hexagon, label: 'Hexagone' },
-    { id: 'delete', icon: Trash2, label: 'Supprimer' }
+  // ─── Function plot ─────────────────────────────────────────────────────────
+
+  const plotFunction = () => {
+    const board = jxgBoardRef.current;
+    if (!board) return;
+    try {
+      // eslint-disable-next-line no-new-func
+      const f = new Function('x', `return ${fnExpr}`);
+      board.create('functiongraph', [f, -20, 20], {
+        strokeColor: fnColor, strokeWidth: strokeWidth, highlight: false,
+      });
+      saveHistory();
+      setObjectCount(c => c + 1);
+      setStatus(`f(x) = ${fnExpr} tracée`);
+    } catch (err: any) {
+      setStatus(`Erreur d'expression: ${err.message}`);
+    }
+  };
+
+  // ─── Text label ────────────────────────────────────────────────────────────
+
+  const addText = () => {
+    const board = jxgBoardRef.current;
+    if (!board || !textContent) return;
+    board.create('text', [0, 0, textContent], { fontSize: 16, color, draggable: true });
+    setTextContent('');
+    saveHistory();
+    setObjectCount(c => c + 1);
+    setStatus('Texte ajouté — déplacez-le à la position souhaitée');
+  };
+
+  // ─── Clear ─────────────────────────────────────────────────────────────────
+
+  const clearBoard = () => {
+    const board = jxgBoardRef.current;
+    if (!board) return;
+    if (!window.confirm('Effacer toute la planche ?')) return;
+    board.suspendUpdate();
+    const ids = Object.keys(board.objects);
+    ids.forEach(id => {
+      const obj = board.objects[id];
+      if (obj && obj.elType !== 'axis' && obj.elType !== 'ticks' && obj.elType !== 'grid') {
+        try { board.removeObject(obj); } catch (_) {}
+      }
+    });
+    board.unsuspendUpdate();
+    nameCounter.current = 0;
+    tempPointsRef.current = [];
+    setObjectCount(0);
+    setStatus('Planche effacée');
+  };
+
+  // ─── Export ────────────────────────────────────────────────────────────────
+
+  const exportPNG = () => {
+    const board = jxgBoardRef.current;
+    if (!board) return;
+    board.renderer.screenshot(board, 'geometrie-maths-app', false);
+    setStatus('Export PNG en cours...');
+  };
+
+  const exportSVG = () => {
+    const board = jxgBoardRef.current;
+    if (!board) return;
+    const svg = board.renderer.dumpToDataURI(board);
+    const a = document.createElement('a');
+    a.href = svg;
+    a.download = 'geometrie-maths-app.svg';
+    a.click();
+    setStatus('Export SVG terminé');
+  };
+
+  // ─── Fullscreen ────────────────────────────────────────────────────────────
+
+  const toggleFullscreen = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen?.() || (el as any).webkitRequestFullscreen?.();
+    } else {
+      document.exitFullscreen?.() || (document as any).webkitExitFullscreen?.();
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const onChange = () => {
+      const fs = !!document.fullscreenElement;
+      setIsFullscreen(fs);
+      setTimeout(() => {
+        jxgBoardRef.current?.resizeContainer(
+          boardRef.current?.offsetWidth || 800,
+          boardRef.current?.offsetHeight || 600
+        );
+      }, 100);
+    };
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  // ─── Presets ───────────────────────────────────────────────────────────────
+
+  const applyPreset = (preset: any) => {
+    const board = jxgBoardRef.current;
+    if (!board) return;
+    preset.fn(board);
+    saveHistory();
+    setObjectCount(c => c + 1);
+    setShowPresets(false);
+    setStatus(`Preset "${preset.label}" chargé`);
+  };
+
+  // ─── Zoom controls ─────────────────────────────────────────────────────────
+
+  const zoomIn  = () => jxgBoardRef.current?.zoomIn();
+  const zoomOut = () => jxgBoardRef.current?.zoomOut();
+  const resetView = () => {
+    const b = jxgBoardRef.current;
+    if (b) { b.setBoundingBox([-10, 10, 10, -10]); b.update(); }
+  };
+
+  // ─── Tool groups ─────────────────────────────────────────────────────────--
+
+  const groups = [
+    { key: 'base',     label: 'Navigation' },
+    { key: 'create',   label: 'Créer' },
+    { key: 'measure',  label: 'Mesurer' },
+    { key: 'annotate', label: 'Annoter' },
   ];
 
-  const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+  // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="bg-gray-900 rounded-lg p-4 space-y-4">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-4 p-3 bg-gray-800 rounded-lg">
-        {/* Tools */}
-        <div className="flex items-center gap-2">
-          {tools.map(tool => (
-            <button
-              key={tool.id}
-              onClick={() => setCurrentTool(tool.id as GeometryTool)}
-              className={`p-2 rounded transition-colors ${
-                currentTool === tool.id 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
-              title={tool.label}
-            >
-              <tool.icon className="w-4 h-4" />
-            </button>
-          ))}
+    <div ref={containerRef} style={styles.root}>
+
+      {/* ── Top Bar ── */}
+      <div style={styles.topBar}>
+        <div style={styles.topLeft}>
+          <span style={styles.logo}>⬡ Géométrie</span>
+          <button style={styles.iconBtn} onClick={resetView} title="Réinitialiser la vue">⌖</button>
+          <button style={styles.iconBtn} onClick={zoomIn}  title="Zoom +">+</button>
+          <button style={styles.iconBtn} onClick={zoomOut} title="Zoom -">−</button>
+          <div style={styles.divider} />
+          <button
+            style={{ ...styles.iconBtn, ...(showGrid ? styles.active : {}) }}
+            onClick={() => setShowGrid(v => !v)} title="Grille"
+          >⊞</button>
+          <button
+            style={{ ...styles.iconBtn, ...(snapGrid ? styles.active : {}) }}
+            onClick={() => setSnapGrid(v => !v)} title="Aimantation"
+          >⋮</button>
+          <div style={styles.divider} />
+          <div style={{ position: 'relative' }}>
+            <button style={styles.iconBtn} onClick={() => setShowPresets(v => !v)}>✦ Presets</button>
+            {showPresets && (
+              <div style={styles.dropdown}>
+                {PRESETS.map(p => (
+                  <div key={p.label} style={styles.dropItem} onClick={() => applyPreset(p)}>{p.label}</div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Colors */}
-        <div className="flex items-center gap-2 border-l border-gray-600 pl-4">
-          {colors.map(color => (
-            <button
-              key={color}
-              onClick={() => setCurrentColor(color)}
-              className={`w-6 h-6 rounded border-2 transition-all ${
-                currentColor === color 
-                  ? 'border-white scale-110' 
-                  : 'border-gray-600 hover:border-gray-400'
-              }`}
-              style={{ backgroundColor: color }}
-            />
-          ))}
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2 border-l border-gray-600 pl-4">
+        <div style={styles.topRight}>
+          <span style={styles.meta}>{objectCount} objet{objectCount !== 1 ? 's' : ''}</span>
+          <button style={styles.iconBtn} onClick={exportPNG} title="Export PNG">↓ PNG</button>
+          <button style={styles.iconBtn} onClick={exportSVG} title="Export SVG">↓ SVG</button>
           <button
-            onClick={() => setShowGrid(!showGrid)}
-            className={`p-2 rounded transition-colors ${
-              showGrid ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-            title="Grille"
-          >
-            <Grid3X3 className="w-4 h-4" />
-          </button>
-          
-          <button
-            onClick={() => setShowAxes(!showAxes)}
-            className={`p-2 rounded transition-colors ${
-              showAxes ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-            title="Axes"
-          >
-            <Move className="w-4 h-4" />
-          </button>
-          
-          <button
-            onClick={resetView}
-            className="p-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600"
-            title="Reset vue"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
-          
-          <button
-            onClick={undo}
-            disabled={historyIndex <= 0}
-            className="p-2 rounded bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Annuler"
-          >
-            <Undo className="w-4 h-4" />
-          </button>
-          
-          <button
-            onClick={clearAll}
-            className="p-2 rounded bg-red-600 text-white hover:bg-red-700"
-            title="Tout effacer"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-          
-          <button
-            onClick={exportCanvas}
-            className="p-2 rounded bg-green-600 text-white hover:bg-green-700"
-            title="Exporter"
-          >
-            <Download className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Zoom controls */}
-        <div className="flex items-center gap-2 border-l border-gray-600 pl-4">
-          <button
-            onClick={() => setZoom(Math.max(0.1, zoom - 0.1))}
-            className="p-1 rounded bg-gray-700 text-gray-300 hover:bg-gray-600"
-          >
-            <ZoomOut className="w-4 h-4" />
-          </button>
-          <span className="text-sm text-gray-300 min-w-[3rem] text-center">
-            {Math.round(zoom * 100)}%
-          </span>
-          <button
-            onClick={() => setZoom(Math.min(5, zoom + 0.1))}
-            className="p-1 rounded bg-gray-700 text-gray-300 hover:bg-gray-600"
-          >
-            <ZoomIn className="w-4 h-4" />
-          </button>
+            style={{ ...styles.iconBtn, ...(isFullscreen ? styles.active : {}) }}
+            onClick={toggleFullscreen} title="Plein écran"
+          >{isFullscreen ? '⊡' : '⊞'} Plein écran</button>
+          <button style={{ ...styles.iconBtn, ...styles.dangerBtn }} onClick={clearBoard}>✕ Effacer</button>
         </div>
       </div>
 
-      {/* Canvas */}
-      <div className="relative bg-gray-950 rounded-lg overflow-hidden">
-        <canvas
-          ref={canvasRef}
-          onClick={handleCanvasClick}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onWheel={handleWheel}
-          className="cursor-crosshair"
-          style={{ width, height }}
-        />
-        
-        {/* Status bar */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gray-800/90 backdrop-blur px-3 py-1 text-xs text-gray-300">
-          <div className="flex items-center justify-between">
-            <span>Outil: {tools.find(t => t.id === currentTool)?.label}</span>
-            <span>Zoom: {Math.round(zoom * 100)}% | Grille: {showGrid ? 'ON' : 'OFF'} | Axes: {showAxes ? 'ON' : 'OFF'}</span>
-            <span>Objets: {points.length + lines.length + circles.length + polygons.length}</span>
+      {/* ── Main Layout ── */}
+      <div style={styles.main}>
+
+        {/* ── Left Toolbar ── */}
+        <div style={styles.sidebar}>
+          {groups.map(g => (
+            <div key={g.key}>
+              <div style={styles.groupLabel}>{g.label}</div>
+              {TOOLS.filter(t => t.group === g.key).map(t => (
+                <button
+                  key={t.id}
+                  style={{ ...styles.toolBtn, ...(tool === t.id ? styles.toolActive : {}) }}
+                  onClick={() => handleSetTool(t.id)}
+                  title={t.label}
+                >
+                  <span style={styles.toolIcon}>{t.icon}</span>
+                  <span style={styles.toolLabel}>{t.label}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+
+          {/* Color picker */}
+          <div style={styles.groupLabel}>Couleur</div>
+          <div style={styles.colorGrid}>
+            {COLORS.map(c => (
+              <div
+                key={c}
+                style={{ ...styles.colorDot, background: c, ...(color === c ? styles.colorActive : {}) }}
+                onClick={() => setColor(c)}
+              />
+            ))}
+          </div>
+          <input type="color" value={color} onChange={e => setColor(e.target.value)}
+            style={styles.colorInput} title="Couleur personnalisée" />
+
+          {/* Stroke width */}
+          <div style={styles.groupLabel}>Épaisseur</div>
+          <input type="range" min="1" max="8" value={strokeWidth}
+            onChange={e => setStrokeWidth(Number(e.target.value))}
+            style={styles.slider} />
+          <div style={styles.sliderVal}>{strokeWidth}px</div>
+
+          {/* Fill opacity */}
+          <div style={styles.groupLabel}>Opacité remplissage</div>
+          <input type="range" min="0" max="100" value={Math.round(fillOpacity * 100)}
+            onChange={e => setFillOpacity(Number(e.target.value) / 100)}
+            style={styles.slider} />
+          <div style={styles.sliderVal}>{Math.round(fillOpacity * 100)}%</div>
+        </div>
+
+        {/* ── Canvas ── */}
+        <div ref={boardRef} style={styles.canvas}>
+          {!loaded && (
+            <div style={styles.loading}>
+              <div style={styles.spinner} />
+              <span>Chargement de JSXGraph…</span>
+            </div>
+          )}
+          <div id="jxg-board" style={{ width: '100%', height: '100%', display: loaded ? 'block' : 'none' }} />
+        </div>
+
+        {/* ── Right Panel ── */}
+        <div style={styles.rightPanel}>
+
+          {/* Function panel */}
+          <div style={styles.panelSection}>
+            <div style={styles.panelTitle}>∫ Fonctions</div>
+            <div style={styles.panelHint}>Utilisez <code style={styles.code}>x</code> comme variable<br/>et les fonctions JS : <code style={styles.code}>Math.sin(x)</code></div>
+            <textarea
+              style={styles.fnInput}
+              value={fnExpr}
+              onChange={e => setFnExpr(e.target.value)}
+              placeholder="ex: Math.sin(x) * 2"
+              rows={3}
+            />
+            <div style={styles.fnExamples}>
+              {['Math.sin(x)', 'x*x', '2*x+1', 'Math.sqrt(Math.abs(x))', 'Math.exp(-x*x/2)'].map(ex => (
+                <span key={ex} style={styles.exampleTag} onClick={() => setFnExpr(ex)}>{ex}</span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 6 }}>
+              <label style={styles.panelHint}>Couleur :</label>
+              <input type="color" value={fnColor} onChange={e => setFnColor(e.target.value)} style={{ width: 32, height: 24 }} />
+            </div>
+            <button style={styles.plotBtn} onClick={plotFunction}>Tracer la courbe</button>
+          </div>
+
+          {/* Text panel */}
+          <div style={styles.panelSection}>
+            <div style={styles.panelTitle}>T Texte / Labels</div>
+            <input
+              style={styles.textInput}
+              value={textContent}
+              onChange={e => setTextContent(e.target.value)}
+              placeholder="Votre texte…"
+              onKeyDown={e => e.key === 'Enter' && addText()}
+            />
+            <button style={styles.plotBtn} onClick={addText}>Ajouter le texte</button>
+          </div>
+
+          {/* Shortcuts */}
+          <div style={styles.panelSection}>
+            <div style={styles.panelTitle}>⌨ Raccourcis</div>
+            <div style={styles.shortcut}><kbd style={styles.kbd}>Entrée</kbd> Fermer polygone</div>
+            <div style={styles.shortcut}><kbd style={styles.kbd}>Échap</kbd> Annuler action</div>
+            <div style={styles.shortcut}><kbd style={styles.kbd}>Molette</kbd> Zoom</div>
+            <div style={styles.shortcut}><kbd style={styles.kbd}>Clic ⊕</kbd> Déplacer vue</div>
+          </div>
+
+          {/* Tips */}
+          <div style={styles.panelSection}>
+            <div style={styles.panelTitle}>💡 Aide</div>
+            <div style={styles.panelHint}>
+              Le triangle affiche automatiquement ses 3 angles.<br /><br />
+              Les points créés sont <strong>draggables</strong> — les formes se mettent à jour en temps réel.<br /><br />
+              Glissez les presets pour explorer des figures classiques.
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Instructions */}
-      <div className="text-xs text-gray-400 bg-gray-800/50 rounded-lg p-3">
-        <p className="font-medium mb-1">💡 Instructions:</p>
-        <ul className="space-y-1">
-          <li>• Cliquez pour dessiner avec l'outil sélectionné</li>
-          <li>• Maintenez Shift + clic ou utilisez l'outil Sélectionner pour déplacer la vue</li>
-          <li>• Molette pour zoomer</li>
-          <li>• Grille: 1 carreau = 20 unités</li>
-        </ul>
+      {/* ── Status Bar ── */}
+      <div style={styles.statusBar}>
+        <span style={styles.statusTool}>Outil : <strong>{TOOLS.find(t => t.id === tool)?.label}</strong></span>
+        <span style={styles.statusMsg}>{status}</span>
+        {snapGrid && <span style={styles.badge}>⊞ Aimantation</span>}
       </div>
     </div>
   );
 }
+
+// ─── Styles ─────────────────────────────────────────────────────────────────--
+
+const C = {
+  bg:       '#0f1117',
+  surface:  '#1a1d27',
+  panel:    '#141720',
+  border:   '#2a2d3d',
+  accent:   '#4f8ef7',
+  accentL:  '#6ba3ff',
+  text:     '#e8eaf0',
+  muted:    '#7a7f99',
+  danger:   '#e74c3c',
+  success:  '#2ecc71',
+};
+
+const styles: Record<string, React.CSSProperties> = {
+  root: {
+    display: 'flex', flexDirection: 'column',
+    width: '100%', height: '100vh',
+    background: C.bg, color: C.text,
+    fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+    fontSize: 13, userSelect: 'none',
+    overflow: 'hidden',
+  },
+  topBar: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '0 12px', height: 44,
+    background: C.surface, borderBottom: `1px solid ${C.border}`,
+    flexShrink: 0, gap: 8,
+  },
+  topLeft:  { display: 'flex', alignItems: 'center', gap: 4 },
+  topRight: { display: 'flex', alignItems: 'center', gap: 4 },
+  logo: { fontWeight: 700, fontSize: 15, color: C.accentL, marginRight: 8, letterSpacing: '-0.3px' },
+  iconBtn: {
+    background: 'transparent', border: `1px solid ${C.border}`,
+    borderRadius: 6, padding: '4px 10px', color: C.text,
+    cursor: 'pointer', fontSize: 12, fontFamily: 'inherit',
+    transition: 'all .15s',
+  },
+  active:    { background: C.accent + '33', borderColor: C.accent, color: C.accentL },
+  dangerBtn: { color: C.danger, borderColor: C.danger + '55' },
+  divider:   { width: 1, height: 24, background: C.border, margin: '0 4px' },
+  meta:      { color: C.muted, fontSize: 11, marginRight: 4 },
+  dropdown: {
+    position: 'absolute', top: '100%', left: 0, zIndex: 99,
+    background: C.surface, border: `1px solid ${C.border}`,
+    borderRadius: 8, padding: '4px 0', minWidth: 220, marginTop: 4,
+    boxShadow: '0 8px 24px #00000066',
+  },
+  dropItem: {
+    padding: '8px 14px', cursor: 'pointer', fontSize: 13,
+    transition: 'background .1s',
+  },
+  main: { display: 'flex', flex: 1, overflow: 'hidden' },
+
+  sidebar: {
+    width: 160, background: C.panel,
+    borderRight: `1px solid ${C.border}`,
+    overflowY: 'auto', padding: '8px 6px',
+    display: 'flex', flexDirection: 'column', gap: 2,
+    flexShrink: 0,
+  },
+  groupLabel: {
+    fontSize: 10, fontWeight: 600, letterSpacing: '0.08em',
+    color: C.muted, textTransform: 'uppercase',
+    padding: '10px 6px 4px',
+  },
+  toolBtn: {
+    display: 'flex', alignItems: 'center', gap: 8,
+    padding: '7px 8px', borderRadius: 6,
+    border: 'none', background: 'transparent',
+    color: C.text, cursor: 'pointer', width: '100%', textAlign: 'left',
+    transition: 'all .12s', fontSize: 12,
+  },
+  toolActive: { background: C.accent + '25', color: C.accentL },
+  toolIcon:   { fontSize: 15, width: 18, textAlign: 'center', flexShrink: 0 },
+  toolLabel:  { flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+
+  colorGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, padding: '4px 2px' },
+  colorDot: { width: 20, height: 20, borderRadius: 4, cursor: 'pointer', border: '2px solid transparent', transition: 'all .12s' },
+  colorActive: { border: `2px solid white`, transform: 'scale(1.15)' },
+  colorInput: { width: '100%', height: 28, borderRadius: 6, border: `1px solid ${C.border}`, marginTop: 4, cursor: 'pointer', background: 'none' },
+  slider: { width: '100%', accentColor: C.accent, margin: '4px 0' },
+  sliderVal: { fontSize: 11, color: C.muted, textAlign: 'right' },
+
+  canvas: {
+    flex: 1, position: 'relative', overflow: 'hidden',
+    background: '#111318',
+  },
+  loading: {
+    position: 'absolute', inset: 0,
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    gap: 16, color: C.muted, fontSize: 14,
+  },
+  spinner: {
+    width: 36, height: 36, border: `3px solid ${C.border}`,
+    borderTopColor: C.accent, borderRadius: '50%',
+    animation: 'spin 0.8s linear infinite',
+  },
+
+  rightPanel: {
+    width: 220, background: C.panel,
+    borderLeft: `1px solid ${C.border}`,
+    overflowY: 'auto', padding: 8,
+    display: 'flex', flexDirection: 'column', gap: 4,
+    flexShrink: 0,
+  },
+  panelSection: {
+    background: C.surface, borderRadius: 8,
+    border: `1px solid ${C.border}`,
+    padding: 10, marginBottom: 4,
+  },
+  panelTitle: { fontWeight: 600, fontSize: 12, color: C.accentL, marginBottom: 8, letterSpacing: '-0.2px' },
+  panelHint:  { fontSize: 11, color: C.muted, lineHeight: 1.5, marginBottom: 6 },
+  fnInput: {
+    width: '100%', background: C.bg, color: C.text,
+    border: `1px solid ${C.border}`, borderRadius: 6,
+    padding: '6px 8px', fontSize: 12, fontFamily: 'monospace',
+    resize: 'vertical', outline: 'none', boxSizing: 'border-box',
+  },
+  fnExamples: { display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 },
+  exampleTag: {
+    background: C.border, borderRadius: 4, padding: '2px 6px',
+    fontSize: 10, cursor: 'pointer', color: C.muted, fontFamily: 'monospace',
+    transition: 'all .1s',
+  },
+  plotBtn: {
+    marginTop: 8, width: '100%', padding: '7px 0',
+    background: C.accent, color: '#fff', border: 'none',
+    borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600,
+    fontFamily: 'inherit', transition: 'all .12s',
+  },
+  textInput: {
+    width: '100%', background: C.bg, color: C.text,
+    border: `1px solid ${C.border}`, borderRadius: 6,
+    padding: '6px 8px', fontSize: 12, outline: 'none',
+    boxSizing: 'border-box', fontFamily: 'inherit',
+  },
+  shortcut: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: C.muted, marginBottom: 4 },
+  kbd: {
+    background: C.border, borderRadius: 4, padding: '2px 6px',
+    fontSize: 10, color: C.text, fontFamily: 'monospace',
+  },
+  code: { background: C.border, borderRadius: 3, padding: '0 4px', fontFamily: 'monospace', fontSize: 10 },
+
+  statusBar: {
+    height: 28, background: C.surface, borderTop: `1px solid ${C.border}`,
+    display: 'flex', alignItems: 'center', padding: '0 12px', gap: 16,
+    fontSize: 11, color: C.muted, flexShrink: 0,
+  },
+  statusTool: { color: C.text },
+  statusMsg:  { flex: 1, color: C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  badge: { background: C.accent + '22', color: C.accentL, borderRadius: 4, padding: '2px 8px', fontSize: 10, fontWeight: 600 },
+};
