@@ -1,0 +1,31 @@
+{
+  "name": "maths-cli",
+  "version": "1.0.0",
+  "description": "CLI officielle de maths-app.fr",
+  "type": "module",
+  "bin": { "maths": "./bin/maths.js" },
+  "scripts": {
+    "start": "node bin/maths.js",
+    "dev": "node --watch bin/maths.js"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "conf": "^13.0.0",
+    "inquirer": "^10.0.0",
+    "ora": "^8.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "keywords": [
+    "maths",
+    "cli",
+    "education",
+    "quiz",
+    "terminal"
+  ],
+  "author": "maths-app.fr",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

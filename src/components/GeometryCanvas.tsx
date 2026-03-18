@@ -86,7 +86,7 @@ export default function GeometryCanvas({
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null);
   const [tempLine, setTempLine] = useState<{start: Point; end: Point} | null>(null);
   const [measurement, setMeasurement] = useState<{type: string; value: number} | null>(null);
-  const [scale, setScale] = useState(20); // 20 pixels par unité pour des cases plus grandes
+  const [scale, setScale] = useState(50); // 50 pixels par unité pour des carreaux plus grands
   const [pan, setPan] = useState({ x: width / 2, y: height / 2 }); // Centrer sur 0
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -137,7 +137,7 @@ export default function GeometryCanvas({
     // 2. Account for pan and scale to get world coordinates
     // Formula: world = (screen - pan) / scale
     const worldX = (screenX - pan.x) / scale;
-    const worldY = -(screenY - pan.y) / scale; // Inverser Y pour que positif soit vers le haut
+    const worldY = -(screenY - pan.y) / scale; // Inverser Y pour que haut = positif
     
     // 3. SVG coordinates are already correct since we use transform="translate(pan) scale"
     // No additional y-inversion needed as our coordinate system uses SVG's default (top-left origin)
@@ -860,7 +860,7 @@ export default function GeometryCanvas({
                               x={x} 
                               y={8 / scale} 
                               fill="#6366f1" 
-                              fontSize={Math.max(8, 10 / scale)} 
+                              fontSize={Math.max(6, 8 / scale)} 
                               textAnchor="middle" 
                               opacity={0.7}
                             >
@@ -904,7 +904,7 @@ export default function GeometryCanvas({
                               x={-8 / scale} 
                               y={y + 3 / scale} 
                               fill="#6366f1" 
-                              fontSize={Math.max(8, 10 / scale)} 
+                              fontSize={Math.max(6, 8 / scale)} 
                               textAnchor="end" 
                               opacity={0.7}
                             >

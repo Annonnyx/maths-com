@@ -75,6 +75,7 @@ model User {
   teacherRequests          TeacherRequest[]
   userBadges               UserBadge[]
   customBanners            CustomBanner[]           @relation("UserBanners")
+  cliApiKeys               CliApiKey[]
 
   @@map("users")
   @@schema("public")
@@ -678,5 +679,18 @@ model public_QuestionHistory {
   @@index([user_id], map: "idx_question_history_user_id")
   @@index([user_id, question_id], map: "idx_question_history_user_question")
   @@map("QuestionHistory")
+  @@schema("public")
+}
+
+model CliApiKey {
+  id          String   @id @default(cuid())
+  userId      String
+  keyHash     String   @unique
+  label       String?
+  lastUsedAt  DateTime?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("cli_api_keys")
   @@schema("public")
 }
