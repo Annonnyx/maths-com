@@ -9,6 +9,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useBadges } from '@/hooks/useBadges';
 import { useTeacherRequest } from '@/hooks/useTeacherRequest';
 import JoinClassButton from '@/components/JoinClassButton';
+import ParentInvite from '@/components/ParentInvite';
 import { 
   Trophy, User, Settings, Bell, Shield, LogOut, 
   ChevronRight, Edit2, Check, X, RotateCcw, Users, Zap, Target, Crown, Medal,
@@ -1658,6 +1659,11 @@ function ProfileContent() {
               </h3>
               <ApiKeysSection />
             </div>
+
+            {/* Parent Invite - Only for students */}
+            {profile?.user?.role === 'student' && (
+              <ParentInvite />
+            )}
           </motion.div>
         )}
 

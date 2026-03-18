@@ -21,11 +21,16 @@
   "dependencies": {
     "@google/gemini-cli": "^0.33.1",
     "@prisma/client": "^5.22.0",
+    "@radix-ui/react-progress": "^1.1.8",
+    "@react-pdf/renderer": "^4.3.2",
     "@supabase/supabase-js": "^2.95.3",
     "@types/qrcode": "^1.5.6",
     "@vercel/analytics": "^1.6.1",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.34.0",
     "jsxgraph": "^1.12.2",
     "lucide-react": "^0.563.0",
@@ -37,7 +42,8 @@
     "qrcode.react": "^4.2.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "recharts": "^3.8.0"
+    "recharts": "^3.8.0",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
