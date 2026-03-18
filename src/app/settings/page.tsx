@@ -246,6 +246,11 @@ export default function SettingsPage() {
         <section className="bg-card rounded-2xl border border-border p-6">
           <ApiKeysManager />
         </section>
+
+        {/* Version info */}
+        <div className="text-center text-xs text-muted-foreground">
+          Version 1.2.0 - API Keys enabled
+        </div>
       </main>
     </div>
   );
