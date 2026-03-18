@@ -146,18 +146,16 @@ export default function GeometryCanvas({
         axis: showAxes,
         grid: showGrid,
         pan: {
-          enabled: true,
-          needTwoFingers: false,
-          needShift: true       // ← libère la molette ET le clic gauche
+          enabled: false,   // ← on gère le pan manuellement
         },
         zoom: {
           enabled: true,
           wheel: true,
-          needShift: false,     // ← molette seule suffit pour zoomer
+          needShift: false,
           min: 0.01,
           max: 100,
-          factorX: 1.25,        // ← MANQUANT : facteur de zoom horizontal
-          factorY: 1.25,        // ← MANQUANT : facteur de zoom vertical
+          factorX: 1.25,
+          factorY: 1.25,
           pinchHorizontal: true,
           pinchVertical: true,
         },
@@ -170,6 +168,68 @@ export default function GeometryCanvas({
         },
       });
 
+      // ─── Manual pan implementation ───────────────────────────────────────
+
+      const el = board.containerObj;
+
+      let isPanning = false;
+      let panStartX = 0;
+      let panStartY = 0;
+      let panStartBB: number[] | null = null;
+
+      const startPan = (e: MouseEvent) => {
+        isPanning = true;
+        panStartX = e.clientX;
+        panStartY = e.clientY;
+        panStartBB = board.getBoundingBox(); // [x1, y1, x2, y2]
+        e.preventDefault();
+      };
+
+      const doPan = (e: MouseEvent) => {
+        if (!isPanning || !panStartBB) return;
+        const dx = e.clientX - panStartX;
+        const dy = e.clientY - panStartY;
+
+        // Convert pixel delta to user coords delta
+        const bb = panStartBB;
+        const W = el.offsetWidth;
+        const H = el.offsetHeight;
+        const scaleX = (bb[2] - bb[0]) / W;
+        const scaleY = (bb[1] - bb[3]) / H;
+
+        board.setBoundingBox([
+          bb[0] - dx * scaleX,
+          bb[1] + dy * scaleY,
+          bb[2] - dx * scaleX,
+          bb[3] + dy * scaleY,
+        ], true);
+        board.update();
+      };
+
+      const stopPan = () => { isPanning = false; };
+
+      // Clic droit
+      el.addEventListener('mousedown', (e: MouseEvent) => {
+        if (e.button === 2) startPan(e);
+      });
+
+      // Clic molette (middle click)
+      el.addEventListener('mousedown', (e: MouseEvent) => {
+        if (e.button === 1) { startPan(e); e.preventDefault(); }
+      });
+
+      el.addEventListener('mousemove', doPan);
+      el.addEventListener('mouseup', stopPan);
+      el.addEventListener('mouseleave', stopPan);
+      el.addEventListener('contextmenu', (e: Event) => e.preventDefault());
+
+      // Store cleanup function
+      (board as any)._panCleanup = () => {
+        el.removeEventListener('mousemove', doPan);
+        el.removeEventListener('mouseup', stopPan);
+        el.removeEventListener('mouseleave', stopPan);
+      };
+
       jxgBoardRef.current = board;
       setLoaded(true);
       attachClickHandler(board, JXG);
@@ -177,7 +237,12 @@ export default function GeometryCanvas({
 
     return () => {
       if (jxgBoardRef.current) {
-        try { (window as any).JXG?.JSXGraph.freeBoard(jxgBoardRef.current); } catch (_) {}
+        // Cleanup pan listeners
+        const board = jxgBoardRef.current;
+        if ((board as any)._panCleanup) {
+          (board as any)._panCleanup();
+        }
+        try { (window as any).JXG?.JSXGraph.freeBoard(board); } catch (_) {}
       }
     };
   }, [showAxes, showGrid]);
@@ -360,7 +425,7 @@ export default function GeometryCanvas({
   // ─── Tool status messages ──────────────────────────────────────────────────
 
   const toolHints: Record<string, string> = {
-    select: 'Clic gauche pour sélectionner · Shift+drag pour déplacer la vue · Molette pour zoomer',
+    select: 'Clic gauche pour sélectionner · Clic droit ou molette pour déplacer · Molette pour zoomer',
     point: 'Clic gauche pour placer un point',
     segment: 'Cliquez 2 points pour créer un segment',
     line: 'Cliquez 2 points pour créer une droite infinie',
