@@ -790,6 +790,34 @@ function ProfileContent() {
             </div>
           </div>
 
+          {/* Support Tickets Section */}
+          <div className="p-6 bg-card rounded-2xl border border-border">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-orange-400" />
+              Support & Tickets
+            </h3>
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5 text-orange-400" />
+                </div>
+                <div>
+                  <p className="font-medium">Centre de support</p>
+                  <p className="text-sm text-muted-foreground">
+                    Signalez des bugs, posez des questions ou demandez de l'aide
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/tickets"
+                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4" />
+                Voir les tickets
+              </Link>
+            </div>
+          </div>
+
           {/* Teacher Request Section */}
           {!profile?.user?.isTeacher && (
             <div className="p-6 bg-card rounded-2xl border border-border">
