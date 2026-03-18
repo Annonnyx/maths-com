@@ -26,9 +26,9 @@ const TOOLS = [
 const COLORS = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#34495e','#ffffff','#000000'];
 
 const PRESETS = [
-  { label: 'Théorème de Pythagore', fn: (board) => createPythagoras(board) },
-  { label: 'Cercle trigonométrique', fn: (board) => createUnitCircle(board) },
-  { label: 'Triangle équilatéral',   fn: (board) => createEquilateral(board) },
+  { label: 'Théorème de Pythagore', fn: (board: any) => createPythagoras(board) },
+  { label: 'Cercle trigonométrique', fn: (board: any) => createUnitCircle(board) },
+  { label: 'Triangle équilatéral',   fn: (board: any) => createEquilateral(board) },
 ];
 
 // ─── JSXGraph loader ──────────────────────────────────────────────────────────
@@ -723,7 +723,10 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 6, padding: '4px 10px', color: C.text,
     cursor: 'pointer', fontSize: 12, fontFamily: 'inherit',
     transition: 'all .15s',
-  },
+  } as React.CSSProperties,
+  iconBtnHover: {
+    background: C.border,
+  } as React.CSSProperties,
   active:    { background: C.accent + '33', borderColor: C.accent, color: C.accentL },
   dangerBtn: { color: C.danger, borderColor: C.danger + '55' },
   divider:   { width: 1, height: 24, background: C.border, margin: '0 4px' },
@@ -737,7 +740,10 @@ const styles: Record<string, React.CSSProperties> = {
   dropItem: {
     padding: '8px 14px', cursor: 'pointer', fontSize: 13,
     transition: 'background .1s',
-  },
+  } as React.CSSProperties,
+  dropItemHover: {
+    background: C.border,
+  } as React.CSSProperties,
   main: { display: 'flex', flex: 1, overflow: 'hidden' },
 
   sidebar: {
@@ -758,7 +764,10 @@ const styles: Record<string, React.CSSProperties> = {
     border: 'none', background: 'transparent',
     color: C.text, cursor: 'pointer', width: '100%', textAlign: 'left',
     transition: 'all .12s', fontSize: 12,
-  },
+  } as React.CSSProperties,
+  toolBtnHover: {
+    background: C.border,
+  } as React.CSSProperties,
   toolActive: { background: C.accent + '25', color: C.accentL },
   toolIcon:   { fontSize: 15, width: 18, textAlign: 'center', flexShrink: 0 },
   toolLabel:  { flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
@@ -810,13 +819,20 @@ const styles: Record<string, React.CSSProperties> = {
     background: C.border, borderRadius: 4, padding: '2px 6px',
     fontSize: 10, cursor: 'pointer', color: C.muted, fontFamily: 'monospace',
     transition: 'all .1s',
-  },
+  } as React.CSSProperties,
+  exampleTagHover: {
+    background: C.accent + '33',
+    color: C.accentL,
+  } as React.CSSProperties,
   plotBtn: {
     marginTop: 8, width: '100%', padding: '7px 0',
     background: C.accent, color: '#fff', border: 'none',
     borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600,
     fontFamily: 'inherit', transition: 'all .12s',
-  },
+  } as React.CSSProperties,
+  plotBtnHover: {
+    background: C.accentL,
+  } as React.CSSProperties,
   textInput: {
     width: '100%', background: C.bg, color: C.text,
     border: `1px solid ${C.border}`, borderRadius: 6,
