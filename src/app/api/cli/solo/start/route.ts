@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         for (let i = 0; i < questionCount; i++) {
           const levels = ['5e', '4e', '3e', '2de', '1re', 'Tle']
           const level = levels[i % levels.length]
-          const q = generator.generateForLevel(level)
+          const q = generator.generateForLevel(level as any)
           questions.push(q)
         }
         break
