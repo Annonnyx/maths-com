@@ -145,8 +145,22 @@ export default function GeometryCanvas({
         boundingbox: [-10, 10, 10, -10],
         axis: showAxes,
         grid: showGrid,
-        pan: { enabled: true, needTwoFingers: false, needShift: false },
-        zoom: { enabled: true, wheel: true, min: 0.01, max: 100 },
+        pan: {
+          enabled: true,
+          needTwoFingers: false,
+          needShift: true       // ← libère la molette ET le clic gauche
+        },
+        zoom: {
+          enabled: true,
+          wheel: true,
+          needShift: false,     // ← molette seule suffit pour zoomer
+          min: 0.01,
+          max: 100,
+          factorX: 1.25,        // ← MANQUANT : facteur de zoom horizontal
+          factorY: 1.25,        // ← MANQUANT : facteur de zoom vertical
+          pinchHorizontal: true,
+          pinchVertical: true,
+        },
         showCopyright: false,
         showNavigation: false,
         keepaspectratio: true,
@@ -154,20 +168,6 @@ export default function GeometryCanvas({
           x: { strokeColor: '#888', ticks: { visible: true, strokeColor: '#888', label: { fontSize: 11, color: '#888' } } },
           y: { strokeColor: '#888', ticks: { visible: true, strokeColor: '#888', label: { fontSize: 11, color: '#888' } } },
         },
-      });
-
-      // Override pan to right-click only
-      board.on('mousedown', (e: any) => {
-        if (e.button === 2) {
-          board.startPan(e);
-          e.preventDefault();
-        }
-      });
-
-      board.containerObj.addEventListener('contextmenu', (e: Event) => e.preventDefault());
-
-      board.on('mouseup', () => {
-        if (board.mode === board.BOARD_MODE_PAN) board.stopPan();
       });
 
       jxgBoardRef.current = board;
@@ -185,19 +185,17 @@ export default function GeometryCanvas({
   // ─── Click handler ─────────────────────────────────────────────────────────
 
   const attachClickHandler = (board: any, JXG: any) => {
-    board.on('up', (e: any) => {
-      if (e.button === 2) return;
+    board.containerObj.addEventListener('click', (e: MouseEvent) => {
+      if (e.button !== 0) return;
       const currentTool = toolRef.current;
-      if (currentTool === 'select' || currentTool === 'angle' || currentTool === 'distance' || currentTool === 'function' || currentTool === 'text') return;
+      if (['select','angle','distance','function','text'].includes(currentTool)) return;
 
-      const coords = board.getUsrCoordsOfMouse(e);
-      let x = coords[1];
-      let y = coords[2];
-
-      if (snapGridRef.current) {
-        x = Math.round(x);
-        y = Math.round(y);
-      }
+      const rect = board.containerObj.getBoundingClientRect();
+      const cssX = e.clientX - rect.left;
+      const cssY = e.clientY - rect.top;
+      const coords = new JXG.Coords(JXG.COORDS_BY_SCREEN, [cssX, cssY], board);
+      let x = snapGridRef.current ? Math.round(coords.usrCoords[1]) : coords.usrCoords[1];
+      let y = snapGridRef.current ? Math.round(coords.usrCoords[2]) : coords.usrCoords[2];
 
       handleToolClick(board, JXG, currentTool, x, y);
     });
@@ -212,6 +210,27 @@ export default function GeometryCanvas({
   useEffect(() => { colorRef.current = color; }, [color]);
   useEffect(() => { strokeWRef.current = strokeWidth; }, [strokeWidth]);
   useEffect(() => { fillOpRef.current = fillOpacity; }, [fillOpacity]);
+
+  // ─── History ───────────────────────────────────────────────────────────────
+
+  const saveHistory = () => {
+    const board = jxgBoardRef.current;
+    if (!board) return;
+    const snap = JSON.stringify(board.getBoundingBox());
+    historyRef.current.push(snap);
+    redoStackRef.current = [];
+  };
+
+  // ─── Name counter ──────────────────────────────────────────────────────────
+
+  const nameCounter = useRef(0);
+  const nextName = () => {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const i = nameCounter.current++;
+    return i < 26 ? letters[i] : letters[Math.floor(i / 26) - 1] + letters[i % 26];
+  };
+
+  // ─── Click handler ─────────────────────────────────────────────────────────
 
   const handleToolClick = useCallback((board: any, JXG: any, currentTool: string, x: number, y: number) => {
     const col = colorRef.current;
@@ -233,7 +252,10 @@ export default function GeometryCanvas({
     // Multi-click tools
     const tmp = tempPointsRef.current;
 
-    const needs: Record<string, number> = { segment: 2, line: 2, ray: 2, circle: 2, triangle: 3, polygon: -1, rectangle: 2, midpoint: 2, perp: 2, parallel: 2 };
+    const needs: Record<string, number> = { 
+      segment: 2, line: 2, ray: 2, circle: 2, triangle: 3, polygon: -1, 
+      rectangle: 2, midpoint: 2, perp: 2, parallel: 2, angle: 3, distance: 2
+    };
     const n = needs[currentTool] ?? 1;
 
     const pt = makePoint(x, y, '');
@@ -269,19 +291,36 @@ export default function GeometryCanvas({
         board.create('angle', [tmp[1], tmp[2], tmp[0]], { name: '', radius: 0.5, strokeColor: '#e67e22' });
       } else if (currentTool === 'rectangle') {
         const [p1, p2] = tmp;
-        const p3 = board.create('point', [p2.X(), p1.Y()], { visible: false });
-        const p4 = board.create('point', [p1.X(), p2.Y()], { visible: false });
+        const p3 = board.create('point', [() => p2.X(), () => p1.Y()], { visible: false });
+        const p4 = board.create('point', [() => p1.X(), () => p2.Y()], { visible: false });
         board.create('polygon', [p1, p3, p2, p4], {
           fillColor: col, fillOpacity: fo, strokeColor: col, strokeWidth: sw,
         });
       } else if (currentTool === 'midpoint') {
-        board.create('midpoint', [tmp[0], tmp[1]], { name: 'M', size: 5, color: col });
+        const seg = board.create('segment', [tmp[0], tmp[1]], { visible: false });
+        board.create('midpoint', [seg], { name: 'M', size: 5, color: col });
       } else if (currentTool === 'perp') {
         const seg = board.create('segment', [tmp[0], tmp[1]], { visible: false });
         board.create('perpendicular', [seg, tmp[0]], { strokeColor: col, strokeWidth: sw });
       } else if (currentTool === 'parallel') {
         const seg = board.create('segment', [tmp[0], tmp[1]], { visible: false });
         board.create('parallel', [seg, tmp[1]], { strokeColor: col, strokeWidth: sw });
+      } else if (currentTool === 'angle') {
+        board.create('angle', [tmp[0], tmp[1], tmp[2]], {
+          name: () => {
+            const a = tmp[1].Dist(tmp[0]);
+            const b = tmp[1].Dist(tmp[2]);
+            return JXG.Math.Geometry.angle(tmp[0], tmp[1], tmp[2]) * 180 / Math.PI + '°';
+          },
+          radius: 0.5, strokeColor: '#e67e22',
+        });
+      } else if (currentTool === 'distance') {
+        board.create('segment', [tmp[0], tmp[1]], { strokeColor: col, strokeWidth: sw });
+        board.create('text', [
+          () => (tmp[0].X() + tmp[1].X()) / 2,
+          () => (tmp[0].Y() + tmp[1].Y()) / 2 + 0.3,
+          () => tmp[0].Dist(tmp[1]).toFixed(2),
+        ], { fontSize: 13, color: col });
       }
       setObjectCount(c => c + 1);
     } catch (err: any) {
@@ -318,20 +357,10 @@ export default function GeometryCanvas({
     return () => window.removeEventListener('keydown', onKey);
   }, [tool, color, fillOpacity, strokeWidth]);
 
-  // ─── History ───────────────────────────────────────────────────────────────
-
-  const saveHistory = () => {
-    const board = jxgBoardRef.current;
-    if (!board) return;
-    const snap = JSON.stringify(board.getBoundingBox());
-    historyRef.current.push(snap);
-    redoStackRef.current = [];
-  };
-
   // ─── Tool status messages ──────────────────────────────────────────────────
 
   const toolHints: Record<string, string> = {
-    select: 'Clic gauche pour sélectionner · Clic droit pour déplacer la vue · Molette pour zoomer',
+    select: 'Clic gauche pour sélectionner · Shift+drag pour déplacer la vue · Molette pour zoomer',
     point: 'Clic gauche pour placer un point',
     segment: 'Cliquez 2 points pour créer un segment',
     line: 'Cliquez 2 points pour créer une droite infinie',
@@ -341,8 +370,8 @@ export default function GeometryCanvas({
     polygon: 'Cliquez les sommets · Entrée pour fermer · Échap pour annuler',
     rectangle: 'Cliquez 2 coins opposés',
     function: 'Saisissez une expression dans le panneau de droite',
-    angle: 'Outil d\'affichage — sélectionnez 3 points existants',
-    distance: 'Outil de mesure — sélectionnez 2 points existants',
+    angle: 'Cliquez 3 points pour mesurer l\'angle',
+    distance: 'Cliquez 2 points pour mesurer la distance',
     midpoint: 'Cliquez 2 points pour créer leur milieu',
     perp: 'Cliquez 2 points pour la perpendiculaire',
     parallel: 'Cliquez 2 points pour la parallèle',
@@ -357,24 +386,6 @@ export default function GeometryCanvas({
     if (id === 'function') setShowFnPanel(true); else setShowFnPanel(false);
     if (id === 'text') setShowTextPanel(true); else setShowTextPanel(false);
   };
-
-  // ─── Name counter ──────────────────────────────────────────────────────────
-
-  const nameCounter = useRef(0);
-  const nextName = () => {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const i = nameCounter.current++;
-    return i < 26 ? letters[i] : letters[Math.floor(i / 26) - 1] + letters[i % 26];
-  };
-
-  // ─── Grid / Axes toggle ────────────────────────────────────────────────────
-
-  useEffect(() => {
-    const board = jxgBoardRef.current;
-    if (!board) return;
-    board.grids.forEach((g: any) => g.setAttribute({ visible: showGrid }));
-    board.update();
-  }, [showGrid]);
 
   // ─── Function plot ─────────────────────────────────────────────────────────
 
@@ -433,18 +444,44 @@ export default function GeometryCanvas({
   const exportPNG = () => {
     const board = jxgBoardRef.current;
     if (!board) return;
-    board.renderer.screenshot(board, 'geometrie-maths-app', false);
+    
+    // JSXGraph exposes this via the board itself:
+    const svgStr = board.renderer.dumpToString('');
+    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    
+    // Then draw to canvas for PNG:
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = board.canvasWidth;
+      canvas.height = board.canvasHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.fillStyle = '#111318';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      const a = document.createElement('a');
+      a.download = 'geometrie-maths-app.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
     setStatus('Export PNG en cours...');
   };
 
   const exportSVG = () => {
     const board = jxgBoardRef.current;
     if (!board) return;
-    const svg = board.renderer.dumpToDataURI(board);
+    const svgStr = board.renderer.dumpToString('');
+    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = svg;
+    a.href = url;
     a.download = 'geometrie-maths-app.svg';
     a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     setStatus('Export SVG terminé');
   };
 
@@ -660,7 +697,7 @@ export default function GeometryCanvas({
             <div style={styles.shortcut}><kbd style={styles.kbd}>Entrée</kbd> Fermer polygone</div>
             <div style={styles.shortcut}><kbd style={styles.kbd}>Échap</kbd> Annuler action</div>
             <div style={styles.shortcut}><kbd style={styles.kbd}>Molette</kbd> Zoom</div>
-            <div style={styles.shortcut}><kbd style={styles.kbd}>Clic ⊕</kbd> Déplacer vue</div>
+            <div style={styles.shortcut}><kbd style={styles.kbd}>Shift + Drag</kbd> Déplacer vue</div>
           </div>
 
           {/* Tips */}
