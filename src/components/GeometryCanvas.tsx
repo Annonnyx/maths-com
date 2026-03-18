@@ -382,7 +382,8 @@ export default function GeometryCanvas({
     setTool(id);
     tempPointsRef.current.forEach(p => { try { jxgBoardRef.current?.removeObject(p); } catch(_){} });
     tempPointsRef.current = [];
-    setStatus(toolHints[id] || 'Prêt');
+    const toolName = TOOLS.find(t => t.id === id)?.label || id;
+    setStatus(`${toolName} — ${toolHints[id] || 'Prêt'}`);
     if (id === 'function') setShowFnPanel(true); else setShowFnPanel(false);
     if (id === 'text') setShowTextPanel(true); else setShowTextPanel(false);
   };
@@ -546,6 +547,8 @@ export default function GeometryCanvas({
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
+  const showRightPanel = tool === 'function' || tool === 'text';
+
   return (
     <div ref={containerRef} style={styles.root}>
 
@@ -566,6 +569,23 @@ export default function GeometryCanvas({
             onClick={() => setSnapGrid(v => !v)} title="Aimantation"
           >⋮</button>
           <div style={styles.divider} />
+          <div style={styles.colorGrid}>
+            {COLORS.map(c => (
+              <div
+                key={c}
+                style={{ ...styles.colorDot, background: c, ...(color === c ? styles.colorActive : {}) }}
+                onClick={() => setColor(c)}
+              />
+            ))}
+          </div>
+          <input 
+            type="color" 
+            value={color} 
+            onChange={e => setColor(e.target.value)}
+            style={styles.colorInputTop} 
+            title="Couleur personnalisée" 
+          />
+          <div style={styles.divider} />
           <div style={{ position: 'relative' }}>
             <button style={styles.iconBtn} onClick={() => setShowPresets(v => !v)}>✦ Presets</button>
             {showPresets && (
@@ -580,13 +600,13 @@ export default function GeometryCanvas({
 
         <div style={styles.topRight}>
           <span style={styles.meta}>{objectCount} objet{objectCount !== 1 ? 's' : ''}</span>
-          <button style={styles.iconBtn} onClick={exportPNG} title="Export PNG">↓ PNG</button>
-          <button style={styles.iconBtn} onClick={exportSVG} title="Export SVG">↓ SVG</button>
+          <button style={styles.iconBtn} onClick={exportPNG} title="Exporter en PNG">PNG</button>
+          <button style={styles.iconBtn} onClick={exportSVG} title="Exporter en SVG">SVG</button>
           <button
             style={{ ...styles.iconBtn, ...(isFullscreen ? styles.active : {}) }}
             onClick={toggleFullscreen} title="Plein écran"
-          >{isFullscreen ? '⊡' : '⊞'} Plein écran</button>
-          <button style={{ ...styles.iconBtn, ...styles.dangerBtn }} onClick={clearBoard}>✕ Effacer</button>
+          >⛶</button>
+          <button style={{ ...styles.iconBtn, ...styles.dangerBtn }} onClick={clearBoard} title="Effacer la planche">✕</button>
         </div>
       </div>
 
@@ -595,9 +615,9 @@ export default function GeometryCanvas({
 
         {/* ── Left Toolbar ── */}
         <div style={styles.sidebar}>
-          {groups.map(g => (
+          {groups.map((g, groupIndex) => (
             <div key={g.key}>
-              <div style={styles.groupLabel}>{g.label}</div>
+              {groupIndex > 0 && <div style={styles.groupSeparator} />}
               {TOOLS.filter(t => t.group === g.key).map(t => (
                 <button
                   key={t.id}
@@ -611,34 +631,6 @@ export default function GeometryCanvas({
               ))}
             </div>
           ))}
-
-          {/* Color picker */}
-          <div style={styles.groupLabel}>Couleur</div>
-          <div style={styles.colorGrid}>
-            {COLORS.map(c => (
-              <div
-                key={c}
-                style={{ ...styles.colorDot, background: c, ...(color === c ? styles.colorActive : {}) }}
-                onClick={() => setColor(c)}
-              />
-            ))}
-          </div>
-          <input type="color" value={color} onChange={e => setColor(e.target.value)}
-            style={styles.colorInput} title="Couleur personnalisée" />
-
-          {/* Stroke width */}
-          <div style={styles.groupLabel}>Épaisseur</div>
-          <input type="range" min="1" max="8" value={strokeWidth}
-            onChange={e => setStrokeWidth(Number(e.target.value))}
-            style={styles.slider} />
-          <div style={styles.sliderVal}>{strokeWidth}px</div>
-
-          {/* Fill opacity */}
-          <div style={styles.groupLabel}>Opacité remplissage</div>
-          <input type="range" min="0" max="100" value={Math.round(fillOpacity * 100)}
-            onChange={e => setFillOpacity(Number(e.target.value) / 100)}
-            style={styles.slider} />
-          <div style={styles.sliderVal}>{Math.round(fillOpacity * 100)}%</div>
         </div>
 
         {/* ── Canvas ── */}
@@ -653,68 +645,55 @@ export default function GeometryCanvas({
         </div>
 
         {/* ── Right Panel ── */}
-        <div style={styles.rightPanel}>
-
-          {/* Function panel */}
-          <div style={styles.panelSection}>
-            <div style={styles.panelTitle}>∫ Fonctions</div>
-            <div style={styles.panelHint}>Utilisez <code style={styles.code}>x</code> comme variable<br/>et les fonctions JS : <code style={styles.code}>Math.sin(x)</code></div>
-            <textarea
-              style={styles.fnInput}
-              value={fnExpr}
-              onChange={e => setFnExpr(e.target.value)}
-              placeholder="ex: Math.sin(x) * 2"
-              rows={3}
-            />
-            <div style={styles.fnExamples}>
-              {['Math.sin(x)', 'x*x', '2*x+1', 'Math.sqrt(Math.abs(x))', 'Math.exp(-x*x/2)'].map(ex => (
-                <span key={ex} style={styles.exampleTag} onClick={() => setFnExpr(ex)}>{ex}</span>
-              ))}
+        <div style={{ 
+          ...styles.rightPanel,
+          width: showRightPanel ? 220 : 0,
+          padding: showRightPanel ? 8 : 0,
+          overflow: 'hidden',
+          transition: 'width 0.2s ease'
+        }}>
+          {tool === 'function' && (
+            <div style={styles.panelSection}>
+              <div style={styles.panelTitle}>∫ Fonctions</div>
+              <div style={styles.panelHint}>Utilisez <code style={styles.code}>x</code> comme variable<br/>et les fonctions JS : <code style={styles.code}>Math.sin(x)</code></div>
+              <textarea
+                style={styles.fnInput}
+                value={fnExpr}
+                onChange={e => setFnExpr(e.target.value)}
+                placeholder="ex: Math.sin(x) * 2"
+                rows={3}
+              />
+              <div style={styles.fnExamples}>
+                {['Math.sin(x)', 'x*x', '2*x+1', 'Math.sqrt(Math.abs(x))', 'Math.exp(-x*x/2)'].map(ex => (
+                  <span key={ex} style={styles.exampleTag} onClick={() => setFnExpr(ex)}>{ex}</span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 6 }}>
+                <label style={styles.panelHint}>Couleur :</label>
+                <input type="color" value={fnColor} onChange={e => setFnColor(e.target.value)} style={{ width: 32, height: 24 }} />
+              </div>
+              <button style={styles.plotBtn} onClick={plotFunction}>Tracer la courbe</button>
             </div>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 6 }}>
-              <label style={styles.panelHint}>Couleur :</label>
-              <input type="color" value={fnColor} onChange={e => setFnColor(e.target.value)} style={{ width: 32, height: 24 }} />
+          )}
+          
+          {tool === 'text' && (
+            <div style={styles.panelSection}>
+              <div style={styles.panelTitle}>T Texte / Labels</div>
+              <input
+                style={styles.textInput}
+                value={textContent}
+                onChange={e => setTextContent(e.target.value)}
+                placeholder="Votre texte…"
+                onKeyDown={e => e.key === 'Enter' && addText()}
+              />
+              <button style={styles.plotBtn} onClick={addText}>Ajouter le texte</button>
             </div>
-            <button style={styles.plotBtn} onClick={plotFunction}>Tracer la courbe</button>
-          </div>
-
-          {/* Text panel */}
-          <div style={styles.panelSection}>
-            <div style={styles.panelTitle}>T Texte / Labels</div>
-            <input
-              style={styles.textInput}
-              value={textContent}
-              onChange={e => setTextContent(e.target.value)}
-              placeholder="Votre texte…"
-              onKeyDown={e => e.key === 'Enter' && addText()}
-            />
-            <button style={styles.plotBtn} onClick={addText}>Ajouter le texte</button>
-          </div>
-
-          {/* Shortcuts */}
-          <div style={styles.panelSection}>
-            <div style={styles.panelTitle}>⌨ Raccourcis</div>
-            <div style={styles.shortcut}><kbd style={styles.kbd}>Entrée</kbd> Fermer polygone</div>
-            <div style={styles.shortcut}><kbd style={styles.kbd}>Échap</kbd> Annuler action</div>
-            <div style={styles.shortcut}><kbd style={styles.kbd}>Molette</kbd> Zoom</div>
-            <div style={styles.shortcut}><kbd style={styles.kbd}>Shift + Drag</kbd> Déplacer vue</div>
-          </div>
-
-          {/* Tips */}
-          <div style={styles.panelSection}>
-            <div style={styles.panelTitle}>💡 Aide</div>
-            <div style={styles.panelHint}>
-              Le triangle affiche automatiquement ses 3 angles.<br /><br />
-              Les points créés sont <strong>draggables</strong> — les formes se mettent à jour en temps réel.<br /><br />
-              Glissez les presets pour explorer des figures classiques.
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* ── Status Bar ── */}
       <div style={styles.statusBar}>
-        <span style={styles.statusTool}>Outil : <strong>{TOOLS.find(t => t.id === tool)?.label}</strong></span>
         <span style={styles.statusMsg}>{status}</span>
         {snapGrid && <span style={styles.badge}>⊞ Aimantation</span>}
       </div>
@@ -757,7 +736,7 @@ const styles: Record<string, React.CSSProperties> = {
   logo: { fontWeight: 700, fontSize: 15, color: C.accentL, marginRight: 8, letterSpacing: '-0.3px' },
   iconBtn: {
     background: 'transparent', border: `1px solid ${C.border}`,
-    borderRadius: 6, padding: '4px 10px', color: C.text,
+    borderRadius: 6, padding: '4px 8px', color: C.text,
     cursor: 'pointer', fontSize: 12, fontFamily: 'inherit',
     transition: 'all .15s',
   } as React.CSSProperties,
@@ -768,6 +747,18 @@ const styles: Record<string, React.CSSProperties> = {
   dangerBtn: { color: C.danger, borderColor: C.danger + '55' },
   divider:   { width: 1, height: 24, background: C.border, margin: '0 4px' },
   meta:      { color: C.muted, fontSize: 11, marginRight: 4 },
+  colorGrid: { 
+    display: 'flex', flexDirection: 'row', gap: 3, alignItems: 'center',
+  },
+  colorDot: { 
+    width: 16, height: 16, borderRadius: 3, cursor: 'pointer', 
+    border: '2px solid transparent', transition: 'all .12s' 
+  },
+  colorActive: { border: `2px solid white`, transform: 'scale(1.15)' },
+  colorInputTop: {
+    width: 24, height: 24, borderRadius: 4, border: 'none',
+    cursor: 'pointer', background: 'none',
+  },
   dropdown: {
     position: 'absolute', top: '100%', left: 0, zIndex: 99,
     background: C.surface, border: `1px solid ${C.border}`,
@@ -778,43 +769,28 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '8px 14px', cursor: 'pointer', fontSize: 13,
     transition: 'background .1s',
   } as React.CSSProperties,
-  dropItemHover: {
-    background: C.border,
-  } as React.CSSProperties,
   main: { display: 'flex', flex: 1, overflow: 'hidden' },
 
   sidebar: {
-    width: 160, background: C.panel,
+    width: 52, background: C.panel,
     borderRight: `1px solid ${C.border}`,
-    overflowY: 'auto', padding: '8px 6px',
+    overflowY: 'auto', padding: '8px 4px',
     display: 'flex', flexDirection: 'column', gap: 2,
     flexShrink: 0,
   },
-  groupLabel: {
-    fontSize: 10, fontWeight: 600, letterSpacing: '0.08em',
-    color: C.muted, textTransform: 'uppercase',
-    padding: '10px 6px 4px',
+  groupSeparator: {
+    height: 1, background: C.border, margin: '4px 6px',
   },
   toolBtn: {
-    display: 'flex', alignItems: 'center', gap: 8,
-    padding: '7px 8px', borderRadius: 6,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    padding: '8px 0', borderRadius: 6,
     border: 'none', background: 'transparent',
-    color: C.text, cursor: 'pointer', width: '100%', textAlign: 'left',
+    color: C.text, cursor: 'pointer', width: '100%', textAlign: 'center',
     transition: 'all .12s', fontSize: 12,
   } as React.CSSProperties,
-  toolBtnHover: {
-    background: C.border,
-  } as React.CSSProperties,
   toolActive: { background: C.accent + '25', color: C.accentL },
-  toolIcon:   { fontSize: 15, width: 18, textAlign: 'center', flexShrink: 0 },
-  toolLabel:  { flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-
-  colorGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, padding: '4px 2px' },
-  colorDot: { width: 20, height: 20, borderRadius: 4, cursor: 'pointer', border: '2px solid transparent', transition: 'all .12s' },
-  colorActive: { border: `2px solid white`, transform: 'scale(1.15)' },
-  colorInput: { width: '100%', height: 28, borderRadius: 6, border: `1px solid ${C.border}`, marginTop: 4, cursor: 'pointer', background: 'none' },
-  slider: { width: '100%', accentColor: C.accent, margin: '4px 0' },
-  sliderVal: { fontSize: 11, color: C.muted, textAlign: 'right' },
+  toolIcon:   { fontSize: 18, width: 'auto', textAlign: 'center' },
+  toolLabel:  { display: 'none' },
 
   canvas: {
     flex: 1, position: 'relative', overflow: 'hidden',
@@ -884,11 +860,10 @@ const styles: Record<string, React.CSSProperties> = {
   code: { background: C.border, borderRadius: 3, padding: '0 4px', fontFamily: 'monospace', fontSize: 10 },
 
   statusBar: {
-    height: 28, background: C.surface, borderTop: `1px solid ${C.border}`,
+    height: 24, background: C.surface, borderTop: `1px solid ${C.border}`,
     display: 'flex', alignItems: 'center', padding: '0 12px', gap: 16,
     fontSize: 11, color: C.muted, flexShrink: 0,
   },
-  statusTool: { color: C.text },
-  statusMsg:  { flex: 1, color: C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  statusMsg:  { flex: 1, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   badge: { background: C.accent + '22', color: C.accentL, borderRadius: 4, padding: '2px 8px', fontSize: 10, fontWeight: 600 },
 };
