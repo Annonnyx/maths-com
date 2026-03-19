@@ -8,7 +8,7 @@ import {
   Check, Moon, Zap, Target, Shield
 } from 'lucide-react';
 import ToggleSwitch from '@/components/ToggleSwitch';
-import ApiKeysManager from '@/components/ApiKeysManager';
+import ApiKeysManagerUnified from '@/components/ApiKeysManagerUnified';
 import ApiKeysWrapper from '@/components/ApiKeysWrapper';
 
 // Local storage hooks that work without contexts
@@ -255,7 +255,7 @@ export default function SettingsPage() {
             </p>
             <div className="min-h-[200px]">
               <ApiKeysWrapper>
-                <ApiKeysManager />
+                <ApiKeysManagerUnified compact={true} />
               </ApiKeysWrapper>
             </div>
           </div>
