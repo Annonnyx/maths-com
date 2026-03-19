@@ -31,7 +31,8 @@ export default function ApiKeysManager() {
       const response = await fetch('/api/cli/keys');
       if (!response.ok) throw new Error('Erreur lors du chargement des clefs');
       const data = await response.json();
-      setKeys(data);
+      console.log('API Keys data:', data); // Debug pour voir ce que l'API retourne
+      setKeys(Array.isArray(data) ? data : (data?.keys ?? data?.data ?? []));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
     } finally {
@@ -161,7 +162,7 @@ export default function ApiKeysManager() {
       )}
 
       <div className="space-y-3">
-        {keys.length === 0 ? (
+        {!keys || keys.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Key className="w-12 h-12 mx-auto mb-2 opacity-50" />
             <p>Aucune clef API</p>
