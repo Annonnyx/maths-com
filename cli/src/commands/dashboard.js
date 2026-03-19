@@ -1,11 +1,9 @@
-import inquirer from 'inquirer'
 import chalk from 'chalk'
+import { getConfig } from '../lib/config.js'
 import { api } from '../lib/api.js'
-import { setConfig } from '../lib/config.js'
-import { display, spinner } from '../lib/display.js'
 
 // Interface Retro-Futuriste
-export function showDashboard(userData) {
+function showDashboard(userData) {
   console.clear()
   
   // Header principal
@@ -28,7 +26,7 @@ export function showDashboard(userData) {
   console.log(chalk.cyan('║                                          ║'))
   console.log(chalk.cyan('║  ╔═════════════════════════════════════╗  ║'))
   console.log(chalk.cyan('║  ║  📊 PROGRESSION MENSUELLE            ║  ║'))
-  console.log(chalk.cyan('║  ║  🎯 SOLO : ') + chalk.bold.green('PARTIE EN COURS'.padEnd(19)) + chalk.cyan('║  ║'))
+  console.log(chalk.cyan('║  ║  🎯 SOLO : ') + chalk.bold.green('PRÊT À JOUER'.padEnd(19)) + chalk.cyan('║  ║'))
   console.log(chalk.cyan('║  ║  ⚔️ MULTI : ') + chalk.bold.magenta('DISPONIBLE'.padEnd(17)) + chalk.cyan('║  ║'))
   console.log(chalk.cyan('║  ║  🏆 CLASSEMENT : ') + chalk.bold.yellow('TOP 15%'.padEnd(12)) + chalk.cyan('║  ║'))
   console.log(chalk.cyan('║  ╚═════════════════════════════════════╝  ║'))
@@ -48,61 +46,34 @@ export function showDashboard(userData) {
   console.log(chalk.cyan('  maths duel    ') + chalk.gray('- Créer/rejoindre un duel'))
   console.log(chalk.cyan('  maths stats   ') + chalk.gray('- Voir tes statistiques'))
   console.log(chalk.cyan('  maths history ') + chalk.gray('- Historique des parties'))
+  console.log(chalk.cyan('  maths dashboard') + chalk.gray('- Afficher ce tableau de bord'))
   console.log()
 }
 
-export async function login() {
-  console.log(chalk.bold.cyan('\n🔐 Connexion à maths-app.fr'))
-  console.log(chalk.gray('Génère ta clef sur https://maths-app.fr/dashboard → Paramètres → CLI\n'))
-
-  const { apiKey } = await inquirer.prompt([
-    {
-      type: 'password',
-      name: 'apiKey',
-      message: 'Colle ta clef API (mths_...) :',
-      validate: (input) => {
-        if (!input.trim()) {
-          return 'La clef API est requise'
-        }
-        if (!input.startsWith('mths_')) {
-          return 'La clef doit commencer par "mths_"'
-        }
-        return true
-      }
-    }
-  ])
-
-  const loading = spinner('Vérification de la clef...')
-  loading.start()
-
+export async function dashboard() {
   try {
+    // Vérifier si l'utilisateur est connecté
+    const apiKey = getConfig('apiKey')
+    if (!apiKey) {
+      console.log(chalk.red('❌ Tu dois d\'abord te connecter avec "maths login"'))
+      return
+    }
+
+    // Rafraîchir les données utilisateur
     const response = await api.verifyKey()
-
-    loading.stop()
-
+    
     if (response.valid) {
-      // Sauvegarder la configuration
-      setConfig('apiKey', apiKey)
-      setConfig('username', response.username)
-      setConfig('userId', response.userId)
-      setConfig('soloElo', response.soloElo)
-      setConfig('multiplayerElo', response.multiplayerElo)
-
-      // Afficher le dashboard retro-futuriste
       showDashboard({
         username: response.username,
         soloElo: response.soloElo,
         multiplayerElo: response.multiplayerElo,
         streak: response.streak || 0
       })
-      
-      display.success(`Connecté en tant que ${response.username}`)
     } else {
-      display.error('Clef invalide')
+      console.log(chalk.red('❌ Session invalide, reconnecte-toi avec "maths login"'))
     }
   } catch (error) {
-    loading.stop()
-    display.error('Erreur lors de la vérification de la clef')
+    console.log(chalk.red('❌ Erreur lors du chargement du dashboard'))
     console.error(error.message)
   }
 }

@@ -14,38 +14,38 @@ model User {
   email                    String                   @unique
   username                 String                   @unique
   password                 String?
-  createdAt                DateTime                 @default(now()) @map("created_at")
-  updatedAt                DateTime                 @updatedAt @map("updated_at")
-  displayName              String?                  @map("display_name")
-  avatarUrl                String?                  @map("avatar_url")
-  classe                   String?
-  birthYear                Int?                     @map("birth_year")
-  bannerUrl                String?                  @map("banner_url")
-  selectedBadgeIds         String?                  @map("selected_badge_ids")
-  customBannerId           String?                  @map("custom_banner_id")
-  isAdmin                  Boolean                  @default(false) @map("is_admin")
-  isTeacher                Boolean                  @default(false) @map("is_teacher")
-  school                   String?
-  subject                  String?
   acceptJoinRequests       Boolean                  @default(true) @map("accept_join_requests")
-  soloElo                  Int                      @default(400) @map("solo_elo")
-  soloRankClass            String                   @default("F-") @map("solo_rank_class")
-  soloBestElo              Int                      @default(400) @map("solo_best_elo")
-  soloBestRankClass        String                   @default("F-") @map("solo_best_rank_class")
-  multiplayerElo           Int                      @default(400) @map("multiplayer_elo")
-  multiplayerRankClass     String                   @default("F-") @map("multiplayer_rank_class")
+  avatarUrl                String?                  @map("avatar_url")
+  bannerUrl                String?                  @map("banner_url")
+  birthYear                Int?                     @map("birth_year")
+  classe                   String?
+  createdAt                DateTime                 @default(now()) @map("created_at")
+  customBannerId           String?                  @map("custom_banner_id")
+  discordId                String?                  @unique @map("discord_id")
+  discordLinkCode          String?                  @unique @map("discord_link_code")
+  discordLinkedAt          DateTime?                @map("discord_linked_at")
+  discordUsername          String?                  @map("discord_username")
+  displayName              String?                  @map("display_name")
+  hasCompletedOnboarding   Boolean                  @default(false) @map("has_completed_onboarding")
+  isAdmin                  Boolean                  @default(false) @map("is_admin")
+  isOnline                 Boolean                  @default(false) @map("is_online")
+  isTeacher                Boolean                  @default(false) @map("is_teacher")
+  lastSeenAt               DateTime                 @default(now()) @map("last_seen_at")
+  lastTestDate             DateTime?                @map("last_test_date")
   multiplayerBestElo       Int                      @default(400) @map("multiplayer_best_elo")
   multiplayerBestRankClass String                   @default("F-") @map("multiplayer_best_rank_class")
-  soloCurrentStreak        Int                      @default(0) @map("solo_current_streak")
+  multiplayerElo           Int                      @default(400) @map("multiplayer_elo")
+  multiplayerRankClass     String                   @default("F-") @map("multiplayer_rank_class")
+  school                   String?
+  selectedBadgeIds         String?                  @map("selected_badge_ids")
+  soloBestElo              Int                      @default(400) @map("solo_best_elo")
+  soloBestRankClass        String                   @default("F-") @map("solo_best_rank_class")
   soloBestStreak           Int                      @default(0) @map("solo_best_streak")
-  lastTestDate             DateTime?                @map("last_test_date")
-  isOnline                 Boolean                  @default(false) @map("is_online")
-  lastSeenAt               DateTime                 @default(now()) @map("last_seen_at")
-  discordId                String?                  @unique @map("discord_id")
-  discordUsername          String?                  @map("discord_username")
-  discordLinkedAt          DateTime?                @map("discord_linked_at")
-  discordLinkCode          String?                  @unique @map("discord_link_code")
-  hasCompletedOnboarding   Boolean                  @default(false) @map("has_completed_onboarding")
+  soloCurrentStreak        Int                      @default(0) @map("solo_current_streak")
+  soloElo                  Int                      @default(400) @map("solo_elo")
+  soloRankClass            String                   @default("F-") @map("solo_rank_class")
+  subject                  String?
+  updatedAt                DateTime                 @updatedAt @map("updated_at")
   role                     String                   @default("student")
   QuestionHistory          public_QuestionHistory[]
   assignmentSubmissions    AssignmentSubmission[]
@@ -56,6 +56,7 @@ model User {
   receivedJoinRequests     ClassJoinRequest[]       @relation("StudentJoinRequests")
   sentJoinRequests         ClassJoinRequest[]       @relation("TeacherJoinRequests")
   groupMessages            ClassMessage[]
+  cliApiKeys               CliApiKey[]
   coursePracticeHistories  CoursePracticeHistory[]
   createdBanners           CustomBanner[]           @relation("BannerCreator")
   exerciseAttempts         ExerciseAttempt[]
@@ -70,16 +71,15 @@ model User {
   multiplayerStatistics    MultiplayerStatistics?
   sentNotifications        Notification[]           @relation("NotificationSender")
   notifications            Notification[]
+  childLinks               ParentChildLink[]        @relation("ChildLinks")
+  parentLinks              ParentChildLink[]        @relation("ParentLinks")
+  inviteCodes              ParentInviteCode[]       @relation("InviteCodes")
   questionHistory          QuestionHistory[]
   soloStatistics           SoloStatistics?
   soloTests                SoloTest[]
   teacherRequests          TeacherRequest[]
   userBadges               UserBadge[]
   customBanners            CustomBanner[]           @relation("UserBanners")
-  cliApiKeys               CliApiKey[]
-  parentLinks              ParentChildLink[]         @relation("ParentLinks")
-  childLinks               ParentChildLink[]         @relation("ChildLinks")
-  inviteCodes              ParentInviteCode[]        @relation("InviteCodes")
 
   @@map("users")
   @@schema("public")
@@ -165,18 +165,18 @@ model SoloQuestion {
 }
 
 model GameSession {
-  id                   String           @id @default(cuid()) @map("id")
-  code                 String           @unique @db.VarChar(6)
-  hostId               String           @map("host_id")
-  status               String           @default("waiting")
+  id                   String         @id @default(cuid()) @map("id")
+  code                 String         @unique @db.VarChar(6)
+  hostId               String         @map("host_id")
+  status               String         @default("waiting")
   quizId               String?
-  maxPlayers           Int              @default(20)
-  currentQuestionIndex Int              @default(0)
-  createdAt            DateTime         @default(now())
-  updatedAt            DateTime         @updatedAt
+  maxPlayers           Int            @default(20)
+  currentQuestionIndex Int            @default(0)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
   players              GamePlayer[]
-  host                 User             @relation("HostedSessions", fields: [hostId], references: [id])
-  gameQuestions      GameQuestion[]
+  gameQuestions        GameQuestion[]
+  host                 User           @relation("HostedSessions", fields: [hostId], references: [id])
 
   @@map("game_sessions")
   @@schema("public")
@@ -215,7 +215,6 @@ model GameQuestion {
 
 model ExerciseAttempt {
   id            String   @id @default(cuid()) @map("id")
-  userId        String   @map("user_id")
   type          String
   difficulty    Int
   question      String
@@ -225,6 +224,7 @@ model ExerciseAttempt {
   timeTaken     Int
   feedbackShown Boolean  @default(false)
   createdAt     DateTime @default(now())
+  userId        String   @map("user_id")
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("exercise_attempts")
@@ -251,11 +251,11 @@ model Course {
 
 model Friendship {
   id        String   @id @default(cuid()) @map("id")
-  user1Id   String   @map("user1_id")
-  user2Id   String   @map("user2_id")
   status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user1Id   String   @map("user1_id")
+  user2Id   String   @map("user2_id")
   user1     User     @relation("User1", fields: [user1Id], references: [id], onDelete: Cascade)
   user2     User     @relation("User2", fields: [user2Id], references: [id], onDelete: Cascade)
 
@@ -266,13 +266,13 @@ model Friendship {
 
 model Message {
   id         String   @id @default(cuid()) @map("id")
-  senderId   String   @map("sender_id")
-  receiverId String   @map("receiver_id")
   content    String
   type       String
   read       Boolean  @default(false)
   metadata   String?
   createdAt  DateTime @default(now())
+  receiverId String   @map("receiver_id")
+  senderId   String   @map("sender_id")
   receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
@@ -282,7 +282,6 @@ model Message {
 
 model MultiplayerGame {
   id            String                @id @default(cuid()) @map("id")
-  player1Id     String                @map("player1_id")
   player2Id     String?
   status        String
   gameType      String
@@ -298,6 +297,7 @@ model MultiplayerGame {
   createdAt     DateTime              @default(now())
   questionCount Int                   @default(20)
   difficulty    String                @default("mixed")
+  player1Id     String                @map("player1_id")
   player1       User                  @relation("Player1Games", fields: [player1Id], references: [id], onDelete: Cascade)
   player2       User?                 @relation("Player2Games", fields: [player2Id], references: [id], onDelete: Cascade)
   questions     MultiplayerQuestion[]
@@ -308,7 +308,6 @@ model MultiplayerGame {
 
 model MultiplayerQuestion {
   id             String          @id @default(cuid()) @map("id")
-  gameId         String          @map("game_id")
   question       String
   answer         String
   type           String
@@ -320,6 +319,7 @@ model MultiplayerQuestion {
   player2Time    Int?
   player1Correct Boolean?
   player2Correct Boolean?
+  gameId         String          @map("game_id")
   game           MultiplayerGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
   @@map("multiplayer_questions")
@@ -328,7 +328,6 @@ model MultiplayerQuestion {
 
 model MultiplayerStatistics {
   id                       String   @id @default(cuid()) @map("id")
-  userId                   String   @unique @map("user_id")
   totalGames               Int      @default(0)
   totalWins                Int      @default(0)
   totalLosses              Int      @default(0)
@@ -345,10 +344,11 @@ model MultiplayerStatistics {
   thinkingWins             Int      @default(0)
   averageScore             Float    @default(0)
   averageTime              Float    @default(0)
-  multiplayerCurrentStreak Int      @default(0)
-  multiplayerBestStreak    Int      @default(0)
   headToHead               String?
   updatedAt                DateTime @updatedAt
+  multiplayerBestStreak    Int      @default(0)
+  multiplayerCurrentStreak Int      @default(0)
+  userId                   String   @unique @map("user_id")
   user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("multiplayer_statistics")
@@ -357,8 +357,6 @@ model MultiplayerStatistics {
 
 model Challenge {
   id            String    @id @default(cuid()) @map("id")
-  challengerId  String    @map("challenger_id")
-  challengedId  String    @map("challenged_id")
   gameType      String    @default("pending")
   timeControl   String
   timeLimit     Int
@@ -368,6 +366,8 @@ model Challenge {
   createdAt     DateTime  @default(now())
   expiresAt     DateTime
   respondedAt   DateTime?
+  challengedId  String    @map("challenged_id")
+  challengerId  String    @map("challenger_id")
   challenged    User      @relation("Challenged", fields: [challengedId], references: [id])
   challenger    User      @relation("Challenger", fields: [challengerId], references: [id])
 
@@ -400,9 +400,9 @@ model Badge {
   icon         String
   category     String
   createdAt    DateTime    @default(now())
-  rarity       String      @default("common")
   condition    String?
   isHidden     Boolean     @default(false) @map("is_hidden")
+  rarity       String      @default("common")
   requirements String?     @map("requirements")
   updatedAt    DateTime?   @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
   userBadges   UserBadge[]
@@ -415,10 +415,10 @@ model Badge {
 
 model UserBadge {
   id       String   @id @default(cuid())
-  userId   String   @map("user_id")
-  badgeId  String   @map("badge_id")
   earnedAt DateTime @default(now())
+  badgeId  String   @map("badge_id")
   isNew    Boolean  @default(true) @map("is_new")
+  userId   String   @map("user_id")
   badge    Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -687,13 +687,13 @@ model public_QuestionHistory {
 }
 
 model CliApiKey {
-  id          String   @id @default(cuid())
-  userId      String
-  keyHash     String   @unique
-  label       String?
-  lastUsedAt  DateTime?
-  createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String    @id @default(cuid())
+  userId     String
+  keyHash    String    @unique
+  label      String?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("cli_api_keys")
   @@schema("public")
@@ -705,8 +705,8 @@ model ParentChildLink {
   childId   String   @map("child_id")
   createdAt DateTime @default(now())
   isActive  Boolean  @default(true) @map("is_active")
-  parent    User     @relation("ParentLinks", fields: [parentId], references: [id], onDelete: Cascade)
   child     User     @relation("ChildLinks", fields: [childId], references: [id], onDelete: Cascade)
+  parent    User     @relation("ParentLinks", fields: [parentId], references: [id], onDelete: Cascade)
 
   @@unique([parentId, childId])
   @@map("parent_child_links")

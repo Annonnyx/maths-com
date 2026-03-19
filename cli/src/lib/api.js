@@ -18,6 +18,7 @@ export async function apiRequest(endpoint, options = {}) {
 
   if (!apiKey && !options.skipAuth) {
     console.error(chalk.red('❌ Vous devez d\'abord vous connecter : maths login'))
+    console.error(chalk.gray('🔍 Clé API trouvée:', apiKey ? 'OUI' : 'NON'))
     process.exit(1)
   }
 
@@ -35,13 +36,22 @@ export async function apiRequest(endpoint, options = {}) {
 
   try {
     const response = await fetch(url, {
-      method: 'GET',
+      method: options.method || 'GET',
       timeout: API_TIMEOUT,
       ...options,
       headers
     })
 
-    const data = await response.json()
+    const responseText = await response.text()
+    
+    let data
+    try {
+      data = JSON.parse(responseText)
+    } catch (parseError) {
+      console.error(chalk.red('❌ Erreur parsing JSON:', parseError.message))
+      console.error(chalk.red('Réponse:', responseText))
+      throw new Error('Réponse invalide du serveur')
+    }
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -71,7 +81,10 @@ export async function apiRequest(endpoint, options = {}) {
 export const api = {
   // Authentification
   async verifyKey() {
-    return apiRequest('/auth/verify', { method: 'POST' })
+    return apiRequest('/auth/verify', { 
+      method: 'POST',
+      body: JSON.stringify({})
+    })
   },
 
   // Solo

@@ -7,6 +7,7 @@ import { whoami } from '../src/commands/whoami.js'
 import { solo } from '../src/commands/solo.js'
 import { duel } from '../src/commands/duel.js'
 import { history } from '../src/commands/history.js'
+import { dashboard } from '../src/commands/dashboard.js'
 
 const program = new Command()
 
@@ -32,6 +33,12 @@ program
   .command('whoami')
   .description('Afficher les informations de l\'utilisateur connecté')
   .action(whoami)
+
+// Commande dashboard
+program
+  .command('dashboard')
+  .description('Afficher le tableau de bord principal')
+  .action(dashboard)
 
 // Commande history
 program

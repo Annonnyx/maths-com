@@ -1,11 +1,17 @@
-import inquirer from 'inquirer'
+#!/usr/bin/env node
+
 import chalk from 'chalk'
-import { api } from '../lib/api.js'
-import { setConfig } from '../lib/config.js'
-import { display, spinner } from '../lib/display.js'
+
+// Simulation de données utilisateur
+const userData = {
+  username: 'PlayerOne',
+  soloElo: 1420,
+  multiplayerElo: 1380,
+  streak: 15
+}
 
 // Interface Retro-Futuriste
-export function showDashboard(userData) {
+function showDashboard(userData) {
   console.clear()
   
   // Header principal
@@ -17,9 +23,9 @@ export function showDashboard(userData) {
   // Section utilisateur
   console.log(chalk.cyan('║  ╔═════════════════════════════════════╗  ║'))
   console.log(chalk.cyan('║  ║  👤 UTILISATEUR : ') + chalk.bold.white(userData.username.padEnd(15)) + chalk.cyan('║  ║'))
-  console.log(chalk.cyan('║  ║  🔥 STREAK : ') + chalk.bold.yellow(userData.streak ? userData.streak.toString().padEnd(15) : '0'.padEnd(15)) + chalk.cyan('║  ║'))
+  console.log(chalk.cyan('║  ║  🔥 STREAK : ') + chalk.bold.yellow(userData.streak.toString().padEnd(15)) + chalk.cyan('║  ║'))
   console.log(chalk.cyan('║  ║  💎 ELO SOLO : ') + chalk.bold.green(userData.soloElo.toString().padEnd(13)) + chalk.cyan('║  ║'))
-  console.log(chalk.cyan('║  ║  ⚔️ ELO MULTI : ') + chalk.bold.magenta(userData.multiplayerElo ? userData.multiplayerElo.toString().padEnd(11) : 'N/A'.padEnd(11)) + chalk.cyan('║  ║'))
+  console.log(chalk.cyan('║  ║  ⚔️ ELO MULTI : ') + chalk.bold.magenta(userData.multiplayerElo.toString().padEnd(11)) + chalk.cyan('║  ║'))
   console.log(chalk.cyan('║  ╚═════════════════════════════════════╝  ║'))
   console.log(chalk.cyan('║                                          ║'))
   
@@ -28,7 +34,7 @@ export function showDashboard(userData) {
   console.log(chalk.cyan('║                                          ║'))
   console.log(chalk.cyan('║  ╔═════════════════════════════════════╗  ║'))
   console.log(chalk.cyan('║  ║  📊 PROGRESSION MENSUELLE            ║  ║'))
-  console.log(chalk.cyan('║  ║  🎯 SOLO : ') + chalk.bold.green('PARTIE EN COURS'.padEnd(19)) + chalk.cyan('║  ║'))
+  console.log(chalk.cyan('║  ║  🎯 SOLO : ') + chalk.bold.green('PRÊT À JOUER'.padEnd(19)) + chalk.cyan('║  ║'))
   console.log(chalk.cyan('║  ║  ⚔️ MULTI : ') + chalk.bold.magenta('DISPONIBLE'.padEnd(17)) + chalk.cyan('║  ║'))
   console.log(chalk.cyan('║  ║  🏆 CLASSEMENT : ') + chalk.bold.yellow('TOP 15%'.padEnd(12)) + chalk.cyan('║  ║'))
   console.log(chalk.cyan('║  ╚═════════════════════════════════════╝  ║'))
@@ -48,61 +54,13 @@ export function showDashboard(userData) {
   console.log(chalk.cyan('  maths duel    ') + chalk.gray('- Créer/rejoindre un duel'))
   console.log(chalk.cyan('  maths stats   ') + chalk.gray('- Voir tes statistiques'))
   console.log(chalk.cyan('  maths history ') + chalk.gray('- Historique des parties'))
+  console.log(chalk.cyan('  maths dashboard') + chalk.gray('- Afficher ce tableau de bord'))
   console.log()
 }
 
-export async function login() {
-  console.log(chalk.bold.cyan('\n🔐 Connexion à maths-app.fr'))
-  console.log(chalk.gray('Génère ta clef sur https://maths-app.fr/dashboard → Paramètres → CLI\n'))
+// Afficher la démo
+console.log(chalk.bold.magenta('\n🚀 DÉMO INTERFACE CLI RETRO-FUTURISTE\n'))
+showDashboard(userData)
 
-  const { apiKey } = await inquirer.prompt([
-    {
-      type: 'password',
-      name: 'apiKey',
-      message: 'Colle ta clef API (mths_...) :',
-      validate: (input) => {
-        if (!input.trim()) {
-          return 'La clef API est requise'
-        }
-        if (!input.startsWith('mths_')) {
-          return 'La clef doit commencer par "mths_"'
-        }
-        return true
-      }
-    }
-  ])
-
-  const loading = spinner('Vérification de la clef...')
-  loading.start()
-
-  try {
-    const response = await api.verifyKey()
-
-    loading.stop()
-
-    if (response.valid) {
-      // Sauvegarder la configuration
-      setConfig('apiKey', apiKey)
-      setConfig('username', response.username)
-      setConfig('userId', response.userId)
-      setConfig('soloElo', response.soloElo)
-      setConfig('multiplayerElo', response.multiplayerElo)
-
-      // Afficher le dashboard retro-futuriste
-      showDashboard({
-        username: response.username,
-        soloElo: response.soloElo,
-        multiplayerElo: response.multiplayerElo,
-        streak: response.streak || 0
-      })
-      
-      display.success(`Connecté en tant que ${response.username}`)
-    } else {
-      display.error('Clef invalide')
-    }
-  } catch (error) {
-    loading.stop()
-    display.error('Erreur lors de la vérification de la clef')
-    console.error(error.message)
-  }
-}
+console.log(chalk.bold.green('\n✨ Interface CLI créée avec succès !'))
+console.log(chalk.gray('Teste avec: node demo-cli.js'))

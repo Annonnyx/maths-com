@@ -17,7 +17,9 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       username: user.username,
       soloElo: user.soloElo,
-      multiplayerElo: user.multiplayerElo
+      multiplayerElo: user.multiplayerElo,
+      streak: user.soloCurrentStreak || 0,
+      lastTestDate: user.lastTestDate
     })
   } catch (error) {
     console.error('Erreur vérification clef CLI:', error)
