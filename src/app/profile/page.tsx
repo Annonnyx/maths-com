@@ -899,7 +899,7 @@ function ProfileContent() {
               
 
           {/* Progress Section */}
-          <div className="p-6 bg-card rounded-2xl border border-border">
+          <div className="p-6 bg-card rounded-2xl border border-border mb-6">
             <h3 className="text-xl font-bold mb-4">Progression</h3>
             <div className="space-y-4">
               <div>
