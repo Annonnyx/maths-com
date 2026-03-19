@@ -36,7 +36,7 @@ export function PlayerBanner({ player, isOpponent = false, showBadges = true }: 
       return;
     }
 
-    if (player.userBadges && player.userBadges.length > 0) {
+    if (Array.isArray(player.userBadges) && player.userBadges.length > 0) {
       const selected = player.userBadges
         .filter((ub: any) => player.selectedBadgeIds?.includes(ub.badge.id))
         .map((ub: any) => ub.badge);
@@ -87,7 +87,7 @@ export function PlayerBanner({ player, isOpponent = false, showBadges = true }: 
       {/* Badges */}
       {showBadges && badges.length > 0 && (
         <div className={`absolute top-3 ${isOpponent ? 'left-3' : 'right-3'} flex gap-2`}>
-          {badges.slice(0, 3).map((badge, index) => (
+          {(badges || []).slice(0, 3).map((badge, index) => (
             <div
               key={badge.id}
               className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-lg md:text-xl shadow-lg animate-pulse flex-shrink-0"

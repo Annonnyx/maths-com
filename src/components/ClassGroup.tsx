@@ -196,7 +196,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
             <h3 className="text-2xl font-bold mb-4">En attente des joueurs...</h3>
             <p className="text-gray-400 mb-8">{members.length} joueurs prêts</p>
             <div className="flex justify-center gap-4">
-              {members.map((m, i) => (
+              {(members || []).map((m, i) => (
                 <div key={m.userId} className="text-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold mb-2">
                     {m.displayName?.[0] || m.username[0]}
@@ -235,7 +235,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
               <h3 className="text-3xl font-bold text-center mb-8">{questions[currentQuestion].question}</h3>
               
               <div className="grid grid-cols-2 gap-4">
-                {questions[currentQuestion].options.map((option, i) => (
+                {(questions[currentQuestion]?.options || []).map((option, i) => (
                   <button
                     key={i}
                     onClick={() => handleAnswer(i)}
@@ -258,7 +258,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
             <div className="bg-[#12121a] rounded-xl border border-gray-800 p-4">
               <p className="text-sm text-gray-400 mb-3">Classement en direct</p>
               <div className="flex gap-4 overflow-x-auto">
-                {sortedScores.slice(0, 3).map((score) => (
+                {(sortedScores || []).slice(0, 3).map((score) => (
                   <div key={score.userId} className="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2">
                     <span className="text-yellow-400 font-bold">#{score.rank}</span>
                     <span className="text-sm truncate max-w-[100px]">{score.member?.displayName || score.member?.username}</span>
@@ -274,7 +274,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
           <div className="max-w-md mx-auto">
             <h3 className="text-2xl font-bold text-center mb-8">Classement</h3>
             <div className="space-y-3">
-              {sortedScores.map((score, i) => (
+              {(sortedScores || []).map((score, i) => (
                 <motion.div
                   key={score.userId}
                   initial={{ opacity: 0, x: -20 }}
@@ -313,7 +313,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
             
             {/* Podium */}
             <div className="flex justify-center items-end gap-4 mb-8">
-              {sortedScores.slice(0, 3).map((score, i) => (
+              {(sortedScores || []).slice(0, 3).map((score, i) => (
                 <div key={score.userId} className="text-center">
                   <div className={`w-20 rounded-t-xl flex items-center justify-center font-bold text-2xl ${
                     i === 0 ? 'h-32 bg-yellow-500 text-yellow-900' :
@@ -336,7 +336,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
             <div className="bg-[#12121a] rounded-xl border border-gray-800 p-4 mb-6">
               <h4 className="font-semibold mb-4">Tous les joueurs</h4>
               <div className="space-y-2">
-                {sortedScores.map((score) => (
+                {(sortedScores || []).map((score) => (
                   <div key={score.userId} className="flex justify-between items-center py-2 border-b border-gray-800 last:border-0">
                     <div className="flex items-center gap-3">
                       <span className="text-gray-500 w-6">{score.rank}</span>
@@ -532,7 +532,7 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
               <div className="bg-[#12121a] rounded-xl border border-gray-800 h-[500px] flex flex-col">
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {group.messages.map((msg) => (
+                  {(group?.messages || []).map((msg) => (
                     <div
                       key={msg.id}
                       className={`flex ${msg.userId === session?.user?.id ? 'justify-end' : 'justify-start'}`}
@@ -588,7 +588,7 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
                   Membres ({group.members.length})
                 </h3>
                 <div className="space-y-2">
-                  {group.members.map((member) => (
+                  {(group?.members || []).map((member) => (
                     <div key={member.id} className="flex items-center gap-3 p-2 bg-gray-800/50 rounded-lg">
                       <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
                         {member.displayName?.[0] || member.username[0]}
