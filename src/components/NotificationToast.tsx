@@ -31,7 +31,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const id = Math.random().toString(36).substring(2, 9);
     const newNotification = { ...notification, id };
     
-    setNotifications((prev) => [...prev, newNotification]);
+    setNotifications((prev) => [...(prev || []), newNotification]);
 
     // Auto-remove after duration (default 10 seconds)
     if (notification.duration !== 0) {
@@ -42,7 +42,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeNotification = useCallback((id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setNotifications((prev) => (prev || []).filter((n) => n.id !== id));
   }, []);
 
   return (
@@ -50,10 +50,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       notifications, 
       addNotification, 
       removeNotification,
-      unreadCount: notifications.length 
+      unreadCount: (notifications || []).length 
     }}>
       {children}
-      <ToastContainer notifications={notifications} onRemove={removeNotification} />
+      <ToastContainer notifications={notifications || []} onRemove={removeNotification} />
     </NotificationContext.Provider>
   );
 }
