@@ -52,13 +52,20 @@ export default function DashboardPage() {
       const response = await fetch('/api/users/onboarding-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+        credentials: 'include',
+        body: JSON.stringify({
+          soloElo: 400,
+          soloRankClass: 'F-',
+          hasCompletedOnboarding: true
+        })
       });
       
       if (response.ok) {
         setShowOnboarding(false);
         // Refresh profile data
         window.location.reload();
+      } else {
+        console.error('Failed to mark onboarding as complete');
       }
     } catch (error) {
       console.error('Error marking onboarding as complete:', error);

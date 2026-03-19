@@ -137,7 +137,7 @@ export default function MessagesManager() {
         </div>
       ) : (
         <div className="space-y-4">
-          {localConversations.map((conversation) => (
+          {(localConversations || []).map((conversation) => (
             <motion.div
               key={conversation.friendId}
               initial={{ opacity: 0, y: 20 }}

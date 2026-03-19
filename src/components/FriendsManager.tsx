@@ -115,15 +115,15 @@ export default function FriendsManager() {
       </div>
 
       {/* Pending Requests */}
-      {pendingRequests.length > 0 && (
+      {(pendingRequests || []).length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-yellow-500/20 border border-yellow-500/30 rounded-xl p-4"
         >
-          <h4 className="font-semibold text-yellow-400 mb-3">Demandes d'amis en attente ({pendingRequests.length})</h4>
+          <h4 className="font-semibold text-yellow-400 mb-3">Demandes d'amis en attente ({(pendingRequests || []).length})</h4>
           <div className="space-y-3">
-            {pendingRequests.map((request) => (
+            {(pendingRequests || []).map((request) => (
               <div key={request.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-sm font-bold">
@@ -164,9 +164,9 @@ export default function FriendsManager() {
       )}
 
       {/* Friends List */}
-      {friends.length > 0 ? (
+      {(friends || []).length > 0 ? (
         <div className="space-y-3">
-          {friends.map((friend) => (
+          {(friends || []).map((friend) => (
             <motion.div
               key={friend.id}
               initial={{ opacity: 0, y: 20 }}
@@ -226,15 +226,15 @@ export default function FriendsManager() {
       )}
 
       {/* Sent Requests */}
-      {sentRequests.length > 0 && (
+      {(sentRequests || []).length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-[#1e1e2e] rounded-xl p-4"
         >
-          <h4 className="font-semibold text-foreground mb-3">Demandes envoyées ({sentRequests.length})</h4>
+          <h4 className="font-semibold text-foreground mb-3">Demandes envoyées ({(sentRequests || []).length})</h4>
           <div className="space-y-2">
-            {sentRequests.map((request) => (
+            {(sentRequests || []).map((request) => (
               <div key={request.id} className="flex items-center justify-between p-2">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center text-xs font-bold">

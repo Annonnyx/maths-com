@@ -664,8 +664,7 @@ function generatePercentage(difficulty: number): Exercise {
     type: 'percentage',
     difficulty,
     question: `${scenarios[randomInt(0, scenarios.length - 1)]} = ?`,
-    answer: answer.toString(),
-    explanation: `${percentage}% de ${base} = (${base} × ${percentage}) / 100 = ${answer}`
+    answer: answer.toString()
   };
 }
 
