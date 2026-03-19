@@ -923,8 +923,8 @@ function ProfileContent() {
           <div className="p-6 bg-card rounded-2xl border border-border mb-6">
             <h3 className="text-xl font-bold mb-4">Activité récente</h3>
             <div className="space-y-3">
-              {profile?.recentTests && profile.recentTests.length > 0 ? (
-                profile.recentTests.slice(0, 5).map((test: any, index: number) => {
+              {profile?.recentTests && Array.isArray(profile.recentTests) && profile.recentTests.length > 0 ? (
+                (profile.recentTests || []).slice(0, 5).map((test: any, index: number) => {
                   const score = Math.round((test.correctAnswers / test.totalQuestions) * 100);
                   const timeAgo = getTimeAgo(test.completedAt);
                   const isPerfect = score === 100;
@@ -967,20 +967,20 @@ function ProfileContent() {
 
           {/* Badges / Succès */}
           <div className="p-6 bg-card rounded-2xl border border-border mb-6">
-            <h3 className="text-xl font-bold mb-4">Badges ({badges.length})</h3>
+            <h3 className="text-xl font-bold mb-4">Badges ({(badges || []).length})</h3>
             {badgesLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 <p className="text-muted-foreground mt-2">Chargement des badges...</p>
               </div>
-            ) : badges.length === 0 ? (
+            ) : (badges || []).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <p>Aucun badge encore débloqué</p>
                 <p className="text-sm mt-2">Continue à t'entraîner pour gagner des badges !</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {badges.map((userBadge) => (
+                {(badges || []).map((userBadge) => (
                   <div 
                     key={userBadge.id} 
                     className="p-4 bg-muted rounded-xl border border-green-500/30"
@@ -1051,7 +1051,7 @@ function ProfileContent() {
                 <div className="space-y-6">
                   {/* Achievement Categories */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {badges.map((userBadge) => (
+                    {(badges || []).map((userBadge) => (
                       <motion.div
                         key={userBadge.id}
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -1386,7 +1386,7 @@ function ProfileContent() {
                 </span>
               </h3>
               
-              {badges.length === 0 ? (
+              {(badges || []).length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Award className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p>Tu n&apos;as pas encore de badges</p>
@@ -1394,7 +1394,7 @@ function ProfileContent() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {badges.map((userBadge) => {
+                  {(badges || []).map((userBadge) => {
                     const isSelected = selectedBadgeIds.includes(userBadge.badge.id);
                     
                     return (
