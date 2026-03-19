@@ -90,8 +90,7 @@ function generateAddition(difficulty: number): Exercise {
     type: 'addition',
     difficulty,
     question: `${a} + ${b} = ?`,
-    answer: (a + b).toString(),
-    explanation: `${a} + ${b} = ${a + b}`
+    answer: (a + b).toString()
   };
 }
 
@@ -150,8 +149,7 @@ function generateSubtraction(difficulty: number): Exercise {
     type: 'subtraction',
     difficulty,
     question: `${a} - ${b} = ?`,
-    answer: (a - b).toString(),
-    explanation: `${a} - ${b} = ${a - b}`
+    answer: (a - b).toString()
   };
 }
 
@@ -210,8 +208,7 @@ function generateMultiplication(difficulty: number): Exercise {
     type: 'multiplication',
     difficulty,
     question: `${a} × ${b} = ?`,
-    answer: (a * b).toString(),
-    explanation: `${a} × ${b} = ${a * b}`
+    answer: (a * b).toString()
   };
 }
 
@@ -281,8 +278,7 @@ function generateDivision(difficulty: number): Exercise {
     type: 'division',
     difficulty,
     question: `${a} ÷ ${b} = ?`,
-    answer: result.toString(),
-    explanation: `${a} ÷ ${b} = ${result} car ${result} × ${b} = ${a}`
+    answer: result.toString()
   };
 }
 
@@ -341,12 +337,7 @@ function generatePower(difficulty: number): Exercise {
     type: 'power',
     difficulty,
     question: `${a}^${b} = ?`,
-    answer: Math.pow(a, b).toString(),
-    explanation: `${a}^${b} = ${Math.pow(a, b)}` + 
-      (b === 2 ? ` (${a} × ${a})` : 
-       b === 3 ? ` (${a} × ${a} × ${a})` : 
-       b === 4 ? ` (${a} × ${a} × ${a} × ${a})` : 
-       ` (${a} multiplié ${b} fois par lui-même)`)
+    answer: Math.pow(a, b).toString()
   };
 }
 
@@ -405,8 +396,7 @@ function generateRoot(difficulty: number): Exercise {
     type: 'root',
     difficulty,
     question: `√${a} = ?`,
-    answer: result.toString(),
-    explanation: `√${a} = ${result} car ${result}² = ${a}`
+    answer: result.toString()
   };
 }
 
@@ -478,8 +468,7 @@ function generateFactorization(difficulty: number): Exercise {
     type: 'factorization',
     difficulty,
     question: `${a}×${c} + ${b}×${c} = ?`,
-    answer: result.toString(),
-    explanation: `${a}×${c} + ${b}×${c} = ${a * c} + ${b * c} = ${result} ou (${a} + ${b}) × ${c} = ${a + b} × ${c} = ${result}`
+    answer: result.toString()
   };
 }
 
@@ -682,8 +671,7 @@ function generateFraction(difficulty: number): Exercise {
         type: 'fraction',
         difficulty,
         question: `Convertis ${num1}/${den1} en décimal`,
-        answer: (num1 / den1).toFixed(2).replace('.00', ''),
-        explanation: `${num1}/${den1} = ${(num1 / den1).toFixed(2).replace('.00', '')}`
+        answer: (num1 / den1).toFixed(2).replace('.00', '')
       };
     case 3:
     case 4:
@@ -696,8 +684,7 @@ function generateFraction(difficulty: number): Exercise {
         type: 'fraction',
         difficulty,
         question: `${num1}/${den1} + ${num2}/${den2} = ? (donne le numérateur)`,
-        answer: (num1 + num2).toString(),
-        explanation: `${num1}/${den1} + ${num2}/${den2} = ${num1 + num2}/${den1}`
+        answer: (num1 + num2).toString()
       };
     default:
       den1 = randomInt(2, 20);
@@ -707,8 +694,7 @@ function generateFraction(difficulty: number): Exercise {
         type: 'fraction',
         difficulty,
         question: `Simplifie ${num1}/${den1} au maximum (format: a/b)`,
-        answer: simplifyFraction(num1, den1),
-        explanation: `PGCD(${num1}, ${den1}) = ${gcd(num1, den1)}, donc ${num1}/${den1} = ${simplifyFraction(num1, den1)}`
+        answer: simplifyFraction(num1, den1)
       };
   }
 }
@@ -736,8 +722,7 @@ function generateEquation(difficulty: number): Exercise {
     type: 'equation',
     difficulty,
     question: `Résous: ${a}x + ${b} = ${c}`,
-    answer: x.toString(),
-    explanation: `${a}x + ${b} = ${c} → ${a}x = ${c - b} → x = ${(c - b) / a}`
+    answer: x.toString()
   };
 }
 
@@ -749,32 +734,28 @@ function generateMentalMath(difficulty: number): Exercise {
       const near = base + (Math.random() > 0.5 ? 1 : -1);
       return {
         question: `${base} × ${near} = ?`,
-        answer: (base * near).toString(),
-        explanation: `${base} × ${near} = ${base} × ${base} ${near > base ? '+' + base : '-' + base} = ${base * base} ${near > base ? '+' + base : '-' + base} = ${base * near}`
+        answer: (base * near).toString()
       };
     },
     () => {
       const num = randomInt(11, 99);
       return {
         question: `${num} × 11 = ?`,
-        answer: (num * 11).toString(),
-        explanation: `Pour multiplier par 11: ${num} → ${num.toString()[0] || ''}${parseInt(num.toString()[0] || '0') + parseInt(num.toString()[1] || '0')}${num.toString()[1]} = ${num * 11}`
+        answer: (num * 11).toString()
       };
     },
     () => {
       const num = randomInt(10, 99);
       return {
         question: `${num}² = ?`,
-        answer: (num * num).toString(),
-        explanation: `${num}² = ${num * num}`
+        answer: (num * num).toString()
       };
     },
     () => {
       const num = randomInt(100, 999);
       return {
         question: `${num} × 5 = ?`,
-        answer: (num * 5).toString(),
-        explanation: `${num} × 5 = ${num} × 10 / 2 = ${num * 10} / 2 = ${num * 5}`
+        answer: (num * 5).toString()
       };
     }
   ];
@@ -787,8 +768,7 @@ function generateMentalMath(difficulty: number): Exercise {
     type: 'mental_math',
     difficulty,
     question: result.question,
-    answer: result.answer,
-    explanation: result.explanation
+    answer: result.answer
   };
 }
 
@@ -802,8 +782,7 @@ function generateLogic(difficulty: number): Exercise {
       const seq = [start, start + step, start + step * 2, start + step * 3];
       return {
         question: `Suite: ${seq.join(', ')}, ?`,
-        answer: (start + step * 4).toString(),
-        explanation: `Suite arithmétique avec +${step}: ${seq.join(', ')}, ${start + step * 4}`
+        answer: (start + step * 4).toString()
       };
     },
     // Find the missing number
@@ -813,8 +792,7 @@ function generateLogic(difficulty: number): Exercise {
       const c = a * b;
       return {
         question: `${a} × ? = ${c}`,
-        answer: b.toString(),
-        explanation: `Pour trouver le nombre manquant, on divise ${c} par ${a}: ${c} ÷ ${a} = ${b}`
+        answer: b.toString()
       };
     },
     // Number pattern
@@ -823,8 +801,7 @@ function generateLogic(difficulty: number): Exercise {
       const pattern = [base, base * 2, base * 3, base * 4];
       return {
         question: `Motif: ${pattern.join(', ')}, ?`,
-        answer: (base * 5).toString(),
-        explanation: `Table de ${base}: ${pattern.join(', ')}, ${base * 5}`
+        answer: (base * 5).toString()
       };
     }
   ];
@@ -837,8 +814,7 @@ function generateLogic(difficulty: number): Exercise {
     type: 'logic',
     difficulty,
     question: result.question,
-    answer: result.answer,
-    explanation: result.explanation
+    answer: result.answer
   };
 }
 
@@ -860,8 +836,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Périmètre d'un carré de côté ${side} cm = ?`,
-          answer: (side * 4).toString(),
-          explanation: `Pense à la formule du périmètre d'un carré`
+          answer: (side * 4).toString()
         };
       } else if (shape === 'rectangle') {
         const length = randomInt(5, 10 + difficulty * 2);
@@ -871,8 +846,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Périmètre d'un rectangle de ${length} cm × ${width} cm = ?`,
-          answer: (2 * (length + width)).toString(),
-          explanation: `Pense à la formule du périmètre d'un rectangle`
+          answer: (2 * (length + width)).toString()
         };
       } else if (shape === 'triangle') {
         const a = randomInt(3, 5 + difficulty);
@@ -883,8 +857,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Périmètre d'un triangle de côtés ${a}, ${b}, ${c} cm = ?`,
-          answer: (a + b + c).toString(),
-          explanation: `Pense à la formule du périmètre d'un triangle`
+          answer: (a + b + c).toString()
         };
       } else {
         const radius = randomInt(3, 5 + difficulty);
@@ -894,8 +867,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Circonférence d'un cercle de rayon ${radius} cm (π≈3,14) = ?`,
-          answer: perimeter.toString(),
-          explanation: `Circonférence = 2 × π × rayon. 2 × 3,14 × ${radius} ≈ ${perimeter} cm. 🌀 Imagine rouler une roue de vélo autour du cercle.`
+          answer: perimeter.toString()
         };
       }
     }
@@ -911,8 +883,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Aire d'un carré de côté ${side} cm = ?`,
-          answer: (side * side).toString(),
-          explanation: `Pense à la formule de l'aire d'un carré`
+          answer: (side * side).toString()
         };
       } else if (shape === 'rectangle') {
         const length = randomInt(5, 10 + difficulty * 2);
@@ -922,8 +893,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Aire d'un rectangle de ${length} cm × ${width} cm = ?`,
-          answer: (length * width).toString(),
-          explanation: `Pense à la formule de l'aire d'un rectangle`
+          answer: (length * width).toString()
         };
       } else if (shape === 'triangle') {
         const base = randomInt(4, 8 + difficulty);
@@ -934,8 +904,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Aire d'un triangle de base ${base} cm et hauteur ${height} cm = ?`,
-          answer: area.toString(),
-          explanation: `Pense à la formule de l'aire d'un triangle`
+          answer: area.toString()
         };
       } else {
         const radius = randomInt(2, 5 + difficulty);
@@ -945,8 +914,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Aire d'un cercle de rayon ${radius} cm (π≈3,14) = ?`,
-          answer: area.toString(),
-          explanation: `Pense à la formule de l'aire d'un cercle`
+          answer: area.toString()
         };
       }
     }
@@ -962,8 +930,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Volume d'un cube d'arête ${side} cm = ?`,
-          answer: (side * side * side).toString(),
-          explanation: `Pense à la formule du volume d'un cube`
+          answer: (side * side * side).toString()
         };
       } else {
         const length = randomInt(5, 10 + difficulty);
@@ -974,8 +941,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Volume d'un pavé droit de ${length}×${width}×${height} cm = ?`,
-          answer: (length * width * height).toString(),
-          explanation: `Pense à la formule du volume d'un pavé droit`
+          answer: (length * width * height).toString()
         };
       }
     }
@@ -989,8 +955,7 @@ function generateGeometry(difficulty: number): Exercise {
         type: 'geometry',
         difficulty,
         question: `Dans un triangle, deux angles font ${angle1}° et ${angle2}°. Le troisième angle = ?`,
-        answer: (180 - angle1 - angle2).toString(),
-        explanation: `Somme des angles d'un triangle = 180°. Troisième angle = 180° - ${angle1}° - ${angle2}° = ${180 - angle1 - angle2}°. 📐 Comme compléter un puzzle triangulaire.`
+        answer: (180 - angle1 - angle2).toString()
       };
     }
     
@@ -1007,8 +972,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Triangle rectangle : côtés ${a} et ${b}, hypoténuse = ?`,
-          answer: c.toString(),
-          explanation: `Théorème de Pythagore : c² = ${a}² + ${b}² = ${a * a} + ${b * b} = ${c * c}, donc c = ${c}. 📐 Comme mesurer la diagonale d'un écran d'ordinateur.`
+          answer: c.toString()
         };
       } else {
         return {
@@ -1016,8 +980,7 @@ function generateGeometry(difficulty: number): Exercise {
           type: 'geometry',
           difficulty,
           question: `Triangle rectangle : hypoténuse ${c}, un côté ${a}, l'autre côté = ?`,
-          answer: b.toString(),
-          explanation: `Théorème de Pythagore : b² = ${c}² - ${a}² = ${c * c} - ${a * a} = ${b * b}, donc b = ${b}. 📐 Comme calculer la hauteur d'une échelle contre un mur.`
+          answer: b.toString()
         };
       }
     }
@@ -1063,8 +1026,7 @@ function generateDelta(difficulty: number): Exercise {
     type: 'delta',
     difficulty,
     question: `Calcule le discriminant de l'équation ${a}x² + ${b}x + ${c} = 0`,
-    answer: delta.toString(),
-    explanation: `Δ = b² - 4ac = (${b})² - 4×${a}×${c} = ${b * b} - ${4 * a * c} = ${delta}`
+    answer: delta.toString()
   };
 }
 
@@ -1105,8 +1067,7 @@ function generateQuadratic(difficulty: number): Exercise {
     type: 'quadratic',
     difficulty,
     question: `Calcule ${a}x² + ${b}x + ${c} pour x = ${x}`,
-    answer: result.toString(),
-    explanation: `${a}×${x}² + ${b}×${x} + ${c} = ${a * x * x} + ${b * x} + ${c} = ${result}`
+    answer: result.toString()
   };
 }
 
