@@ -205,24 +205,24 @@
 /* 6. ❄️ ARCTIQUE (thème clair) */
 :root[data-theme="arctic"] {
   /* Backgrounds */
-  --bg-primary: #f0f9ff;
-  --bg-secondary: #e0f2fe;
-  --bg-card: rgba(255,255,255,0.7);
-  --bg-card-hover: rgba(255,255,255,0.9);
+  --bg-primary: #e8f4fd;
+  --bg-secondary: #d1ecf9;
+  --bg-card: rgba(255,255,255,0.8);
+  --bg-card-hover: rgba(255,255,255,0.95);
   
   /* Textes */
-  --text-primary: #0f172a;
-  --text-secondary: rgba(15,23,42,0.7);
-  --text-muted: rgba(15,23,42,0.5);
+  --text-primary: #0c4a6e;
+  --text-secondary: rgba(12,74,110,0.7);
+  --text-muted: rgba(12,74,110,0.5);
   
   /* Accents */
-  --accent-primary: #0ea5e9;
+  --accent-primary: #0284c7;
   --accent-secondary: #38bdf8;
-  --accent-glow: rgba(14,165,233,0.2);
+  --accent-glow: rgba(2,132,199,0.2);
   
   /* Rangs */
   --rank-f: #64748b;
-  --rank-e: #0ea5e9;
+  --rank-e: #0284c7;
   --rank-d: #38bdf8;
   --rank-c: #6366f1;
   --rank-b: #8b5cf6;
@@ -230,16 +230,16 @@
   --rank-s: #f43f5e;
   
   /* UI */
-  --border: rgba(14,165,233,0.2);
-  --border-focus: #0ea5e9;
-  --shadow: 0 4px 24px rgba(14,165,233,0.15);
+  --border: rgba(2,132,199,0.2);
+  --border-focus: #0284c7;
+  --shadow: 0 4px 24px rgba(2,132,199,0.15);
   --glass-blur: 20px;
   
   /* Spécial */
-  --gradient-hero: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-  --orb-1: rgba(14,165,233,0.08);
-  --orb-2: rgba(224,242,254,0.06);
-  --orb-3: rgba(125,211,252,0.07);
+  --gradient-hero: linear-gradient(135deg, #e8f4fd, #d1ecf9);
+  --orb-1: rgba(2,132,199,0.08);
+  --orb-2: rgba(209,236,249,0.06);
+  --orb-3: rgba(56,189,248,0.07);
 }
 
 /* 7. ☀️ LUMIÈRE (seul thème CLAIR) */

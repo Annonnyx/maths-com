@@ -813,6 +813,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '0 12px', height: 44,
     background: C.surface, borderBottom: `1px solid ${C.border}`,
     flexShrink: 0, gap: 8,
+    marginBottom: 8, // Ajout d'espacement sous la barre d'outils
   },
   topLeft:  { display: 'flex', alignItems: 'center', gap: 4 },
   topRight: { display: 'flex', alignItems: 'center', gap: 4 },

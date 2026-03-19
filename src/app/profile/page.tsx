@@ -735,7 +735,7 @@ function ProfileContent() {
           </div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="p-4 bg-card rounded-xl border border-border">
               <p className="text-muted-foreground text-sm">Elo actuel</p>
               <p className="text-2xl font-bold text-primary">{profile?.user?.soloElo}</p>
@@ -757,7 +757,7 @@ function ProfileContent() {
           </div>
 
           {/* Discord Link Section */}
-          <div className="p-6 bg-card rounded-2xl border border-border">
+          <div className="p-6 bg-card rounded-2xl border border-border mb-6">
             <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-indigo-400" />
               Intégration Discord
@@ -920,7 +920,7 @@ function ProfileContent() {
           </div>
 
           {/* Recent Activity */}
-          <div className="p-6 bg-card rounded-2xl border border-border">
+          <div className="p-6 bg-card rounded-2xl border border-border mb-6">
             <h3 className="text-xl font-bold mb-4">Activité récente</h3>
             <div className="space-y-3">
               {profile?.recentTests && profile.recentTests.length > 0 ? (
@@ -966,7 +966,7 @@ function ProfileContent() {
           </div>
 
           {/* Badges / Succès */}
-          <div className="p-6 bg-card rounded-2xl border border-border">
+          <div className="p-6 bg-card rounded-2xl border border-border mb-6">
             <h3 className="text-xl font-bold mb-4">Badges ({badges.length})</h3>
             {badgesLoading ? (
               <div className="text-center py-8">

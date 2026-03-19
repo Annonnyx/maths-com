@@ -186,12 +186,12 @@ function getThemePreviewColor(themeId: string, variable: string): string {
       'orb-3': 'rgba(217,119,6,0.07)',
     },
     arctic: {
-      'bg-primary': '#f0f9ff',
-      'accent-primary': '#0ea5e9',
-      'text-primary': '#0f172a',
-      'orb-1': 'rgba(14,165,233,0.08)',
-      'orb-2': 'rgba(224,242,254,0.06)',
-      'orb-3': 'rgba(125,211,252,0.07)',
+      'bg-primary': '#e8f4fd',
+      'accent-primary': '#0284c7',
+      'text-primary': '#0c4a6e',
+      'orb-1': 'rgba(2,132,199,0.08)',
+      'orb-2': 'rgba(209,236,249,0.06)',
+      'orb-3': 'rgba(56,189,248,0.07)',
     },
     light: {
       'bg-primary': '#f8fafc',
