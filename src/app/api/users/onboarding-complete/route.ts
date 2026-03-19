@@ -19,6 +19,19 @@ export async function POST(req: NextRequest) {
 
     const { soloElo, soloRankClass, hasCompletedOnboarding } = body;
 
+    // Validation des données
+    if (typeof soloElo !== 'number' || soloElo < 0 || soloElo > 3000) {
+      return NextResponse.json({ error: 'Invalid soloElo value' }, { status: 400 });
+    }
+    
+    if (typeof soloRankClass !== 'string' || !/^[A-F][+-]?$/.test(soloRankClass)) {
+      return NextResponse.json({ error: 'Invalid soloRankClass format' }, { status: 400 });
+    }
+    
+    if (typeof hasCompletedOnboarding !== 'boolean') {
+      return NextResponse.json({ error: 'Invalid hasCompletedOnboarding value' }, { status: 400 });
+    }
+
     // Test simple de connexion Prisma
     try {
       const userCount = await prisma.user.count();

@@ -46,7 +46,7 @@ export default function OnboardingFlow({ onComplete, onSkip }: OnboardingFlowPro
   const Icon = currentStep.icon;
 
   return (
-    <div className="fixed inset-0 bg-[#0a0a0f]/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -54,7 +54,7 @@ export default function OnboardingFlow({ onComplete, onSkip }: OnboardingFlowPro
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="max-w-md w-full bg-[#12121a] rounded-3xl border border-[#2a2a3a] p-8 text-center"
+          className="max-w-md w-full bg-card rounded-3xl border border-border p-8 text-center"
         >
           {/* Progress */}
           <div className="flex justify-center gap-2 mb-8">
@@ -62,7 +62,7 @@ export default function OnboardingFlow({ onComplete, onSkip }: OnboardingFlowPro
               <div
                 key={i}
                 className={`h-1.5 rounded-full transition-all ${
-                  i <= step ? 'w-8 bg-indigo-500' : 'w-2 bg-[#2a2a3a]'
+                  i <= step ? 'w-8 bg-primary' : 'w-2 bg-muted'
                 }`}
               />
             ))}

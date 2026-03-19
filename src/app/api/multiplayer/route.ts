@@ -55,6 +55,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Validate timeControl
+    const validTimeControls = Object.keys(TIME_CONTROLS);
+    if (!validTimeControls.includes(timeControl)) {
+      console.log('Invalid timeControl:', timeControl);
+      return NextResponse.json({ 
+        error: 'Invalid timeControl', 
+        validOptions: validTimeControls 
+      }, { status: 400 });
+    }
+
+    // Validate gameType
+    const validGameTypes = ['duel', 'tournament'];
+    if (!validGameTypes.includes(gameType)) {
+      console.log('Invalid gameType:', gameType);
+      return NextResponse.json({ 
+        error: 'Invalid gameType', 
+        validOptions: validGameTypes 
+      }, { status: 400 });
+    }
+
+    // Validate questionCount
+    if (questionCount && (typeof questionCount !== 'number' || questionCount < 5 || questionCount > 50)) {
+      console.log('Invalid questionCount:', questionCount);
+      return NextResponse.json({ 
+        error: 'Invalid questionCount (must be between 5 and 50)' 
+      }, { status: 400 });
+    }
+
     // Check if user is already in a game
     const existingGame = await prisma.multiplayerGame.findFirst({
       where: {

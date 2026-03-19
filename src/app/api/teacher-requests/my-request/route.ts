@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ 
         request: null,
         message: 'No teacher request found'
-      }, { status: 404 });
+      }, { status: 200 }); // Changed from 404 to 200
     }
 
     return NextResponse.json({ 

@@ -9,35 +9,35 @@ interface LoadingProps {
 
 export default function Loading({ message = "Chargement..." }: LoadingProps) {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-foreground flex items-center justify-center">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
       <div className="text-center">
         {/* Animated loader */}
         <div className="relative w-24 h-24 mx-auto mb-6">
           {/* Outer ring */}
           <motion.div
-            className="absolute inset-0 border-4 border-indigo-500/30 rounded-full"
+            className="absolute inset-0 border-4 border-primary/30 rounded-full"
             animate={{ rotate: 360 }}
             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
           >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-indigo-500 rounded-full" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-primary rounded-full" />
           </motion.div>
           
           {/* Middle ring */}
           <motion.div
-            className="absolute inset-4 border-4 border-purple-500/30 rounded-full"
+            className="absolute inset-4 border-4 border-accent/30 rounded-full"
             animate={{ rotate: -360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-purple-500 rounded-full" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-accent rounded-full" />
           </motion.div>
           
           {/* Inner ring */}
           <motion.div
-            className="absolute inset-8 border-4 border-cyan-500/30 rounded-full"
+            className="absolute inset-8 border-4 border-muted/30 rounded-full"
             animate={{ rotate: 360 }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
           >
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-cyan-500 rounded-full" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-muted rounded-full" />
           </motion.div>
           
           {/* Center icon */}
