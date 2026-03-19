@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import bcryptjs from 'bcryptjs'
 import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    console.log('🔑 CLI Keys API - POST request received');
+    
+    const session = await getServerSession(authOptions)
+    console.log('🔍 Session check:', session ? 'Session found' : 'No session');
+    console.log('🔍 Session user:', session?.user?.email || 'No user email');
+    
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+      console.log('❌ No session or email found');
+      return NextResponse.json({ error: 'Non autorisé - Session requise' }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
@@ -16,8 +23,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user) {
+      console.log('❌ User not found in database for email:', session.user.email);
       return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 })
     }
+
+    console.log('✅ User found:', user.username);
 
     const body = await request.json()
     const { label } = body
@@ -53,9 +63,15 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    console.log('🔑 CLI Keys API - GET request received');
+    
+    const session = await getServerSession(authOptions)
+    console.log('🔍 Session check (GET):', session ? 'Session found' : 'No session');
+    console.log('🔍 Session user (GET):', session?.user?.email || 'No user email');
+    
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+      console.log('❌ No session or email found (GET)');
+      return NextResponse.json({ error: 'Non autorisé - Session requise' }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
@@ -63,8 +79,11 @@ export async function GET(request: NextRequest) {
     })
 
     if (!user) {
+      console.log('❌ User not found in database for email (GET):', session.user.email);
       return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 })
     }
+
+    console.log('✅ User found for GET:', user.username);
 
     const keys = await prisma.cliApiKey.findMany({
       where: { userId: user.id },
