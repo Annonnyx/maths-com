@@ -75,36 +75,38 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       const friendsRes = await fetch('/api/friends');
       if (friendsRes.ok) {
         const friendsData = await friendsRes.json();
-        const pendingRequests = (friendsData.receivedRequests || [])
-          .filter((req: any) => req.status === 'pending')
-          .map((req: any) => ({
-            id: `friend-${req.id}`,
-            type: 'friend_request' as const,
-            title: 'Nouvelle demande d\'ami',
-            message: `${req.user.username} vous demande en ami`,
-            senderId: req.user.id,
-            senderName: req.user.username,
-            createdAt: req.createdAt,
-            read: false
-          }));
+        const pendingRequests = Array.isArray(friendsData.receivedRequests) 
+          ? friendsData.receivedRequests.filter((req: any) => req.status === 'pending')
+              .map((req: any) => ({
+                id: `friend-${req.id}`,
+                type: 'friend_request' as const,
+                title: 'Nouvelle demande d\'ami',
+                message: `${req.user.username} vous demande en ami`,
+                senderId: req.user.id,
+                senderName: req.user.username,
+                createdAt: req.createdAt,
+                read: false
+              }))
+          : [];
 
         // Fetch unread messages
         const messagesRes = await fetch('/api/messages?unreadOnly=true');
         let messageNotifications: Notification[] = [];
         if (messagesRes.ok) {
           const messagesData = await messagesRes.json();
-          messageNotifications = (messagesData.conversations || [])
-            .filter((conv: any) => conv.unreadCount > 0)
-            .map((conv: any) => ({
-              id: `msg-${conv.friendId}`,
-              type: 'message' as const,
-              title: `Message de ${conv.friend.displayName || conv.friend.username}`,
-              message: conv.latestMessage.content.substring(0, 50) + (conv.latestMessage.content.length > 50 ? '...' : ''),
-              senderId: conv.friend.id,
-              senderName: conv.friend.displayName || conv.friend.username,
-              createdAt: conv.latestMessage.createdAt,
-              read: false
-            }));
+          messageNotifications = Array.isArray(messagesData.conversations)
+            ? messagesData.conversations.filter((conv: any) => conv.unreadCount > 0)
+                .map((conv: any) => ({
+                  id: `msg-${conv.friendId}`,
+                  type: 'message' as const,
+                  title: `Message de ${conv.friend.displayName || conv.friend.username}`,
+                  message: conv.latestMessage.content.substring(0, 50) + (conv.latestMessage.content.length > 50 ? '...' : ''),
+                  senderId: conv.friend.id,
+                  senderName: conv.friend.displayName || conv.friend.username,
+                  createdAt: conv.latestMessage.createdAt,
+                  read: false
+                }))
+            : [];
         }
 
         // Combine and update notifications
@@ -266,7 +268,7 @@ function NotificationToasts() {
   return (
     <div className="fixed top-4 right-4 z-[100] space-y-3 pointer-events-none">
       <AnimatePresence>
-        {unreadNotifications.map((notification) => (
+        {(unreadNotifications || []).map((notification) => (
           <motion.div
             key={notification.id}
             initial={{ opacity: 0, x: 100, scale: 0.9 }}
