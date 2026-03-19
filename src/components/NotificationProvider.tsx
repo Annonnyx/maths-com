@@ -111,10 +111,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
         // Combine and update notifications
         setNotifications(prev => {
-          const existingIds = new Set(prev.map(n => n.id));
+          const existingIds = new Set((prev || []).map(n => n.id));
           const newNotifications = [...pendingRequests, ...messageNotifications]
             .filter(n => !existingIds.has(n.id));
-          return [...newNotifications, ...prev.filter(n => !newNotifications.find(nn => nn.id === n.id))];
+          return [...newNotifications, ...(prev || []).filter(n => !newNotifications.find(nn => nn.id === n.id))];
         });
       }
     } catch (error) {
@@ -218,11 +218,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [session?.user?.id, settings.friendRequests, settings.challenges, settings.messages]);
 
   const dismissNotification = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    setNotifications(prev => (prev || []).filter(n => n.id !== id));
   }, []);
 
   const markAsRead = useCallback((id: string) => {
-    setNotifications(prev => prev.map(n => 
+    setNotifications(prev => (prev || []).map(n => 
       n.id === id ? { ...n, read: true } : n
     ));
   }, []);
@@ -231,7 +231,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setNotifications([]);
   }, []);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = (notifications || []).filter(n => !n.read).length;
 
   return (
     <NotificationContext.Provider
@@ -263,7 +263,7 @@ function NotificationToasts() {
   }
   
   const { notifications, dismissNotification, markAsRead } = context;
-  const unreadNotifications = notifications.filter(n => !n.read).slice(0, 3);
+  const unreadNotifications = (notifications || []).filter(n => !n.read).slice(0, 3);
 
   return (
     <div className="fixed top-4 right-4 z-[100] space-y-3 pointer-events-none">
