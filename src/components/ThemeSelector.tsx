@@ -75,33 +75,42 @@ function ThemeCard({ theme, isActive, isLoading, onClick }: ThemeCardProps) {
         <div 
           className="w-full h-12 rounded-md mb-3 relative overflow-hidden"
           style={{
-            background: `var(--bg-primary, ${getThemePreviewColor(theme.id, 'bg-primary')})`,
+            background: getThemePreviewColor(theme.id, 'bg-primary'),
           }}
         >
           {/* Barre d'accent */}
           <div 
             className="absolute top-2 left-2 right-2 h-1 rounded-full"
             style={{
-              background: `var(--accent-primary, ${getThemePreviewColor(theme.id, 'accent-primary')})`,
+              background: getThemePreviewColor(theme.id, 'accent-primary'),
             }}
           />
           
           {/* Petits orbes simulés */}
           <div className="absolute bottom-1 left-1 w-2 h-2 rounded-full opacity-60"
             style={{
-              background: `var(--orb-1, ${getThemePreviewColor(theme.id, 'orb-1')})`,
+              background: getThemePreviewColor(theme.id, 'orb-1'),
             }}
           />
           <div className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full opacity-40"
             style={{
-              background: `var(--orb-2, ${getThemePreviewColor(theme.id, 'orb-2')})`,
+              background: getThemePreviewColor(theme.id, 'orb-2'),
             }}
           />
           <div className="absolute top-3 right-3 w-1 h-1 rounded-full opacity-30"
             style={{
-              background: `var(--orb-3, ${getThemePreviewColor(theme.id, 'orb-3')})`,
+              background: getThemePreviewColor(theme.id, 'orb-3'),
             }}
           />
+          
+          {/* Échantillon de texte */}
+          <div className="absolute top-4 left-2 text-xs font-medium"
+            style={{
+              color: getThemePreviewColor(theme.id, 'text-primary'),
+            }}
+          >
+            Aa
+          </div>
         </div>
 
         {/* Nom et emoji du thème */}
@@ -139,6 +148,7 @@ function getThemePreviewColor(themeId: string, variable: string): string {
     neon: {
       'bg-primary': '#0a0f1e',
       'accent-primary': '#3b82f6',
+      'text-primary': '#f1f5f9',
       'orb-1': 'rgba(59,130,246,0.15)',
       'orb-2': 'rgba(139,92,246,0.10)',
       'orb-3': 'rgba(6,182,212,0.08)',
@@ -146,6 +156,7 @@ function getThemePreviewColor(themeId: string, variable: string): string {
     cherry: {
       'bg-primary': '#1a0d12',
       'accent-primary': '#f472b6',
+      'text-primary': '#fdf2f8',
       'orb-1': 'rgba(244,114,182,0.12)',
       'orb-2': 'rgba(251,113,133,0.08)',
       'orb-3': 'rgba(216,180,254,0.07)',
@@ -153,6 +164,7 @@ function getThemePreviewColor(themeId: string, variable: string): string {
     ocean: {
       'bg-primary': '#030d1a',
       'accent-primary': '#0ea5e9',
+      'text-primary': '#e0f7ff',
       'orb-1': 'rgba(14,165,233,0.12)',
       'orb-2': 'rgba(6,182,212,0.08)',
       'orb-3': 'rgba(20,184,166,0.07)',
@@ -160,6 +172,7 @@ function getThemePreviewColor(themeId: string, variable: string): string {
     prairie: {
       'bg-primary': '#071a0e',
       'accent-primary': '#22c55e',
+      'text-primary': '#f0fdf4',
       'orb-1': 'rgba(34,197,94,0.10)',
       'orb-2': 'rgba(16,185,129,0.08)',
       'orb-3': 'rgba(101,163,13,0.07)',
@@ -167,20 +180,23 @@ function getThemePreviewColor(themeId: string, variable: string): string {
     sunset: {
       'bg-primary': '#150a05',
       'accent-primary': '#fb923c',
+      'text-primary': '#fff7ed',
       'orb-1': 'rgba(251,146,60,0.12)',
       'orb-2': 'rgba(239,68,68,0.08)',
       'orb-3': 'rgba(217,119,6,0.07)',
     },
     arctic: {
-      'bg-primary': '#050d14',
-      'accent-primary': '#bae6fd',
-      'orb-1': 'rgba(186,230,253,0.07)',
-      'orb-2': 'rgba(224,242,254,0.05)',
-      'orb-3': 'rgba(125,211,252,0.06)',
+      'bg-primary': '#f0f9ff',
+      'accent-primary': '#0ea5e9',
+      'text-primary': '#0f172a',
+      'orb-1': 'rgba(14,165,233,0.08)',
+      'orb-2': 'rgba(224,242,254,0.06)',
+      'orb-3': 'rgba(125,211,252,0.07)',
     },
     light: {
       'bg-primary': '#f8fafc',
       'accent-primary': '#6366f1',
+      'text-primary': '#0f172a',
       'orb-1': 'rgba(99,102,241,0.06)',
       'orb-2': 'rgba(139,92,246,0.04)',
       'orb-3': 'rgba(59,130,246,0.05)',

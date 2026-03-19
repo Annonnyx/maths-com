@@ -8,7 +8,7 @@ import {
   Home, LayoutDashboard, Trophy, Users, BookOpen, 
   User, LogOut, Menu, X, Settings, Target, Bell, GraduationCap, Trash2,
   ChevronLeft, Share2, CheckCircle, Clock, TrendingUp, Award, Zap, BarChart3,
-  UserPlus, Medal, Swords
+  UserPlus, Medal, Swords, Shield
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES } from '@/lib/elo';
 import { useSession } from 'next-auth/react';
@@ -260,6 +260,16 @@ export default function PublicProfilePage() {
                     <div className="px-2 py-1 bg-purple-500/20 border border-purple-500 rounded-lg flex items-center gap-1">
                       <GraduationCap className="w-4 h-4 text-purple-400" />
                       <span className="text-xs text-purple-400 font-semibold">Professeur</span>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Admin Badge */}
+                {profile.isAdmin && (
+                  <div className="mt-2 inline-flex">
+                    <div className="px-2 py-1 bg-red-500/20 border border-red-500 rounded-lg flex items-center gap-1">
+                      <Shield className="w-4 h-4 text-red-400" />
+                      <span className="text-xs text-red-400 font-semibold">Admin</span>
                     </div>
                   </div>
                 )}

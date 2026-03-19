@@ -793,7 +793,7 @@ function ProfileContent() {
           </div>
 
           {/* Support Tickets Section */}
-          <div className="p-6 bg-card rounded-2xl border border-border">
+          <div className="p-6 bg-card rounded-2xl border border-border mb-6">
             <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-orange-400" />
               Support & Tickets
@@ -822,7 +822,7 @@ function ProfileContent() {
 
           {/* Teacher Request Section */}
           {!profile?.user?.isTeacher && (
-            <div className="p-6 bg-card rounded-2xl border border-border">
+            <div className="p-6 bg-card rounded-2xl border border-border mb-6">
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <Award className="w-5 h-5 text-green-400" />
                 Devenir professeur

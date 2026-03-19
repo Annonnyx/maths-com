@@ -56,9 +56,9 @@ function loadJSXGraph() {
 // ─── Preset constructors ──────────────────────────────────────────────────────
 
 function createPythagoras(board: any) {
-  const A = board.create('point', [0, 0], { name: 'A', size: 4, color: '#3498db' });
-  const B = board.create('point', [4, 0], { name: 'B', size: 4, color: '#3498db' });
-  const C = board.create('point', [0, 3], { name: 'C', size: 4, color: '#3498db' });
+  const A = board.create('point', [0, 0], { name: 'A', size: 4, color: '#ffffff' });
+  const B = board.create('point', [4, 0], { name: 'B', size: 4, color: '#ffffff' });
+  const C = board.create('point', [0, 3], { name: 'C', size: 4, color: '#ffffff' });
   board.create('polygon', [A, B, C], { fillColor: '#3498db', fillOpacity: 0.15, strokeColor: '#3498db' });
   board.create('angle', [B, A, C], { name: '90°', radius: 0.5, orthotype: 'square' });
   board.create('segment', [A, B], { strokeColor: '#e74c3c', label: { autoPosition: true } });
@@ -67,7 +67,7 @@ function createPythagoras(board: any) {
 }
 
 function createUnitCircle(board: any) {
-  const O = board.create('point', [0, 0], { name: 'O', size: 4, color: '#3498db', fixed: true });
+  const O = board.create('point', [0, 0], { name: 'O', size: 4, color: '#ffffff', fixed: true });
   board.create('circle', [O, 1], { strokeColor: '#3498db', strokeWidth: 2, fillOpacity: 0 });
   const P = board.create('glider', [1, 0, board.create('circle', [O, 1], { visible: false })],
     { name: 'P', size: 5, color: '#e74c3c' });
@@ -80,9 +80,9 @@ function createUnitCircle(board: any) {
 }
 
 function createEquilateral(board: any) {
-  const A = board.create('point', [0, 0],   { name: 'A', size: 4, color: '#3498db' });
-  const B = board.create('point', [4, 0],   { name: 'B', size: 4, color: '#3498db' });
-  const C = board.create('point', [2, 3.46],{ name: 'C', size: 4, color: '#3498db' });
+  const A = board.create('point', [0, 0],   { name: 'A', size: 4, color: '#ffffff' });
+  const B = board.create('point', [4, 0],   { name: 'B', size: 4, color: '#ffffff' });
+  const C = board.create('point', [2, 3.46],{ name: 'C', size: 4, color: '#ffffff' });
   board.create('polygon', [A, B, C], { fillColor: '#2ecc71', fillOpacity: 0.2, strokeColor: '#2ecc71', strokeWidth: 2 });
   board.create('angle', [C, A, B], { name: '60°', radius: 0.7 });
   board.create('angle', [A, B, C], { name: '60°', radius: 0.7 });
@@ -303,7 +303,7 @@ export default function GeometryCanvas({
     const fo  = fillOpRef.current;
 
     const makePoint = (px: number, py: number, name = '') => board.create('point', [px, py], {
-      name, size: 4, color: col, strokeColor: col, fillColor: col,
+      name, size: 4, color: '#ffffff', strokeColor: '#ffffff', fillColor: '#ffffff',
       label: { fontSize: 12 },
     });
 
@@ -363,7 +363,7 @@ export default function GeometryCanvas({
         });
       } else if (currentTool === 'midpoint') {
         const seg = board.create('segment', [tmp[0], tmp[1]], { visible: false });
-        board.create('midpoint', [seg], { name: 'M', size: 5, color: col });
+        board.create('midpoint', [seg], { name: 'M', size: 5, color: '#ffffff' });
       } else if (currentTool === 'perp') {
         const seg = board.create('segment', [tmp[0], tmp[1]], { visible: false });
         board.create('perpendicular', [seg, tmp[0]], { strokeColor: col, strokeWidth: sw });
