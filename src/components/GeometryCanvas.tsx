@@ -46,7 +46,7 @@ function loadJSXGraph() {
     document.head.appendChild(css);
     
     const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/jsxgraph/distrib/jsxgraphcore.js';
+    script.src = 'https://cdn.jsdelivr.net/npm/jsxgraph@1.6.0/distrib/jsxgraphcore.js';
     script.onload = () => resolve((window as any).JXG);
     script.onerror = reject;
     document.head.appendChild(script);
@@ -511,44 +511,62 @@ export default function GeometryCanvas({
     const board = jxgBoardRef.current;
     if (!board) return;
     
-    // JSXGraph exposes this via the board itself:
-    const svgStr = board.renderer.dumpToString('');
-    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    
-    // Then draw to canvas for PNG:
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = board.canvasWidth;
-      canvas.height = board.canvasHeight;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.fillStyle = '#111318';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-      const a = document.createElement('a');
-      a.download = 'geometrie-maths-app.png';
-      a.href = canvas.toDataURL('image/png');
-      a.click();
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
-    setStatus('Export PNG en cours...');
+    try {
+      // Alternative method to get SVG string
+      const svgElement = board.containerObj;
+      if (!svgElement) return;
+      
+      const svgString = new XMLSerializer().serializeToString(svgElement);
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      
+      // Then draw to canvas for PNG:
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = board.canvasWidth;
+        canvas.height = board.canvasHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.fillStyle = '#111318';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        const a = document.createElement('a');
+        a.download = 'geometrie-maths-app.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+      setStatus('Export PNG en cours...');
+    } catch (error) {
+      console.error('Error exporting PNG:', error);
+      setStatus('Erreur lors de l\'export PNG');
+    }
   };
 
   const exportSVG = () => {
     const board = jxgBoardRef.current;
     if (!board) return;
-    const svgStr = board.renderer.dumpToString('');
-    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'geometrie-maths-app.svg';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setStatus('Export SVG terminé');
+    
+    try {
+      // Alternative method to get SVG string
+      const svgElement = board.containerObj;
+      if (!svgElement) return;
+      
+      const svgString = new XMLSerializer().serializeToString(svgElement);
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'geometrie-maths-app.svg';
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus('Export SVG terminé');
+    } catch (error) {
+      console.error('Error exporting SVG:', error);
+      setStatus('Erreur lors de l\'export SVG');
+    }
   };
 
   // ─── Fullscreen ────────────────────────────────────────────────────────────
