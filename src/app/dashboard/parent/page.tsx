@@ -66,7 +66,7 @@ export default function ParentDashboard() {
       return;
     }
 
-    if (status === 'authenticated' && session?.user?.role !== 'parent') {
+    if (status === 'authenticated' && (session.user as any).role !== 'parent') {
       router.push('/dashboard');
       return;
     }

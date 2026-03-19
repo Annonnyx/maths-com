@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +17,7 @@ import {
   Shield
 } from 'lucide-react';
 
-export default function ParentLinkPage() {
+function ParentLinkContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -28,11 +28,11 @@ export default function ParentLinkPage() {
   const [childInfo, setChildInfo] = useState<any>(null);
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user?.role === 'parent') {
+    if (status === 'authenticated' && (session.user as any).role === 'parent') {
       if (code) {
         validateCode();
       }
-    } else if (status === 'authenticated' && session?.user?.role !== 'parent') {
+    } else if (status === 'authenticated' && (session.user as any).role !== 'parent') {
       setError('Ce lien est destiné aux comptes parents uniquement.');
     }
   }, [status, session, code]);
@@ -278,5 +278,17 @@ export default function ParentLinkPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ParentLinkPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <ParentLinkContent />
+    </Suspense>
   );
 }

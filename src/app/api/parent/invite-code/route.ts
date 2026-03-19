@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     // Récupérer le dernier code d'invitation non expiré
     const inviteCode = await prisma.parentInviteCode.findFirst({
       where: {
-        childId: session.user.id,
+        childId: (session.user as any).id,
         used: false,
         expiresAt: {
           gt: new Date()
@@ -63,18 +63,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier si l'utilisateur est un étudiant
-    const profile = await prisma.profile.findUnique({
-      where: { id: session.user.id }
+    const user = await prisma.user.findUnique({
+      where: { id: (session.user as any).id }
     });
 
-    if (!profile || profile.role !== 'student') {
+    if (!user || user.role !== 'student') {
       return NextResponse.json({ error: 'Only students can generate invite codes' }, { status: 403 });
     }
 
     // Désactiver les anciens codes non utilisés
     await prisma.parentInviteCode.updateMany({
       where: {
-        childId: session.user.id,
+        childId: (session.user as any).id,
         used: false
       },
       data: {
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
 
     const inviteCode = await prisma.parentInviteCode.create({
       data: {
-        childId: session.user.id,
+        childId: (session.user as any).id,
         code,
         expiresAt
       }

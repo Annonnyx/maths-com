@@ -1661,7 +1661,7 @@ function ProfileContent() {
             </div>
 
             {/* Parent Invite - Only for students */}
-            {profile?.user?.role === 'student' && (
+            {(profile?.user as any)?.role === 'student' && (
               <ParentInvite />
             )}
           </motion.div>

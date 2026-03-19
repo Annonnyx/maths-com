@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.id || session.user.role !== 'parent') {
+    if (!session?.user?.id || (session.user as any).role !== 'parent') {
       return NextResponse.json({ error: 'Unauthorized - Parent account required' }, { status: 401 });
     }
 
@@ -27,16 +27,7 @@ export async function POST(request: NextRequest) {
         }
       },
       include: {
-        child: {
-          include: {
-            user: {
-              select: {
-                firstName: true,
-                lastName: true
-              }
-            }
-          }
-        }
+        child: true
       }
     });
 
@@ -44,24 +35,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Code invalide ou expiré' }, { status: 404 });
     }
 
-    // Vérifier si le lien existe déjà
-    const existingLink = await prisma.parentChildLinks.findFirst({
-      where: {
-        parentId: session.user.id,
-        childId: inviteCode.childId
+    // Les parents peuvent voir leurs enfants liés
+    if ((session.user as any).role === 'parent') {
+      const link = await prisma.parentChildLink.findFirst({
+        where: {
+          parentId: (session.user as any).id,
+          childId: inviteCode.childId,
+          isActive: true
+        }
+      });
+      if (link) {
+        return NextResponse.json({ 
+          error: 'Vous êtes déjà lié à cet élève' 
+        }, { status: 409 });
       }
-    });
-
-    if (existingLink) {
-      return NextResponse.json({ 
-        error: 'Vous êtes déjà lié à cet élève' 
-      }, { status: 409 });
     }
 
     // Créer le lien parent-enfant
-    await prisma.parentChildLinks.create({
+    await prisma.parentChildLink.create({
       data: {
-        parentId: session.user.id,
+        parentId: (session.user as any).id,
         childId: inviteCode.childId,
         isActive: true
       }
@@ -77,9 +70,9 @@ export async function POST(request: NextRequest) {
       success: true,
       child: {
         id: inviteCode.child.id,
-        firstName: inviteCode.child.user.firstName,
-        lastName: inviteCode.child.user.lastName,
-        class: inviteCode.child.class
+        firstName: inviteCode.child.displayName || inviteCode.child.username,
+        lastName: '',
+        class: inviteCode.child.classe
       }
     });
 

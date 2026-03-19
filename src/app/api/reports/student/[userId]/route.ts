@@ -4,38 +4,30 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import StudentReport from '@/components/pdf/StudentReport';
 import { renderToStream } from '@react-pdf/renderer';
+import React from 'react';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const targetUserId = params.userId;
+    const { userId: targetUserId } = await context.params;
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Vérifier les autorisations
-    const hasAccess = await checkReportAccess(session.user.id, targetUserId, session.user.role);
+    const hasAccess = await checkReportAccess(session.user.id, targetUserId, (session.user as any).role);
     
     if (!hasAccess) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Récupérer les informations de l'élève
-    const student = await prisma.profile.findUnique({
-      where: { id: targetUserId },
-      include: {
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true
-          }
-        }
-      }
+    const student = await prisma.user.findUnique({
+      where: { id: targetUserId }
     });
 
     if (!student) {
@@ -47,21 +39,22 @@ export async function GET(
 
     // Générer le PDF
     const pdfStream = await renderToStream(
-      <StudentReport 
-        student={{
-          firstName: student.user.firstName,
-          lastName: student.user.lastName,
-          class: student.class || 'Non défini',
-          rank: student.rank || 'Débutant',
-          elo: student.elo || 1000
-        }}
-        stats={stats}
-      />
+      StudentReport({
+        student: {
+          firstName: student.displayName || student.username,
+          lastName: '',
+          class: student.classe || 'Non défini',
+          rank: student.soloRankClass || 'Débutant',
+          elo: student.soloElo || 1000
+        },
+        stats: stats
+      })
     );
 
     // Créer le nom de fichier
     const date = new Date().toISOString().split('T')[0];
-    const fileName = `rapport_${student.user.firstName.toLowerCase()}-${student.user.lastName.toLowerCase()}_${date}.pdf`;
+    const firstName = (student.displayName || student.username).toLowerCase().replace(' ', '-');
+    const fileName = `rapport_${firstName}_${date}.pdf`;
 
     // Retourner le PDF en stream
     return new NextResponse(pdfStream as any, {
@@ -94,7 +87,7 @@ async function checkReportAccess(requesterId: string, targetUserId: string, requ
 
   // Les parents peuvent voir leurs enfants liés
   if (requesterRole === 'parent') {
-    const link = await prisma.parentChildLinks.findFirst({
+    const link = await prisma.parentChildLink.findFirst({
       where: {
         parentId: requesterId,
         childId: targetUserId,

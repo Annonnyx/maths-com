@@ -7,27 +7,17 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.id || session.user.role !== 'parent') {
+    if (!session?.user?.id || (session.user as any).role !== 'parent') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const parentLinks = await prisma.parentChildLinks.findMany({
+    const parentLinks = await prisma.parentChildLink.findMany({
       where: {
-        parentId: session.user.id,
+        parentId: (session.user as any).id,
         isActive: true
       },
       include: {
-        child: {
-          include: {
-            user: {
-              select: {
-                firstName: true,
-                lastName: true,
-                email: true
-              }
-            }
-          }
-        }
+        child: true
       }
     });
 
@@ -41,14 +31,14 @@ export async function GET(request: NextRequest) {
         
         return {
           id: child.id,
-          firstName: child.user.firstName,
-          lastName: child.user.lastName,
-          class: child.class || 'Non défini',
-          rank: child.rank || 'Débutant',
-          elo: child.elo || 1000,
+          firstName: child.displayName || child.username,
+          lastName: '',
+          class: child.classe || 'Non défini',
+          rank: child.soloRankClass || 'Débutant',
+          elo: child.soloElo || 1000,
           weeklyTime: stats.weeklyTime,
           successRate: stats.successRate,
-          lastLogin: child.lastLogin || new Date().toISOString(),
+          lastLogin: child.lastSeenAt || new Date().toISOString(),
           recentCourses: stats.recentCourses,
           recentTrainings: stats.recentTrainings,
           eloProgression: stats.eloProgression,

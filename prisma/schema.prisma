@@ -46,6 +46,7 @@ model User {
   discordLinkedAt          DateTime?                @map("discord_linked_at")
   discordLinkCode          String?                  @unique @map("discord_link_code")
   hasCompletedOnboarding   Boolean                  @default(false) @map("has_completed_onboarding")
+  role                     String                   @default("student")
   QuestionHistory          public_QuestionHistory[]
   assignmentSubmissions    AssignmentSubmission[]
   receivedChallenges       Challenge[]              @relation("Challenged")
@@ -76,6 +77,9 @@ model User {
   userBadges               UserBadge[]
   customBanners            CustomBanner[]           @relation("UserBanners")
   cliApiKeys               CliApiKey[]
+  parentLinks              ParentChildLink[]         @relation("ParentLinks")
+  childLinks               ParentChildLink[]         @relation("ChildLinks")
+  inviteCodes              ParentInviteCode[]        @relation("InviteCodes")
 
   @@map("users")
   @@schema("public")
@@ -692,5 +696,32 @@ model CliApiKey {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("cli_api_keys")
+  @@schema("public")
+}
+
+model ParentChildLink {
+  id        String   @id @default(cuid())
+  parentId  String   @map("parent_id")
+  childId   String   @map("child_id")
+  createdAt DateTime @default(now())
+  isActive  Boolean  @default(true) @map("is_active")
+  parent    User     @relation("ParentLinks", fields: [parentId], references: [id], onDelete: Cascade)
+  child     User     @relation("ChildLinks", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, childId])
+  @@map("parent_child_links")
+  @@schema("public")
+}
+
+model ParentInviteCode {
+  id        String   @id @default(cuid())
+  childId   String   @map("child_id")
+  code      String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  child     User     @relation("InviteCodes", fields: [childId], references: [id], onDelete: Cascade)
+
+  @@map("parent_invite_codes")
   @@schema("public")
 }
