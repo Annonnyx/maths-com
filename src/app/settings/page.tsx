@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import ApiKeysManager from '@/components/ApiKeysManager';
+import ApiKeysWrapper from '@/components/ApiKeysWrapper';
 
 // Local storage hooks that work without contexts
 function useLocalNotifSettings() {
@@ -244,7 +245,20 @@ export default function SettingsPage() {
 
         {/* API Keys */}
         <section className="bg-card rounded-2xl border border-border p-6">
-          <ApiKeysManager />
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              Clefs API CLI
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Gérez vos clefs pour utiliser la CLI maths-app.fr
+            </p>
+            <div className="min-h-[200px]">
+              <ApiKeysWrapper>
+                <ApiKeysManager />
+              </ApiKeysWrapper>
+            </div>
+          </div>
         </section>
 
         {/* Version info */}
