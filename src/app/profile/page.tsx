@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/components/ThemeProvider';
+import ThemeSelector from '@/components/ThemeSelector';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import { DiscordLinkModal } from '@/components/DiscordLinkModal';
 
@@ -270,7 +271,7 @@ function ProfileContent() {
   
   // Use real preferences hooks
   const { preferences: userPrefs, setPreferences: setUserPrefs } = useUserPreferences();
-  const { theme, toggleTheme } = useTheme();
+  const { currentTheme } = useTheme();
   
   // Discord link state
   const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
@@ -1525,43 +1526,24 @@ function ProfileContent() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            {/* Appearance Settings */}
+            {/* Apparence - Thèmes */}
             <div className="bg-card rounded-2xl border border-border p-6">
-              <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <Palette className="w-5 h-5 text-purple-400" />
-                Apparence
-              </h3>
-              <div className="space-y-4">
-                {/* Dark Mode Toggle */}
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
-                  <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <span>Mode sombre</span>
-                      <p className="text-xs text-muted-foreground">Activer le thème sombre</p>
-                    </div>
-                  </div>
-                  <ToggleSwitch
-                    checked={theme === 'dark'}
-                    onChange={toggleTheme}
-                  />
-                </div>
+              <ThemeSelector />
+            </div>
 
-                {/* Animations Toggle */}
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
-                  <div className="flex items-center gap-3">
-                    <Zap className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <span>Animations</span>
-                      <p className="text-xs text-muted-foreground">Activer les animations</p>
-                    </div>
-                  </div>
-                  <ToggleSwitch
-                    checked={userPrefs.animations}
-                    onChange={(checked) => setUserPrefs(prev => ({ ...prev, animations: checked }))}
-                  />
+            {/* Animations Toggle */}
+            <div className="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-card transition-all">
+              <div className="flex items-center gap-3">
+                <Zap className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <span>Animations</span>
+                  <p className="text-xs text-muted-foreground">Activer les animations</p>
                 </div>
               </div>
+              <ToggleSwitch
+                checked={userPrefs.animations}
+                onChange={(checked) => setUserPrefs(prev => ({ ...prev, animations: checked }))}
+              />
             </div>
 
             {/* Sound Settings */}

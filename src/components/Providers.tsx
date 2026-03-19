@@ -1,10 +1,9 @@
 'use client';
 
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import ThemeProvider from '@/components/ThemeProvider';
 import AuthProvider from './AuthProvider';
-import { SoundProvider } from './SoundProvider';
-import { NotificationProvider } from './NotificationProvider';
-import { PresenceProvider } from './PresenceProvider';
+import { SoundProvider } from '@/components/SoundProvider';
+import { NotificationProvider } from '@/components/NotificationProvider';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -12,9 +11,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         <SoundProvider>
           <NotificationProvider>
-            <PresenceProvider>
-              {children}
-            </PresenceProvider>
+            {children}
           </NotificationProvider>
         </SoundProvider>
       </AuthProvider>

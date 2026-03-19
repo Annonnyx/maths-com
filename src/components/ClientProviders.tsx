@@ -1,6 +1,6 @@
 'use client';
 
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import ThemeProvider from '@/components/ThemeProvider';
 import AuthProvider from '@/components/AuthProvider';
 import { SoundProvider } from '@/components/SoundProvider';
 import { NotificationProvider } from '@/components/NotificationToast';
