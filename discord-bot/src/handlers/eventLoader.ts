@@ -11,7 +11,7 @@ export async function loadEvents() {
     for (const file of eventFiles) {
       if (!file.endsWith('.js')) continue;
       
-      const eventModule = await import(`file://${join(eventsPath, file)}`);
+      const eventModule = await import(`../events/${file.replace('.js', '')}`);
       const event = eventModule.default || eventModule;
       
       if (event.name && event.execute) {

@@ -183,24 +183,30 @@ export function calculateAdvancedEloChange(result: TestResult): {
     const avgTimePerQuestion = totalTimeSeconds / totalQuestions;
     
     if (avgTimePerQuestion <= 3) {
-      speedBonus = 30; // Lightning fast
+      speedBonus = 2; // Lightning fast - max +2
     } else if (avgTimePerQuestion <= 5) {
-      speedBonus = 20; // Very fast
+      speedBonus = 1; // Very fast
     } else if (avgTimePerQuestion <= 8) {
-      speedBonus = 10; // Good speed
+      speedBonus = 0; // Good speed - no bonus
     } else if (avgTimePerQuestion <= 12) {
       speedBonus = 0; // Normal
     } else if (avgTimePerQuestion <= 20) {
-      speedBonus = -10; // Slow
+      speedBonus = -1; // Slow - small penalty
     } else {
-      speedBonus = -20; // Too slow - penalty!
+      speedBonus = -2; // Too slow - max penalty
     }
     
-    // 3. DIFFICULTY BONUS
+    // 3. DIFFICULTY BONUS - Max +2
     const avgDifficulty = difficulties.reduce((a, b) => a + b, 0) / difficulties.length;
-    difficultyBonus = Math.round((avgDifficulty - 5) * 3); // Bonus for higher difficulty questions
+    if (avgDifficulty >= 8) {
+      difficultyBonus = 2; // Very hard questions
+    } else if (avgDifficulty >= 7) {
+      difficultyBonus = 1; // Hard questions
+    } else {
+      difficultyBonus = 0; // Normal difficulty
+    }
     
-    // 4. ACCURACY BONUS for high difficulty questions
+    // 4. ACCURACY BONUS for high difficulty questions - Max +2
     const hardQuestionIndices = difficulties
       .map((d, i) => d >= 7 ? i : -1)
       .filter(i => i !== -1);
@@ -218,23 +224,23 @@ export function calculateAdvancedEloChange(result: TestResult): {
     if (hardQuestions > 0) {
       const hardAccuracy = (correctHardQuestions / hardQuestions) * 100;
       if (hardAccuracy >= 80) {
-        accuracyBonus = 25; // Master bonus
+        accuracyBonus = 2; // Master bonus - max +2
       } else if (hardAccuracy >= 60) {
-        accuracyBonus = 15;
-      } else if (hardAccuracy >= 40) {
-        accuracyBonus = 5;
+        accuracyBonus = 1; // Good accuracy
+      } else {
+        accuracyBonus = 0; // Low accuracy - no bonus
       }
     }
   } else {
     // For scores < 50%, apply additional penalties instead of bonuses
     const avgTimePerQuestion = totalTimeSeconds / totalQuestions;
     if (avgTimePerQuestion > 15) {
-      speedBonus = -15; // Additional penalty for being slow AND wrong
+      speedBonus = -2; // Additional penalty for being slow AND wrong
     }
   }
   
-  // 5. STREAK BONUS - Only applied if score >= 50%
-  const streakBonus = score >= 50 ? Math.min(streak * 5, 50) : 0; // Max 50 for long streaks, only for good performance
+  // 5. STREAK BONUS - Only applied if score >= 50% - Max +2
+  const streakBonus = score >= 50 ? Math.min(Math.floor(streak / 5), 2) : 0; // +1 every 5 wins, max +2
   
   // 6. ELO SCALING - Reduce swings for very high and very low Elo players
   let eloScaling = 1;
@@ -271,16 +277,15 @@ export function calculateAdvancedEloChange(result: TestResult): {
 
 // Calculate rank tier for display - adjusted for new Elo system
 export function getPerformanceTier(eloChange: number): {
-  tier: 'SS' | 'S' | 'A' | 'B' | 'C' | 'D' | 'F';
+  tier: 'S' | 'A' | 'B' | 'C' | 'D' | 'F';
   color: string;
   message: string;
 } {
-  if (eloChange >= 15) return { tier: 'SS', color: 'text-purple-400', message: 'Légendaire!' };
-  if (eloChange >= 10) return { tier: 'S', color: 'text-yellow-400', message: 'Exceptionnel!' };
-  if (eloChange >= 5) return { tier: 'A', color: 'text-green-400', message: 'Excellent!' };
-  if (eloChange >= 2) return { tier: 'B', color: 'text-blue-400', message: 'Très bien!' };
-  if (eloChange >= 0) return { tier: 'C', color: 'text-teal-400', message: 'Bien joué!' };
-  if (eloChange >= -3) return { tier: 'D', color: 'text-gray-400', message: 'Passable' };
+  if (eloChange >= 12) return { tier: 'S', color: 'text-yellow-400', message: 'Exceptionnel!' };
+  if (eloChange >= 8) return { tier: 'A', color: 'text-green-400', message: 'Excellent!' };
+  if (eloChange >= 4) return { tier: 'B', color: 'text-blue-400', message: 'Très bien!' };
+  if (eloChange >= 1) return { tier: 'C', color: 'text-teal-400', message: 'Bien joué!' };
+  if (eloChange >= -2) return { tier: 'D', color: 'text-gray-400', message: 'Passable' };
   return { tier: 'F', color: 'text-red-400', message: 'À réviser...' };
 }
 

@@ -59,10 +59,13 @@ export async function loadCommands() {
         console.log(`📂 Chargement de la commande: ${file}`);
         
         try {
-          const command = await import(`file://${commandPath}`);
+          const command = await import(`../commands/${file.replace('.js', '')}`);
           
-          // Handle nested exports (compiled CommonJS)
-          const actualCommand = command.default.default || command.default;
+          // Handle different export formats
+          let actualCommand = command.default;
+          if (actualCommand && actualCommand.default) {
+            actualCommand = actualCommand.default;
+          }
           
           if (actualCommand && actualCommand.data) {
             commands.push(actualCommand);
