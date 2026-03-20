@@ -1,37 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
-    // Vérifier l'authentification avec NextAuth
-    const session = await getServerSession(authOptions);
+    const cookieStore = await cookies();
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            cookie: cookieStore.toString(),
+          },
+        },
+      }
+    );
+
+    // Vérifier l'authentification
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (!session?.user?.id) {
+    if (authError || !user) {
       return NextResponse.json(
         { error: 'Utilisateur non authentifié' },
         { status: 401 }
       );
     }
 
-    // Pour l'instant, retourner des tickets mockés
-    // TODO: Implémenter avec Prisma quand la table tickets sera créée
-    const mockTickets = [
-      {
-        id: 'mock-1',
-        title: 'Problème avec la grille de géométrie',
-        category: 'bug',
-        description: 'La grille ne s\'affiche pas correctement',
-        priority: 'high',
-        status: 'ouvert',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-    ];
+    // Récupérer les tickets de l'utilisateur
+    const { data: tickets, error } = await supabase
+      .from('tickets')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching tickets:', error);
+      return NextResponse.json(
+        { error: 'Erreur lors de la récupération des tickets' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      tickets: mockTickets
+      tickets: tickets || []
     });
 
   } catch (error) {
@@ -45,10 +58,23 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Vérifier l'authentification avec NextAuth
-    const session = await getServerSession(authOptions);
+    const cookieStore = await cookies();
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            cookie: cookieStore.toString(),
+          },
+        },
+      }
+    );
+
+    // Vérifier l'authentification
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (!session?.user?.id) {
+    if (authError || !user) {
       return NextResponse.json(
         { error: 'Utilisateur non authentifié' },
         { status: 401 }
@@ -65,23 +91,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Pour l'instant, retourner un ticket mocké
-    // TODO: Implémenter avec Prisma quand la table tickets sera créée
-    const newTicket = {
-      id: `ticket-${Date.now()}`,
-      title,
-      category,
-      description,
-      priority: priority || 'medium',
-      status: 'ouvert',
-      user_id: session.user.id,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    // Créer le ticket dans Supabase
+    const { data: ticket, error } = await supabase
+      .from('tickets')
+      .insert({
+        user_id: user.id,
+        title,
+        category,
+        description,
+        priority: priority || 'medium'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating ticket:', error);
+      return NextResponse.json(
+        { error: 'Erreur lors de la création du ticket' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      ticket: newTicket
+      ticket
     });
 
   } catch (error) {
