@@ -4,6 +4,26 @@ import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+// GET /api/users - Health check for Discord bot
+export async function GET(req: NextRequest) {
+  try {
+    // Simple health check - return basic stats
+    const userCount = await prisma.user.count();
+    
+    return NextResponse.json({
+      status: 'ok',
+      userCount,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    return NextResponse.json(
+      { status: 'error', message: 'Database connection failed' },
+      { status: 500 }
+    );
+  }
+}
+
 // POST /api/users - Create a new user (register)
 export async function POST(req: NextRequest) {
   try {

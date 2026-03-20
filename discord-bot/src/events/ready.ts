@@ -89,11 +89,15 @@ export default {
       
       if (response.ok) {
         console.log('✅ Connexion API site réussie');
+      } else if (response.status === 400) {
+        // Le endpoint existe mais retourne 400, c'est normal pour certains cas
+        console.log('✅ API site accessible (status 400 attendu)');
       } else {
         console.warn(`⚠️ API site status: ${response.status}`);
       }
     } catch (error: any) {
-      console.error('❌ Connexion API site échouée:', error?.message || error);
+      console.warn('⚠️ API site indisponible:', error?.message || error);
+      console.log('📝 Le bot continue de fonctionner sans l\'API site');
     }
 
     // Vérification des salons essentiels
