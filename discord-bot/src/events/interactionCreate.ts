@@ -2,7 +2,7 @@ import { Events, Interaction } from 'discord.js';
 import { client } from '../client.js';
 
 // Import des handlers
-import ticketHandler from './ticketInteractions.js';
+import { handleTicketInteractions } from './ticketInteractions.js';
 
 export default {
   name: Events.InteractionCreate,
@@ -27,16 +27,8 @@ export default {
         }
       }
     } else {
+      // Gérer les autres types d'interactions (tickets, etc.)
       await handleTicketInteractions(interaction);
     }
   }
 };
-
-// Handler séparé pour les interactions de tickets
-export async function handleTicketInteractions(interaction: Interaction) {
-  try {
-    await ticketHandler.execute(interaction);
-  } catch (error) {
-    console.error('❌ Erreur interaction ticket:', error);
-  }
-}
