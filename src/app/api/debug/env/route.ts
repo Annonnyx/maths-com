@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       const keyCount = await prisma.cliApiKey.count();
       dbTest = `OK - Users: ${userCount}, Keys: ${keyCount}`;
     } catch (error) {
-      dbTest = `DB_ERROR: ${error.message}`;
+      dbTest = `DB_ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
 
     return NextResponse.json({
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     return NextResponse.json({
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
