@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Shield, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, ExternalLink, Shield, CheckCircle, AlertCircle, Copy, RefreshCw } from 'lucide-react';
 
 interface DiscordLinkModalProps {
   isOpen: boolean;
@@ -13,9 +13,38 @@ interface DiscordLinkModalProps {
 
 export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSuccess }: DiscordLinkModalProps) {
   const [code, setCode] = useState('');
+  const [generatedCode, setGeneratedCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Générer un code de liaison
+  const generateCode = async () => {
+    setIsLoading(true);
+    setError(null);
+    setGeneratedCode('');
+
+    try {
+      const response = await fetch('/api/discord/link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ discordId: 'pending' })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setGeneratedCode(data.code);
+        setError(null);
+      } else {
+        setError(data.error || 'Erreur lors de la génération du code');
+      }
+    } catch (err) {
+      setError('Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,18 +154,62 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
                 <ol className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">1</span>
-                    <span>Rejoins notre serveur Discord</span>
+                    <span>Clique sur "Générer un code" ci-dessous</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">2</span>
-                    <span>Fais la commande <code className="bg-card px-2 py-1 rounded text-xs">/link</code> dans le Discord</span>
+                    <span>Rejoins notre serveur Discord</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">3</span>
-                    <span>Entre le code reçu ci-dessous</span>
+                    <span>Fais la commande <code className="bg-card px-2 py-1 rounded text-xs">/link code:{generatedCode || 'ABC123'}</code> dans le Discord</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">4</span>
+                    <span>Ton compte sera automatiquement lié !</span>
                   </li>
                 </ol>
               </div>
+
+              {/* Generate Code Button */}
+              {!generatedCode && !isLinked && (
+                <button
+                  onClick={generateCode}
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition-colors mb-6"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                  {isLoading ? 'Génération en cours...' : 'Générer un code de liaison'}
+                </button>
+              )}
+
+              {/* Generated Code Display */}
+              {generatedCode && !isLinked && (
+                <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/50 rounded-xl p-6 mb-6 text-center">
+                  <h3 className="text-lg font-semibold mb-3 text-indigo-400">Ton code de liaison :</h3>
+                  <div className="bg-card rounded-lg p-4 mb-4">
+                    <div className="text-2xl font-mono tracking-widest text-white font-bold">
+                      {generatedCode}
+                    </div>
+                  </div>
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      onClick={() => navigator.clipboard.writeText(generatedCode)}
+                      className="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border border-indigo-500/50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <Copy className="w-4 h-4" />
+                      Copier
+                    </button>
+                    <button
+                      onClick={generateCode}
+                      className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Nouveau code
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Join Discord Button */}
               <button
@@ -147,49 +220,54 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
                 Rejoindre le Discord
               </button>
 
-              {/* Code Input Form */}
+              {/* Manual Code Input (fallback) */}
               {!isLinked && (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="code" className="block text-sm font-medium mb-2">
-                      Code de liaison
-                    </label>
-                    <input
-                      type="text"
-                      id="code"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.toUpperCase())}
-                      placeholder="ABC123"
-                      maxLength={6}
-                      className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:border-primary focus:outline-none transition-colors text-center text-lg font-mono tracking-wider"
-                      disabled={isLoading}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Le code fait 6 caractères et est valide 15 minutes
-                    </p>
-                  </div>
-
-                  {error && (
-                    <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-xl">
-                      <p className="text-sm text-red-400">{error}</p>
+                <div className="border-t border-border pt-4">
+                  <p className="text-center text-sm text-muted-foreground mb-4">
+                    Ou entre manuellement un code (optionnel)
+                  </p>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <label htmlFor="code" className="block text-sm font-medium mb-2">
+                        Code de liaison
+                      </label>
+                      <input
+                        type="text"
+                        id="code"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.toUpperCase())}
+                        placeholder="ABC123"
+                        maxLength={6}
+                        className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:border-primary focus:outline-none transition-colors text-center text-lg font-mono tracking-wider"
+                        disabled={isLoading}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Le code fait 6 caractères et est valide 15 minutes
+                      </p>
                     </div>
-                  )}
 
-                  <button
-                    type="submit"
-                    disabled={isLoading || code.length !== 6}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                        Vérification...
+                    {error && (
+                      <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-xl">
+                        <p className="text-sm text-red-400">{error}</p>
                       </div>
-                    ) : (
-                      'Valider le code'
                     )}
-                  </button>
-                </form>
+
+                    <button
+                      type="submit"
+                      disabled={isLoading || code.length !== 6}
+                      className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Vérification...
+                        </div>
+                      ) : (
+                        'Valider le code manuellement'
+                      )}
+                    </button>
+                  </form>
+                </div>
               )}
 
               {isLinked && (
