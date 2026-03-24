@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     const { data: discordLink, error: discordError } = await supabase
       .from('user_discord_links')
       .select('*')
-      .eq('discord_user_id', linkCode.discord_user_id)
+      .eq('discord_user_id', foundCode.discordId)
       .eq('is_active', true)
       .single();
 
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       .from('user_discord_links')
       .insert({
         supabase_user_id: user.id,
-        discord_user_id: linkCode.discord_user_id,
+        discord_user_id: foundCode.discordId,
         linked_at: new Date().toISOString(),
         is_active: true
       })
@@ -109,16 +109,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Marquer le code comme utilisé
-    await supabase
-      .from('link_codes')
-      .update({ used: true })
-      .eq('id', linkCode.id);
-
     return NextResponse.json({
       success: true,
       message: 'Compte Discord lié avec succès !',
-      discord_user_id: linkCode.discord_user_id,
+      discord_user_id: foundCode.discordId,
       link: newLink
     });
 

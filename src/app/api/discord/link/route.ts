@@ -60,10 +60,19 @@ export async function POST(request: Request) {
     }
 
     // Générer un code unique
+    function generateLinkingCode(): string {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    }
+
     const code = generateLinkingCode();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Stocker le code
+    // Stocker le code dans la Map
     const linkId = `${session.user.id}_${discordId}_${Date.now()}`;
     linkingCodes.set(linkId, {
       userId: session.user.id,
@@ -76,64 +85,12 @@ export async function POST(request: Request) {
     // Nettoyer les codes expirés
     cleanupExpiredCodes();
 
-    // Demander au bot d'envoyer un DM avec le code
-    const DISCORD_BOT_API = process.env.DISCORD_BOT_API_URL || 'http://localhost:3001';
-    const DISCORD_BOT_SECRET = process.env.DISCORD_BOT_SECRET;
-
-    console.log('🤖 Tentative de communication avec le bot Discord:', DISCORD_BOT_API);
-
-    try {
-      const botResponse = await fetch(`${DISCORD_BOT_API}/api/send-link-dm`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${DISCORD_BOT_SECRET}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          discordId,
-          code,
-          websiteUsername: session.user.username || session.user.email,
-        }),
-        // Timeout plus court pour éviter les blocages
-        signal: AbortSignal.timeout(5000)
-      });
-
-      if (!botResponse.ok) {
-        const errorText = await botResponse.text();
-        console.error('❌ Erreur réponse bot Discord:', errorText);
-        
-        // Même si le bot ne répond pas, on génère quand même le code
-        return NextResponse.json({
-          success: true,
-          message: 'Code de vérification généré ! Le bot Discord est temporairement indisponible.',
-          instructions: `Votre code de liaison est: **${code}**. Envoyez ce code au bot Maths-App sur Discord.`,
-          code: code, // Inclure le code directement
-          fallbackMode: true,
-          expiresIn: 10 * 60 // 10 minutes en secondes
-        });
-      }
-
-      const botResult = await botResponse.json();
-      console.log('✅ Bot Discord a répondu:', botResult);
-
-    } catch (botError) {
-      console.error('❌ Erreur communication bot Discord:', botError);
-      
-      // En cas d'erreur de communication, fournir le code directement
-      return NextResponse.json({
-        success: true,
-        message: 'Code de vérification généré ! Le bot Discord est temporairement indisponible.',
-        instructions: `Votre code de liaison est: **${code}**. Envoyez ce code au bot Maths-App sur Discord.`,
-        code: code, // Inclure le code directement
-        fallbackMode: true,
-        expiresIn: 10 * 60 // 10 minutes en secondes
-      });
-    }
-
+    // Retourner le code directement (nouveau flux)
     return NextResponse.json({
       success: true,
-      message: 'Code de vérification envoyé en message privé Discord !',
-      instructions: 'Vérifiez vos MPs Discord et envoyez le code au bot.',
+      message: 'Code de liaison généré !',
+      instructions: `**Instructions pour lier votre compte Discord :**\n\n1. Allez sur Discord\n2. Utilisez la commande : \`/link code:${code}\`\n3. Votre compte sera automatiquement lié !\n\n⏰ Ce code expire dans 10 minutes.`,
+      code: code,
       expiresIn: 10 * 60 // 10 minutes en secondes
     });
 

@@ -15,20 +15,36 @@ export default {
         await command.execute(interaction);
       } catch (error) {
         console.error(`❌ Erreur commande ${interaction.commandName}:`, error);
-        const errorMessage = {
-          content: '❌ Une erreur est survenue lors de l\'exécution de cette commande.',
-          ephemeral: true
-        };
         
+        // Vérifier si l'interaction a déjà été répondue
         if (interaction.replied || interaction.deferred) {
-          await interaction.followUp(errorMessage);
+          try {
+            await interaction.followUp({ 
+              content: '❌ Une erreur est survenue lors de l\'exécution de cette commande.',
+              ephemeral: true 
+            });
+          } catch (followUpError) {
+            console.error('❌ Erreur followUp:', followUpError);
+            // Si même le followUp échoue, on ne peut rien faire de plus
+          }
         } else {
-          await interaction.reply(errorMessage);
+          try {
+            await interaction.reply({ 
+              content: '❌ Une erreur est survenue lors de l\'exécution de cette commande.',
+              ephemeral: true 
+            });
+          } catch (replyError) {
+            console.error('❌ Erreur reply:', replyError);
+          }
         }
       }
     } else {
       // Gérer les autres types d'interactions (tickets, etc.)
-      await handleTicketInteractions(interaction);
+      try {
+        await handleTicketInteractions(interaction);
+      } catch (error) {
+        console.error('❌ Erreur interaction tickets:', error);
+      }
     }
   }
 };

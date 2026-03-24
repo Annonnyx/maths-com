@@ -52,6 +52,46 @@ app.get('/health', (req: Request, res: Response) => {
 
 // Routes API
 
+// Test endpoint pour vérifier la génération de code
+app.post('/api/test-link', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { discordId } = req.body;
+    
+    if (!discordId) {
+      return res.status(400).json({ error: 'Discord ID requis' });
+    }
+
+    // Importer les fonctions nécessaires
+    const { discordDb } = await import('../utils/supabase.js');
+    
+    // Générer un code de test
+    const testCode = 'TEST123';
+    
+    try {
+      // Tenter de créer un code de lien
+      await discordDb.createLinkCode(discordId, testCode);
+      console.log('✅ Code de liaison créé avec succès:', testCode);
+      
+      res.json({
+        success: true,
+        message: 'Code de liaison créé avec succès',
+        code: testCode,
+        discordId: discordId
+      });
+    } catch (dbError) {
+      console.error('❌ Erreur création code:', dbError);
+      res.status(500).json({
+        success: false,
+        error: 'Erreur lors de la création du code',
+        details: dbError.message
+      });
+    }
+  } catch (error) {
+    console.error('❌ Erreur test link:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 // Envoyer un DM de vérification Discord
 app.post('/api/send-link-dm', authMiddleware, async (req: Request, res: Response) => {
   try {
