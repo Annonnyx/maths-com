@@ -1,0 +1,49 @@
+
+> maths-com@0.2.3 dev
+> next dev -H 0.0.0.0
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://0.0.0.0:3000
+- Environments: .env
+- Experiments (use with caution):
+  ✓ optimizeCss
+  · optimizePackageImports
+
+✓ Starting...
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+✓ Ready in 3s
+🔧 Environment: DEVELOPMENT
+🔧 NEXTAUTH_SECRET: DEFINED
+🔧 NEXTAUTH_URL: http://localhost:3000
+🔧 GOOGLE_CLIENT_ID: DEFINED
+🔧 DISCORD_CLIENT_ID: DEFINED
+prisma:info Starting a postgresql pool with 5 connections.
+✅ Prisma connecté à la base de données
+🔧 Environment: DEVELOPMENT
+🔧 NEXTAUTH_SECRET: DEFINED
+🔧 NEXTAUTH_URL: http://localhost:3000
+🔧 GOOGLE_CLIENT_ID: DEFINED
+🔧 DISCORD_CLIENT_ID: DEFINED
+prisma:info Starting a postgresql pool with 5 connections.
+[next-auth][warn][DEBUG_ENABLED] 
+https://next-auth.js.org/warnings#debug_enabled
+prisma:query SELECT "public"."users"."id", "public"."users"."username", "public"."users"."display_name", "public"."users"."avatar_url", "public"."users"."banner_url", "public"."users"."custom_banner_id", "public"."users"."selected_badge_ids", "public"."users"."solo_elo", "public"."users"."solo_rank_class", "public"."users"."solo_best_elo", "public"."users"."solo_best_rank_class", "public"."users"."multiplayer_elo", "public"."users"."multiplayer_rank_class", "public"."users"."multiplayer_best_elo", "public"."users"."multiplayer_best_rank_class", "public"."users"."created_at", "public"."users"."last_seen_at", "public"."users"."is_online" FROM "public"."users" WHERE ("public"."users"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+ GET /api/users/health 404 in 4.2s (compile: 4.0s, render: 138ms)
+✅ Prisma connecté à la base de données
+prisma:query SELECT "public"."cli_api_keys"."id", "public"."cli_api_keys"."userId", "public"."cli_api_keys"."keyHash", "public"."cli_api_keys"."label", "public"."cli_api_keys"."lastUsedAt", "public"."cli_api_keys"."createdAt" FROM "public"."cli_api_keys" WHERE 1=1 OFFSET $1
+prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."username", "public"."users"."password", "public"."users"."accept_join_requests", "public"."users"."avatar_url", "public"."users"."banner_url", "public"."users"."birth_year", "public"."users"."classe", "public"."users"."created_at", "public"."users"."custom_banner_id", "public"."users"."discord_id", "public"."users"."discord_link_code", "public"."users"."discord_linked_at", "public"."users"."discord_username", "public"."users"."display_name", "public"."users"."has_completed_onboarding", "public"."users"."is_admin", "public"."users"."is_online", "public"."users"."is_teacher", "public"."users"."last_seen_at", "public"."users"."last_test_date", "public"."users"."multiplayer_best_elo", "public"."users"."multiplayer_best_rank_class", "public"."users"."multiplayer_elo", "public"."users"."multiplayer_rank_class", "public"."users"."school", "public"."users"."selected_badge_ids", "public"."users"."solo_best_elo", "public"."users"."solo_best_rank_class", "public"."users"."solo_best_streak", "public"."users"."solo_current_streak", "public"."users"."solo_elo", "public"."users"."solo_rank_class", "public"."users"."subject", "public"."users"."updated_at", "public"."users"."role" FROM "public"."users" WHERE "public"."users"."id" IN ($1) OFFSET $2
+ POST /api/cli/auth/verify 401 in 3.8s (compile: 1198ms, render: 2.6s)
+prisma:query SELECT 1
+prisma:query SELECT "public"."cli_api_keys"."id", "public"."cli_api_keys"."userId", "public"."cli_api_keys"."keyHash", "public"."cli_api_keys"."label", "public"."cli_api_keys"."lastUsedAt", "public"."cli_api_keys"."createdAt" FROM "public"."cli_api_keys" WHERE 1=1 OFFSET $1
+prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."username", "public"."users"."password", "public"."users"."accept_join_requests", "public"."users"."avatar_url", "public"."users"."banner_url", "public"."users"."birth_year", "public"."users"."classe", "public"."users"."created_at", "public"."users"."custom_banner_id", "public"."users"."discord_id", "public"."users"."discord_link_code", "public"."users"."discord_linked_at", "public"."users"."discord_username", "public"."users"."display_name", "public"."users"."has_completed_onboarding", "public"."users"."is_admin", "public"."users"."is_online", "public"."users"."is_teacher", "public"."users"."last_seen_at", "public"."users"."last_test_date", "public"."users"."multiplayer_best_elo", "public"."users"."multiplayer_best_rank_class", "public"."users"."multiplayer_elo", "public"."users"."multiplayer_rank_class", "public"."users"."school", "public"."users"."selected_badge_ids", "public"."users"."solo_best_elo", "public"."users"."solo_best_rank_class", "public"."users"."solo_best_streak", "public"."users"."solo_current_streak", "public"."users"."solo_elo", "public"."users"."solo_rank_class", "public"."users"."subject", "public"."users"."updated_at", "public"."users"."role" FROM "public"."users" WHERE "public"."users"."id" IN ($1) OFFSET $2
+prisma:query UPDATE "public"."cli_api_keys" SET "lastUsedAt" = $1 WHERE ("public"."cli_api_keys"."id" = $2 AND 1=1) RETURNING "public"."cli_api_keys"."id", "public"."cli_api_keys"."userId", "public"."cli_api_keys"."keyHash", "public"."cli_api_keys"."label", "public"."cli_api_keys"."lastUsedAt", "public"."cli_api_keys"."createdAt"
+ POST /api/cli/auth/verify 200 in 2.0s (compile: 4ms, render: 2.0s)
+prisma:query SELECT 1
+prisma:query SELECT "public"."cli_api_keys"."id", "public"."cli_api_keys"."userId", "public"."cli_api_keys"."keyHash", "public"."cli_api_keys"."label", "public"."cli_api_keys"."lastUsedAt", "public"."cli_api_keys"."createdAt" FROM "public"."cli_api_keys" WHERE 1=1 OFFSET $1
+prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."username", "public"."users"."password", "public"."users"."accept_join_requests", "public"."users"."avatar_url", "public"."users"."banner_url", "public"."users"."birth_year", "public"."users"."classe", "public"."users"."created_at", "public"."users"."custom_banner_id", "public"."users"."discord_id", "public"."users"."discord_link_code", "public"."users"."discord_linked_at", "public"."users"."discord_username", "public"."users"."display_name", "public"."users"."has_completed_onboarding", "public"."users"."is_admin", "public"."users"."is_online", "public"."users"."is_teacher", "public"."users"."last_seen_at", "public"."users"."last_test_date", "public"."users"."multiplayer_best_elo", "public"."users"."multiplayer_best_rank_class", "public"."users"."multiplayer_elo", "public"."users"."multiplayer_rank_class", "public"."users"."school", "public"."users"."selected_badge_ids", "public"."users"."solo_best_elo", "public"."users"."solo_best_rank_class", "public"."users"."solo_best_streak", "public"."users"."solo_current_streak", "public"."users"."solo_elo", "public"."users"."solo_rank_class", "public"."users"."subject", "public"."users"."updated_at", "public"."users"."role" FROM "public"."users" WHERE "public"."users"."id" IN ($1) OFFSET $2
+ POST /api/cli/auth/verify 401 in 2.3s (compile: 4ms, render: 2.3s)
+prisma:query SELECT 1
+prisma:query SELECT "public"."cli_api_keys"."id", "public"."cli_api_keys"."userId", "public"."cli_api_keys"."keyHash", "public"."cli_api_keys"."label", "public"."cli_api_keys"."lastUsedAt", "public"."cli_api_keys"."createdAt" FROM "public"."cli_api_keys" WHERE 1=1 OFFSET $1
+prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."username", "public"."users"."password", "public"."users"."accept_join_requests", "public"."users"."avatar_url", "public"."users"."banner_url", "public"."users"."birth_year", "public"."users"."classe", "public"."users"."created_at", "public"."users"."custom_banner_id", "public"."users"."discord_id", "public"."users"."discord_link_code", "public"."users"."discord_linked_at", "public"."users"."discord_username", "public"."users"."display_name", "public"."users"."has_completed_onboarding", "public"."users"."is_admin", "public"."users"."is_online", "public"."users"."is_teacher", "public"."users"."last_seen_at", "public"."users"."last_test_date", "public"."users"."multiplayer_best_elo", "public"."users"."multiplayer_best_rank_class", "public"."users"."multiplayer_elo", "public"."users"."multiplayer_rank_class", "public"."users"."school", "public"."users"."selected_badge_ids", "public"."users"."solo_best_elo", "public"."users"."solo_best_rank_class", "public"."users"."solo_best_streak", "public"."users"."solo_current_streak", "public"."users"."solo_elo", "public"."users"."solo_rank_class", "public"."users"."subject", "public"."users"."updated_at", "public"."users"."role" FROM "public"."users" WHERE "public"."users"."id" IN ($1) OFFSET $2
+ POST /api/cli/auth/verify 401 in 2.3s (compile: 5ms, render: 2.3s)
