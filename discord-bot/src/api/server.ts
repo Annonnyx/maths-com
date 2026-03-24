@@ -78,12 +78,12 @@ app.post('/api/test-link', authMiddleware, async (req: Request, res: Response) =
         code: testCode,
         discordId: discordId
       });
-    } catch (dbError) {
+    } catch (dbError: any) {
       console.error('❌ Erreur création code:', dbError);
       res.status(500).json({
         success: false,
         error: 'Erreur lors de la création du code',
-        details: dbError.message
+        details: dbError?.message || 'Erreur inconnue'
       });
     }
   } catch (error) {
