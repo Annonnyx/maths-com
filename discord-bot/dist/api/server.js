@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -48,6 +81,42 @@ app.get('/health', (req, res) => {
     }
 });
 // Routes API
+// Test endpoint pour vérifier la génération de code
+app.post('/api/test-link', authMiddleware, async (req, res) => {
+    try {
+        const { discordId } = req.body;
+        if (!discordId) {
+            return res.status(400).json({ error: 'Discord ID requis' });
+        }
+        // Importer les fonctions nécessaires
+        const { discordDb } = await Promise.resolve().then(() => __importStar(require('../utils/supabase.js')));
+        // Générer un code de test
+        const testCode = 'TEST123';
+        try {
+            // Tenter de créer un code de lien
+            await discordDb.createLinkCode(discordId, testCode);
+            console.log('✅ Code de liaison créé avec succès:', testCode);
+            res.json({
+                success: true,
+                message: 'Code de liaison créé avec succès',
+                code: testCode,
+                discordId: discordId
+            });
+        }
+        catch (dbError) {
+            console.error('❌ Erreur création code:', dbError);
+            res.status(500).json({
+                success: false,
+                error: 'Erreur lors de la création du code',
+                details: dbError.message
+            });
+        }
+    }
+    catch (error) {
+        console.error('❌ Erreur test link:', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
 // Envoyer un DM de vérification Discord
 app.post('/api/send-link-dm', authMiddleware, async (req, res) => {
     try {

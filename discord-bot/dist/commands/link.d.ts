@@ -1,7 +1,7 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 declare const _default: {
-    data: SlashCommandBuilder;
-    execute(interaction: ChatInputCommandInteraction): Promise<import("discord.js").Message<boolean>>;
+    data: import("discord.js").SlashCommandOptionsOnlyBuilder;
+    execute(interaction: ChatInputCommandInteraction): Promise<import("discord.js").Message<boolean> | import("discord.js").InteractionResponse<boolean>>;
 };
 export default _default;
 export declare function verifyLinkCode(code: string, supabaseUserId: string): Promise<{

@@ -54,16 +54,15 @@ exports.discordDb = {
             throw error;
         }
     },
-    // Créer une liaison utilisateur
+    // Créer une liaison utilisateur (utiliser la table users directement)
     async createUserLink(supabaseUserId, discordUserId) {
         const { data, error } = await exports.supabase
-            .from('user_discord_links')
-            .insert({
-            supabase_user_id: supabaseUserId,
-            discord_user_id: discordUserId,
-            linked_at: new Date().toISOString(),
-            is_active: true
+            .from('users')
+            .update({
+            discordId: discordUserId,
+            discordLinkedAt: new Date().toISOString()
         })
+            .eq('id', supabaseUserId)
             .select()
             .single();
         if (error) {
@@ -75,16 +74,15 @@ exports.discordDb = {
     // Récupérer la liaison d'un utilisateur Discord
     async getUserLink(discordUserId) {
         const { data, error } = await exports.supabase
-            .from('user_discord_links')
+            .from('users')
             .select(`
-        *,
-        users!inner(
-          username,
-          user_metadata
-        )
+        id,
+        username,
+        displayName,
+        discordId,
+        discordLinkedAt
       `)
-            .eq('discord_user_id', discordUserId)
-            .eq('is_active', true)
+            .eq('discordId', discordUserId)
             .single();
         if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
             console.error('Error getting user link:', error);
@@ -95,9 +93,12 @@ exports.discordDb = {
     // Désactiver une liaison utilisateur
     async deactivateUserLink(discordUserId) {
         const { error } = await exports.supabase
-            .from('user_discord_links')
-            .update({ is_active: false })
-            .eq('discord_user_id', discordUserId);
+            .from('users')
+            .update({
+            discordId: null,
+            discordLinkedAt: null
+        })
+            .eq('discordId', discordUserId);
         if (error) {
             console.error('Error deactivating user link:', error);
             throw error;

@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { COLORS } from '../config.js';
 import { discordDb } from '../utils/supabase.js';
+import { config } from '../config.js';
 import { assignRoles } from '../utils/roles.js';
 
 // Générer un code aléatoire de 6 caractères alphanumériques
@@ -44,7 +45,7 @@ export default {
           .setTimestamp();
         
         if (interaction.replied || interaction.deferred) {
-          return interaction.editReply({ embeds: [embed], ephemeral: true });
+          return interaction.editReply({ embeds: [embed] });
         } else {
           return interaction.reply({ embeds: [embed], ephemeral: true });
         }
@@ -86,7 +87,7 @@ export default {
           })
         });
         
-        const result = await response.json();
+        const result = await response.json() as { valid: boolean; username?: string; userId?: string; discordId?: string; discordUsername?: string };
         
         if (result.valid) {
           const embed = new EmbedBuilder()
@@ -95,7 +96,7 @@ export default {
             .setColor(COLORS.success)
             .addFields(
               { name: '🎯 Utilisateur lié', value: result.username || 'Inconnu', inline: true },
-              { name: '� Date de liaison', value: new Date().toLocaleDateString('fr-FR'), inline: true }
+              { name: '🔗 Date de liaison', value: new Date().toLocaleDateString('fr-FR'), inline: true }
             )
             .setFooter({ text: 'Maths-App.com • Liaison réussie' })
             .setTimestamp();
@@ -124,17 +125,17 @@ export default {
         }
       } catch (fetchError) {
         console.error('Erreur vérification code:', fetchError);
-        const embed = new EmbedBuilder()
-          .title('❌ Erreur de vérification')
+        const errorEmbed = new EmbedBuilder()
+          .setTitle('❌ Erreur de vérification')
           .setDescription('Impossible de vérifier votre code avec le site web. Réessayez plus tard.')
           .setColor(COLORS.error)
           .setFooter({ text: 'Maths-App.com' })
           .setTimestamp();
         
         if (interaction.replied || interaction.deferred) {
-          await interaction.editReply({ embeds: [embed] });
+          await interaction.editReply({ embeds: [errorEmbed] });
         } else {
-          await interaction.reply({ embeds: [embed], ephemeral: true });
+          await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
         }
       }
       

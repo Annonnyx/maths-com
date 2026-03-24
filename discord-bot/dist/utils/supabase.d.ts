@@ -12,7 +12,13 @@ export declare const discordDb: {
     }>;
     markCodeAsUsed(codeId: string): Promise<void>;
     createUserLink(supabaseUserId: string, discordUserId: string): Promise<any>;
-    getUserLink(discordUserId: string): Promise<any>;
+    getUserLink(discordUserId: string): Promise<{
+        id: any;
+        username: any;
+        displayName: any;
+        discordId: any;
+        discordLinkedAt: any;
+    }>;
     deactivateUserLink(discordUserId: string): Promise<void>;
     getUserProfile(supabaseUserId: string): Promise<any>;
 };
