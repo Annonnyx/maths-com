@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         userCount: userCount,
         keyCount: keyCount,
         sampleUsers: sampleUsers,
-        sampleKeys: sampleKeys.map(k => ({ id: k.id, label: k.label, username: k.user.username, createdAt: k.createdAt }))
+        sampleKeys: sampleKeys.map((k: any) => ({ id: k.id, label: k.label, username: k.user.username, createdAt: k.createdAt }))
       },
       timestamp: new Date().toISOString()
     });
