@@ -15,11 +15,40 @@ import {
 
 export default function DiscordLinkPage() {
   const { data: session } = useSession();
+  const [generatedCode, setGeneratedCode] = useState('');
   const [linkCode, setLinkCode] = useState('');
   const [linked, setLinked] = useState(false);
   const [discordUsername, setDiscordUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{type: 'success' | 'error', message: string} | null>(null);
+
+  // Générer un code de liaison
+  const generateCode = async () => {
+    setLoading(true);
+    setResult(null);
+    setGeneratedCode('');
+
+    try {
+      const response = await fetch('/api/discord/link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ discordId: 'pending' }) // Le bot fournira le vrai Discord ID
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setGeneratedCode(data.code);
+        setResult({ type: 'success', message: data.message });
+      } else {
+        setResult({ type: 'error', message: data.error || 'Erreur lors de la génération du code' });
+      }
+    } catch (error) {
+      setResult({ type: 'error', message: 'Erreur de connexion' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Vérifier le statut de liaison au chargement
   useEffect(() => {
@@ -195,28 +224,72 @@ export default function DiscordLinkPage() {
               <ol className="text-gray-400 space-y-3 text-sm">
                 <li className="flex gap-3">
                   <span className="bg-indigo-500/20 text-indigo-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                  <span>Rejoignez notre serveur Discord: <a href="https://discord.gg/maths-app" target="_blank" className="text-indigo-400 hover:underline">discord.gg/maths-app</a></span>
+                  <span>Cliquez sur "Générer un code" ci-dessous</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="bg-indigo-500/20 text-indigo-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                  <span>Dans Discord, utilisez la commande <code className="bg-[#0a0a0f] px-2 py-0.5 rounded text-white">/link</code></span>
+                  <span>Rejoignez notre serveur Discord: <a href="https://discord.gg/maths-app" target="_blank" className="text-indigo-400 hover:underline">discord.gg/maths-app</a></span>
                 </li>
                 <li className="flex gap-3">
                   <span className="bg-indigo-500/20 text-indigo-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                  <span>Copiez le code de 6 caractères reçu en MP</span>
+                  <span>Dans Discord, utilisez la commande <code className="bg-[#0a0a0f] px-2 py-0.5 rounded text-white">/link code:{generatedCode || 'ABC123'}</code></span>
                 </li>
                 <li className="flex gap-3">
                   <span className="bg-indigo-500/20 text-indigo-400 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">4</span>
-                  <span>Collez le code ci-dessous</span>
+                  <span>Votre compte sera automatiquement lié !</span>
                 </li>
               </ol>
             </div>
 
-            {/* Input du code */}
+            {/* Bouton générer code */}
+            {!generatedCode && (
+              <div className="space-y-4 mb-8">
+                <button
+                  onClick={generateCode}
+                  disabled={loading}
+                  className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                  {loading ? 'Génération en cours...' : 'Générer un code de liaison'}
+                </button>
+              </div>
+            )}
+
+            {/* Code généré */}
+            {generatedCode && (
+              <div className="space-y-4 mb-8">
+                <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/50 rounded-lg p-6 text-center">
+                  <h3 className="text-lg font-semibold mb-2 text-indigo-400">Votre code de liaison :</h3>
+                  <div className="bg-[#0a0a0f] rounded-lg p-4 mb-4">
+                    <div className="text-3xl font-mono tracking-widest text-white font-bold">
+                      {generatedCode}
+                    </div>
+                  </div>
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      onClick={() => navigator.clipboard.writeText(generatedCode)}
+                      className="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border border-indigo-500/50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <Copy className="w-4 h-4" />
+                      Copier
+                    </button>
+                    <button
+                      onClick={generateCode}
+                      className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Nouveau code
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Input du code (optionnel - pour compatibilité) */}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-gray-400 mb-2">
-                  Code de liaison (6 caractères)
+                  Ou entrez manuellement un code (optionnel)
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -244,10 +317,10 @@ export default function DiscordLinkPage() {
               <button
                 onClick={linkAccount}
                 disabled={loading || linkCode.length !== 6}
-                className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 <Link2 className="w-5 h-5" />
-                {loading ? 'Liaison en cours...' : 'Lier mon compte'}
+                {loading ? 'Liaison en cours...' : 'Utiliser ce code manuellement'}
               </button>
             </div>
           </motion.div>
