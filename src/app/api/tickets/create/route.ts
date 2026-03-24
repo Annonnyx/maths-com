@@ -73,12 +73,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Appeler le bot Discord pour créer le channel
+    console.log('🎫 Tentative de création du channel Discord pour le ticket:', ticket.id);
+    
     try {
-      const botResponse = await fetch(`${process.env.BOT_API_URL || 'http://localhost:3002'}/api/tickets/create`, {
+      const botApiUrl = process.env.BOT_API_URL || 'http://localhost:3002';
+      const botApiSecret = process.env.BOT_API_SECRET || 'ae88486ea8d3d7325cea8542e6a2be15c87fc1e7f3cdb12cd43aacbcdd21eded';
+      
+      console.log('🤖 Communication avec le bot Discord:', botApiUrl);
+      
+      const botResponse = await fetch(`${botApiUrl}/api/tickets/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.BOT_API_SECRET || 'ae88486ea8d3d7325cea8542e6a2be15c87fc1e7f3cdb12cd43aacbcdd21eded'}`
+          'Authorization': `Bearer ${botApiSecret}`
         },
         body: JSON.stringify({
           ticketId: ticket.id,
@@ -88,11 +95,14 @@ export async function POST(request: NextRequest) {
           description: ticket.description,
           userId: user.id,
           username: user.user_metadata?.username || user.email
-        })
+        }),
+        // Timeout pour éviter les blocages
+        signal: AbortSignal.timeout(5000)
       });
 
       if (botResponse.ok) {
         const botData = await botResponse.json();
+        console.log('✅ Bot Discord a créé le channel:', botData.channelId);
         
         // Mettre à jour le ticket avec l'ID du channel Discord
         await supabase
@@ -100,10 +110,15 @@ export async function POST(request: NextRequest) {
           .update({ discord_channel_id: botData.channelId })
           .eq('id', ticket.id);
       } else {
-        console.error('Bot API error:', await botResponse.text());
+        const errorText = await botResponse.text();
+        console.error('❌ Bot Discord API error:', errorText);
+        
+        // Continuer quand même sans le channel Discord
+        console.log('⚠️ Ticket créé sans channel Discord (bot indisponible)');
       }
     } catch (botError) {
-      console.error('Error calling bot API:', botError);
+      console.error('❌ Erreur communication bot Discord:', botError);
+      console.log('⚠️ Ticket créé sans channel Discord (bot indisponible)');
       // Ne pas échouer toute la requête si le bot ne répond pas
     }
 

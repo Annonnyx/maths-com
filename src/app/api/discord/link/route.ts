@@ -80,6 +80,8 @@ export async function POST(request: Request) {
     const DISCORD_BOT_API = process.env.DISCORD_BOT_API_URL || 'http://localhost:3001';
     const DISCORD_BOT_SECRET = process.env.DISCORD_BOT_SECRET;
 
+    console.log('🤖 Tentative de communication avec le bot Discord:', DISCORD_BOT_API);
+
     try {
       const botResponse = await fetch(`${DISCORD_BOT_API}/api/send-link-dm`, {
         method: 'POST',
@@ -91,22 +93,41 @@ export async function POST(request: Request) {
           discordId,
           code,
           websiteUsername: session.user.username || session.user.email,
-        })
+        }),
+        // Timeout plus court pour éviter les blocages
+        signal: AbortSignal.timeout(5000)
       });
 
       if (!botResponse.ok) {
-        console.error('Erreur envoi DM bot:', await botResponse.text());
-        return NextResponse.json(
-          { error: 'Impossible d\'envoyer le message de vérification' },
-          { status: 500 }
-        );
+        const errorText = await botResponse.text();
+        console.error('❌ Erreur réponse bot Discord:', errorText);
+        
+        // Même si le bot ne répond pas, on génère quand même le code
+        return NextResponse.json({
+          success: true,
+          message: 'Code de vérification généré ! Le bot Discord est temporairement indisponible.',
+          instructions: `Votre code de liaison est: **${code}**. Envoyez ce code au bot Maths-App sur Discord.`,
+          code: code, // Inclure le code directement
+          fallbackMode: true,
+          expiresIn: 10 * 60 // 10 minutes en secondes
+        });
       }
+
+      const botResult = await botResponse.json();
+      console.log('✅ Bot Discord a répondu:', botResult);
+
     } catch (botError) {
-      console.error('Erreur communication bot:', botError);
-      return NextResponse.json(
-        { error: 'Service de vérification indisponible' },
-        { status: 500 }
-      );
+      console.error('❌ Erreur communication bot Discord:', botError);
+      
+      // En cas d'erreur de communication, fournir le code directement
+      return NextResponse.json({
+        success: true,
+        message: 'Code de vérification généré ! Le bot Discord est temporairement indisponible.',
+        instructions: `Votre code de liaison est: **${code}**. Envoyez ce code au bot Maths-App sur Discord.`,
+        code: code, // Inclure le code directement
+        fallbackMode: true,
+        expiresIn: 10 * 60 // 10 minutes en secondes
+      });
     }
 
     return NextResponse.json({
