@@ -43,22 +43,42 @@ exports.default = {
                     return interaction.reply({ embeds: [embed], ephemeral: true });
                 }
             }
-            // Vérifier si l'utilisateur a déjà un compte lié
-            const existingLink = await supabase_js_1.discordDb.getUserLink(discordUserId);
-            if (existingLink) {
-                const embed = new discord_js_1.EmbedBuilder()
-                    .setTitle('⚠️ Compte déjà lié')
-                    .setDescription('Votre compte Discord est déjà lié à Maths-App.com.')
-                    .addFields({ name: 'Utilisateur lié', value: existingLink.username || 'Inconnu', inline: true }, { name: 'Date de liaison', value: existingLink.discordLinkedAt ? new Date(existingLink.discordLinkedAt).toLocaleDateString('fr-FR') : 'Inconnue', inline: true })
-                    .setColor(config_js_1.COLORS.warning)
-                    .setFooter({ text: 'Utilisez /unlink pour délier votre compte' })
-                    .setTimestamp();
-                if (interaction.replied || interaction.deferred) {
-                    return interaction.editReply({ embeds: [embed] });
+            // Vérifier si l'utilisateur a déjà un compte lié (utiliser l'API du site)
+            try {
+                const response = await fetch(`${config_js_2.config.website.apiUrl}/discord/bot-verify`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${config_js_2.config.api.secret}`
+                    },
+                    body: JSON.stringify({
+                        discordId: discordUserId,
+                        code: 'CHECK_LINK', // Code spécial pour vérifier si déjà lié
+                        discordUsername: discordUsername
+                    })
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.valid && result.username) {
+                        const embed = new discord_js_1.EmbedBuilder()
+                            .setTitle('⚠️ Compte déjà lié')
+                            .setDescription('Votre compte Discord est déjà lié à Maths-App.com.')
+                            .addFields({ name: 'Utilisateur lié', value: result.username, inline: true }, { name: 'Date de liaison', value: new Date().toLocaleDateString('fr-FR'), inline: true })
+                            .setColor(config_js_1.COLORS.warning)
+                            .setFooter({ text: 'Utilisez /unlink pour délier votre compte' })
+                            .setTimestamp();
+                        if (interaction.replied || interaction.deferred) {
+                            return interaction.editReply({ embeds: [embed] });
+                        }
+                        else {
+                            return interaction.reply({ embeds: [embed], ephemeral: true });
+                        }
+                    }
                 }
-                else {
-                    return interaction.reply({ embeds: [embed], ephemeral: true });
-                }
+            }
+            catch (checkError) {
+                // Si on ne peut pas vérifier, on continue
+                console.log('⚠️ Impossible de vérifier si déjà lié, continuation...');
             }
             // Vérifier le code avec le site web
             try {
