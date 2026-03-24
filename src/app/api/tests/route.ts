@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     const score = Math.round((correct / questions.length) * 100);
     const timeTaken = Math.round(elapsedTime / 1000); // Convert to seconds
 
-    let eloBefore = user.soloElo;
+    const eloBefore = user.soloElo;
     let eloAfter = eloBefore;
     let eloChange = 0;
 

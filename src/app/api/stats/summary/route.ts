@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         startDate = new Date(0);
     }
 
-    let stats = {
+    const stats = {
       totalTests: 0,
       totalQuestions: 0,
       totalCorrect: 0,

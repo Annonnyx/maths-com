@@ -18,12 +18,12 @@ export class CPGenerator implements LevelGenerator {
 
   getEloRange() { return this.eloRange; }
 
-  getAvailableDomains(_excludeGeometry: boolean): DomainType[] {
+  getAvailableDomains(): DomainType[] {
     return ['calculation', 'arithmetic'];
   }
 
   generate(context: GenerationContext): GeneratedQuestion {
-    const domain = randomChoice(this.getAvailableDomains(context.excludeGeometry ?? false));
+    const domain = randomChoice(this.getAvailableDomains());
     switch (domain) {
       case 'calculation': return this.generateCalculation(context);
       case 'arithmetic':  return this.generateArithmetic(context);

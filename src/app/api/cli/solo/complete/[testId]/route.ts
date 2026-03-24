@@ -56,7 +56,7 @@ export async function POST(
     const score = Math.round((correct / answers.length) * 100)
 
     // Calculer le changement ELO
-    let eloBefore = user.soloElo
+    const eloBefore = user.soloElo
     let eloAfter = eloBefore
     let eloChange = 0
 

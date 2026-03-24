@@ -17,12 +17,12 @@ export class Sup2Generator implements LevelGenerator {
 
   getEloRange() { return this.eloRange; }
 
-  getAvailableDomains(_excludeGeometry: boolean): DomainType[] {
+  getAvailableDomains(): DomainType[] {
     return ['algebra', 'functions', 'complex', 'statistics'];
   }
 
   generate(context: GenerationContext): GeneratedQuestion {
-    const domain = randomChoice(this.getAvailableDomains(context.excludeGeometry ?? false));
+    const domain = randomChoice(this.getAvailableDomains());
     switch (domain) {
       case 'algebra':    return this.generateAlgebra();
       case 'functions':  return this.generateAnalysis();

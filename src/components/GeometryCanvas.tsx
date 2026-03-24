@@ -259,8 +259,8 @@ export default function GeometryCanvas({
       const cssX = e.clientX - rect.left;
       const cssY = e.clientY - rect.top;
       const coords = new JXG.Coords(JXG.COORDS_BY_SCREEN, [cssX, cssY], board);
-      let x = snapGridRef.current ? Math.round(coords.usrCoords[1]) : coords.usrCoords[1];
-      let y = snapGridRef.current ? Math.round(coords.usrCoords[2]) : coords.usrCoords[2];
+      const x = snapGridRef.current ? Math.round(coords.usrCoords[1]) : coords.usrCoords[1];
+      const y = snapGridRef.current ? Math.round(coords.usrCoords[2]) : coords.usrCoords[2];
 
       handleToolClick(board, JXG, currentTool, x, y);
     });
@@ -459,7 +459,7 @@ export default function GeometryCanvas({
     const board = jxgBoardRef.current;
     if (!board) return;
     try {
-      // eslint-disable-next-line no-new-func
+       
       const f = new Function('x', `return ${fnExpr}`);
       board.create('functiongraph', [f, -20, 20], {
         strokeColor: fnColor, strokeWidth: strokeWidth, highlight: false,

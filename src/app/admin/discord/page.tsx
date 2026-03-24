@@ -18,8 +18,6 @@ import {
   Shield,
   Users,
   Crown,
-  Power,
-  Bot,
   Play,
   Square
 } from 'lucide-react';
@@ -37,7 +35,6 @@ export default function DiscordAdminPage() {
   const [botLoading, setBotLoading] = useState(false);
   const [messageContent, setMessageContent] = useState('');
   const [selectedChannel, setSelectedChannel] = useState('general');
-  const [messageType, setMessageType] = useState<'announcement' | 'leaderboard'>('announcement');
   const [result, setResult] = useState<{type: 'success' | 'error', message: string} | null>(null);
 
   // Charger le statut du bot
@@ -52,8 +49,8 @@ export default function DiscordAdminPage() {
       if (data.botStatus) {
         setBotStatus(data.botStatus);
       }
-    } catch (error) {
-      console.error('Error fetching bot status:', error);
+    } catch {
+      console.error('Error fetching bot status');
     }
   };
 
@@ -85,7 +82,7 @@ export default function DiscordAdminPage() {
       } else {
         setResult({ type: 'error', message: data.error || 'Erreur lors de l\'envoi' });
       }
-    } catch (error) {
+    } catch {
       setResult({ type: 'error', message: 'Erreur de connexion au bot' });
     } finally {
       setLoading(false);
@@ -114,7 +111,7 @@ export default function DiscordAdminPage() {
       } else {
         setResult({ type: 'error', message: data.error || 'Erreur lors de la publication' });
       }
-    } catch (error) {
+    } catch {
       setResult({ type: 'error', message: 'Erreur de connexion au bot' });
     } finally {
       setLoading(false);
@@ -140,7 +137,7 @@ export default function DiscordAdminPage() {
       } else {
         setResult({ type: 'error', message: data.error || 'Erreur lors du démarrage du bot' });
       }
-    } catch (error) {
+    } catch {
       setResult({ type: 'error', message: 'Erreur de connexion au service bot' });
     } finally {
       setBotLoading(false);
@@ -166,7 +163,7 @@ export default function DiscordAdminPage() {
       } else {
         setResult({ type: 'error', message: data.error || 'Erreur lors de l\'arrêt du bot' });
       }
-    } catch (error) {
+    } catch {
       setResult({ type: 'error', message: 'Erreur de connexion au service bot' });
     } finally {
       setBotLoading(false);

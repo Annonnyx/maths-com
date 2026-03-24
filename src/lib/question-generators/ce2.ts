@@ -8,7 +8,7 @@
 import {
   GeneratedQuestion, GenerationContext, LevelGenerator,
   DomainType, SchoolLevel,
-  randomInt, randomChoice, shuffleArray, hashQuestion
+  randomInt, randomChoice,  hashQuestion
 } from './types';
 import { getScaledOperands } from './elo-scaler';
 
@@ -18,12 +18,12 @@ export class CE2Generator implements LevelGenerator {
 
   getEloRange() { return this.eloRange; }
 
-  getAvailableDomains(_excludeGeometry: boolean): DomainType[] {
+  getAvailableDomains(): DomainType[] {
     return ['calculation', 'arithmetic'];
   }
 
   generate(context: GenerationContext): GeneratedQuestion {
-    const domain = randomChoice(this.getAvailableDomains(context.excludeGeometry ?? false));
+    const domain = randomChoice(this.getAvailableDomains());
     switch (domain) {
       case 'calculation': return this.generateCalculation(context);
       case 'arithmetic':  return this.generateArithmetic(context);

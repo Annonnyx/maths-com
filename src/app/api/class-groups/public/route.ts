@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Recherche normale par nom de classe
-    let whereClause: any = {
+    const whereClause: any = {
       isPrivate: false
     };
 

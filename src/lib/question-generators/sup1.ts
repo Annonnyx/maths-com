@@ -18,12 +18,12 @@ export class Sup1Generator implements LevelGenerator {
 
   getEloRange() { return this.eloRange; }
 
-  getAvailableDomains(_excludeGeometry: boolean): DomainType[] {
+  getAvailableDomains(): DomainType[] {
     return ['algebra', 'functions', 'calculation', 'statistics'];
   }
 
   generate(context: GenerationContext): GeneratedQuestion {
-    const domain = randomChoice(this.getAvailableDomains(context.excludeGeometry ?? false));
+    const domain = randomChoice(this.getAvailableDomains());
     switch (domain) {
       case 'algebra':     return this.generateAlgebra();
       case 'functions':   return this.generateAnalysis();
@@ -246,4 +246,4 @@ export class Sup1Generator implements LevelGenerator {
 }
 
 // Hack TypeScript : context accessible dans generateDeterminant3x3
-let context: GenerationContext | null = null;
+const context: GenerationContext | null = null;

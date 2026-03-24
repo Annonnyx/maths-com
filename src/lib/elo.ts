@@ -328,7 +328,7 @@ export function calculateInitialElo(finalLevel: number, accuracy: number, avgTim
     10: 1200 // 2nde et plus
   };
   
-  let baseElo = levelEloMap[finalLevel] || 500;
+  const baseElo = levelEloMap[finalLevel] || 500;
   
   // Accuracy bonus (0-100%)
   const accuracyBonus = Math.round((accuracy - 0.5) * 200); // -100 to +100

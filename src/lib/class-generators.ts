@@ -430,7 +430,7 @@ export function filterOperationsByPreferences(
   operations: OperationType[],
   options: { disableGeometry?: boolean; disableFractions?: boolean }
 ): OperationType[] {
-  let filtered = [...operations];
+  const filtered = [...operations];
   
   // Pas de filtrage spécifique sur les types de base, mais pourrait être étendu
   // pour des types spéciaux comme 'geometrie' si on les ajoute comme OperationType

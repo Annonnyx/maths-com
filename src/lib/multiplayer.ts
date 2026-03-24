@@ -198,7 +198,7 @@ export interface GameSearchResult {
 // WebSocket message types
 export interface WebSocketMessage {
   type: 'game_search' | 'game_found' | 'game_start' | 'question_update' | 'score_update' | 'game_end' | 'chat' | 'friend_request' | 'status_update';
-  data: any;
+  data: unknown;
   gameId?: string;
   senderId?: string;
   receiverId?: string;

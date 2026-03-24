@@ -13,7 +13,21 @@ export type OperationType =
   | 'logic'
   | 'geometry'
   | 'delta'
-  | 'quadratic';
+  | 'quadratic'
+  | 'pythagore'
+  | 'thales'
+  | 'trigonometry'
+  | 'vectors'
+  | 'complex_numbers'
+  | 'matrices'
+  | 'graphs'
+  | 'integrals'
+  | 'derivatives'
+  | 'probabilities'
+  | 'statistics';
+
+// Import the new adaptive system
+import { generateAdaptiveTest } from './adaptive-exercises';
 
 import { 
   FRENCH_CLASSES, 
@@ -512,8 +526,7 @@ export function generateExercise(type: OperationType, difficulty: number): Exerc
 
 // Generate a test with mixed questions using adaptive algorithm
 export function generateTest(elo: number, count: number = 20): Exercise[] {
-  // Import the new adaptive system
-  const { generateAdaptiveTest } = require('./adaptive-exercises');
+  // Use the new adaptive system
   return generateAdaptiveTest(elo, count);
 }
 
@@ -547,8 +560,7 @@ function getFrenchClassOperations(className: FrenchClass): OperationType[] {
 
 // Generate evaluation test using adaptive algorithm
 export function generateEvaluationTest(count: number = 20, excludeGeometry: boolean = false): Exercise[] {
-  // Import the new adaptive system
-  const { generateAdaptiveTest } = require('./adaptive-exercises');
+  // Use the new adaptive system
   // Start with a medium ELO for evaluation (around CM1/CM2 level)
   return generateAdaptiveTest(1200, count);
 }
@@ -559,8 +571,7 @@ export function generateMultiplayerQuestions(
   player2Elo: number,
   count: number = 20
 ): Exercise[] {
-  // Import the new adaptive system
-  const { generateAdaptiveTest } = require('./adaptive-exercises');
+  // Use the new adaptive system
   const avgElo = (player1Elo + player2Elo) / 2;
   return generateAdaptiveTest(avgElo, count);
 }
@@ -1095,7 +1106,7 @@ export function generateAdaptiveOnboardingTest(count: number = 5): Exercise[] {
   const questions: Exercise[] = [];
   
   // Commencer avec un niveau moyen (difficulté 5 = CE2)
-  let currentDifficulty = 5;
+  const currentDifficulty = 5;
   
   for (let i = 0; i < count; i++) {
     // Types d'opérations progressifs selon le niveau

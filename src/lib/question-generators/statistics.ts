@@ -1,4 +1,4 @@
-import { GeneratedQuestion, randomInt, randomFloat, randomChoice, shuffleArray, hashQuestion, SchoolLevel } from './types';
+import { GeneratedQuestion, randomInt,  randomChoice, shuffleArray, hashQuestion, SchoolLevel } from './types';
 export interface QuestionGenerator {
   generate(difficulty: number): GeneratedQuestion;
 }
