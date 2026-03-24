@@ -12,7 +12,6 @@ interface DiscordLinkModalProps {
 }
 
 export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSuccess }: DiscordLinkModalProps) {
-  const [code, setCode] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,40 +40,6 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
       }
     } catch (err) {
       setError('Erreur de connexion. Veuillez réessayer.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/discord/verify-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code: code.trim() }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess(true);
-        setCode('');
-        onLinkSuccess?.();
-        setTimeout(() => {
-          onClose();
-          setSuccess(false);
-        }, 2000);
-      } else {
-        setError(data.error || 'Erreur lors de la liaison du compte');
-      }
-    } catch (err) {
-      setError('Erreur réseau. Veuillez réessayer.');
     } finally {
       setIsLoading(false);
     }
@@ -219,56 +184,6 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
                 <ExternalLink className="w-4 h-4" />
                 Rejoindre le Discord
               </button>
-
-              {/* Manual Code Input (fallback) */}
-              {!isLinked && (
-                <div className="border-t border-border pt-4">
-                  <p className="text-center text-sm text-muted-foreground mb-4">
-                    Ou entre manuellement un code (optionnel)
-                  </p>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label htmlFor="code" className="block text-sm font-medium mb-2">
-                        Code de liaison
-                      </label>
-                      <input
-                        type="text"
-                        id="code"
-                        value={code}
-                        onChange={(e) => setCode(e.target.value.toUpperCase())}
-                        placeholder="ABC123"
-                        maxLength={6}
-                        className="w-full px-4 py-3 bg-card border border-border rounded-xl focus:border-primary focus:outline-none transition-colors text-center text-lg font-mono tracking-wider"
-                        disabled={isLoading}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Le code fait 6 caractères et est valide 15 minutes
-                      </p>
-                    </div>
-
-                    {error && (
-                      <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-xl">
-                        <p className="text-sm text-red-400">{error}</p>
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={isLoading || code.length !== 6}
-                      className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isLoading ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Vérification...
-                        </div>
-                      ) : (
-                        'Valider le code manuellement'
-                      )}
-                    </button>
-                  </form>
-                </div>
-              )}
 
               {isLinked && (
                 <div className="text-center py-4">
