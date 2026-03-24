@@ -4,21 +4,80 @@ import bcrypt from 'bcryptjs';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-// GET /api/users - Health check for Discord bot
+// GET /api/users - Health check or get user by ID/username
 export async function GET(req: NextRequest) {
   try {
-    // Simple health check - return basic stats
-    const userCount = await prisma.user.count();
-    
-    return NextResponse.json({
-      status: 'ok',
-      userCount,
-      timestamp: new Date().toISOString()
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    const username = searchParams.get('username');
+    const healthCheck = searchParams.get('health');
+
+    // Health check endpoint
+    if (healthCheck === 'true' || (!id && !username)) {
+      const userCount = await prisma.user.count();
+      
+      return NextResponse.json({
+        status: 'ok',
+        userCount,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Get user by ID or username
+    const user = await prisma.user.findUnique({
+      where: id ? { id } : { username: username! },
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        avatarUrl: true,
+        bannerUrl: true,
+        customBannerId: true,
+        selectedBadgeIds: true,
+        soloElo: true,
+        soloRankClass: true,
+        soloBestElo: true,
+        soloBestRankClass: true,
+        multiplayerElo: true,
+        multiplayerRankClass: true,
+        multiplayerBestElo: true,
+        multiplayerBestRankClass: true,
+        hasCompletedOnboarding: true,
+        isOnline: true,
+        lastSeenAt: true,
+        createdAt: true,
+        updatedAt: true,
+        soloStatistics: true,
+        userBadges: {
+          select: {
+            id: true,
+            earnedAt: true,
+            badge: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                icon: true,
+                category: true,
+                rarity: true,
+                condition: true,
+                createdAt: true
+              }
+            }
+          }
+        }
+      }
     });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(user);
   } catch (error) {
-    console.error('Health check error:', error);
+    console.error('Error in /api/users:', error);
     return NextResponse.json(
-      { status: 'error', message: 'Database connection failed' },
+      { status: 'error', message: 'Request failed' },
       { status: 500 }
     );
   }
@@ -120,76 +179,6 @@ export async function POST(req: NextRequest) {
       details: error?.message || 'Unknown error',
       code: error?.code || 'UNKNOWN'
     }, { status: 500 });
-  }
-}
-
-// GET /api/users - Get user by ID or username
-export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-    const username = searchParams.get('username');
-
-    if (!id && !username) {
-      return NextResponse.json(
-        { error: 'ID or username required' },
-        { status: 400 }
-      );
-    }
-
-    const user = await prisma.user.findUnique({
-      where: id ? { id } : { username: username! },
-      select: {
-        id: true,
-        username: true,
-        displayName: true,
-        avatarUrl: true,
-        bannerUrl: true,
-        customBannerId: true,
-        selectedBadgeIds: true,
-        soloElo: true,
-        soloRankClass: true,
-        soloBestElo: true,
-        soloBestRankClass: true,
-        multiplayerElo: true,
-        multiplayerRankClass: true,
-        multiplayerBestElo: true,
-        multiplayerBestRankClass: true,
-        hasCompletedOnboarding: true,
-        isOnline: true,
-        lastSeenAt: true,
-        createdAt: true,
-        updatedAt: true,
-        soloStatistics: true,
-        userBadges: {
-          select: {
-            id: true,
-            earnedAt: true,
-            badge: {
-              select: {
-                id: true,
-                name: true,
-                description: true,
-                icon: true,
-                category: true,
-                rarity: true,
-                condition: true,
-                createdAt: true
-              }
-            }
-          }
-        }
-      }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    return NextResponse.json(user);
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
   }
 }
 

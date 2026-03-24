@@ -25,8 +25,10 @@ const nextConfig = {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
   
-  // Turbopack config (vide pour utiliser les défauts Next.js 16)
-  turbopack: {},
+  // Turbopack config with root directory to resolve lockfile conflicts
+  turbopack: {
+    root: __dirname,
+  },
   
   // Configuration pour le déploiement
   output: 'standalone',

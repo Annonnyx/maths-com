@@ -1,16 +1,19 @@
-import { handleTicketModal, handleTicketClose, confirmTicketClose } from '../commands/ticket-enhanced.js';
-export default {
-    name: 'interactionCreate',
-    async execute(interaction) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.handleTicketInteractions = handleTicketInteractions;
+const ticket_enhanced_js_1 = require("../commands/ticket-enhanced.js");
+// Handler pour les interactions de tickets - PAS un événement
+async function handleTicketInteractions(interaction) {
+    try {
         // Gérer la soumission des modals de ticket
         if (interaction.isModalSubmit()) {
             if (interaction.customId.startsWith('ticket_modal_')) {
-                await handleTicketModal(interaction);
+                await (0, ticket_enhanced_js_1.handleTicketModal)(interaction);
             }
             else if (interaction.customId.startsWith('close_ticket_modal_')) {
                 const ticketUserId = interaction.customId.split('_').pop();
                 if (ticketUserId) {
-                    await confirmTicketClose(interaction, ticketUserId);
+                    await (0, ticket_enhanced_js_1.confirmTicketClose)(interaction, ticketUserId);
                 }
             }
         }
@@ -19,10 +22,13 @@ export default {
             if (interaction.customId.startsWith('ticket_close_')) {
                 const ticketUserId = interaction.customId.split('_').pop();
                 if (ticketUserId) {
-                    await handleTicketClose(interaction, ticketUserId);
+                    await (0, ticket_enhanced_js_1.handleTicketClose)(interaction, ticketUserId);
                 }
             }
             // Ajouter d'autres handlers de boutons ici si nécessaire
         }
     }
-};
+    catch (error) {
+        console.error('❌ Erreur interaction ticket:', error);
+    }
+}

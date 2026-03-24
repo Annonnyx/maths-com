@@ -1,12 +1,14 @@
-import { Events } from 'discord.js';
-import { client } from '../client.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const discord_js_1 = require("discord.js");
+const client_js_1 = require("../client.js");
 // Import des handlers
-import ticketHandler from './ticketInteractions.js';
-export default {
-    name: Events.InteractionCreate,
+const ticketInteractions_js_1 = require("./ticketInteractions.js");
+exports.default = {
+    name: discord_js_1.Events.InteractionCreate,
     async execute(interaction) {
         if (interaction.isChatInputCommand()) {
-            const command = client.commands.get(interaction.commandName);
+            const command = client_js_1.client.commands.get(interaction.commandName);
             if (!command)
                 return;
             try {
@@ -27,16 +29,8 @@ export default {
             }
         }
         else {
-            await handleTicketInteractions(interaction);
+            // Gérer les autres types d'interactions (tickets, etc.)
+            await (0, ticketInteractions_js_1.handleTicketInteractions)(interaction);
         }
     }
 };
-// Handler séparé pour les interactions de tickets
-export async function handleTicketInteractions(interaction) {
-    try {
-        await ticketHandler.execute(interaction);
-    }
-    catch (error) {
-        console.error('❌ Erreur interaction ticket:', error);
-    }
-}

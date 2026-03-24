@@ -1,12 +1,15 @@
-import { createClient } from '@supabase/supabase-js';
-import { config } from '../config.js';
-export const supabase = createClient(config.supabase.url, config.supabase.serviceKey);
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.discordDb = exports.supabase = void 0;
+const supabase_js_1 = require("@supabase/supabase-js");
+const config_js_1 = require("../config.js");
+exports.supabase = (0, supabase_js_1.createClient)(config_js_1.config.supabase.url, config_js_1.config.supabase.serviceKey);
 // Fonctions utilitaires pour interagir avec Supabase
-export const discordDb = {
+exports.discordDb = {
     // Créer un code de liaison
     async createLinkCode(discordUserId, code) {
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-        const { data, error } = await supabase
+        const { data, error } = await exports.supabase
             .from('link_codes')
             .insert({
             discord_user_id: discordUserId,
@@ -23,7 +26,7 @@ export const discordDb = {
     },
     // Vérifier un code de liaison
     async verifyLinkCode(code) {
-        const { data, error } = await supabase
+        const { data, error } = await exports.supabase
             .from('link_codes')
             .select('*')
             .eq('code', code.toUpperCase())
@@ -42,7 +45,7 @@ export const discordDb = {
     },
     // Marquer un code comme utilisé
     async markCodeAsUsed(codeId) {
-        const { error } = await supabase
+        const { error } = await exports.supabase
             .from('link_codes')
             .update({ used: true })
             .eq('id', codeId);
@@ -53,7 +56,7 @@ export const discordDb = {
     },
     // Créer une liaison utilisateur
     async createUserLink(supabaseUserId, discordUserId) {
-        const { data, error } = await supabase
+        const { data, error } = await exports.supabase
             .from('user_discord_links')
             .insert({
             supabase_user_id: supabaseUserId,
@@ -71,7 +74,7 @@ export const discordDb = {
     },
     // Récupérer la liaison d'un utilisateur Discord
     async getUserLink(discordUserId) {
-        const { data, error } = await supabase
+        const { data, error } = await exports.supabase
             .from('user_discord_links')
             .select(`
         *,
@@ -91,7 +94,7 @@ export const discordDb = {
     },
     // Désactiver une liaison utilisateur
     async deactivateUserLink(discordUserId) {
-        const { error } = await supabase
+        const { error } = await exports.supabase
             .from('user_discord_links')
             .update({ is_active: false })
             .eq('discord_user_id', discordUserId);
@@ -102,7 +105,7 @@ export const discordDb = {
     },
     // Récupérer le profil utilisateur complet
     async getUserProfile(supabaseUserId) {
-        const { data, error } = await supabase
+        const { data, error } = await exports.supabase
             .from('users')
             .select(`
         *,

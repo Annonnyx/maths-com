@@ -1,7 +1,3 @@
 import { Interaction } from 'discord.js';
-declare const _default: {
-    name: string;
-    execute(interaction: Interaction): Promise<void>;
-};
-export default _default;
+export declare function handleTicketInteractions(interaction: Interaction): Promise<void>;
 //# sourceMappingURL=ticketInteractions.d.ts.map

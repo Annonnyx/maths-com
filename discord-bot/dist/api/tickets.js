@@ -1,19 +1,55 @@
-import { PermissionFlagsBits } from 'discord.js';
-import { client } from '../client.js';
-import { config } from '../config.js';
-export async function createTicket(req) {
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createTicket = createTicket;
+const discord_js_1 = require("discord.js");
+const client_js_1 = require("../client.js");
+const config_js_1 = require("../config.js");
+async function createTicket(req) {
     try {
         const { ticketId, title, category, priority, description, userId, username } = req.body;
         // Vérifier le secret API
-        if (req.headers.authorization !== `Bearer ${config.api.secret}`) {
+        if (req.headers.authorization !== `Bearer ${config_js_1.config.api.secret}`) {
             return { success: false, error: 'Non autorisé' };
         }
         // Récupérer le serveur et la catégorie des tickets
-        const guild = client.guilds.cache.get(config.discord.guildId);
+        const guild = client_js_1.client.guilds.cache.get(config_js_1.config.discord.guildId);
         if (!guild) {
             return { success: false, error: 'Serveur Discord non trouvé' };
         }
-        const ticketCategory = guild.channels.cache.get(config.channels.ticketCategory);
+        const ticketCategory = guild.channels.cache.get(config_js_1.config.channels.ticketCategory);
         if (!ticketCategory) {
             return { success: false, error: 'Catégorie des tickets non trouvée' };
         }
@@ -26,21 +62,21 @@ export async function createTicket(req) {
             permissionOverwrites: [
                 {
                     id: guild.roles.everyone.id,
-                    deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+                    deny: [discord_js_1.PermissionFlagsBits.ViewChannel, discord_js_1.PermissionFlagsBits.SendMessages],
                 },
                 {
-                    id: config.roles.support,
-                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
+                    id: config_js_1.config.roles.support,
+                    allow: [discord_js_1.PermissionFlagsBits.ViewChannel, discord_js_1.PermissionFlagsBits.SendMessages, discord_js_1.PermissionFlagsBits.ReadMessageHistory],
                 },
                 // Ajouter l'utilisateur qui a créé le ticket s'il est sur le serveur
                 ...(userId ? [{
                         id: userId,
-                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
+                        allow: [discord_js_1.PermissionFlagsBits.ViewChannel, discord_js_1.PermissionFlagsBits.SendMessages, discord_js_1.PermissionFlagsBits.ReadMessageHistory],
                     }] : [])
             ],
         });
         // Créer l'embed d'information du ticket
-        const { EmbedBuilder } = await import('discord.js');
+        const { EmbedBuilder } = await Promise.resolve().then(() => __importStar(require('discord.js')));
         const ticketEmbed = new EmbedBuilder()
             .setTitle('🎫 Nouveau ticket de support')
             .setColor(0x6366f1) // Indigo
@@ -65,7 +101,7 @@ export async function createTicket(req) {
             await ticketChannel.send({ embeds: [ticketEmbed] });
         }
         // Notifier le canal général qu'un nouveau ticket a été créé
-        const generalChannel = guild.channels.cache.get(config.channels.general);
+        const generalChannel = guild.channels.cache.get(config_js_1.config.channels.general);
         if (generalChannel && generalChannel.isTextBased()) {
             const notificationEmbed = new EmbedBuilder()
                 .setTitle('🎫 Nouveau ticket créé')

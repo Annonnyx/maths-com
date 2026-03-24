@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import React from 'react';
 import { motion } from 'framer-motion';
-import { HelpCircle, Bug, MessageSquare, Search, Filter, Eye, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { HelpCircle, Bug, MessageSquare, Search, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { isAdminSession } from '@/lib/admin-auth';
 
@@ -85,30 +85,22 @@ export default function FAQAdminPage() {
 
     setTimeout(() => {
       setSubmissions(mockSubmissions);
-      setFilteredSubmissions(mockSubmissions);
       setLoading(false);
     }, 1000);
   }, []);
 
-  // Filtrage des soumissions
   useEffect(() => {
-    let filtered = submissions;
-
-    if (searchQuery) {
-      filtered = filtered.filter(sub =>
+    const filtered = submissions.filter(sub => {
+      const matchesSearch = searchQuery === '' || 
         sub.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         sub.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        sub.email?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(sub => sub.status === statusFilter);
-    }
-
-    if (typeFilter !== 'all') {
-      filtered = filtered.filter(sub => sub.type === typeFilter);
-    }
+        sub.email?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'all' || sub.status === statusFilter;
+      const matchesType = typeFilter === 'all' || sub.type === typeFilter;
+      
+      return matchesSearch && matchesStatus && matchesType;
+    });
 
     setFilteredSubmissions(filtered);
   }, [submissions, searchQuery, statusFilter, typeFilter]);

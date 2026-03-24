@@ -1,6 +1,12 @@
-import dotenv from 'dotenv';
-import { join } from 'path';
-dotenv.config({ path: join(process.cwd(), '.env') });
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.COLORS = exports.BADGE_ROLE_NAMES = exports.config = void 0;
+const dotenv_1 = __importDefault(require("dotenv"));
+const path_1 = require("path");
+dotenv_1.default.config({ path: (0, path_1.join)(process.cwd(), '.env') });
 function getEnvVar(key, defaultValue) {
     const value = process.env[key] || defaultValue;
     if (!value) {
@@ -8,7 +14,7 @@ function getEnvVar(key, defaultValue) {
     }
     return value;
 }
-export const config = {
+exports.config = {
     // Discord
     discord: {
         token: getEnvVar('DISCORD_TOKEN'),
@@ -77,7 +83,7 @@ export const config = {
     },
 };
 // Mapping des badges vers les noms de rôles Discord
-export const BADGE_ROLE_NAMES = {
+exports.BADGE_ROLE_NAMES = {
     'first_test': '🎯 Premier Test',
     'perfect_score': '💯 Score Parfait',
     'streak_7': '🔥 Série 7j',
@@ -93,7 +99,7 @@ export const BADGE_ROLE_NAMES = {
     // Ajoutez d'autres badges selon votre site
 };
 // Couleurs des embeds
-export const COLORS = {
+exports.COLORS = {
     primary: 0x6366f1, // Indigo
     success: 0x22c55e, // Green
     error: 0xef4444, // Red

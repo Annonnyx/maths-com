@@ -1,32 +1,38 @@
-import { EmbedBuilder, ChannelType } from 'discord.js';
-import { client } from '../client.js';
-import { config, COLORS } from '../config.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sendMessageToChannel = sendMessageToChannel;
+exports.publishLeaderboard = publishLeaderboard;
+exports.createTicketFromDiscord = createTicketFromDiscord;
+exports.replyToTicket = replyToTicket;
+const discord_js_1 = require("discord.js");
+const client_js_1 = require("../client.js");
+const config_js_1 = require("../config.js");
 // Envoyer un message dans un salon
-export async function sendMessageToChannel(channelId, content, embeds) {
-    const channel = await client.channels.fetch(channelId);
-    if (!channel || channel.type !== ChannelType.GuildText) {
+async function sendMessageToChannel(channelId, content, embeds) {
+    const channel = await client_js_1.client.channels.fetch(channelId);
+    if (!channel || channel.type !== discord_js_1.ChannelType.GuildText) {
         throw new Error('Channel not found or not a text channel');
     }
     const textChannel = channel;
     const message = await textChannel.send({
         content,
-        embeds: embeds?.map(e => EmbedBuilder.from(e))
+        embeds: embeds?.map(e => discord_js_1.EmbedBuilder.from(e))
     });
     return message.id;
 }
 // Publier le classement
-export async function publishLeaderboard(type = 'solo') {
-    const channelId = type === 'solo' ? config.channels.leaderboardSolo : config.channels.leaderboardMulti;
-    const channel = await client.channels.fetch(channelId);
-    if (!channel || channel.type !== ChannelType.GuildText) {
+async function publishLeaderboard(type = 'solo') {
+    const channelId = type === 'solo' ? config_js_1.config.channels.leaderboardSolo : config_js_1.config.channels.leaderboardMulti;
+    const channel = await client_js_1.client.channels.fetch(channelId);
+    if (!channel || channel.type !== discord_js_1.ChannelType.GuildText) {
         throw new Error('Leaderboard channel not found');
     }
     const textChannel = channel;
     // Ici on ferait un appel API au site pour récupérer le classement
     // Pour l'instant, template d'embed
-    const embed = new EmbedBuilder()
+    const embed = new discord_js_1.EmbedBuilder()
         .setTitle(`🏆 Classement ${type === 'solo' ? 'Solo' : 'Multijoueur'} Mensuel`)
-        .setColor(type === 'solo' ? COLORS.gold : COLORS.silver)
+        .setColor(type === 'solo' ? config_js_1.COLORS.gold : config_js_1.COLORS.silver)
         .setDescription('Les meilleurs joueurs du mois !')
         .setTimestamp()
         .setFooter({ text: 'Maths-App.com' });
@@ -49,18 +55,18 @@ export async function publishLeaderboard(type = 'solo') {
     await textChannel.send({ embeds: [embed] });
 }
 // Créer un ticket depuis Discord
-export async function createTicketFromDiscord(userId, username, subject, message) {
+async function createTicketFromDiscord(userId, username, subject, message) {
     // Récupérer la catégorie des tickets
-    const guild = await client.guilds.fetch(config.discord.guildId);
-    const category = await guild.channels.fetch(config.channels.ticketCategory);
+    const guild = await client_js_1.client.guilds.fetch(config_js_1.config.discord.guildId);
+    const category = await guild.channels.fetch(config_js_1.config.channels.ticketCategory);
     if (!category) {
         throw new Error('Ticket category not found');
     }
     // Créer un salon privé pour le ticket
     const ticketChannel = await guild.channels.create({
         name: `ticket-${username.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
-        type: ChannelType.GuildText,
-        parent: config.channels.ticketCategory,
+        type: discord_js_1.ChannelType.GuildText,
+        parent: config_js_1.config.channels.ticketCategory,
         permissionOverwrites: [
             {
                 id: guild.id,
@@ -73,10 +79,10 @@ export async function createTicketFromDiscord(userId, username, subject, message
         ]
     });
     // Envoyer le message initial
-    const embed = new EmbedBuilder()
+    const embed = new discord_js_1.EmbedBuilder()
         .setTitle(`🎫 Ticket: ${subject}`)
         .setDescription(message)
-        .setColor(COLORS.info)
+        .setColor(config_js_1.COLORS.info)
         .setTimestamp()
         .addFields({ name: 'Utilisateur', value: `<@${userId}> (${username})`, inline: true }, { name: 'Status', value: '🟢 Ouvert', inline: true });
     await ticketChannel.send({
@@ -86,16 +92,16 @@ export async function createTicketFromDiscord(userId, username, subject, message
     return ticketChannel.id;
 }
 // Répondre à un ticket depuis le panel admin
-export async function replyToTicket(ticketId, message, adminName) {
-    const channel = await client.channels.fetch(ticketId);
-    if (!channel || channel.type !== ChannelType.GuildText) {
+async function replyToTicket(ticketId, message, adminName) {
+    const channel = await client_js_1.client.channels.fetch(ticketId);
+    if (!channel || channel.type !== discord_js_1.ChannelType.GuildText) {
         throw new Error('Ticket channel not found');
     }
     const textChannel = channel;
-    const embed = new EmbedBuilder()
+    const embed = new discord_js_1.EmbedBuilder()
         .setTitle('📨 Réponse de l\'administration')
         .setDescription(message)
-        .setColor(COLORS.success)
+        .setColor(config_js_1.COLORS.success)
         .setTimestamp()
         .setFooter({ text: `Répondu par ${adminName}` });
     await textChannel.send({ embeds: [embed] });

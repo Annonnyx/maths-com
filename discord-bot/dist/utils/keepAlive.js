@@ -1,10 +1,12 @@
-import { ActivityType } from 'discord.js';
-export class KeepAliveService {
-    client;
-    interval = null;
-    PING_INTERVAL = 5 * 60 * 1000; // 5 minutes
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.KeepAliveService = void 0;
+const discord_js_1 = require("discord.js");
+class KeepAliveService {
     constructor(client) {
         this.client = client;
+        this.interval = null;
+        this.PING_INTERVAL = 5 * 60 * 1000; // 5 minutes
         this.startKeepAlive();
     }
     startKeepAlive() {
@@ -13,10 +15,10 @@ export class KeepAliveService {
             try {
                 // 1. Ping Discord API avec activité dynamique
                 const activities = [
-                    { name: `🏆 ${Math.floor(Math.random() * 1000)} joueurs`, type: ActivityType.Watching },
-                    { name: '📚 les cours de maths', type: ActivityType.Playing },
-                    { name: '🎮 aider les élèves', type: ActivityType.Playing },
-                    { name: `⚡ ${this.client.guilds.cache.size} serveurs`, type: ActivityType.Watching }
+                    { name: `🏆 ${Math.floor(Math.random() * 1000)} joueurs`, type: discord_js_1.ActivityType.Watching },
+                    { name: '📚 les cours de maths', type: discord_js_1.ActivityType.Playing },
+                    { name: '🎮 aider les élèves', type: discord_js_1.ActivityType.Playing },
+                    { name: `⚡ ${this.client.guilds.cache.size} serveurs`, type: discord_js_1.ActivityType.Watching }
                 ];
                 const randomActivity = activities[Math.floor(Math.random() * activities.length)];
                 await this.client.user?.setPresence({
@@ -43,7 +45,7 @@ export class KeepAliveService {
                 // Tentative de reconnexion
                 try {
                     await this.client.user?.setPresence({
-                        activities: [{ name: '🔄 Redémarrage...', type: ActivityType.Playing }],
+                        activities: [{ name: '🔄 Redémarrage...', type: discord_js_1.ActivityType.Playing }],
                         status: 'idle'
                     });
                 }
@@ -61,3 +63,4 @@ export class KeepAliveService {
         }
     }
 }
+exports.KeepAliveService = KeepAliveService;

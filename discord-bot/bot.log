@@ -1,0 +1,173 @@
+🚀 Démarrage du bot Maths-App...
+📂 Chargement de la commande: close-ticket.js
+✅ Commande chargée: close-ticket
+📂 Chargement de la commande: leaderboard.js
+✅ Commande chargée: leaderboard
+📂 Chargement de la commande: link.js
+✅ Commande chargée: link
+📂 Chargement de la commande: rank.js
+✅ Commande chargée: rank
+📂 Chargement de la commande: test-bot.js
+✅ Commande chargée: test-bot
+📂 Chargement de la commande: ticket-enhanced.js
+✅ Commande chargée: ticket
+📂 Chargement de la commande: ticket.js
+✅ Commande chargée: ticket-simple
+📂 Chargement de la commande: unlink.js
+✅ Commande chargée: unlink
+📡 Tentative 1/3 - Envoi des commandes à Discord...
+✅ Commandes enregistrées avec succès à la tentative 1
+✅ 8 commandes slash enregistrées avec succès !
+   📝 close-ticket
+   📝 leaderboard
+   📝 link
+   📝 rank
+   📝 test-bot
+   📝 ticket
+   📝 ticket-simple
+   📝 unlink
+✅ Commandes chargées
+📡 Event chargé: interactionCreate
+📡 Event chargé: messageCreate
+📡 Event chargé: messageCreate
+📡 Event chargé: clientReady
+✅ Events chargés
+✅ API démarrée sur le port 3010
+⏰ Cron jobs configurés
+✅ Cron jobs démarrés
+🌐 API server listening on port 3010
+✅ Connecté à Discord
+✅ Bot connecté en tant que Maths-app.com#1011
+🌐 Connecté à 1 serveurs
+👥 1 utilisateurs en cache
+🏥 Keep-Alive service started (ping every 5 minutes)
+📢 Message de démarrage envoyé
+✅ Rôles de classe vérifiés
+✅ API site accessible (status 400 attendu)
+🔍 Vérification salons essentiels...
+✅ Classement Solo: OK
+✅ Classement Multi: OK
+✅ Tickets: OK
+🎯 Bot pleinement opérationnel et monitoré !
+(node:56453) Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+(Use `node --trace-warnings ...` to show where the warning was created)
+❌ Erreur commande link: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.deferReply (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:122:22)
+    at async Object.execute (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/commands/link.js:22:9)
+    at async Object.execute (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/interactionCreate.js:15:17) {
+  requestBody: { files: undefined, json: { type: 5, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1484675636197986495/aW50ZXJhY3Rpb246MTQ4NDY3NTYzNjE5Nzk4NjQ5NTp5cGR1TVJ6YXNYWlc4bVVqSXlZTHNOdjJoV3NOT2lqOUU5NmRQMmN6M1RESERaSDllY093MjRhSGJXZGNYTjJ6cmJpYVd4eEMxYzhhODlFakZRVERrTmFIdVpuRmZ1MHZ4dlVBalRDcTFVVHBEWVpMWVFaSzU5MTVtZTVXUGNyUQ/callback?with_response=false'
+}
+❌ Erreur Discord: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.reply (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22)
+    at async Object.execute (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/interactionCreate.js:27:21) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1484675636197986495/aW50ZXJhY3Rpb246MTQ4NDY3NTYzNjE5Nzk4NjQ5NTp5cGR1TVJ6YXNYWlc4bVVqSXlZTHNOdjJoV3NOT2lqOUU5NmRQMmN6M1RESERaSDllY093MjRhSGJXZGNYTjJ6cmJpYVd4eEMxYzhhODlFakZRVERrTmFIdVpuRmZ1MHZ4dlVBalRDcTFVVHBEWVpMWVFaSzU5MTVtZTVXUGNyUQ/callback?with_response=false'
+}
+❌ Erreur commande ticket: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.reply (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22)
+    at async Object.execute (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/interactionCreate.js:15:17) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1484675756662718516/aW50ZXJhY3Rpb246MTQ4NDY3NTc1NjY2MjcxODUxNjpOeE9qZU5UbVpxQzFISTFESDBMTzB1eHh1Q2hKYlJGemVMbUFTOThOMEgyVkJ2cEEzc0ZlTDRDd2ZQMm1YWHlCU0xJeTh0UkdBVEFUQ3FENnBXZjJFY0owUk0xQmhtaXZXd3dLczdrYmZGcUVRQmV4ZGdESDlCenk1U3JFU0htMg/callback?with_response=false'
+}
+❌ Erreur Discord: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.reply (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22)
+    at async Object.execute (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/interactionCreate.js:27:21) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1484675756662718516/aW50ZXJhY3Rpb246MTQ4NDY3NTc1NjY2MjcxODUxNjpOeE9qZU5UbVpxQzFISTFESDBMTzB1eHh1Q2hKYlJGemVMbUFTOThOMEgyVkJ2cEEzc0ZlTDRDd2ZQMm1YWHlCU0xJeTh0UkdBVEFUQ3FENnBXZjJFY0owUk0xQmhtaXZXd3dLczdrYmZGcUVRQmV4ZGdESDlCenk1U3JFU0htMg/callback?with_response=false'
+}
+❌ Erreur fermeture ticket: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ButtonInteraction.showModal (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22)
+    at async handleTicketClose (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/commands/ticket-enhanced.js:155:9)
+    at async handleTicketInteractions (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/ticketInteractions.js:25:21)
+    at async Object.execute (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/interactionCreate.js:33:13) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1484675790216888390/aW50ZXJhY3Rpb246MTQ4NDY3NTc5MDIxNjg4ODM5MDpvWEFCVnBjM1ZGY29DTFhqcGtnRTk2UmZuY2VrOVpFYXNaN1BueERJeWZ2QWtzelBlOXNGS2FHRk92Nk5GRm5qTXV3ajR0U1UwMmxPYml5UDBOQkgya2I4TzBuVkd2UWRMY2VPUG9qRVpzVFhndGpwTm9uSXFOYzlPb0hWTWl3eQ/callback?with_response=false'
+}
+❌ Erreur confirmation fermeture ticket: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ModalSubmitInteraction.reply (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22)
+    at async confirmTicketClose (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/commands/ticket-enhanced.js:191:9)
+    at async handleTicketInteractions (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/ticketInteractions.js:16:21)
+    at async Object.execute (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/interactionCreate.js:33:13) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1484675814497718314/aW50ZXJhY3Rpb246MTQ4NDY3NTgxNDQ5NzcxODMxNDpZWjVyajZ3WjF6RldYTFB5eVp6aERpQkRsN2hyWXZMNVRMSG94Nnl6ZVgyR2doNHI0YjhBTnBBaVZJZHZXQWZycUEwNkFoaHlJRlpwRmVJNmtWUTF6VDQ2ZnF6VmNpZEYxRnBPMEJnQTZQS2NjUWxESGRKQXVTUzF0YnJuQVBrSA/callback?with_response=false'
+}
+❌ Erreur fermeture ticket: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ButtonInteraction.showModal (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:399:22)
+    at async handleTicketClose (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/commands/ticket-enhanced.js:155:9)
+    at async handleTicketInteractions (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/ticketInteractions.js:25:21)
+    at async Object.execute (/Users/Noe/Documents/APp-Maths/maths-com/discord-bot/dist/events/interactionCreate.js:33:13) {
+  requestBody: { files: undefined, json: { type: 9, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1484675846558978191/aW50ZXJhY3Rpb246MTQ4NDY3NTg0NjU1ODk3ODE5MTpZSFJXejRPMjV5MFB1aW1lOHJSbVpUdk1McE9RVWR4a2xnejRYMTh5TjgxQTdQNnVYbnBQSXB0ZVlqM3RGMFRFWDJRNDl1dlJoMGhWdWNLa1Y4YVczZXRIRWtHcGtFN0VONjl6b2pDR3ZHVERtZ1o2cFM5WkRVcE05QWdRUkhYag/callback?with_response=false'
+}

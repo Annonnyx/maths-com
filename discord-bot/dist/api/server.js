@@ -1,14 +1,20 @@
-import express from 'express';
-import cors from 'cors';
-import { config } from '../config.js';
-import { client } from '../client.js';
-import { createTicket } from './tickets.js';
-import { sendLinkDm } from './sendLinkDm.js';
-import { verifyLinkingCode } from './linkVerification.js';
-const app = express();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.startApiServer = startApiServer;
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const config_js_1 = require("../config.js");
+const client_js_1 = require("../client.js");
+const tickets_js_1 = require("./tickets.js");
+const sendLinkDm_js_1 = require("./sendLinkDm.js");
+const linkVerification_js_1 = require("./linkVerification.js");
+const app = (0, express_1.default)();
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
 // Auth middleware pour vérifier que la requête vient bien du site
 function authMiddleware(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -16,7 +22,7 @@ function authMiddleware(req, res, next) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
     const token = authHeader.split(' ')[1];
-    if (token !== config.api.secret) {
+    if (token !== config_js_1.config.api.secret) {
         return res.status(403).json({ error: 'Invalid token' });
     }
     next();
@@ -24,7 +30,7 @@ function authMiddleware(req, res, next) {
 // Healthcheck endpoint for Railway (NO AUTH required)
 app.get('/health', (req, res) => {
     try {
-        const isReady = client.isReady();
+        const isReady = client_js_1.client.isReady();
         res.status(200).json({
             status: isReady ? 'ok' : 'starting',
             timestamp: new Date().toISOString(),
@@ -50,7 +56,7 @@ app.post('/api/send-link-dm', authMiddleware, async (req, res) => {
             return res.status(400).json({ error: 'Paramètres manquants' });
         }
         // Utiliser la fonction d'envoi DM
-        const result = await sendLinkDm(discordId, code, websiteUsername);
+        const result = await (0, sendLinkDm_js_1.sendLinkDm)(discordId, code, websiteUsername);
         if (result.success) {
             res.json(result);
         }
@@ -70,7 +76,7 @@ app.put('/api/verify-link', authMiddleware, async (req, res) => {
         if (!discordId || !code) {
             return res.status(400).json({ error: 'Discord ID et code requis' });
         }
-        const result = verifyLinkingCode(discordId, code.toUpperCase());
+        const result = (0, linkVerification_js_1.verifyLinkingCode)(discordId, code.toUpperCase());
         if (result) {
             res.json({
                 valid: true,
@@ -98,7 +104,7 @@ app.post('/api/send-message', authMiddleware, async (req, res) => {
         if (!channelId || !content) {
             return res.status(400).json({ error: 'channelId and content required' });
         }
-        const channel = client.channels.cache.get(channelId);
+        const channel = client_js_1.client.channels.cache.get(channelId);
         if (!channel || !channel.isTextBased()) {
             return res.status(400).json({ error: 'Invalid channel' });
         }
@@ -125,7 +131,7 @@ app.post('/api/publish-leaderboard', authMiddleware, async (req, res) => {
 // Créer un ticket depuis le site
 app.post('/api/tickets/create', authMiddleware, async (req, res) => {
     try {
-        const result = await createTicket(req.body);
+        const result = await (0, tickets_js_1.createTicket)(req.body);
         if (result && result.success) {
             res.json(result);
         }
@@ -141,12 +147,12 @@ app.post('/api/tickets/create', authMiddleware, async (req, res) => {
 // Récupérer les infos du bot
 app.get('/api/status', (req, res) => {
     res.json({
-        status: client.isReady() ? 'online' : 'offline',
-        guilds: client.guilds.cache.size,
-        users: client.users.cache.size,
+        status: client_js_1.client.isReady() ? 'online' : 'offline',
+        guilds: client_js_1.client.guilds.cache.size,
+        users: client_js_1.client.users.cache.size,
     });
 });
-export function startApiServer(port) {
+function startApiServer(port) {
     app.listen(port, () => {
         console.log(`🌐 API server listening on port ${port}`);
     });
