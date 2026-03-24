@@ -10,11 +10,14 @@ exports.default = {
         .setName('ticket')
         .setDescription('Ouvrir un ticket de support'),
     async execute(interaction) {
+        console.log(`🎫 Commande /ticket exécutée par ${interaction.user.tag} (${interaction.user.id})`);
         // Vérifier si l'utilisateur a déjà un ticket ouvert
         const existingTicket = interaction.guild?.channels.cache.find(channel => channel.type === discord_js_1.ChannelType.GuildText &&
             channel.parentId === config_js_1.config.channels.ticketCategory &&
             channel.topic?.includes(interaction.user.id));
+        console.log(`🔍 Vérification ticket existant: ${existingTicket ? 'TROUVÉ' : 'AUCUN'}`);
         if (existingTicket) {
+            console.log(`❌ Ticket déjà existant pour ${interaction.user.tag}: ${existingTicket.name}`);
             return interaction.reply({
                 content: '❌ Vous avez déjà un ticket ouvert !',
                 ephemeral: true
@@ -47,7 +50,9 @@ async function handleTicketModal(interaction) {
     const subject = interaction.fields.getTextInputValue('ticket_subject');
     const description = interaction.fields.getTextInputValue('ticket_description');
     const userId = interaction.user.id;
+    console.log(`📝 Modal ticket soumis par ${interaction.user.tag}: "${subject}"`);
     try {
+        console.log(`🔨 Début création salon pour ${interaction.user.tag}...`);
         // Créer le salon de ticket
         const ticketChannel = await interaction.guild?.channels.create({
             name: `ticket-${interaction.user.username}`,
@@ -80,6 +85,7 @@ async function handleTicketModal(interaction) {
                 },
             ],
         });
+        console.log(`✅ Salon créé avec succès: ${ticketChannel?.name} (ID: ${ticketChannel?.id})`);
         if (!ticketChannel) {
             throw new Error('Impossible de créer le salon de ticket');
         }
