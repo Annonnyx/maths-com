@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateCliKey } from '@/lib/cli-auth'
-import { generateAdaptiveTest } from '@/lib/exercises'
+import { AdaptiveQuestionGenerator } from '@/lib/question-generators'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -40,14 +40,15 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Générer les questions en utilisant le même générateur que le site web
-    let questions = generateAdaptiveTest(user.soloElo, questionCount)
+    // Générer les questions en utilisant question-generators (unifié avec le site web)
+    const generator = new AdaptiveQuestionGenerator(user.soloElo)
+    let questions = generator.generateMixed(questionCount)
 
     // Formater les questions pour la réponse CLI
     const formattedQuestions = questions.map((q, index) => ({
       id: q.id,
       type: q.type,
-      difficulty: q.difficulty,
+      difficulty: q.difficultyElo || 1,
       question: q.question,
       answer: q.answer,
       order: index

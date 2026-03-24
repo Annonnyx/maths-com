@@ -26,8 +26,8 @@ export type OperationType =
   | 'probabilities'
   | 'statistics';
 
-// Import the new adaptive system
-import { generateAdaptiveTest } from './adaptive-exercises';
+// Import the unified question-generators system
+import { AdaptiveQuestionGenerator } from './question-generators';
 
 import { 
   FRENCH_CLASSES, 
@@ -524,10 +524,20 @@ export function generateExercise(type: OperationType, difficulty: number): Exerc
   }
 }
 
-// Generate a test with mixed questions using adaptive algorithm
+// Generate a test with mixed questions using unified question-generators system
 export function generateTest(elo: number, count: number = 20): Exercise[] {
-  // Use the new adaptive system
-  return generateAdaptiveTest(elo, count);
+  const generator = new AdaptiveQuestionGenerator(elo);
+  const questions = generator.generateMixed(count);
+  
+  // Convert GeneratedQuestion to Exercise format
+  return questions.map(q => ({
+    id: q.id,
+    type: q.type as OperationType,
+    difficulty: q.difficultyElo || 1,
+    question: q.question,
+    answer: q.answer,
+    explanation: q.explanation
+  }));
 }
 
 // Get available operations for a French class (following school curriculum)
@@ -560,9 +570,19 @@ function getFrenchClassOperations(className: FrenchClass): OperationType[] {
 
 // Generate evaluation test using adaptive algorithm
 export function generateEvaluationTest(count: number = 20, excludeGeometry: boolean = false): Exercise[] {
-  // Use the new adaptive system
-  // Start with a medium ELO for evaluation (around CM1/CM2 level)
-  return generateAdaptiveTest(1200, count);
+  // Use question-generators system for evaluation tests
+  const generator = new AdaptiveQuestionGenerator(1200); // Medium ELO for evaluation
+  const questions = generator.generateMixed(count, { excludeGeometry });
+  
+  // Convert GeneratedQuestion to Exercise format
+  return questions.map(q => ({
+    id: q.id,
+    type: q.type as OperationType,
+    difficulty: q.difficultyElo || 1,
+    question: q.question,
+    answer: q.answer,
+    explanation: q.explanation
+  }));
 }
 
 // Generate multiplayer questions using adaptive algorithm
@@ -571,9 +591,20 @@ export function generateMultiplayerQuestions(
   player2Elo: number,
   count: number = 20
 ): Exercise[] {
-  // Use the new adaptive system
-  const avgElo = (player1Elo + player2Elo) / 2;
-  return generateAdaptiveTest(avgElo, count);
+  // Use question-generators system for multiplayer
+  const avgElo = Math.round((player1Elo + player2Elo) / 2);
+  const generator = new AdaptiveQuestionGenerator(avgElo);
+  const questions = generator.generateMixed(count);
+  
+  // Convert GeneratedQuestion to Exercise format
+  return questions.map(q => ({
+    id: q.id,
+    type: q.type as OperationType,
+    difficulty: q.difficultyElo || 1,
+    question: q.question,
+    answer: q.answer,
+    explanation: q.explanation
+  }));
 }
 
 // Generate a focused test on specific operation types (using French class system)
