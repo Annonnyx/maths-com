@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authenticateCliKey } from '@/lib/cli-auth'
 
 export async function POST(request: NextRequest) {
+  console.log('🔥 NEW AUTH ENDPOINT CALLED - Cache bypass test')
   try {
     const user = await authenticateCliKey(request)
     
