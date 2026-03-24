@@ -67,6 +67,8 @@ async function registerCommandsWithRetry(rest, clientId, guildId, commandsData, 
 async function loadCommands() {
     const commands = [];
     const commandsPath = (0, path_1.join)(process.cwd(), 'dist/commands');
+    console.log(`🔍 Discord Client ID: ${config_js_1.config.discord.clientId}`);
+    console.log(`🔍 Discord Guild ID: ${config_js_1.config.discord.guildId}`);
     try {
         const commandFiles = await (0, promises_1.readdir)(commandsPath);
         // Charger chaque fichier de commande

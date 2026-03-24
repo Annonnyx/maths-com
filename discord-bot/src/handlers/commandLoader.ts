@@ -49,6 +49,9 @@ export async function loadCommands() {
   const commands: any[] = [];
   const commandsPath = join(process.cwd(), 'dist/commands');
   
+  console.log(`🔍 Discord Client ID: ${config.discord.clientId}`);
+  console.log(`🔍 Discord Guild ID: ${config.discord.guildId}`);
+  
   try {
     const commandFiles = await readdir(commandsPath);
     
