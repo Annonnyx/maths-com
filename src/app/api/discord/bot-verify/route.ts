@@ -1,13 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Store for linking codes (in production, use Redis or database)
-const linkingCodes = new Map<string, {
-  userId: string;
-  discordId: string;
-  code: string;
-  expiresAt: Date;
-  used: boolean;
-}>();
+import { prisma } from '@/lib/prisma';
 
 // PUT /api/discord/verify-code - Vérifier un code envoyé par DM (pour le bot)
 export async function PUT(request: NextRequest) {
@@ -21,38 +13,34 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Trouver le code dans la Map
-    let foundCode: { userId: string; discordId: string; code: string; expiresAt: Date; used: boolean } | undefined;
-
-    for (const [key, data] of linkingCodes.entries()) {
-      if (data.discordId === discordId && data.code === code.toUpperCase() && !data.used && data.expiresAt > new Date()) {
-        foundCode = data;
-        break;
+    // Trouver le code dans la base de données
+    const linkCode = await prisma.discordLinkCode.findFirst({
+      where: {
+        code: code.toUpperCase(),
+        discordId: discordId,
+        used: false,
+        expiresAt: {
+          gt: new Date()
+        }
       }
-    }
+    });
 
-    if (!foundCode) {
+    if (!linkCode) {
       return NextResponse.json({
         valid: false,
         error: 'Code invalide ou expiré'
       });
     }
 
-    // Marquer le code comme utilisé et supprimer de la Map
-    foundCode.used = true;
-    for (const [key, data] of linkingCodes.entries()) {
-      if (data === foundCode) {
-        linkingCodes.delete(key);
-        break;
-      }
-    }
-
-    // Importer Prisma pour lier le compte
-    const { prisma } = await import('@/lib/prisma');
+    // Marquer le code comme utilisé
+    await prisma.discordLinkCode.update({
+      where: { id: linkCode.id },
+      data: { used: true }
+    });
 
     // Lier le compte dans la base de données
     await prisma.user.update({
-      where: { id: foundCode.userId },
+      where: { id: linkCode.userId },
       data: {
         discordId: discordId,
         discordUsername: discordUsername || 'Utilisateur Discord',
@@ -62,7 +50,7 @@ export async function PUT(request: NextRequest) {
 
     // Récupérer les infos de l'utilisateur pour la réponse
     const user = await prisma.user.findUnique({
-      where: { id: foundCode.userId },
+      where: { id: linkCode.userId },
       select: {
         username: true,
         displayName: true
@@ -71,7 +59,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({
       valid: true,
-      userId: foundCode.userId,
+      userId: linkCode.userId,
       username: user?.username || user?.displayName || 'Inconnu',
       discordId: discordId,
       discordUsername: discordUsername || 'Utilisateur Discord'
@@ -111,23 +99,16 @@ export async function POST(request: NextRequest) {
     const code = generateLinkingCode();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Stocker le code
-    const linkId = `${userId}_${discordId}_${Date.now()}`;
-    linkingCodes.set(linkId, {
-      userId,
-      discordId,
-      code,
-      expiresAt,
-      used: false
-    });
-
-    // Nettoyer les codes expirés
-    const now = new Date();
-    for (const [key, data] of linkingCodes.entries()) {
-      if (data.expiresAt < now || data.used) {
-        linkingCodes.delete(key);
+    // Stocker le code dans la base de données
+    const linkCode = await prisma.discordLinkCode.create({
+      data: {
+        userId: userId,
+        discordId: discordId,
+        code: code,
+        expiresAt: expiresAt,
+        used: false
       }
-    }
+    });
 
     return NextResponse.json({
       success: true,

@@ -1305,3 +1305,16 @@ enum one_time_token_type {
 
   @@schema("auth")
 }
+
+model DiscordLinkCode {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  discordId  String   @map("discord_id")
+  code       String
+  expiresAt  DateTime @map("expires_at")
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("discord_link_codes")
+  @@schema("public")
+}
