@@ -4,6 +4,7 @@ import { api } from '../lib/api.js'
 import { display, spinner, formatTime } from '../lib/display.js'
 
 export async function solo(options) {
+  let loading = null
   try {
     // Configuration interactive si non fournie
     let config = { ...options }
@@ -48,7 +49,7 @@ export async function solo(options) {
     }
 
     // Démarrer la partie
-    const loading = spinner('Chargement des questions...')
+    loading = spinner('Chargement des questions...')
     loading.start()
 
     const response = await api.startSolo(config)

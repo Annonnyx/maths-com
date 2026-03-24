@@ -9,7 +9,7 @@ const config = new Conf({
     userId: null,
     soloElo: 400,
     multiplayerElo: 400,
-    apiUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://maths-app.fr'
+    apiUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://www.maths-app.com'
   }
 })
 

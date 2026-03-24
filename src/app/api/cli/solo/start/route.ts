@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateCliKey } from '@/lib/cli-auth'
-import { AdaptiveQuestionGenerator } from '@/lib/question-generators'
+import { generateAdaptiveTest } from '@/lib/exercises'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -40,50 +40,14 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Générer les questions en fonction de la difficulté
-    let questions
-    const generator = new AdaptiveQuestionGenerator(user.soloElo)
+    // Générer les questions en utilisant le même générateur que le site web
+    let questions = generateAdaptiveTest(user.soloElo, questionCount)
 
-    switch (difficulty) {
-      case 'easy':
-        // Générer des questions faciles (niveaux CP-CE2)
-        questions = []
-        for (let i = 0; i < questionCount; i++) {
-          const q = generator.generateForLevel('CP')
-          questions.push(q)
-        }
-        break
-      case 'medium':
-        // Générer des questions moyennes (niveaux CM1-6e)
-        questions = []
-        for (let i = 0; i < questionCount; i++) {
-          const level = i % 2 === 0 ? 'CM1' : '6e'
-          const q = generator.generateForLevel(level)
-          questions.push(q)
-        }
-        break
-      case 'hard':
-        // Générer des questions difficiles (niveaux 5e-Terminale)
-        questions = []
-        for (let i = 0; i < questionCount; i++) {
-          const levels = ['5e', '4e', '3e', '2de', '1re', 'Tle']
-          const level = levels[i % levels.length]
-          const q = generator.generateForLevel(level as any)
-          questions.push(q)
-        }
-        break
-      case 'mixed':
-      default:
-        // Questions mixtes adaptatives
-        questions = generator.generateMixed(questionCount)
-        break
-    }
-
-    // Formater les questions pour la réponse
+    // Formater les questions pour la réponse CLI
     const formattedQuestions = questions.map((q, index) => ({
       id: q.id,
       type: q.type,
-      difficulty: q.difficultyElo || 1,
+      difficulty: q.difficulty,
       question: q.question,
       answer: q.answer,
       order: index
