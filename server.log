@@ -139,3 +139,4 @@ prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."u
 📊 CLI Auth - Found 3 keys in database
 ❌ CLI Auth - No key matched
  POST /api/cli/auth/verify 401 in 5.2s (compile: 8ms, render: 5.2s)
+✓ Compiled in 26ms
