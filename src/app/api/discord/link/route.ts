@@ -15,6 +15,8 @@ function generateLinkingCode(): string {
 export async function POST(request: Request) {
   try {
     const { discordId, userId } = await request.json();
+    
+    console.log('🔗 Discord link request:', { discordId, userId });
 
     if (!discordId) {
       return NextResponse.json(
@@ -25,6 +27,7 @@ export async function POST(request: Request) {
 
     // Si userId n'est pas fourni, générer un code sans l'associer à un utilisateur
     if (!userId) {
+      console.log('🔗 No userId provided, generating pending code');
       const code = generateLinkingCode();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
@@ -39,6 +42,7 @@ export async function POST(request: Request) {
         }
       });
 
+      console.log('🔗 Generated pending code:', code);
       return NextResponse.json({
         success: true,
         code: code,
@@ -47,19 +51,24 @@ export async function POST(request: Request) {
       });
     }
 
+    console.log('🔗 Checking if user is already linked:', userId);
     // Vérifier si l'utilisateur n'est pas déjà lié
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
       select: { discordId: true }
     });
 
+    console.log('🔗 Existing user:', existingUser);
+
     if (existingUser?.discordId) {
+      console.log('🔗 User already linked to Discord:', existingUser.discordId);
       return NextResponse.json(
         { error: 'Cet utilisateur est déjà lié à Discord' },
         { status: 400 }
       );
     }
 
+    console.log('🔗 Generating code for user:', userId);
     const code = generateLinkingCode();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
@@ -74,6 +83,7 @@ export async function POST(request: Request) {
       }
     });
 
+    console.log('🔗 Generated user code:', code);
     return NextResponse.json({
       success: true,
       code: code,
@@ -82,7 +92,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    console.error('Erreur génération code Discord:', error);
+    console.error('🔗 Error génération code Discord:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la génération du code' },
       { status: 500 }
