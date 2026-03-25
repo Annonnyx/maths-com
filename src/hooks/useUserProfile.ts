@@ -26,6 +26,10 @@ interface UserProfile {
     isOnline: boolean;
     lastSeenAt: string;
     hasCompletedOnboarding: boolean;
+    // Discord
+    discordId?: string;
+    discordUsername?: string;
+    discordLinkedAt?: string;
   };
   statistics?: any;
   recentGames?: any[];

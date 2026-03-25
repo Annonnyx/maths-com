@@ -47,7 +47,12 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
         setGeneratedCode(data.code);
         setError(null);
       } else {
-        setError(data.error || 'Erreur lors de la génération du code');
+        // Si l'utilisateur est déjà lié, afficher un message spécial
+        if (data.error === 'Cet utilisateur est déjà lié à Discord') {
+          setError('Votre compte est déjà lié à Discord ! Utilisez la commande /unlink pour délier votre compte puis réessayez.');
+        } else {
+          setError(data.error || 'Erreur lors de la génération du code');
+        }
       }
     } catch (err) {
       setError('Erreur de connexion. Veuillez réessayer.');

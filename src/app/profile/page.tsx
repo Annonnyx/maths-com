@@ -80,7 +80,12 @@ function ProfileContent() {
   
   // Discord link state
   const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
-  const [isDiscordLinked, setIsDiscordLinked] = useState(false);
+  const [isDiscordLinked, setIsDiscordLinked] = useState(!!profile?.user?.discordId);
+
+  // Update Discord link status when profile changes
+  useEffect(() => {
+    setIsDiscordLinked(!!profile?.user?.discordId);
+  }, [profile?.user?.discordId]);
 
   // Share profile state
   const [showShareModal, setShowShareModal] = useState(false);
@@ -1458,6 +1463,7 @@ function ProfileContent() {
         <DiscordLinkModal 
           isOpen={isDiscordModalOpen} 
           onClose={() => setIsDiscordModalOpen(false)}
+          isLinked={isDiscordLinked}
           onLinkSuccess={() => {
             setIsDiscordLinked(true);
             refetch();
