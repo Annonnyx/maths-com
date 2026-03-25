@@ -13,11 +13,10 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Trouver le code dans la base de données
+    // Trouver le code dans la base de données (sans filtrer sur discordId)
     const linkCode = await prisma.discordLinkCode.findFirst({
       where: {
         code: code.toUpperCase(),
-        discordId: discordId,
         used: false,
         expiresAt: {
           gt: new Date()
@@ -32,11 +31,22 @@ export async function PUT(request: NextRequest) {
       });
     }
 
-    // Marquer le code comme utilisé
+    // Marquer le code comme utilisé et mettre à jour le Discord ID
     await prisma.discordLinkCode.update({
       where: { id: linkCode.id },
-      data: { used: true }
+      data: { 
+        used: true,
+        discordId: discordId // Mettre à jour avec le vrai Discord ID
+      }
     });
+
+    // Si le userId est 'pending', on ne peut pas lier le compte
+    if (linkCode.userId === 'pending') {
+      return NextResponse.json({
+        valid: false,
+        error: 'Code non associé à un utilisateur. Veuillez générer le code depuis votre profil.'
+      });
+    }
 
     // Lier le compte dans la base de données
     await prisma.user.update({

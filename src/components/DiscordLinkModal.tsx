@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, Shield, CheckCircle, AlertCircle, Copy, RefreshCw } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 interface DiscordLinkModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface DiscordLinkModalProps {
 }
 
 export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSuccess }: DiscordLinkModalProps) {
+  const { data: session } = useSession();
   const [generatedCode, setGeneratedCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +21,11 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
 
   // Générer un code de liaison
   const generateCode = async () => {
+    if (!session?.user?.id) {
+      setError('Vous devez être connecté pour générer un code');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setGeneratedCode('');
@@ -27,7 +34,10 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
       const response = await fetch('/api/discord/link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ discordId: 'pending' })
+        body: JSON.stringify({ 
+          discordId: 'pending',
+          userId: session.user.id 
+        })
       });
 
       const data = await response.json();
