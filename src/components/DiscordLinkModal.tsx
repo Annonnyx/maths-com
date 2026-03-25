@@ -21,23 +21,24 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
 
   // Générer un code de liaison
   const generateCode = async () => {
-    if (!session?.user?.id) {
-      setError('Vous devez être connecté pour générer un code');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
     setGeneratedCode('');
 
     try {
+      const requestBody: { discordId: string; userId?: string } = {
+        discordId: 'pending'
+      };
+
+      // N'envoyer userId que s'il existe
+      if (session?.user?.id) {
+        requestBody.userId = session.user.id;
+      }
+
       const response = await fetch('/api/discord/link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          discordId: 'pending',
-          userId: session.user.id 
-        })
+        body: JSON.stringify(requestBody)
       });
 
       const data = await response.json();
