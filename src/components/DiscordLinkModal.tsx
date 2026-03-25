@@ -85,10 +85,12 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-indigo-500/20 rounded-full flex items-center justify-center">
-                <Shield className="w-5 h-5 text-indigo-400" />
+                <Shield className={`w-5 h-5 ${isLinked ? 'text-green-400' : 'text-indigo-400'}`} />
               </div>
               <div>
-                <h2 className="text-xl font-bold">Lier compte Discord</h2>
+                <h2 className="text-xl font-bold">
+                  {isLinked ? 'Discord lié' : 'Lier compte Discord'}
+                </h2>
                 <p className="text-sm text-muted-foreground">
                   {isLinked ? 'Gérer la liaison' : 'Connecte ton compte Discord'}
                 </p>
@@ -196,13 +198,16 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
               </button>
 
               {isLinked && (
-                <div className="text-center py-4">
-                  <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle className="w-6 h-6 text-green-400" />
+                <div className="text-center py-6">
+                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-green-400" />
                   </div>
-                  <p className="text-green-400 font-medium">Compte déjà lié</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Ton compte Discord est déjà connecté à Maths-App.
+                  <h3 className="text-lg font-semibold text-green-400 mb-2">Discord lié avec succès !</h3>
+                  <p className="text-muted-foreground">
+                    Ton compte Discord est connecté à Maths-App.
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Tu peux maintenant utiliser les commandes exclusives sur le serveur Discord.
                   </p>
                 </div>
               )}
