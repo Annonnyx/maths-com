@@ -1,43 +1,20 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import crypto from 'crypto';
-
-// Store for linking codes (in production, use Redis or database)
-const linkingCodes = new Map<string, {
-  userId: string;
-  discordId: string;
-  code: string;
-  expiresAt: Date;
-  used: boolean;
-}>();
 
 // Générer un code de liaison unique
 function generateLinkingCode(): string {
-  return crypto.randomBytes(6).toString('hex').toUpperCase();
-}
-
-// Nettoyer les codes expirés
-function cleanupExpiredCodes() {
-  const now = new Date();
-  for (const [key, data] of linkingCodes.entries()) {
-    if (data.expiresAt < now || data.used) {
-      linkingCodes.delete(key);
-    }
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  return code;
 }
 
-// POST - Initier la liaison Discord (génère code et demande au bot d'envoyer DM)
+// POST - Générer un code de liaison Discord
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
-    const { discordId } = await request.json();
+    const { discordId, userId } = await request.json();
 
     if (!discordId) {
       return NextResponse.json(
@@ -46,218 +23,114 @@ export async function POST(request: Request) {
       );
     }
 
+    // Si userId n'est pas fourni, générer un code sans l'associer à un utilisateur
+    if (!userId) {
+      const code = generateLinkingCode();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+      // Stocker le code sans utilisateur (pour le modal du profil)
+      const linkCode = await prisma.discordLinkCode.create({
+        data: {
+          userId: 'pending', // Sera mis à jour plus tard
+          discordId: discordId,
+          code: code,
+          expiresAt: expiresAt,
+          used: false
+        }
+      });
+
+      return NextResponse.json({
+        success: true,
+        code: code,
+        instructions: `Utilisez la commande /link code:${code} sur Discord pour lier votre compte.`,
+        expiresIn: 15 * 60 // 15 minutes en secondes
+      });
+    }
+
     // Vérifier si l'utilisateur n'est pas déjà lié
     const existingUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: { discordId: true }
     });
 
     if (existingUser?.discordId) {
       return NextResponse.json(
-        { error: 'Votre compte est déjà lié à Discord' },
+        { error: 'Cet utilisateur est déjà lié à Discord' },
         { status: 400 }
       );
     }
 
-    // Générer un code unique
-    function generateLinkingCode(): string {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let code = '';
-      for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return code;
-    }
-
     const code = generateLinkingCode();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    // Stocker le code dans la Map
-    const linkId = `${session.user.id}_${discordId}_${Date.now()}`;
-    linkingCodes.set(linkId, {
-      userId: session.user.id,
-      discordId,
-      code,
-      expiresAt,
-      used: false
+    // Stocker le code dans la base de données
+    const linkCode = await prisma.discordLinkCode.create({
+      data: {
+        userId: userId,
+        discordId: discordId,
+        code: code,
+        expiresAt: expiresAt,
+        used: false
+      }
     });
 
-    // Nettoyer les codes expirés
-    cleanupExpiredCodes();
-
-    // Retourner le code directement (nouveau flux)
     return NextResponse.json({
       success: true,
-      message: 'Code de liaison généré !',
-      instructions: `**Instructions pour lier votre compte Discord :**\n\n1. Allez sur Discord\n2. Utilisez la commande : \`/link code:${code}\`\n3. Votre compte sera automatiquement lié !\n\n⏰ Ce code expire dans 10 minutes.`,
       code: code,
-      expiresIn: 10 * 60 // 10 minutes en secondes
+      instructions: `Utilisez la commande /link code:${code} sur Discord pour lier votre compte.`,
+      expiresIn: 15 * 60 // 15 minutes en secondes
     });
 
   } catch (error) {
-    console.error('Discord link error:', error);
+    console.error('Erreur génération code Discord:', error);
     return NextResponse.json(
-      { error: 'Failed to initiate Discord linking' },
+      { error: 'Erreur lors de la génération du code' },
       { status: 500 }
     );
   }
 }
 
-// PUT /api/discord/link/verify - Vérifier un code envoyé par DM
-export async function PUT(request: Request) {
+// GET - Obtenir les informations d'un code
+export async function GET(request: Request) {
   try {
-    const { discordId, code, discordUsername } = await request.json();
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get('code');
 
-    if (!discordId || !code) {
+    if (!code) {
       return NextResponse.json(
-        { valid: false, error: 'Discord ID et code requis' },
+        { error: 'Code requis' },
         { status: 400 }
       );
     }
 
-    // Trouver le code dans la Map
-    let foundCode: { userId: string; discordId: string; code: string; expiresAt: Date; used: boolean } | undefined;
-
-    for (const [key, data] of linkingCodes.entries()) {
-      if (data.discordId === discordId && data.code === code.toUpperCase() && !data.used && data.expiresAt > new Date()) {
-        foundCode = data;
-        break;
-      }
-    }
-
-    if (!foundCode) {
-      return NextResponse.json({
-        valid: false,
-        error: 'Code invalide ou expiré'
-      });
-    }
-
-    // Marquer le code comme utilisé et supprimer de la Map
-    foundCode.used = true;
-    for (const [key, data] of linkingCodes.entries()) {
-      if (data === foundCode) {
-        linkingCodes.delete(key);
-        break;
-      }
-    }
-
-    // Lier le compte dans la base de données
-    await prisma.user.update({
-      where: { id: foundCode.userId },
-      data: {
-        discordId: discordId,
-        discordUsername: discordUsername || 'Utilisateur Discord',
-        discordLinkedAt: new Date(),
+    // Vérifier le code dans la base de données
+    const linkCode = await prisma.discordLinkCode.findFirst({
+      where: {
+        code: code.toUpperCase(),
+        used: false,
+        expiresAt: {
+          gt: new Date()
+        }
       }
     });
 
+    if (!linkCode) {
+      return NextResponse.json(
+        { error: 'Code invalide ou expiré' },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       valid: true,
-      userId: foundCode.userId,
-      discordId: discordId,
-      discordUsername: discordUsername || 'Utilisateur Discord'
+      discordId: linkCode.discordId,
+      expiresAt: linkCode.expiresAt
     });
 
   } catch (error) {
     console.error('Erreur vérification code:', error);
     return NextResponse.json(
-      { valid: false, error: 'Erreur lors de la vérification' },
-      { status: 500 }
-    );
-  }
-}
-
-// DELETE - Délier le compte Discord
-export async function DELETE(request: Request) {
-  const session = await getServerSession(authOptions);
-  
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  
-  try {
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        discordId: null,
-        discordUsername: null,
-        discordLinkedAt: null,
-      }
-    });
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Compte Discord délié avec succès',
-    });
-    
-  } catch (error) {
-    console.error('Discord unlink error:', error);
-    return NextResponse.json(
-      { error: 'Failed to unlink Discord account' },
-      { status: 500 }
-    );
-  }
-}
-
-// GET - Vérifier le statut de liaison
-export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        discordId: true,
-        discordUsername: true,
-        discordLinkedAt: true,
-      }
-    });
-    
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-    
-    // Vérifier si la liaison Discord est trop ancienne (plus de 30 jours)
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const isLinkExpired = user.discordLinkedAt && new Date(user.discordLinkedAt) < thirtyDaysAgo;
-    
-    // Si la liaison est expirée, la supprimer automatiquement
-    if (isLinkExpired) {
-      await prisma.user.update({
-        where: { id: session.user.id },
-        data: {
-          discordId: null,
-          discordUsername: null,
-          discordLinkedAt: null,
-        }
-      });
-      
-      return NextResponse.json({
-        linked: false,
-        discordId: null,
-        discordUsername: null,
-        linkedAt: null,
-        expired: true,
-        message: 'La liaison Discord a expiré. Veuillez vous reconnecter.'
-      });
-    }
-    
-    return NextResponse.json({
-      linked: !!user.discordId,
-      discordId: user.discordId,
-      discordUsername: user.discordUsername,
-      linkedAt: user.discordLinkedAt,
-      expired: false
-    });
-    
-  } catch (error) {
-    console.error('Discord status error:', error);
-    return NextResponse.json(
-      { error: 'Failed to check Discord link status' },
+      { error: 'Erreur lors de la vérification' },
       { status: 500 }
     );
   }
