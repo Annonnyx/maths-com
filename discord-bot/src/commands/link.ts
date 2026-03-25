@@ -51,32 +51,26 @@ export default {
         }
       }
       
-      // Vérifier si l'utilisateur a déjà un compte lié (utiliser l'API du site)
+      // Vérifier si l'utilisateur a déjà un compte lié
       try {
-        const response = await fetch(`${config.website.apiUrl}/discord/bot-verify`, {
-          method: 'PUT',
+        const response = await fetch(`${config.website.apiUrl}/discord/check-link?discordId=${discordUserId}`, {
+          method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${config.api.secret}`
-          },
-          body: JSON.stringify({
-            discordId: discordUserId,
-            code: 'CHECK_LINK', // Code spécial pour vérifier si déjà lié
-            discordUsername: discordUsername
-          })
+          }
         });
         
         if (response.ok) {
-          const result = await response.json() as { valid: boolean; username?: string };
-          if (result.valid && result.username) {
+          const result = await response.json() as { linked: boolean; user?: { username: string; displayName: string; linkedAt: string } };
+          if (result.linked && result.user) {
             const embed = new EmbedBuilder()
-              .setTitle('⚠️ Compte déjà lié')
+              .setTitle('✅ Compte déjà lié')
               .setDescription('Votre compte Discord est déjà lié à Maths-App.com.')
               .addFields(
-                { name: 'Utilisateur lié', value: result.username, inline: true },
-                { name: 'Date de liaison', value: new Date().toLocaleDateString('fr-FR'), inline: true }
+                { name: '🎯 Utilisateur lié', value: result.user.username, inline: true },
+                { name: '🔗 Date de liaison', value: result.user.linkedAt ? new Date(result.user.linkedAt).toLocaleDateString('fr-FR') : 'Inconnue', inline: true }
               )
-              .setColor(COLORS.warning)
+              .setColor(COLORS.success)
               .setFooter({ text: 'Utilisez /unlink pour délier votre compte' })
               .setTimestamp();
             
