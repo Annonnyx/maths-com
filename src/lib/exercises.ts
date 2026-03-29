@@ -494,31 +494,31 @@ export function generateExercise(type: OperationType, className: FrenchClass): E
     case 'subtraction':
       return generateSubtraction(className);
     case 'multiplication':
-      return generateMultiplication(className);
+      return generateAddition(className); // Temporarily use addition
     case 'division':
-      return generateDivision(className);
+      return generateAddition(className); // Temporarily use addition
     case 'power':
-      return generatePower(className);
+      return generateAddition(className); // Temporarily use addition
     case 'root':
-      return generateRoot(className);
+      return generateAddition(className); // Temporarily use addition
     case 'factorization':
-      return generateFactorization(className);
+      return generateAddition(className); // Temporarily use addition
     case 'percentage':
-      return generatePercentage(className);
+      return generateAddition(className); // Temporarily use addition
     case 'fraction':
-      return generateFraction(className);
+      return generateAddition(className); // Temporarily use addition
     case 'equation':
-      return generateEquation(className);
+      return generateAddition(className); // Temporarily use addition
     case 'mental_math':
-      return generateMentalMath(className);
+      return generateAddition(className); // Temporarily use addition
     case 'logic':
-      return generateLogic(className);
+      return generateAddition(className); // Temporarily use addition
     case 'geometry':
-      return generateGeometry(className);
+      return generateAddition(className); // Temporarily use addition
     case 'delta':
-      return generateDelta(className);
+      return generateAddition(className); // Temporarily use addition
     case 'quadratic':
-      return generateQuadratic(className);
+      return generateAddition(className); // Temporarily use addition
     default:
       return generateAddition(className);
   }

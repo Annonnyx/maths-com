@@ -316,7 +316,7 @@ export function generateExerciseByClass(
 // Générateur avec contraintes spécifiques par classe
 function generateWithConstraints(type: OperationType, difficulty: number, className: FrenchClass): Exercise {
   // Utiliser les paramètres pour adapter la génération
-  const baseExercise = generateBaseExercise(type, difficulty);
+  const baseExercise = generateBaseExercise(type, className);
   
   // Ajoute des métadonnées de classe
   return {
@@ -327,13 +327,13 @@ function generateWithConstraints(type: OperationType, difficulty: number, classN
 }
 
 // Générateur de base (simplifié - utilise exercises.ts en pratique)
-function generateBaseExercise(type: OperationType, difficulty: number): Exercise {
+function generateBaseExercise(type: OperationType, className: FrenchClass): Exercise {
   // Cette fonction serait connectée à la logique existante dans exercises.ts
   // Pour l'instant, retourne une structure minimale
   return {
     id: Math.random().toString(36).substring(2, 11),
     type,
-    difficulty,
+    className,
     question: 'Question en cours de génération...',
     answer: '0',
     explanation: 'Explication à venir'

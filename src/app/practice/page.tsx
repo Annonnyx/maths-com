@@ -8,7 +8,7 @@ import {
   Trophy, Target, ArrowLeft, CheckCircle, XCircle, 
   RotateCcw, Calculator, Settings2, BookOpen, Clock
 } from 'lucide-react';
-import { generateExercise, Exercise, OperationType, validateAnswer, getFrenchClassOperations } from '@/lib/exercises';
+import { generateExercise, Exercise, OperationType, validateAnswer } from '@/lib/exercises';
 import { useSound } from '@/components/SoundProvider';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 import { FrenchClass, FRENCH_CLASSES, CLASS_INFO, getUnlockedClasses, getClassFromDifficulty } from '@/lib/french-classes';
@@ -177,8 +177,8 @@ function PracticePage() {
       }
     } else {
       // Mode libre
-      const availableOps = getFrenchClassOperations(selectedClass);
-      const randomOp = availableOps[Math.floor(Math.random() * availableOps.length)];
+      const availableOps: OperationType[] = ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'fraction', 'equation', 'power', 'root', 'factorization', 'geometry', 'delta', 'quadratic', 'mental_math', 'logic'];
+      const randomOp = availableOps[Math.floor(Math.random() * availableOps.length)] as OperationType;
       setSelectedOperation(randomOp);
       
       const exercise = generateExercise(randomOp, selectedClass);

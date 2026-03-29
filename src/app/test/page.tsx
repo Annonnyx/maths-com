@@ -307,7 +307,15 @@ function TestPage() {
         totalQuestions: testState.questions.length,
         totalTimeSeconds: totalTime,
         questionTimes: timePerQuestion,
-        difficulties: testState.questions.map(q => q.difficulty || 5),
+        difficulties: testState.questions.map(q => {
+        // Convert className to difficulty number for ELO calculation
+        const classToDifficulty: Record<string, number> = {
+          'CP': 1, 'CE1': 2, 'CE2': 3, 'CM1': 4, 'CM2': 5,
+          '6e': 6, '5e': 7, '4e': 8, '3e': 9, '2de': 9,
+          '1re': 10, 'Tle': 10, 'Sup1': 10, 'Sup2': 10, 'Sup3': 10, 'Pro': 10
+        };
+        return classToDifficulty[q.className || '6e'] || 6;
+      }),
         isCorrectArray: results.map(r => r.isCorrect),
         currentElo: userElo,
         streak: 0 // Will be calculated based on recent performance
@@ -651,13 +659,22 @@ function TestPage() {
                       Question {testState.currentIndex + 1}
                     </span>
                     <span className={`px-2 py-0.5 rounded text-xs ${
-                      testState.questions[testState.currentIndex].difficulty >= 8 
-                        ? 'bg-red-500/20 text-red-400' 
-                        : testState.questions[testState.currentIndex].difficulty >= 5 
-                          ? 'bg-yellow-500/20 text-yellow-400'
-                          : 'bg-green-500/20 text-green-400'
+                      (() => {
+                        const currentClass = testState.questions[testState.currentIndex].className;
+                        const classToDifficulty: Record<string, number> = {
+                          'CP': 1, 'CE1': 2, 'CE2': 3, 'CM1': 4, 'CM2': 5,
+                          '6e': 6, '5e': 7, '4e': 8, '3e': 9, '2de': 9,
+                          '1re': 10, 'Tle': 10, 'Sup1': 10, 'Sup2': 10, 'Sup3': 10, 'Pro': 10
+                        };
+                        const difficulty = classToDifficulty[currentClass || '6e'] || 6;
+                        return difficulty >= 8 
+                          ? 'bg-red-500/20 text-red-400' 
+                          : difficulty >= 5 
+                            ? 'bg-yellow-500/20 text-yellow-400'
+                            : 'bg-green-500/20 text-green-400';
+                      })()
                     }`}>
-                      {formatClassName(getClassFromDifficulty(testState.questions[testState.currentIndex].difficulty))}
+                      {formatClassName(testState.questions[testState.currentIndex].className || '6e')}
                     </span>
                   </div>
                   <h2 className="text-5xl md:text-6xl font-bold font-mono">
@@ -943,7 +960,7 @@ function TestPage() {
                           <div className="text-right">
                             <span className="text-sm text-gray-500">{result.timeTaken}s</span>
                             <span className="ml-2 px-2 py-0.5 bg-[#1a1a2e] rounded text-xs text-muted-foreground">
-                              {formatClassName(getClassFromDifficulty(result.question.difficulty))}
+                              {formatClassName(result.question.className || '6e')}
                             </span>
                           </div>
                         </div>
