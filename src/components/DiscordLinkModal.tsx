@@ -30,10 +30,12 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
         discordId: 'pending'
       };
 
-      // N'envoyer userId que s'il existe
+      // Toujours envoyer userId si disponible
       if (session?.user?.id) {
         requestBody.userId = session.user.id;
       }
+
+      console.log('🔗 Sending request:', requestBody);
 
       const response = await fetch('/api/discord/link', {
         method: 'POST',
@@ -42,6 +44,8 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
       });
 
       const data = await response.json();
+
+      console.log('🔗 Response:', data);
 
       if (data.success) {
         setGeneratedCode(data.code);
@@ -55,6 +59,7 @@ export function DiscordLinkModal({ isOpen, onClose, isLinked = false, onLinkSucc
         }
       }
     } catch (err) {
+      console.error('🔗 Error:', err);
       setError('Erreur de connexion. Veuillez réessayer.');
     } finally {
       setIsLoading(false);

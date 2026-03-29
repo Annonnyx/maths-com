@@ -38,7 +38,7 @@ import {
 export interface Exercise {
   id: string;
   type: OperationType;
-  difficulty: number;
+  className: FrenchClass;
   question: string;
   answer: string;
   explanation?: string;
@@ -50,47 +50,47 @@ function randomInt(min: number, max: number): number {
 }
 
 // Generate addition exercise
-function generateAddition(difficulty: number): Exercise {
+function generateAddition(className: FrenchClass): Exercise {
   let a: number, b: number;
   
-  switch (difficulty) {
-    case 1: // CP - very basic automatisms
+  switch (className) {
+    case 'CP': // CP - very basic automatisms
       a = randomInt(1, 5);
       b = randomInt(1, 5);
       break;
-    case 2: // CE1 - small numbers
+    case 'CE1': // CE1 - small numbers
       a = randomInt(1, 10);
       b = randomInt(1, 10);
       break;
-    case 3: // CE2 - complement to 10 focus
+    case 'CE2': // CE2 - complement to 10 focus
       a = randomInt(1, 10);
       b = randomInt(1, 10);
       break;
-    case 4: // CM1 - double digits
+    case 'CM1': // CM1 - double digits
       a = randomInt(10, 20);
       b = randomInt(10, 20);
       break;
-    case 5: // CM2 - larger numbers but still manageable
+    case 'CM2': // CM2 - larger numbers but still manageable
       a = randomInt(20, 50);
       b = randomInt(10, 30);
       break;
-    case 6:
+    case '6e':
       a = randomInt(50, 200);
       b = randomInt(50, 200);
       break;
-    case 7:
+    case '5e':
       a = randomInt(100, 500);
       b = randomInt(100, 500);
       break;
-    case 8:
+    case '4e':
       a = randomInt(200, 999);
       b = randomInt(200, 999);
       break;
-    case 9:
+    case '3e':
       a = randomInt(100, 999);
       b = randomInt(100, 999);
       break;
-    case 10:
+    case '2de':
       a = randomInt(100, 999);
       b = randomInt(100, 999);
       break;
@@ -102,7 +102,7 @@ function generateAddition(difficulty: number): Exercise {
   return {
     id: Math.random().toString(36).substring(2, 11),
     type: 'addition',
-    difficulty,
+    className,
     question: `${a} + ${b} = ?`,
     answer: (a + b).toString()
   };

@@ -14,28 +14,22 @@ function generateLinkingCode(): string {
 // POST - Générer un code de liaison Discord
 export async function POST(request: Request) {
   try {
-    const { discordId, userId } = await request.json();
+    const body = await request.json();
+    const { discordId, userId } = body;
     
     console.log('🔗 Discord link request:', { discordId, userId });
 
-    if (!discordId) {
-      return NextResponse.json(
-        { error: 'Discord ID requis' },
-        { status: 400 }
-      );
-    }
-
-    // Si userId n'est pas fourni, générer un code sans l'associer à un utilisateur
-    if (!userId) {
-      console.log('🔗 No userId provided, generating pending code');
+    // Si discordId est 'pending', générer un code sans validation
+    if (discordId === 'pending') {
+      console.log('🔗 Pending discordId, generating code without user association');
       const code = generateLinkingCode();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
       // Stocker le code sans utilisateur (pour le modal du profil)
       const linkCode = await prisma.discordLinkCode.create({
         data: {
-          userId: 'pending', // Sera mis à jour plus tard
-          discordId: discordId,
+          userId: userId || 'pending', // Utiliser userId si fourni, sinon 'pending'
+          discordId: 'pending',
           code: code,
           expiresAt: expiresAt,
           used: false
@@ -49,6 +43,14 @@ export async function POST(request: Request) {
         instructions: `Utilisez la commande /link code:${code} sur Discord pour lier votre compte.`,
         expiresIn: 15 * 60 // 15 minutes en secondes
       });
+    }
+
+    // Pour les autres cas, discordId doit être valide
+    if (!discordId || discordId === 'pending') {
+      return NextResponse.json(
+        { error: 'Discord ID requis' },
+        { status: 400 }
+      );
     }
 
     console.log('🔗 Checking if user is already linked:', userId);

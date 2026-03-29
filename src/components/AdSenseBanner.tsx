@@ -30,8 +30,17 @@ export function AdSenseBanner({
         window.adsbygoogle = [];
       }
 
-      // Check if ad is already initialized for this element
+      // Check if ad element has sufficient width
       const adElement = adRef.current;
+      const rect = adElement.getBoundingClientRect();
+      
+      // Don't load ad if width is too small (less than 200px)
+      if (rect.width < 200) {
+        console.log('AdSense: Container too small, skipping ad load');
+        return;
+      }
+
+      // Check if ad is already initialized for this element
       if (adElement.getAttribute('data-adsbygoogle-status') === 'done') {
         setIsAdLoaded(true);
         return;
