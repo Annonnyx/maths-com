@@ -8,10 +8,10 @@ import {
   Trophy, Target, ArrowLeft, CheckCircle, XCircle, 
   RotateCcw, Calculator, Settings2, BookOpen, Clock
 } from 'lucide-react';
-import { generateExercise, Exercise, OperationType, validateAnswer } from '@/lib/exercises';
+import { generateExercise, Exercise, OperationType, validateAnswer, getFrenchClassOperations } from '@/lib/exercises';
 import { useSound } from '@/components/SoundProvider';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
-import { FrenchClass, FRENCH_CLASSES, CLASS_INFO, getUnlockedClasses } from '@/lib/french-classes';
+import { FrenchClass, FRENCH_CLASSES, CLASS_INFO, getUnlockedClasses, getClassFromDifficulty } from '@/lib/french-classes';
 import { useSession } from 'next-auth/react';
 import { RankClass } from '@/lib/elo';
 
@@ -57,33 +57,12 @@ const OPERATIONS: { type: OperationType; label: string; icon: string; color: str
   { type: 'geometry', label: 'Géométrie', icon: '◈', color: 'from-yellow-500/20 to-yellow-600/20' },
 ];
 
-// Map French class to difficulty level (1-10)
-const CLASS_TO_DIFFICULTY: Record<FrenchClass, number> = {
-  'CP': 1,
-  'CE1': 2,
-  'CE2': 3,
-  'CM1': 4,
-  'CM2': 5,
-  '6e': 6,
-  '5e': 7,
-  '4e': 8,
-  '3e': 9,
-  '2de': 9,
-  '1re': 10,
-  'Tle': 10,
-  'Sup1': 10,
-  'Sup2': 10,
-  'Sup3': 10,
-  'Pro': 10
-};
-
 function PracticePage() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const courseId = searchParams.get('course_id');
   
   const [selectedOperation, setSelectedOperation] = useState<OperationType>('addition');
-  const [difficulty, setDifficulty] = useState(5);
   const [currentExercise, setCurrentExercise] = useState<Exercise | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -155,15 +134,15 @@ function PracticePage() {
 
   const startCourseSession = (courseData: Course) => {
     const questions: Exercise[] = [];
-    const baseDifficulty = courseData.difficulty || 5;
+    const baseClass = courseData.difficulty ? getClassFromDifficulty(courseData.difficulty) : '6e';
     
     // Générer 10 questions basées sur les types du cours
     for (let i = 0; i < 10; i++) {
       const operationType = courseData.relatedTypes[
         Math.floor(Math.random() * courseData.relatedTypes.length)
       ];
-      const questionDifficulty = Math.max(1, Math.min(10, baseDifficulty + Math.floor(Math.random() * 3) - 1));
-      questions.push(generateExercise(operationType, questionDifficulty));
+      // Utiliser la classe de base pour générer l'exercice
+      questions.push(generateExercise(operationType, baseClass));
     }
 
     setCourseSession({
@@ -198,12 +177,11 @@ function PracticePage() {
       }
     } else {
       // Mode libre
-      const difficulty = CLASS_TO_DIFFICULTY[selectedClass];
-      const availableOps = getOperationsForClass(selectedClass, excludeGeometry);
+      const availableOps = getFrenchClassOperations(selectedClass);
       const randomOp = availableOps[Math.floor(Math.random() * availableOps.length)];
       setSelectedOperation(randomOp);
       
-      const exercise = generateExercise(randomOp, difficulty);
+      const exercise = generateExercise(randomOp, selectedClass);
       setCurrentExercise(exercise);
     }
     
@@ -228,7 +206,7 @@ function PracticePage() {
           questionsCount: courseSession.questions.length,
           correctAnswers: courseSession.correctAnswers,
           timeSpentSeconds: timeSpent,
-          difficultyLevel: difficulty
+          classLevel: selectedClass
         })
       });
     } catch (error) {
@@ -385,7 +363,7 @@ function PracticePage() {
                       {OPERATIONS.find(op => op.type === currentExercise.type)?.label || currentExercise.type}
                     </span>
                     <span className="text-gray-400">•</span>
-                    <span className="text-purple-400">Niveau {currentExercise.difficulty}</span>
+                    <span className="text-purple-400">Niveau {currentExercise.className}</span>
                   </div>
                 </div>
 

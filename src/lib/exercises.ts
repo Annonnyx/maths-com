@@ -487,40 +487,40 @@ function generateFactorization(difficulty: number): Exercise {
 }
 
 // Main exercise generator function
-export function generateExercise(type: OperationType, difficulty: number): Exercise {
+export function generateExercise(type: OperationType, className: FrenchClass): Exercise {
   switch (type) {
     case 'addition':
-      return generateAddition(difficulty);
+      return generateAddition(className);
     case 'subtraction':
-      return generateSubtraction(difficulty);
+      return generateSubtraction(className);
     case 'multiplication':
-      return generateMultiplication(difficulty);
+      return generateMultiplication(className);
     case 'division':
-      return generateDivision(difficulty);
+      return generateDivision(className);
     case 'power':
-      return generatePower(difficulty);
+      return generatePower(className);
     case 'root':
-      return generateRoot(difficulty);
+      return generateRoot(className);
     case 'factorization':
-      return generateFactorization(difficulty);
+      return generateFactorization(className);
     case 'percentage':
-      return generatePercentage(difficulty);
+      return generatePercentage(className);
     case 'fraction':
-      return generateFraction(difficulty);
+      return generateFraction(className);
     case 'equation':
-      return generateEquation(difficulty);
+      return generateEquation(className);
     case 'mental_math':
-      return generateMentalMath(difficulty);
+      return generateMentalMath(className);
     case 'logic':
-      return generateLogic(difficulty);
+      return generateLogic(className);
     case 'geometry':
-      return generateGeometry(difficulty);
+      return generateGeometry(className);
     case 'delta':
-      return generateDelta(difficulty);
+      return generateDelta(className);
     case 'quadratic':
-      return generateQuadratic(difficulty);
+      return generateQuadratic(className);
     default:
-      return generateAddition(difficulty);
+      return generateAddition(className);
   }
 }
 
