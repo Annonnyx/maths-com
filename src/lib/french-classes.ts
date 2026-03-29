@@ -4,6 +4,45 @@
 import { RankClass, RANK_CLASSES, RANK_THRESHOLDS } from './elo';
 import { ELO_LEVEL_RANGES, getLevelFromElo } from './question-generators/elo-ranges';
 
+// Types d'opérations pour les exercices
+export type OperationType = 
+  | 'addition' 
+  | 'subtraction' 
+  | 'multiplication' 
+  | 'division' 
+  | 'power' 
+  | 'root' 
+  | 'factorization'
+  | 'percentage'
+  | 'fraction'
+  | 'equation'
+  | 'mental_math'
+  | 'logic'
+  | 'geometry'
+  | 'delta'
+  | 'quadratic'
+  | 'pythagore'
+  | 'thales'
+  | 'trigonometry'
+  | 'vectors'
+  | 'complex_numbers'
+  | 'matrices'
+  | 'graphs'
+  | 'integrals'
+  | 'derivatives'
+  | 'probabilities'
+  | 'statistics';
+
+// Interface pour les exercices
+export interface Exercise {
+  id: string;
+  type: OperationType;
+  className: FrenchClass;
+  question: string;
+  answer: string;
+  explanation?: string;
+}
+
 // Définition des classes françaises
 export const FRENCH_CLASSES = [
   'CP',      // Cours Préparatoire (6-7 ans)

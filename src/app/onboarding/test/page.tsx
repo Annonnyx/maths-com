@@ -9,7 +9,8 @@ import {
   ArrowRight, Calculator, Sparkles, Star, Send
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
-import { Exercise, generateEvaluationTest, validateAnswer } from '@/lib/exercises';
+import { Exercise, OperationType } from '@/lib/french-classes';
+import { generateEvaluationTest, validateAnswer } from '@/lib/exercises';
 import { calculateInitialElo } from '@/lib/elo';
 import { getClassFromElo, formatClassName } from '@/lib/french-classes';
 import { getClassFromDifficulty } from '@/lib/french-classes';

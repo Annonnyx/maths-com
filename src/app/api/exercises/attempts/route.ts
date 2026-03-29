@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { Exercise, OperationType } from '@/lib/exercises';
+import { Exercise, OperationType } from '@/lib/french-classes';
 
 // POST /api/exercises/attempt - Record an exercise attempt
 export async function POST(req: NextRequest) {

@@ -1,5 +1,5 @@
 import { RankClass } from '@/lib/elo';
-import { OperationType } from '@/lib/exercises';
+import { OperationType } from '@/lib/french-classes';
 
 export interface User {
   id: string;

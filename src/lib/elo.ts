@@ -146,128 +146,81 @@ export function calculateAdvancedEloChange(result: TestResult): {
   eloChange: number;
   performance: {
     speedBonus: number;
-    accuracyBonus: number;
     difficultyBonus: number;
     streakBonus: number;
     baseChange: number;
   };
 } {
   const { correctAnswers, totalQuestions, totalTimeSeconds, difficulties, isCorrectArray, currentElo, streak } = result;
-  const score = (correctAnswers / totalQuestions) * 100;
+  const score = correctAnswers; // Raw correct answers out of 20
   
-  // 1. BASE SCORE CALCULATION
-  let baseChange = 0;
-  if (score < 50) {
-    baseChange = -Math.round((50 - score) * 2.5); // More punishing for low scores
-  } else if (score < 60) {
-    baseChange = Math.round((score - 50) * 1.5);
-  } else if (score < 70) {
-    baseChange = Math.round((score - 50) * 2);
-  } else if (score < 80) {
-    baseChange = Math.round((score - 50) * 2.5);
-  } else if (score < 90) {
-    baseChange = Math.round((score - 50) * 3);
-  } else if (score < 100) {
-    baseChange = Math.round((score - 50) * 3.5);
-  } else {
-    baseChange = 100; // Perfect score = flat 100 base
-  }
+  // 1. BASE SCORE CALCULATION - Bounded between -16 and +14
+  const baseScoreMap: Record<number, number> = {
+    0: -16, 1: -14, 2: -12, 3: -10, 4: -8, 5: -7,
+    6: -6, 7: -5, 8: -4, 9: -3, 10: 0,
+    11: +1, 12: +2, 13: +3, 14: +4, 15: +5,
+    16: +6, 17: +7, 18: +10, 19: +12, 20: +14
+  };
   
-  // 2. SPEED BONUS/PENALTY - Only applied if score >= 50%
+  let baseChange = baseScoreMap[score] || 0;
+  
+  // 2. BONUSES - Only applied if score >= 10
   let speedBonus = 0;
   let difficultyBonus = 0;
-  let accuracyBonus = 0;
+  let streakBonus = 0;
   
-  if (score >= 50) {
-    // Average time per question: target is 5 seconds for competitive
-    const avgTimePerQuestion = totalTimeSeconds / totalQuestions;
-    
-    if (avgTimePerQuestion <= 3) {
-      speedBonus = 2; // Lightning fast - max +2
-    } else if (avgTimePerQuestion <= 5) {
-      speedBonus = 1; // Very fast
-    } else if (avgTimePerQuestion <= 8) {
-      speedBonus = 0; // Good speed - no bonus
-    } else if (avgTimePerQuestion <= 12) {
-      speedBonus = 0; // Normal
-    } else if (avgTimePerQuestion <= 20) {
-      speedBonus = -1; // Slow - small penalty
+  if (score >= 10) {
+    // SPEED BONUS
+    if (totalTimeSeconds < 120) { // < 2 minutes
+      speedBonus = 2;
+    } else if (totalTimeSeconds < 300) { // < 5 minutes
+      speedBonus = 1;
     } else {
-      speedBonus = -2; // Too slow - max penalty
+      speedBonus = 0; // >= 5 minutes
     }
     
-    // 3. DIFFICULTY BONUS - Max +2
-    const avgDifficulty = difficulties.reduce((a, b) => a + b, 0) / difficulties.length;
-    if (avgDifficulty >= 8) {
-      difficultyBonus = 2; // Very hard questions
-    } else if (avgDifficulty >= 7) {
-      difficultyBonus = 1; // Hard questions
-    } else {
-      difficultyBonus = 0; // Normal difficulty
-    }
-    
-    // 4. ACCURACY BONUS for high difficulty questions - Max +2
-    const hardQuestionIndices = difficulties
-      .map((d, i) => d >= 7 ? i : -1)
-      .filter(i => i !== -1);
-    const hardQuestions = hardQuestionIndices.length;
-    
-    // Use isCorrectArray if provided, otherwise fall back to old logic
-    let correctHardQuestions = 0;
-    if (isCorrectArray && isCorrectArray.length > 0) {
-      correctHardQuestions = hardQuestionIndices.filter(i => isCorrectArray[i]).length;
-    } else {
-      // Fallback: assume first 'correctAnswers' are correct (buggy but backwards compatible)
-      correctHardQuestions = difficulties.filter((d, i) => d >= 7 && i < correctAnswers).length;
-    }
-    
-    if (hardQuestions > 0) {
-      const hardAccuracy = (correctHardQuestions / hardQuestions) * 100;
-      if (hardAccuracy >= 80) {
-        accuracyBonus = 2; // Master bonus - max +2
-      } else if (hardAccuracy >= 60) {
-        accuracyBonus = 1; // Good accuracy
-      } else {
-        accuracyBonus = 0; // Low accuracy - no bonus
+    // DIFFICULTY BONUS - Need 2 questions from higher level
+    if (isCorrectArray && isCorrectArray.length === totalQuestions) {
+      // Find questions from higher level (difficulty > user's current level)
+      const userLevel = Math.floor(currentElo / 100); // Rough estimate of user level
+      const higherLevelQuestions = difficulties
+        .map((d, i) => d > userLevel ? i : -1)
+        .filter(i => i !== -1);
+      
+      if (higherLevelQuestions.length >= 2) {
+        const correctHigherLevel = higherLevelQuestions.filter(i => isCorrectArray[i]).length;
+        if (correctHigherLevel === 2) {
+          difficultyBonus = 2;
+        } else if (correctHigherLevel === 1) {
+          difficultyBonus = 1;
+        }
       }
     }
-  } else {
-    // For scores < 50%, apply additional penalties instead of bonuses
-    const avgTimePerQuestion = totalTimeSeconds / totalQuestions;
-    if (avgTimePerQuestion > 15) {
-      speedBonus = -2; // Additional penalty for being slow AND wrong
+    
+    // STREAK BONUS - Based on recent performance
+    if (streak >= 16) {
+      const streakBonusMap: Record<number, number> = {
+        16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0, 24: 0, 25: 0,
+        26: 1, 27: 1, 28: 1, 29: 1, 30: 1, 31: 1, 32: 1, 33: 1, 34: 1, 35: 1,
+        36: 2, 37: 2, 38: 2, 39: 2, 40: 2, 41: 2, 42: 2, 43: 2, 44: 2, 45: 2,
+        46: 2, 47: 2, 48: 2, 49: 2, 50: 2, 51: 2, 52: 2, 53: 2, 54: 2, 55: 2,
+        56: 3, 57: 3, 58: 3, 59: 3, 60: 3, 61: 3, 62: 3, 63: 3, 64: 3, 65: 3,
+        66: 3, 67: 3, 68: 3, 69: 3, 70: 3, 71: 3, 72: 3, 73: 3, 74: 3, 75: 3,
+        76: 3, 77: 3, 78: 3, 79: 3, 80: 3, 81: 3, 82: 3, 83: 3, 84: 3, 85: 3,
+        86: 4, 87: 4, 88: 4, 89: 4, 90: 4, 91: 4, 92: 4, 93: 4, 94: 4, 95: 4,
+        96: 4, 97: 4, 98: 4, 99: 4, 100: 4
+      };
+      streakBonus = streakBonusMap[Math.min(streak, 100)] || 4;
     }
   }
   
-  // 5. STREAK BONUS - Only applied if score >= 50% - Max +2
-  const streakBonus = score >= 50 ? Math.min(Math.floor(streak / 5), 2) : 0; // +1 every 5 wins, max +2
-  
-  // 6. ELO SCALING - Reduce swings for very high and very low Elo players
-  let eloScaling = 1;
-  if (currentElo >= 1500) {
-    eloScaling = 0.65; // S tier players: reduced gains and losses for stability
-  } else if (currentElo >= 1300) {
-    eloScaling = 0.75; // A tier
-  } else if (currentElo >= 1100) {
-    eloScaling = 0.85; // B tier
-  } else if (currentElo >= 900) {
-    eloScaling = 0.90; // C tier
-  } else if (currentElo < 600) {
-    eloScaling = 1.05; // F/E tier: slightly amplified gains to help beginners progress faster
-  }
-  
-  // Calculate final Elo change with ±16 cap and integer rounding
-  const rawChange = baseChange + speedBonus + difficultyBonus + accuracyBonus + streakBonus;
-  const scaledChange = Math.round(rawChange * eloScaling);
-  
-  // Cap the change between -16 and +16
-  const eloChange = Math.max(-16, Math.min(16, scaledChange));
+  // Calculate total ELO change
+  const eloChange = baseChange + speedBonus + difficultyBonus + streakBonus;
   
   return {
     eloChange,
     performance: {
       speedBonus,
-      accuracyBonus,
       difficultyBonus,
       streakBonus,
       baseChange

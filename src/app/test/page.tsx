@@ -13,9 +13,10 @@ import {
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
-import { Exercise, generateTest, generateEvaluationTest, generateFocusedTest, getOperationTypesForCourse, validateAnswer } from '@/lib/exercises';
+import { Exercise, OperationType } from '@/lib/french-classes';
+import { generateTest, generateEvaluationTest, generateFocusedTest, getOperationTypesForCourse, validateAnswer } from '@/lib/exercises';
 import { calculateEloChange, getPerformanceTier, getRankFromElo, RANK_COLORS, RANK_BG_COLORS, calculateAdvancedEloChange } from '@/lib/elo';
-import { getClassFromDifficulty, formatClassName } from '@/lib/french-classes';
+import { getClassFromDifficulty, formatClassName, getClassFromElo } from '@/lib/french-classes';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 
 type TestMode = 'competitive' | 'training' | null;
@@ -103,7 +104,7 @@ function TestPage() {
         questions = errorQuestions.map((eq: any, index: number) => ({
           id: `error-${index}`,
           type: eq.type,
-          difficulty: eq.difficulty,
+          className: eq.className || '6e', // Default to 6e if not specified
           question: eq.question,
           answer: eq.answer,
           explanation: undefined
@@ -118,10 +119,8 @@ function TestPage() {
     } else if (courseType) {
       const operationTypes = getOperationTypesForCourse(courseType);
       if (operationTypes) {
-        const difficulty = mode === 'competitive' 
-          ? Math.min(10, Math.max(3, Math.floor(operationTypes.length * 2)))
-          : Math.min(6, Math.max(2, Math.floor(operationTypes.length * 1.5)));
-        questions = generateFocusedTest(operationTypes, difficulty, 20, userElo);
+        const targetClass = getClassFromElo(userElo);
+        questions = generateFocusedTest(operationTypes, targetClass, 20, userElo);
         title = `Test - ${courseType}`;
       } else {
         questions = mode === 'competitive' ? generateTest(userElo, 20) : generateEvaluationTest(20);
@@ -323,7 +322,10 @@ function TestPage() {
       
       const eloCalculation = calculateAdvancedEloChange(testResult);
       eloChange = eloCalculation.eloChange;
-      performance = eloCalculation.performance;
+      performance = {
+        ...eloCalculation.performance,
+        accuracyBonus: 0 // Le bonus de précision n'est plus utilisé dans le nouveau système
+      };
       tier = getPerformanceTier(eloChange);
     }
     

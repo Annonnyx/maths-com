@@ -1,8 +1,7 @@
 // Générateurs de questions par classe française
 // Chaque classe a des types de questions adaptés à son programme scolaire
 
-import { Exercise, OperationType } from './exercises';
-import { FrenchClass, CLASS_INFO } from './french-classes';
+import { Exercise, OperationType, FrenchClass, CLASS_INFO } from './french-classes';
 
 // Types d'exercices spécifiques par classe
 export interface ClassExerciseConfig {
