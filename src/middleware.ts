@@ -3,15 +3,6 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  const hostname = req.headers.get('host')
-  
-  // Rediriger www.maths-app.com vers maths-app.com
-  if (hostname === 'www.maths-app.com') {
-    const url = req.nextUrl.clone()
-    url.host = 'maths-app.com'
-    return NextResponse.redirect(url, 301)
-  }
-
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   const isAuth = !!token
   const pathname = req.nextUrl.pathname
