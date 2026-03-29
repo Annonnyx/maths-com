@@ -52,7 +52,7 @@ async function generateUniqueUsername(): Promise<string> {
 
 // Debug des variables d'environnement
 const isDev = process.env.NODE_ENV === 'development';
-const nextAuthUrl = isDev ? 'http://localhost:3000' : (process.env.NEXTAUTH_URL || 'https://www.maths-app.com');
+const nextAuthUrl = isDev ? 'https://maths-com.vercel.app' : (process.env.NEXTAUTH_URL || 'https://www.maths-app.com');
 
 console.log('🔧 Environment:', isDev ? 'DEVELOPMENT' : 'PRODUCTION');
 console.log('🔧 NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'DEFINED' : 'MISSING');
