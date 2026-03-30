@@ -9,7 +9,7 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "module": "CommonJS",
-    "moduleResolution": "node10",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": false,
     "noEmit": false,

@@ -43,28 +43,22 @@ exports.default = {
                     return interaction.reply({ embeds: [embed], ephemeral: true });
                 }
             }
-            // Vérifier si l'utilisateur a déjà un compte lié (utiliser l'API du site)
+            // Vérifier si l'utilisateur a déjà un compte lié
             try {
-                const response = await fetch(`${config_js_2.config.website.apiUrl}/discord/bot-verify`, {
-                    method: 'PUT',
+                const response = await fetch(`${config_js_2.config.website.apiUrl}/discord/check-link?discordId=${discordUserId}`, {
+                    method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${config_js_2.config.api.secret}`
-                    },
-                    body: JSON.stringify({
-                        discordId: discordUserId,
-                        code: 'CHECK_LINK', // Code spécial pour vérifier si déjà lié
-                        discordUsername: discordUsername
-                    })
+                    }
                 });
                 if (response.ok) {
                     const result = await response.json();
-                    if (result.valid && result.username) {
+                    if (result.linked && result.user) {
                         const embed = new discord_js_1.EmbedBuilder()
-                            .setTitle('⚠️ Compte déjà lié')
+                            .setTitle('✅ Compte déjà lié')
                             .setDescription('Votre compte Discord est déjà lié à Maths-App.com.')
-                            .addFields({ name: 'Utilisateur lié', value: result.username, inline: true }, { name: 'Date de liaison', value: new Date().toLocaleDateString('fr-FR'), inline: true })
-                            .setColor(config_js_1.COLORS.warning)
+                            .addFields({ name: '🎯 Utilisateur lié', value: result.user.username, inline: true }, { name: '🔗 Date de liaison', value: result.user.linkedAt ? new Date(result.user.linkedAt).toLocaleDateString('fr-FR') : 'Inconnue', inline: true })
+                            .setColor(config_js_1.COLORS.success)
                             .setFooter({ text: 'Utilisez /unlink pour délier votre compte' })
                             .setTimestamp();
                         if (interaction.replied || interaction.deferred) {
@@ -128,12 +122,46 @@ exports.default = {
             }
             catch (fetchError) {
                 console.error('Erreur vérification code:', fetchError);
+                // Gérer spécifiquement les erreurs d'interaction expirée
+                if (fetchError && typeof fetchError === 'object' && 'code' in fetchError && fetchError.code === 10062) {
+                    console.log('⚠️ Interaction expirée lors de la vérification, ignoré...');
+                    return;
+                }
                 const errorEmbed = new discord_js_1.EmbedBuilder()
                     .setTitle('❌ Erreur de vérification')
                     .setDescription('Impossible de vérifier votre code avec le site web. Réessayez plus tard.')
                     .setColor(config_js_1.COLORS.error)
                     .setFooter({ text: 'Maths-App.com' })
                     .setTimestamp();
+                try {
+                    if (interaction.replied || interaction.deferred) {
+                        await interaction.editReply({ embeds: [errorEmbed] });
+                    }
+                    else {
+                        await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+                    }
+                }
+                catch (replyError) {
+                    if (!replyError || typeof replyError !== 'object' || !('code' in replyError) || replyError.code !== 10062) {
+                        console.error('Erreur lors de la réponse à l\'erreur de vérification:', replyError);
+                    }
+                }
+            }
+        }
+        catch (error) {
+            console.error('Error in link command:', error);
+            // Gérer spécifiquement les erreurs d'interaction expirée
+            if (error && typeof error === 'object' && 'code' in error && error.code === 10062) {
+                console.log('⚠️ Interaction expirée, ignoré...');
+                return; // Ne pas répondre à une interaction expirée
+            }
+            const errorEmbed = new discord_js_1.EmbedBuilder()
+                .setTitle('❌ Erreur')
+                .setDescription('Une erreur est survenue lors de la liaison de votre compte.')
+                .setColor(config_js_1.COLORS.error)
+                .setFooter({ text: 'Maths-App.com' })
+                .setTimestamp();
+            try {
                 if (interaction.replied || interaction.deferred) {
                     await interaction.editReply({ embeds: [errorEmbed] });
                 }
@@ -141,20 +169,13 @@ exports.default = {
                     await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
                 }
             }
-        }
-        catch (error) {
-            console.error('Error in link command:', error);
-            const errorEmbed = new discord_js_1.EmbedBuilder()
-                .setTitle('❌ Erreur')
-                .setDescription('Une erreur est survenue lors de la liaison de votre compte.')
-                .setColor(config_js_1.COLORS.error)
-                .setFooter({ text: 'Maths-App.com' })
-                .setTimestamp();
-            if (interaction.replied || interaction.deferred) {
-                await interaction.editReply({ embeds: [errorEmbed] });
-            }
-            else {
-                await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+            catch (replyError) {
+                if (replyError && typeof replyError === 'object' && 'code' in replyError && replyError.code === 10062) {
+                    console.log('⚠️ Impossible de répondre (interaction expirée)');
+                }
+                else {
+                    console.error('Erreur inattendue lors de la réponse:', replyError);
+                }
             }
         }
     }

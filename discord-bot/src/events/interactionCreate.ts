@@ -17,7 +17,7 @@ export default {
         console.error(`❌ Erreur commande ${interaction.commandName}:`, error);
         
         // Gérer spécifiquement les erreurs d'interaction expirée
-        if (error.code === 10062) {
+        if (error instanceof Error && 'code' in error && error.code === 10062) {
           console.log(`⚠️ Interaction ${interaction.commandName} expirée, ignoré...`);
           return; // Ne pas répondre à une interaction expirée
         }
@@ -30,7 +30,9 @@ export default {
               ephemeral: true 
             });
           } catch (followUpError) {
-            if (followUpError.code !== 10062) {
+            if (followUpError instanceof Error && 'code' in followUpError && followUpError.code === 40060) {
+              console.log('⚠️ Interaction déjà répondue, ignoré...');
+            } else if (followUpError instanceof Error && 'code' in followUpError && followUpError.code !== 10062) {
               console.error('❌ Erreur followUp:', followUpError);
             }
           }
@@ -41,7 +43,9 @@ export default {
               ephemeral: true 
             });
           } catch (replyError) {
-            if (replyError.code !== 10062) {
+            if (replyError instanceof Error && 'code' in replyError && replyError.code === 40060) {
+              console.log('⚠️ Interaction déjà répondue, ignoré...');
+            } else if (replyError instanceof Error && 'code' in replyError && replyError.code !== 10062) {
               console.error('❌ Erreur reply:', replyError);
             }
           }
