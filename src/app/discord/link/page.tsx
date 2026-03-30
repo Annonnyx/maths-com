@@ -21,6 +21,18 @@ export default function DiscordLinkPage() {
   const [discordUsername, setDiscordUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Fonction pour copier le code avec feedback visuel
+  const handleCopyCode = async () => {
+    await navigator.clipboard.writeText(generatedCode);
+    setCopied(true);
+    
+    // Réinitialiser après 2 secondes
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
 
   // Générer un code de liaison
   const generateCode = async () => {
@@ -267,11 +279,15 @@ export default function DiscordLinkPage() {
                   </div>
                   <div className="flex gap-2 justify-center">
                     <button
-                      onClick={() => navigator.clipboard.writeText(generatedCode)}
-                      className="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border border-indigo-500/50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                      onClick={handleCopyCode}
+                      className={`px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2 border ${
+                        copied 
+                          ? 'bg-green-500/20 text-green-400 border-green-500/50' 
+                          : 'bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border-indigo-500/50'
+                      }`}
                     >
                       <Copy className="w-4 h-4" />
-                      Copier
+                      {copied ? 'Copié !' : 'Copier'}
                     </button>
                     <button
                       onClick={generateCode}
