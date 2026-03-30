@@ -72,7 +72,7 @@ export default function OnboardingTestPage() {
     const questionStartTime = Date.now() - (state.timePerQuestion.reduce((a, b) => a + b, 0) + state.startTime);
     const timeTaken = Date.now() - questionStartTime;
     
-    const correct = validateAnswer(currentQuestion, currentAnswer.trim());
+    const correct = validateAnswer(currentQuestion as any, currentAnswer.trim());
     setIsCorrect(correct);
     setShowFeedback(true);
     
@@ -104,7 +104,7 @@ export default function OnboardingTestPage() {
     try {
       // Calculer les performances
       const correctCount = finalAnswers.filter((answer, index) => 
-        validateAnswer(state.questions[index], answer)
+        validateAnswer(state.questions[index] as any, answer)
       ).length;
       
       const accuracy = correctCount / finalAnswers.length;
@@ -156,7 +156,7 @@ export default function OnboardingTestPage() {
 
   if (state.isComplete) {
     const finalElo = state.answers.reduce((acc, answer, index) => {
-      return acc + (validateAnswer(state.questions[index], answer) ? 50 : -25);
+      return acc + (validateAnswer(state.questions[index] as any, answer) ? 50 : -25);
     }, 400);
     
     const schoolClass = getClassFromElo(finalElo);

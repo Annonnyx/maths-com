@@ -35,17 +35,80 @@ export class CM1Generator implements LevelGenerator {
 
   private generateCalculation(context: GenerationContext): GeneratedQuestion {
     return randomChoice([
+      () => this.generateAddition(context),
+      () => this.generateSubtraction(context),
       () => this.generateLargeMultiplication(context),
-      () => this.generateDecimalAddition(context),
       () => this.generateComplexDivision(context),
       () => this.generateMixedOperations(context),
     ])();
   }
 
+  private generateAddition(context: GenerationContext): GeneratedQuestion {
+    // Résultat max : 2000 pour le CM1
+    const maxResult = 2000;
+    const a = randomInt(0, maxResult);
+    const b = randomInt(0, maxResult - a);
+    const result = a + b;
+    
+    return {
+      id: hashQuestion(this.level, 'addition', [a, b]),
+      type: 'numeric',
+      domain: 'calculation',
+      level: this.level,
+      difficultyElo: context.userElo,
+      question: `${a} + ${b} = ?`,
+      answer: result.toString(),
+      explanation: `${a} + ${b} = ${result}`,
+      timeEstimate: 25,
+    };
+  }
+
+  private generateSubtraction(context: GenerationContext): GeneratedQuestion {
+    // Résultat min : -1000 pour le CM1
+    const minValue = -1000;
+    const maxValue = 2000;
+    const a = randomInt(minValue, maxValue);
+    const b = randomInt(minValue, maxValue);
+    const result = a - b;
+    
+    return {
+      id: hashQuestion(this.level, 'subtraction', [a, b]),
+      type: 'numeric',
+      domain: 'calculation',
+      level: this.level,
+      difficultyElo: context.userElo,
+      question: `${a} - ${b} = ?`,
+      answer: result.toString(),
+      explanation: `${a} - ${b} = ${result}`,
+      timeEstimate: 30,
+    };
+  }
+
   private generateLargeMultiplication(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CM1');
-    const { a, b } = ops.multiplication();
+    // Résultat max : 1000, ajouter format XY × AB (2 chiffres × 2 chiffres)
+    const maxResult = 1000;
+    const useTwoDigitFormat = randomChoice([true, false]);
+    
+    let a: number, b: number;
+    
+    if (useTwoDigitFormat) {
+      // Format XY × AB (2 chiffres × 2 chiffres)
+      a = randomInt(10, 31); // Limiter pour éviter de dépasser 1000
+      b = randomInt(10, 31);
+    } else {
+      // Anciens formats
+      const ops = getScaledOperands(context.userElo, 'CM1');
+      const { a: opA, b: opB } = ops.multiplication();
+      a = opA;
+      b = opB;
+    }
+    
     const result = a * b;
+    
+    // Vérifier que le résultat ne dépasse pas 1000
+    if (result > maxResult) {
+      return this.generateLargeMultiplication(context);
+    }
     
     return {
       id: hashQuestion(this.level, 'largemult', [a, b]),
@@ -84,21 +147,51 @@ export class CM1Generator implements LevelGenerator {
   }
 
   private generateComplexDivision(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CM1');
-    const { divisor: b, quotient: result } = ops.division();
-    const a = b * result;
+    // Format : YX ÷ Z (dividende à 2 chiffres, diviseur à 1 chiffre)
+    // Résultat (quotient entier) entre 0 et 20 inclus
+    // Introduction du reste : choix aléatoire entre division exacte et avec reste
+    const divisor = randomInt(2, 9);
+    const maxQuotient = 20;
+    const hasRemainder = randomChoice([true, false]);
     
-    return {
-      id: hashQuestion(this.level, 'complexdiv', [a, b]),
+    let quotient: number, remainder: number, dividend: number;
+    
+    if (hasRemainder) {
+      quotient = randomInt(0, maxQuotient);
+      remainder = randomInt(1, divisor - 1); // 1 ≤ remainder < diviseur
+      dividend = divisor * quotient + remainder;
+    } else {
+      quotient = randomInt(0, maxQuotient);
+      remainder = 0;
+      dividend = divisor * quotient;
+    }
+    
+    const question: GeneratedQuestion = {
+      id: hashQuestion(this.level, 'complexdiv', [dividend, divisor]),
       type: 'numeric',
       domain: 'calculation',
       level: this.level,
       difficultyElo: context.userElo,
-      question: `${a} ÷ ${b} = ?`,
-      answer: result.toString(),
-      explanation: `${a} ÷ ${b} = ${result}`,
+      question: `${dividend} ÷ ${divisor} = ?`,
+      answer: hasRemainder ? `${quotient} r ${remainder}` : quotient.toString(),
+      explanation: `${dividend} ÷ ${divisor} = ${quotient}${hasRemainder ? ` reste ${remainder}` : ''}`,
       timeEstimate: 70,
+      hasRemainder,
     };
+    
+    // Ajouter la fonction de validation
+    if (hasRemainder) {
+      question.validate = (userInput: string | string[]) => {
+        if (Array.isArray(userInput)) {
+          const q = parseInt(userInput[0]);
+          const r = parseInt(userInput[1]);
+          return q === quotient && r === remainder;
+        }
+        return false; // Pour divisions avec reste, on attend deux champs
+      };
+    }
+    
+    return question;
   }
 
   private generateMixedOperations(context: GenerationContext): GeneratedQuestion {
@@ -125,12 +218,61 @@ export class CM1Generator implements LevelGenerator {
   // ── Arithmétique ─────────────────────────────────────────────────────────
 
   private generateArithmetic(context: GenerationContext): GeneratedQuestion {
-    return randomChoice([
-      () => this.generateFractionOperations(context),
-      () => this.generateGeometryProblems(context),
-      () => this.generateComplexWordProblems(context),
-      () => this.generateDecimalProblems(context),
-    ])();
+    // Réduire la probabilité des suites (~60% de poids réduit par rapport au CE2)
+    const useSequence = randomChoice([true, false, false, false]); // 1 chance sur 4
+    
+    if (useSequence) {
+      return randomChoice([
+        () => this.generateFractionOperations(context),
+        () => this.generateGeometryProblems(context),
+        () => this.generateComplexWordProblems(context),
+        () => this.generateDecimalProblems(context),
+        () => this.generatePercentageCalculation(context),
+      ])();
+    } else {
+      // Éviter les suites et utiliser d'autres types de questions
+      return randomChoice([
+        () => this.generateFractionOperations(context),
+        () => this.generateGeometryProblems(context),
+        () => this.generateComplexWordProblems(context),
+        () => this.generateDecimalProblems(context),
+        () => this.generatePercentageCalculation(context),
+      ])();
+    }
+  }
+
+  private generatePercentageCalculation(context: GenerationContext): GeneratedQuestion {
+    // Les valeurs de base et les pourcentages doivent toujours produire un résultat entier
+    const base = randomInt(10, 200);
+    const percentage = randomChoice([10, 20, 25, 50, 75]);
+    const result = (base * percentage) / 100;
+    
+    const problems = [
+      {
+        text: `Calculer ${percentage}% de ${base}`,
+        answer: result.toString(),
+        explanation: `${percentage}% de ${base} = (${percentage}/100) × ${base} = ${result}`
+      },
+      {
+        text: `Un article coûte ${base}€, il est soldé à ${percentage}% de son prix. Quel est le prix soldé ?`,
+        answer: result.toString(),
+        explanation: `${percentage}% de ${base}€ = ${result}€`
+      },
+    ];
+    
+    const problem = randomChoice(problems);
+    
+    return {
+      id: hashQuestion(this.level, 'percentage', [base, percentage]),
+      type: 'numeric',
+      domain: 'arithmetic',
+      level: this.level,
+      difficultyElo: context.userElo,
+      question: problem.text,
+      answer: problem.answer,
+      explanation: problem.explanation,
+      timeEstimate: 60,
+    };
   }
 
   private generateFractionOperations(context: GenerationContext): GeneratedQuestion {

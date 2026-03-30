@@ -120,7 +120,7 @@ function TestPage() {
       const operationTypes = getOperationTypesForCourse(courseType);
       if (operationTypes) {
         const targetClass = getClassFromElo(userElo);
-        questions = generateFocusedTest(operationTypes, targetClass, 20, userElo);
+        questions = generateFocusedTest(operationTypes[0], 20, userElo ? Number(userElo) : undefined, targetClass);
         title = `Test - ${courseType}`;
       } else {
         questions = mode === 'competitive' ? generateTest(userElo, 20) : generateEvaluationTest(20);
@@ -173,7 +173,7 @@ function TestPage() {
     if (!testState || !inputValue.trim()) return;
 
     const currentQ = testState.questions[testState.currentIndex];
-    const isCorrect = validateAnswer(currentQ, inputValue.trim());
+    const isCorrect = validateAnswer(currentQ as any, inputValue.trim());
     playSound(isCorrect ? 'correct' : 'incorrect');
     
     // Calculer le temps pris pour cette question
@@ -257,7 +257,7 @@ function TestPage() {
     
     let correct = 0;
     const results = testState.questions.map((q, i) => {
-      const isCorrect = validateAnswer(q, answers[i]);
+      const isCorrect = validateAnswer(q as any, answers[i]);
       if (isCorrect) correct++;
       return {
         question: q,
@@ -755,7 +755,7 @@ function TestPage() {
               <div className="flex justify-center gap-2">
                 {testState.questions.map((q, i) => {
                   const isAnswered = testState.answers[i] !== '';
-                  const isCorrect = isAnswered && validateAnswer(q, testState.answers[i]);
+                  const isCorrect = isAnswered && validateAnswer(q as any, testState.answers[i]);
                   
                   return (
                     <button

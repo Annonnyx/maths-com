@@ -6,6 +6,9 @@ import { ELO_LEVEL_RANGES, getLevelFromElo } from './question-generators/elo-ran
 
 // Types d'opérations pour les exercices
 export type OperationType = 
+  | 'numeric'
+  | 'mcq' 
+  | 'expression'
   | 'addition' 
   | 'subtraction' 
   | 'multiplication' 
@@ -31,16 +34,28 @@ export type OperationType =
   | 'integrals'
   | 'derivatives'
   | 'probabilities'
-  | 'statistics';
+  | 'statistics'
+  | 'sequences'
+  | 'functions'
+  | 'exp_log'
+  | 'limits'
+  | 'normal_law'
+  | 'geometry_3d'
+  | 'calculation'
+  | 'complex';
 
-// Interface pour les exercices
+// Interface pour les exercices (compatible avec GeneratedQuestion)
 export interface Exercise {
   id: string;
   type: OperationType;
-  className: FrenchClass;
+  domain?: string;
+  level?: string;
+  difficultyElo?: number;
+  className?: FrenchClass | string;
   question: string;
   answer: string;
   explanation?: string;
+  validate?: (userInput: string | string[]) => boolean;
 }
 
 // Définition des classes françaises
@@ -324,9 +339,15 @@ export function getClassFromDifficulty(difficulty: number): FrenchClass {
 }
 
 // Fonction pour formater le nom d'une classe pour l'affichage
-export function formatClassName(className: FrenchClass): string {
-  const info = CLASS_INFO[className];
-  return `${info.icon} ${info.name}`;
+export function formatClassName(className: FrenchClass | string): string {
+  // Si c'est déjà une FrenchClass valide
+  if (className in CLASS_INFO) {
+    const info = CLASS_INFO[className as FrenchClass];
+    return `${info.icon} ${info.name}`;
+  }
+  
+  // Sinon, retourner le nom tel quel ou une valeur par défaut
+  return className || '6e';
 }
 
 // Fonction pour obtenir le message de passage de classe

@@ -43,9 +43,10 @@ export class CPGenerator implements LevelGenerator {
   }
 
   private generateAddition(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CP');
-    const a = ops.addition();
-    const b = ops.addition();
+    // Résultat max : 100 pour le CP
+    const maxResult = 100;
+    const a = randomInt(0, maxResult);
+    const b = randomInt(0, maxResult - a); // Garantir que le résultat ne dépasse pas 100
     const result = a + b;
     
     return {
@@ -62,10 +63,11 @@ export class CPGenerator implements LevelGenerator {
   }
 
   private generateSubtraction(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CP');
-    const b = ops.subtraction();
-    const result = randomInt(0, b); // Assurer a >= b
-    const a = b + result;
+    // Résultat toujours strictement positif : premier opérande > second
+    const maxValue = 100;
+    const b = randomInt(1, maxValue - 1);
+    const a = randomInt(b + 1, maxValue); // a > b garanti
+    const result = a - b;
     
     return {
       id: hashQuestion(this.level, 'subtraction', [a, b]),

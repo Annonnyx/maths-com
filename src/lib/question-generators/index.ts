@@ -17,13 +17,19 @@ import { CE1Generator } from './ce1';
 import { CE2Generator } from './ce2';
 import { CM1Generator } from './cm1';
 import { CM2Generator } from './cm2';
+import { SecondeGenerator } from './2de';
+import { PremiereGenerator } from './1re';
+import { TerminaleGenerator } from './Tle';
+import { CinquiemeGenerator } from './5e';
+import { QuatriemeGenerator } from './4e';
+import { TroisiemeGenerator } from './3e';
 
 // French school levels mapped to difficulty (1-10)
 // Supports both lowercase (cp, ce1) and uppercase/accented formats (CP, CE1, 6ème)
 export type FrenchClass = 
   // Standard lowercase
   | 'cp' | 'ce1' | 'ce2' | 'cm1' | 'cm2' 
-  | '6e' | '5e' | '4e' | '3e' 
+  | '6e' | '5e' | '4e' | '3e' | '2de' | '1re' | 'Tle' 
   | '2nde' | '1ere' | 'terminale'
   // Uppercase variants
   | 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2'
@@ -66,12 +72,15 @@ export class AdaptiveQuestionGenerator {
     this.generators.set('CE2', new CE2Generator());
     this.generators.set('CM1', new CM1Generator());
     this.generators.set('CM2', new CM2Generator());
+    this.generators.set('2de', new SecondeGenerator());
+    this.generators.set('1re', new PremiereGenerator());
+    this.generators.set('Tle', new TerminaleGenerator());
+    this.generators.set('5e', new CinquiemeGenerator());
+    this.generators.set('4e', new QuatriemeGenerator());
+    this.generators.set('3e', new TroisiemeGenerator());
     this.generators.set('Sup1', new Sup1Generator());
     this.generators.set('Sup2', new Sup2Generator());
     this.generators.set('Sup3', new Sup3Generator());
-    
-    // Note: 6e, 5e, 4e, 3e, 2de, 1re, Tle, Pro generators 
-    // will use existing domain-based generators for now
   }
 
   setUserElo(elo: number): void {
@@ -199,6 +208,12 @@ export {
   CE2Generator,
   CM1Generator,
   CM2Generator,
+  SecondeGenerator,
+  PremiereGenerator,
+  TerminaleGenerator,
+  CinquiemeGenerator,
+  QuatriemeGenerator,
+  TroisiemeGenerator,
 };
 
 // Export types

@@ -43,9 +43,10 @@ export class CE1Generator implements LevelGenerator {
   }
 
   private generateAddition(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CE1');
-    const a = ops.addition();
-    const b = ops.addition();
+    // Résultat max : 500 pour le CE1
+    const maxResult = 500;
+    const a = randomInt(0, maxResult);
+    const b = randomInt(0, maxResult - a);
     const result = a + b;
     
     return {
@@ -62,10 +63,11 @@ export class CE1Generator implements LevelGenerator {
   }
 
   private generateSubtraction(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CE1');
-    const b = ops.subtraction();
-    const result = randomInt(0, b);
-    const a = b + result;
+    // Résultat toujours strictement positif : premier opérande > second
+    const maxValue = 500;
+    const b = randomInt(1, maxValue - 1);
+    const a = randomInt(b + 1, maxValue);
+    const result = a - b;
     
     return {
       id: hashQuestion(this.level, 'subtraction', [a, b]),
@@ -81,9 +83,44 @@ export class CE1Generator implements LevelGenerator {
   }
 
   private generateMultiplication(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CE1');
-    const { a, b } = ops.multiplication();
+    // Contraintes spécifiques CE1 : 3 chiffres au total, pas de 6 ou 7, résultat max 200
+    const maxResult = 200;
+    
+    // Formats autorisés : A × BC ou BC × A (1 chiffre × 2 chiffres)
+    // Exception : 10 × XY ou XY × 10 autorisés
+    const useTen = randomChoice([true, false]);
+    
+    let a: number, b: number;
+    
+    if (useTen) {
+      // Format 10 × XY ou XY × 10
+      a = 10;
+      b = randomInt(10, 99);
+      if (randomChoice([true, false])) {
+        [a, b] = [b, a]; // Inverser parfois
+      }
+    } else {
+      // Format A × BC ou BC × A
+      const singleDigit = randomInt(2, 9); // Éviter 0, 1 et exclure 6, 7
+      const twoDigit = randomInt(10, 99);
+      
+      // Exclure les facteurs 6 et 7
+      const validSingleDigits = [2, 3, 4, 5, 8, 9];
+      a = randomChoice(validSingleDigits);
+      b = twoDigit;
+      
+      if (randomChoice([true, false])) {
+        [a, b] = [b, a]; // Inverser parfois
+      }
+    }
+    
     const result = a * b;
+    
+    // Vérifier que le résultat ne dépasse pas 200
+    if (result > maxResult) {
+      // Si trop grand, réessayer avec des valeurs plus petites
+      return this.generateMultiplication(context);
+    }
     
     return {
       id: hashQuestion(this.level, 'multiplication', [a, b]),

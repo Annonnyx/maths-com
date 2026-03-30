@@ -8,7 +8,7 @@ type SchoolLevel = ImportedSchoolLevel;
 
 export interface GeneratedQuestion {
   id: string;
-  type: 'numeric' | 'mcq' | 'expression';
+  type: 'numeric' | 'mcq' | 'expression' | 'addition' | 'subtraction' | 'multiplication' | 'division' | 'power' | 'root' | 'factorization' | 'percentage' | 'fraction' | 'equation' | 'mental_math' | 'logic' | 'geometry' | 'delta' | 'quadratic' | 'pythagore' | 'thales' | 'trigonometry' | 'vectors' | 'complex_numbers' | 'matrices' | 'graphs' | 'integrals' | 'derivatives' | 'probabilities' | 'statistics' | 'sequences' | 'functions' | 'exp_log' | 'limits' | 'normal_law' | 'geometry_3d' | 'calculation' | 'complex';
   domain: DomainType;
   level: SchoolLevel;
   difficultyElo: number;
@@ -17,7 +17,15 @@ export interface GeneratedQuestion {
   explanation: string;
   timeEstimate?: number;
   options?: string[]; // For MCQ
-  acceptableAnswers?: string[]; // For numeric/expression with multiple valid options: []
+  acceptableAnswers?: string[]; // For numeric/expression with multiple valid options
+  // Nouvelles métadonnées pour la validation
+  hasRemainder?: boolean; // Pour divisions CM1
+  acceptsDecimalInsteadOfRemainder?: boolean; // Pour divisions CM2
+  expectedDecimals?: 0 | 1; // Pour divisions 6e
+  validate?: (userInput: string | string[]) => boolean; // Fonction de validation personnalisée
+  // Champs de l'ancien système Exercise pour compatibilité
+  className?: string; // Alias pour level (compatibilité)
+  operationType?: string; // Alias pour type (compatibilité)
 }
 
 export interface GenerationContext {
@@ -38,7 +46,8 @@ export type DomainType =
   | 'functions'
   | 'statistics'
   | 'complex'
-  | 'calculation';
+  | 'calculation'
+  | string; // Pour compatibilité avec Exercise
 
 // Helper functions for random generation
 export function randomInt(min: number, max: number): number {

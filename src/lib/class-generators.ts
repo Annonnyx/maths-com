@@ -332,6 +332,9 @@ function generateBaseExercise(type: OperationType, className: FrenchClass): Exer
   return {
     id: Math.random().toString(36).substring(2, 11),
     type,
+    domain: 'arithmetic',
+    level: className,
+    difficultyElo: 1000,
     className,
     question: 'Question en cours de génération...',
     answer: '0',

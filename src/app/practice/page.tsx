@@ -142,7 +142,7 @@ function PracticePage() {
         Math.floor(Math.random() * courseData.relatedTypes.length)
       ];
       // Utiliser la classe de base pour générer l'exercice
-      questions.push(generateExercise(operationType, baseClass));
+      questions.push(generateExercise(operationType, baseClass) as any);
     }
 
     setCourseSession({
@@ -182,7 +182,7 @@ function PracticePage() {
       setSelectedOperation(randomOp);
       
       const exercise = generateExercise(randomOp, selectedClass);
-      setCurrentExercise(exercise);
+      setCurrentExercise(exercise as any);
     }
     
     setInputValue('');
@@ -228,7 +228,7 @@ function PracticePage() {
   const submitAnswer = () => {
     if (!currentExercise || !inputValue.trim()) return;
 
-    const isCorrect = validateAnswer(currentExercise, inputValue);
+    const isCorrect = validateAnswer(currentExercise as any, inputValue);
     playSound(isCorrect ? 'correct' : 'incorrect');
     
     if (courseSession) {

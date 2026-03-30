@@ -38,13 +38,40 @@ export class CM2Generator implements LevelGenerator {
       () => this.generateComplexMultiplication(context),
       () => this.generateDecimalOperations(context),
       () => this.generatePercentageCalculation(context),
+      () => this.generateDivisionWithDecimal(context),
       () => this.generateAdvancedMixedOperations(context),
     ])();
   }
 
   private generateComplexMultiplication(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CM2');
-    const { a, b } = ops.multiplication();
+    // Ajouter des questions avec facteurs négatifs
+    const useNegative = randomChoice([true, false]);
+    
+    let a: number, b: number;
+    
+    if (useNegative) {
+      // Un ou deux facteurs peuvent être négatifs
+      const negativeCount = randomChoice([1, 2]);
+      const absA = randomInt(2, 31);
+      const absB = randomInt(2, 31);
+      
+      if (negativeCount === 1) {
+        // Un seul facteur négatif
+        a = randomChoice([true, false]) ? -absA : absA;
+        b = a < 0 ? absB : -absB;
+      } else {
+        // Deux facteurs négatifs
+        a = -absA;
+        b = -absB;
+      }
+    } else {
+      // Facteurs positifs (ancienne logique)
+      const ops = getScaledOperands(context.userElo, 'CM2');
+      const { a: opA, b: opB } = ops.multiplication();
+      a = opA;
+      b = opB;
+    }
+    
     const result = a * b;
     
     return {
@@ -58,6 +85,74 @@ export class CM2Generator implements LevelGenerator {
       explanation: `${a} × ${b} = ${result}`,
       timeEstimate: 120,
     };
+  }
+
+  private generateDivisionWithDecimal(context: GenerationContext): GeneratedQuestion {
+    // Format : YX ÷ Z (dividende à 2 chiffres, diviseur à 1 chiffre)
+    // Autoriser l'écriture décimale dans la réponse (en plus du format quotient+reste)
+    const divisor = randomInt(2, 9);
+    const maxQuotient = 30;
+    const hasRemainder = randomChoice([true, false]);
+    
+    let quotient: number, remainder: number, dividend: number;
+    
+    if (hasRemainder) {
+      quotient = randomInt(0, maxQuotient);
+      remainder = randomInt(1, divisor - 1);
+      dividend = divisor * quotient + remainder;
+    } else {
+      quotient = randomInt(0, maxQuotient);
+      remainder = 0;
+      dividend = divisor * quotient;
+    }
+    
+    const question: GeneratedQuestion = {
+      id: hashQuestion(this.level, 'divisiondecimal', [dividend, divisor]),
+      type: 'numeric',
+      domain: 'calculation',
+      level: this.level,
+      difficultyElo: context.userElo,
+      question: `${dividend} ÷ ${divisor} = ?`,
+      answer: hasRemainder ? `${quotient} r ${remainder}` : quotient.toString(),
+      explanation: `${dividend} ÷ ${divisor} = ${quotient}${hasRemainder ? ` reste ${remainder}` : ''}`,
+      timeEstimate: 80,
+      hasRemainder,
+      acceptsDecimalInsteadOfRemainder: true,
+    };
+    
+    // Ajouter la fonction de validation pour supporter décimal au lieu du reste
+    question.validate = (userInput: string | string[]) => {
+      if (Array.isArray(userInput)) {
+        // Format quotient + reste
+        const q = parseInt(userInput[0]);
+        const r = parseInt(userInput[1]);
+        
+        // Cas normal : quotient entier + reste
+        if (q === quotient && r === remainder) return true;
+        
+        // Cas décimal accepté : userRemainder === "0" et userQuotient est le décimal exact
+        if (userInput[1] === "0") {
+          const decimal = quotient + remainder / divisor;
+          return parseFloat(userInput[0]) === decimal;
+        }
+        
+        return false;
+      } else {
+        // Format simple (décimal ou entier)
+        const input = userInput.toString();
+        
+        if (hasRemainder) {
+          // Vérifier si c'est le décimal exact
+          const decimal = quotient + remainder / divisor;
+          return parseFloat(input) === decimal;
+        } else {
+          // Division exacte, vérifier l'entier
+          return parseInt(input) === quotient;
+        }
+      }
+    };
+    
+    return question;
   }
 
   private generateDecimalOperations(context: GenerationContext): GeneratedQuestion {
@@ -189,11 +284,30 @@ export class CM2Generator implements LevelGenerator {
     const numerator1 = randomInt(1, denominator1 - 1);
     const numerator2 = randomInt(1, denominator2 - 1);
     
+    // Inclure addition ET soustraction de fractions
+    const operation = randomChoice(['addition', 'subtraction']);
+    
     // Mettre au même dénominateur
     const commonDenominator = denominator1 * denominator2 / this.gcd(denominator1, denominator2);
     const newNum1 = numerator1 * (commonDenominator / denominator1);
     const newNum2 = numerator2 * (commonDenominator / denominator2);
-    const resultNum = newNum1 + newNum2;
+    
+    let resultNum: number;
+    let question: string;
+    
+    if (operation === 'addition') {
+      resultNum = newNum1 + newNum2;
+      question = `${numerator1}/${denominator1} + ${numerator2}/${denominator2} = ?`;
+    } else {
+      // Soustraction : s'assurer que le résultat est positif pour simplifier
+      if (newNum1 >= newNum2) {
+        resultNum = newNum1 - newNum2;
+        question = `${numerator1}/${denominator1} - ${numerator2}/${denominator2} = ?`;
+      } else {
+        resultNum = newNum2 - newNum1;
+        question = `${numerator2}/${denominator2} - ${numerator1}/${denominator1} = ?`;
+      }
+    }
     
     let answer = '';
     if (resultNum === commonDenominator) {
@@ -206,17 +320,62 @@ export class CM2Generator implements LevelGenerator {
       answer = `${resultNum}/${commonDenominator}`;
     }
     
-    return {
-      id: hashQuestion(this.level, 'advancedfractions', [numerator1, denominator1, numerator2, denominator2]),
+    const questionObj: GeneratedQuestion = {
+      id: hashQuestion(this.level, 'advancedfractions', [numerator1, denominator1, numerator2, denominator2, operation]),
       type: 'numeric',
       domain: 'arithmetic',
       level: this.level,
       difficultyElo: context.userElo,
-      question: `${numerator1}/${denominator1} + ${numerator2}/${denominator2} = ?`,
+      question: question + ' Donne ta réponse sous forme de fraction ou d\'entier',
       answer,
-      explanation: `Mise au même dénominateur : ${newNum1}/${commonDenominator} + ${newNum2}/${commonDenominator} = ${resultNum}/${commonDenominator} = ${answer}`,
+      explanation: `${operation === 'addition' ? '+' : '-'} des fractions : mise au même dénominateur puis calcul = ${answer}`,
       timeEstimate: 120,
     };
+    
+    // Ajouter la fonction de validation pour les fractions
+    questionObj.validate = (userInput: string | string[]) => {
+      const input = Array.isArray(userInput) ? userInput[0] : userInput;
+      
+      // Parser les formats : "3/4", "2", "1 3/4"
+      if (typeof input !== 'string') return false;
+      
+      // Extraire les nombres
+      const fractionMatch = input.match(/^(\d+)\s*(\d+)?\/(\d+)$/);
+      const integerMatch = input.match(/^(\d+)$/);
+      
+      let userNum: number, userDen: number;
+      
+      if (fractionMatch) {
+        // Format fraction ou nombre mixte
+        const wholePart = parseInt(fractionMatch[1]);
+        const optionalNum = fractionMatch[2];
+        const den = parseInt(fractionMatch[3]);
+        
+        if (optionalNum) {
+          // Format nombre mixte : "1 3/4"
+          userNum = wholePart * den + parseInt(optionalNum);
+          userDen = den;
+        } else {
+          // Format simple fraction : "3/4"
+          userNum = parseInt(fractionMatch[1]);
+          userDen = den;
+        }
+      } else if (integerMatch) {
+        // Format entier : "2"
+        userNum = parseInt(integerMatch[1]);
+        userDen = 1;
+      } else {
+        return false;
+      }
+      
+      // Comparer par produits croisés
+      const canonicalNum = resultNum;
+      const canonicalDen = commonDenominator;
+      
+      return userNum * canonicalDen === canonicalNum * userDen;
+    };
+    
+    return questionObj;
   }
 
   private generateGeometrySolids(context: GenerationContext): GeneratedQuestion {

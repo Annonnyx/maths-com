@@ -35,6 +35,8 @@ export class CE2Generator implements LevelGenerator {
 
   private generateCalculation(context: GenerationContext): GeneratedQuestion {
     return randomChoice([
+      () => this.generateAddition(context),
+      () => this.generateSubtraction(context),
       () => this.generateMultiplication(context),
       () => this.generateDivision(context),
       () => this.generateMixedOperations(context),
@@ -43,9 +45,16 @@ export class CE2Generator implements LevelGenerator {
   }
 
   private generateMultiplication(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CE2');
-    const { a, b } = ops.multiplication();
+    // Résultat max : 1000 pour le CE2, autoriser les facteurs 6 et 7
+    const maxResult = 1000;
+    const a = randomInt(2, 20);
+    const b = randomInt(2, 20);
     const result = a * b;
+    
+    // Vérifier que le résultat ne dépasse pas 1000
+    if (result > maxResult) {
+      return this.generateMultiplication(context);
+    }
     
     return {
       id: hashQuestion(this.level, 'multiplication', [a, b]),
@@ -61,20 +70,63 @@ export class CE2Generator implements LevelGenerator {
   }
 
   private generateDivision(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CE2');
-    const { divisor: b, quotient: result } = ops.division();
-    const a = b * result;
+    // Format : XY ÷ Z (dividende à 2 chiffres, diviseur à 1 chiffre)
+    // Le résultat doit être un entier compris entre 0 et 10 inclus
+    const divisor = randomInt(2, 9);
+    const quotient = randomInt(0, 10);
+    const dividend = divisor * quotient;
     
     return {
-      id: hashQuestion(this.level, 'division', [a, b]),
+      id: hashQuestion(this.level, 'division', [dividend, divisor]),
       type: 'numeric',
       domain: 'calculation',
       level: this.level,
       difficultyElo: context.userElo,
-      question: `${a} ÷ ${b} = ?`,
-      answer: result.toString(),
-      explanation: `${a} ÷ ${b} = ${result}`,
+      question: `${dividend} ÷ ${divisor} = ?`,
+      answer: quotient.toString(),
+      explanation: `${dividend} ÷ ${divisor} = ${quotient}`,
       timeEstimate: 40,
+    };
+  }
+
+  private generateAddition(context: GenerationContext): GeneratedQuestion {
+    // Résultat max : 1000 pour le CE2
+    const maxResult = 1000;
+    const a = randomInt(0, maxResult);
+    const b = randomInt(0, maxResult - a);
+    const result = a + b;
+    
+    return {
+      id: hashQuestion(this.level, 'addition', [a, b]),
+      type: 'numeric',
+      domain: 'calculation',
+      level: this.level,
+      difficultyElo: context.userElo,
+      question: `${a} + ${b} = ?`,
+      answer: result.toString(),
+      explanation: `${a} + ${b} = ${result}`,
+      timeEstimate: 25,
+    };
+  }
+
+  private generateSubtraction(context: GenerationContext): GeneratedQuestion {
+    // Les résultats peuvent être négatifs, min : -100
+    const minValue = -100;
+    const maxValue = 1000;
+    const a = randomInt(minValue, maxValue);
+    const b = randomInt(minValue, maxValue);
+    const result = a - b;
+    
+    return {
+      id: hashQuestion(this.level, 'subtraction', [a, b]),
+      type: 'numeric',
+      domain: 'calculation',
+      level: this.level,
+      difficultyElo: context.userElo,
+      question: `${a} - ${b} = ?`,
+      answer: result.toString(),
+      explanation: `${a} - ${b} = ${result}`,
+      timeEstimate: 30,
     };
   }
 
@@ -220,6 +272,56 @@ export class CE2Generator implements LevelGenerator {
   }
 
   private generateNumberPatterns(context: GenerationContext): GeneratedQuestion {
+    // Réduire la probabilité des questions de type "suite" (~30% de poids réduit)
+    const useSequence = randomChoice([true, false, false]); // 1 chance sur 3
+    
+    if (!useSequence) {
+      // Utiliser d'autres types de patterns logiques
+      const patterns = [
+        { type: 'addition', step: () => randomInt(3, 15) },
+        { type: 'multiplication', step: () => randomChoice([2, 3, 4, 5]) },
+      ];
+      
+      const pattern = randomChoice(patterns);
+      const step = pattern.step();
+      const start = randomInt(1, 20);
+      let sequence: number[] = [];
+      
+      switch (pattern.type) {
+        case 'addition':
+          sequence = [start, start + step, start + 2 * step, start + 3 * step, start + 4 * step];
+          break;
+        case 'multiplication':
+          sequence = [start, start * step, start * step * step, start * step * step * step];
+          break;
+      }
+      
+      const missingIndex = randomInt(1, sequence.length - 1);
+      const correctAnswer = sequence[missingIndex].toString();
+      
+      let question = 'Complète la suite : ';
+      for (let i = 0; i < sequence.length; i++) {
+        if (i === missingIndex) {
+          question += '? ';
+        } else {
+          question += sequence[i] + ' ';
+        }
+      }
+      
+      return {
+        id: hashQuestion(this.level, 'patterns', [start, step, pattern.type, missingIndex]),
+        type: 'numeric',
+        domain: 'arithmetic',
+        level: this.level,
+        difficultyElo: context.userElo,
+        question,
+        answer: correctAnswer,
+        explanation: `La suite ${pattern.type === 'multiplication' ? 'multiplie' : 'additionne'} par ${step} : ${sequence.join(', ')}`,
+        timeEstimate: 45,
+      };
+    }
+    
+    // Ancienne logique pour les suites (probabilité réduite)
     const patterns = [
       { type: 'addition', step: () => randomInt(3, 15) },
       { type: 'multiplication', step: () => randomChoice([2, 3, 4, 5]) },
