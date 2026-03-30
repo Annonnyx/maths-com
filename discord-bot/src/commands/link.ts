@@ -141,7 +141,7 @@ export default {
         console.error('Erreur vérification code:', fetchError);
         
         // Gérer spécifiquement les erreurs d'interaction expirée
-        if (fetchError.code === 10062) {
+        if (fetchError && typeof fetchError === 'object' && 'code' in fetchError && fetchError.code === 10062) {
           console.log('⚠️ Interaction expirée lors de la vérification, ignoré...');
           return;
         }
@@ -160,7 +160,7 @@ export default {
             await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
           }
         } catch (replyError) {
-          if (replyError.code !== 10062) {
+          if (!replyError || typeof replyError !== 'object' || !('code' in replyError) || replyError.code !== 10062) {
             console.error('Erreur lors de la réponse à l\'erreur de vérification:', replyError);
           }
         }
@@ -170,7 +170,7 @@ export default {
       console.error('Error in link command:', error);
       
       // Gérer spécifiquement les erreurs d'interaction expirée
-      if (error.code === 10062) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 10062) {
         console.log('⚠️ Interaction expirée, ignoré...');
         return; // Ne pas répondre à une interaction expirée
       }
@@ -189,7 +189,7 @@ export default {
           await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
         }
       } catch (replyError) {
-        if (replyError.code === 10062) {
+        if (replyError && typeof replyError === 'object' && 'code' in replyError && replyError.code === 10062) {
           console.log('⚠️ Impossible de répondre (interaction expirée)');
         } else {
           console.error('Erreur inattendue lors de la réponse:', replyError);
