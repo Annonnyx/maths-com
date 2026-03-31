@@ -12,8 +12,18 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user from email first
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const { sessionId } = await request.json();
@@ -34,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier que l'utilisateur est l'hôte
-    if (gameSession.hostId !== session.user.id) {
+    if (gameSession.hostId !== user.id) {
       return NextResponse.json({ error: 'Only the host can start the game' }, { status: 403 });
     }
 

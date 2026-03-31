@@ -64,13 +64,12 @@ export async function GET(request: NextRequest) {
 
     if (mode === 'solo' || mode === 'both') {
       // Récupérer les tests solo
-      const soloTests = await (prisma as any).soloTest.findMany({
+      const soloTests = await prisma.soloTest.findMany({
         where: {
           userId,
           completedAt: {
             gte: startDate
-          },
-          status: 'completed'
+          }
         },
         include: {
           questions: true
@@ -97,7 +96,7 @@ export async function GET(request: NextRequest) {
 
     if (mode === 'multiplayer' || mode === 'both') {
       // Récupérer les jeux multijoueur
-      const multiplayerGames = await (prisma as any).multiplayerGame.findMany({
+      const multiplayerGames = await prisma.multiplayerGame.findMany({
         where: {
           OR: [
             { player1Id: userId },
