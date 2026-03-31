@@ -89,7 +89,7 @@ export async function POST(
         soloElo: eloAfter,
         soloClass: newFrenchClass,
         soloBestElo: Math.max(user.soloBestElo || 0, eloAfter),
-        soloBestClass: eloAfter > (user.soloBestElo || 0) ? newFrenchClass : (user.soloBestClass || 'F-'),
+        soloBestClass: eloAfter > (user.soloBestElo || 0) ? newFrenchClass : (user.soloBestClass || 'CP'),
         soloCurrentStreak: eloChange > 0 ? user.soloCurrentStreak + 1 : 0
       }
     })

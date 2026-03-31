@@ -44,10 +44,36 @@ export class CM1Generator implements LevelGenerator {
   }
 
   private generateAddition(context: GenerationContext): GeneratedQuestion {
-    // Résultat max : 2000 pour le CM1
-    const maxResult = 2000;
-    const a = randomInt(0, maxResult);
-    const b = randomInt(0, maxResult - a);
+    // Limité à max 5 chiffres totaux pour CM1 et inférieurs
+    // Formats: XY+Z (3 chiffres), XYZ+AB (5 chiffres max), parfois X+Y (2 chiffres)
+    const formats = [
+      () => {
+        // Format X+Y (2 chiffres)
+        const a = randomInt(1, 9);
+        const b = randomInt(1, 9);
+        return { a, b, question: `${a} + ${b} = ?` };
+      },
+      () => {
+        // Format XY+Z (3-4 chiffres)
+        const a = randomInt(10, 99);
+        const b = randomInt(1, 9);
+        return { a, b, question: `${a} + ${b} = ?` };
+      },
+      () => {
+        // Format XYZ+AB (max 5 chiffres)
+        const a = randomInt(100, 499); // Limiter pour ne pas dépasser 5 chiffres
+        const b = randomInt(10, 99);
+        return { a, b, question: `${a} + ${b} = ?` };
+      },
+      () => {
+        // Format X+YZ (3-4 chiffres)
+        const a = randomInt(1, 9);
+        const b = randomInt(10, 99);
+        return { a, b, question: `${a} + ${b} = ?` };
+      }
+    ];
+    
+    const { a, b, question } = randomChoice(formats)();
     const result = a + b;
     
     return {
@@ -56,7 +82,7 @@ export class CM1Generator implements LevelGenerator {
       domain: 'calculation',
       level: this.level,
       difficultyElo: context.userElo,
-      question: `${a} + ${b} = ?`,
+      question,
       answer: result.toString(),
       explanation: `${a} + ${b} = ${result}`,
       timeEstimate: 25,
@@ -64,12 +90,41 @@ export class CM1Generator implements LevelGenerator {
   }
 
   private generateSubtraction(context: GenerationContext): GeneratedQuestion {
-    // Résultat min : -1000 pour le CM1
-    const minValue = -1000;
-    const maxValue = 2000;
-    const a = randomInt(minValue, maxValue);
-    const b = randomInt(minValue, maxValue);
+    // Limité à max 5 chiffres totaux et résultat entre -500 et 500
+    const formats = [
+      () => {
+        // Format XY-Z (résultat entre -90 et 90)
+        const a = randomInt(10, 99);
+        const b = randomInt(10, 99);
+        return { a, b, question: `${a} - ${b} = ?` };
+      },
+      () => {
+        // Format XYZ-AB (résultat entre -500 et 500)
+        const a = randomInt(100, 500);
+        const b = randomInt(10, 99);
+        return { a, b, question: `${a} - ${b} = ?` };
+      },
+      () => {
+        // Format X-Y (résultat entre -8 et 8)
+        const a = randomInt(1, 9);
+        const b = randomInt(1, 9);
+        return { a, b, question: `${a} - ${b} = ?` };
+      },
+      () => {
+        // Format XY-Z (assurer résultat positif pour CM1)
+        const a = randomInt(20, 99);
+        const b = randomInt(1, Math.min(a - 1, 50));
+        return { a, b, question: `${a} - ${b} = ?` };
+      }
+    ];
+    
+    const { a, b, question } = randomChoice(formats)();
     const result = a - b;
+    
+    // Vérifier que le résultat est dans la plage acceptable
+    if (result < -500 || result > 500) {
+      return this.generateSubtraction(context);
+    }
     
     return {
       id: hashQuestion(this.level, 'subtraction', [a, b]),
@@ -77,7 +132,7 @@ export class CM1Generator implements LevelGenerator {
       domain: 'calculation',
       level: this.level,
       difficultyElo: context.userElo,
-      question: `${a} - ${b} = ?`,
+      question,
       answer: result.toString(),
       explanation: `${a} - ${b} = ${result}`,
       timeEstimate: 30,
@@ -195,23 +250,77 @@ export class CM1Generator implements LevelGenerator {
   }
 
   private generateMixedOperations(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CM1');
-    const a = ops.addition();
-    const { a: multA, b: multB } = ops.multiplication();
-    const multResult = multA * multB;
-    const b = ops.addition();
-    const finalResult = a + multResult - b;
+    // Simplifié pour CM1 - max 3 nombres, max 5 chiffres totaux
+    const formats = [
+      () => {
+        // Format simple: A + B × C (petits nombres)
+        const a = randomInt(10, 50);
+        const b = randomInt(2, 9);
+        const c = randomInt(2, 9);
+        const multResult = b * c;
+        const finalResult = a + multResult;
+        
+        return {
+          question: `${a} + ${b} × ${c} = ?`,
+          answer: finalResult.toString(),
+          explanation: `Priorité opératoire : ${b} × ${c} = ${multResult}, puis ${a} + ${multResult} = ${finalResult}`,
+        };
+      },
+      () => {
+        // Format: A × B + C
+        const a = randomInt(2, 9);
+        const b = randomInt(2, 9);
+        const c = randomInt(1, 20);
+        const multResult = a * b;
+        const finalResult = multResult + c;
+        
+        return {
+          question: `${a} × ${b} + ${c} = ?`,
+          answer: finalResult.toString(),
+          explanation: `Priorité opératoire : ${a} × ${b} = ${multResult}, puis ${multResult} + ${c} = ${finalResult}`,
+        };
+      },
+      () => {
+        // Format simple: A + B - C
+        const a = randomInt(20, 99);
+        const b = randomInt(1, 50);
+        const c = randomInt(1, 30);
+        const finalResult = a + b - c;
+        
+        return {
+          question: `${a} + ${b} - ${c} = ?`,
+          answer: finalResult.toString(),
+          explanation: `${a} + ${b} = ${a + b}, puis ${a + b} - ${c} = ${finalResult}`,
+        };
+      },
+      () => {
+        // Format: A × B - C (assurer résultat positif)
+        const a = randomInt(2, 9);
+        const b = randomInt(2, 9);
+        const c = randomInt(1, Math.min(20, a * b - 1));
+        const multResult = a * b;
+        const finalResult = multResult - c;
+        
+        return {
+          question: `${a} × ${b} - ${c} = ?`,
+          answer: finalResult.toString(),
+          explanation: `Priorité opératoire : ${a} × ${b} = ${multResult}, puis ${multResult} - ${c} = ${finalResult}`,
+        };
+      }
+    ];
+    
+    const { question, answer, explanation } = randomChoice(formats)();
     
     return {
-      id: hashQuestion(this.level, 'mixedops', [a, multA, multB, b]),
+      id: hashQuestion(this.level, 'mixedops', [question]),
       type: 'numeric',
       domain: 'calculation',
       level: this.level,
       difficultyElo: context.userElo,
-      question: `${a} + ${multA} × ${multB} - ${b} = ?`,
-      answer: finalResult.toString(),
-      explanation: `Priorité opératoire : ${multA} × ${multB} = ${multResult}, puis ${a} + ${multResult} - ${b} = ${finalResult}`,
-      timeEstimate: 90,
+      question,
+      answer,
+      explanation,
+      timeEstimate: 60,
     };
   }
 
@@ -324,9 +433,9 @@ export class CM1Generator implements LevelGenerator {
   }
 
   private generateGeometryProblems(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CM1');
-    const length = ops.addition();
-    const width = ops.addition();
+    // Simplifié pour CM1 - nombres plus petits, résultats raisonnables
+    const length = randomInt(5, 20); // Limité à 20 max
+    const width = randomInt(3, 15);  // Limité à 15 max
     
     const problems = [
       {
@@ -344,6 +453,11 @@ export class CM1Generator implements LevelGenerator {
         answer: (length * width).toString() + ' cm²',
         explanation: `A = ${length} × ${width} = ${length * width} cm²`
       },
+      {
+        text: `Carré : côté ${length} cm. Aire ?`,
+        answer: (length * length).toString() + ' cm²',
+        explanation: `A = ${length} × ${length} = ${length * length} cm²`
+      },
     ];
     
     const problem = randomChoice(problems);
@@ -357,38 +471,39 @@ export class CM1Generator implements LevelGenerator {
       question: problem.text,
       answer: problem.answer,
       explanation: problem.explanation,
-      timeEstimate: 80,
+      timeEstimate: 60,
     };
   }
 
   private generateComplexWordProblems(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CM1');
-    const { a, b } = ops.multiplication();
-    const c = ops.addition();
-    const d = ops.addition();
-    
+    // Simplifié pour CM1 - nombres plus petits, scénarios plus simples
     const scenarios = [
       {
-        text: `Production : ${a} boîtes/jour pendant ${b} jours. Vente : ${c} boîtes. Production supplémentaire : ${d} boîtes. Reste ?`,
-        answer: (a * b - c + d).toString(),
-        explanation: `${a} × ${b} - ${c} + ${d} = ${a * b - c + d}`
+        text: `${randomInt(2, 9)} boîtes de ${randomInt(2, 9)} crayons. Total crayons ?`,
+        answer: (randomInt(2, 9) * randomInt(2, 9)).toString(),
+        explanation: `${randomInt(2, 9)} × ${randomInt(2, 9)} = ${randomInt(2, 9) * randomInt(2, 9)} crayons`
       },
       {
-        text: `${a} classes de ${b} élèves. Bus : ${c} places. Élèves exclus ?`,
-        answer: Math.max(0, a * b - c).toString(),
-        explanation: `${a} × ${b} - ${c} = ${Math.max(0, a * b - c)} élèves`
+        text: `${randomInt(10, 50)} bonbons partagés entre ${randomInt(2, 8)} enfants. Bonbons par enfant ?`,
+        answer: Math.floor(randomInt(10, 50) / randomInt(2, 8)).toString(),
+        explanation: `${randomInt(10, 50)} ÷ ${randomInt(2, 8)} = ${Math.floor(randomInt(10, 50) / randomInt(2, 8))} bonbons par enfant`
       },
       {
-        text: `Livre : ${a} pages. Lecture : ${b} pages/jour pendant ${c} jours, puis ${d} pages. Pages restantes ?`,
-        answer: Math.max(0, a - (b * c + d)).toString(),
-        explanation: `${a} - (${b} × ${c} + ${d}) = ${Math.max(0, a - (b * c + d))} pages`
+        text: `${randomInt(5, 15)} € par livre. ${randomInt(2, 5)} livres. Coût total ?`,
+        answer: (randomInt(5, 15) * randomInt(2, 5)).toString() + '€',
+        explanation: `${randomInt(5, 15)} × ${randomInt(2, 5)} = ${randomInt(5, 15) * randomInt(2, 5)} €`
+      },
+      {
+        text: `${randomInt(20, 99)} pages. Lecture de ${randomInt(5, 20)} pages. Pages restantes ?`,
+        answer: Math.max(0, randomInt(20, 99) - randomInt(5, 20)).toString(),
+        explanation: `${randomInt(20, 99)} - ${randomInt(5, 20)} = ${Math.max(0, randomInt(20, 99) - randomInt(5, 20))} pages`
       },
     ];
     
     const scenario = randomChoice(scenarios);
     
     return {
-      id: hashQuestion(this.level, 'complexword', [a, b, c, d]),
+      id: hashQuestion(this.level, 'simpleword', [scenario.text]),
       type: 'numeric',
       domain: 'arithmetic',
       level: this.level,
@@ -396,34 +511,30 @@ export class CM1Generator implements LevelGenerator {
       question: scenario.text,
       answer: scenario.answer,
       explanation: scenario.explanation,
-      timeEstimate: 120,
+      timeEstimate: 80,
     };
   }
 
   private generateDecimalProblems(context: GenerationContext): GeneratedQuestion {
-    const ops = getScaledOperands(context.userElo, 'CM1');
-    const a = ops.addition();
-    const b = ops.addition();
-    
-    // Créer des décimaux pour les problèmes
-    const decimalA = a + Math.round(Math.random() * 9) / 10;
-    const decimalB = b + Math.round(Math.random() * 9) / 10;
+    // Simplifié pour CM1 - nombres plus petits, calculs plus simples
+    const decimalA = randomInt(1, 9) + Math.round(Math.random() * 9) / 10; // 1.0 à 9.9
+    const decimalB = randomInt(1, 9) + Math.round(Math.random() * 9) / 10; // 1.0 à 9.9
     
     const problems = [
       {
-        text: `${decimalA.toFixed(1)} kg pommes à 2€/kg + ${decimalB.toFixed(1)} kg poires à 3€/kg. Coût total ?`,
-        answer: (decimalA * 2 + decimalB * 3).toFixed(1) + '€',
-        explanation: `${decimalA.toFixed(1)} × 2 + ${decimalB.toFixed(1)} × 3 = ${(decimalA * 2 + decimalB * 3).toFixed(1)}€`
+        text: `${decimalA.toFixed(1)} kg + ${decimalB.toFixed(1)} kg. Poids total ?`,
+        answer: (decimalA + decimalB).toFixed(1) + ' kg',
+        explanation: `${decimalA.toFixed(1)} + ${decimalB.toFixed(1)} = ${(decimalA + decimalB).toFixed(1)} kg`
+      },
+      {
+        text: `${decimalA.toFixed(1)} m - ${decimalB.toFixed(1)} m. Longueur restante ?`,
+        answer: Math.max(0, decimalA - decimalB).toFixed(1) + ' m',
+        explanation: `${decimalA.toFixed(1)} - ${decimalB.toFixed(1)} = ${Math.max(0, decimalA - decimalB).toFixed(1)} m`
       },
       {
         text: `Bouteille : ${decimalA.toFixed(1)} L. On boit ${decimalB.toFixed(1)} L. Reste ?`,
         answer: Math.max(0, decimalA - decimalB).toFixed(1) + ' L',
         explanation: `${decimalA.toFixed(1)} - ${decimalB.toFixed(1)} = ${Math.max(0, decimalA - decimalB).toFixed(1)} L`
-      },
-      {
-        text: `Film : ${decimalA.toFixed(1)} h + pause ${decimalB.toFixed(1)} h. Durée totale ?`,
-        answer: (decimalA + decimalB).toFixed(1) + ' heures',
-        explanation: `${decimalA.toFixed(1)} + ${decimalB.toFixed(1)} = ${(decimalA + decimalB).toFixed(1)} heures`
       },
     ];
     
@@ -438,7 +549,7 @@ export class CM1Generator implements LevelGenerator {
       question: problem.text,
       answer: problem.answer,
       explanation: problem.explanation,
-      timeEstimate: 90,
+      timeEstimate: 60,
     };
   }
 }

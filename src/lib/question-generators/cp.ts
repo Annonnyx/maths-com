@@ -42,10 +42,29 @@ export class CPGenerator implements LevelGenerator {
   }
 
   private generateAddition(context: GenerationContext): GeneratedQuestion {
-    // Résultat max : 100 pour le CP
-    const maxResult = 100;
-    const a = randomInt(0, maxResult);
-    const b = randomInt(0, maxResult - a); // Garantir que le résultat ne dépasse pas 100
+    // CP : max 3 chiffres totaux (ex: 9+9, 8+7, 10+5)
+    const formats = [
+      () => {
+        // Format X+Y (1-2 chiffres)
+        const a = randomInt(1, 9);
+        const b = randomInt(1, 9);
+        return { a, b, question: `${a} + ${b} = ?` };
+      },
+      () => {
+        // Format XY+Z (2-3 chiffres)
+        const a = randomInt(10, 20);
+        const b = randomInt(1, 9);
+        return { a, b, question: `${a} + ${b} = ?` };
+      },
+      () => {
+        // Format X+YZ (2-3 chiffres)
+        const a = randomInt(1, 9);
+        const b = randomInt(10, 20);
+        return { a, b, question: `${a} + ${b} = ?` };
+      }
+    ];
+    
+    const { a, b, question } = randomChoice(formats)();
     const result = a + b;
     
     return {
@@ -54,7 +73,7 @@ export class CPGenerator implements LevelGenerator {
       domain: 'calculation',
       level: this.level,
       difficultyElo: context.userElo,
-      question: `${a} + ${b} = ?`,
+      question,
       answer: result.toString(),
       explanation: `${a} + ${b} = ${result}`,
       timeEstimate: 20,
@@ -62,10 +81,29 @@ export class CPGenerator implements LevelGenerator {
   }
 
   private generateSubtraction(context: GenerationContext): GeneratedQuestion {
-    // Résultat toujours strictement positif : premier opérande > second
-    const maxValue = 100;
-    const b = randomInt(1, maxValue - 1);
-    const a = randomInt(b + 1, maxValue); // a > b garanti
+    // CP : max 3 chiffres totaux, résultat toujours positif
+    const formats = [
+      () => {
+        // Format XY-Z (2-3 chiffres, résultat positif)
+        const a = randomInt(10, 30);
+        const b = randomInt(1, Math.min(a - 1, 9));
+        return { a, b, question: `${a} - ${b} = ?` };
+      },
+      () => {
+        // Format X-Y (1-2 chiffres)
+        const a = randomInt(5, 9);
+        const b = randomInt(1, a - 1);
+        return { a, b, question: `${a} - ${b} = ?` };
+      },
+      () => {
+        // Format X-Y (très simple)
+        const a = randomInt(2, 5);
+        const b = randomInt(1, a - 1);
+        return { a, b, question: `${a} - ${b} = ?` };
+      }
+    ];
+    
+    const { a, b, question } = randomChoice(formats)();
     const result = a - b;
     
     return {
@@ -74,7 +112,7 @@ export class CPGenerator implements LevelGenerator {
       domain: 'calculation',
       level: this.level,
       difficultyElo: context.userElo,
-      question: `${a} - ${b} = ?`,
+      question,
       answer: result.toString(),
       explanation: `${a} - ${b} = ${result}`,
       timeEstimate: 25,
