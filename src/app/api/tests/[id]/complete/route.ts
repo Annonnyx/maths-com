@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { calculateEloChange, getClassFromElo, clampElo } from '@/lib/elo';
+import { calculateAdvancedEloChange, getClassFromElo, clampElo } from '@/lib/elo';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { AchievementService } from '@/lib/achievement-service';
@@ -212,54 +212,31 @@ export async function POST(
     console.log('Time per question array:', timePerQuestion);
     console.log('============================');
     
-    let eloChange = 0;
-    let simulatedElo = test.user.soloElo;
-    let streak = currentUser.soloCurrentStreak;
-    
-    const perQuestionTime = totalTime / test.totalQuestions;
-    const maxTime = 60; // placeholder max time per question
-
-    // Map difficulty (1-10) to ELO equivalent
-    const difficultyToElo = (d: number) => {
-      const elo = clampElo(400 + (d - 1) * 320);
-      console.log(`Difficulty ${d} -> Elo ${elo}`);
-      return elo;
+    // Use the SAME algorithm as frontend
+    const testResult = {
+      correctAnswers: correctCount,
+      totalQuestions: questions.length,
+      totalTimeSeconds: totalTime,
+      questionTimes: timePerQuestion,
+      difficulties: difficulties,
+      isCorrectArray: isCorrectArray,
+      currentElo: test.user.soloElo || 400,
+      streak: currentUser.soloCurrentStreak || 0
     };
-
-    for (let i = 0; i < test.totalQuestions; i++) {
-      try {
-        const qElo = difficultyToElo(difficulties[i]);
-        const scoreReal = isCorrectArray[i] ? 1 : 0;
-        const questionTime = timePerQuestion?.[i] || perQuestionTime;
-        
-        // Validation des valeurs
-        if (isNaN(qElo) || isNaN(simulatedElo) || isNaN(questionTime)) {
-          console.error(`Invalid values at question ${i+1}: qElo=${qElo}, simulatedElo=${simulatedElo}, questionTime=${questionTime}`);
-          continue;
-        }
-        
-        const delta = calculateEloChange(
-          simulatedElo,
-          qElo,
-          scoreReal,
-          questionTime,
-          maxTime,
-          streak,
-          false // solo mode
-        );
-        
-        console.log(`Q${i+1}: correct=${scoreReal}, time=${questionTime}s, delta=${delta}, elo=${simulatedElo}->${simulatedElo + delta}`);
-        
-        if (!isNaN(delta)) {
-          eloChange += delta;
-          simulatedElo += delta;
-        }
-        streak = scoreReal === 1 ? streak + 1 : 0;
-      } catch (error) {
-        console.error(`Error processing question ${i+1}:`, error);
-        continue;
-      }
-    }
+    
+    const eloCalculation = calculateAdvancedEloChange(testResult);
+    const eloChange = eloCalculation.eloChange;
+    
+    console.log('=== ELO CALCULATION RESULTS ===');
+    console.log('Algorithm: calculateAdvancedEloChange (same as frontend)');
+    console.log('Correct answers:', correctCount, '/', questions.length);
+    console.log('Base change:', eloCalculation.performance.baseChange);
+    console.log('Speed bonus:', eloCalculation.performance.speedBonus);
+    console.log('Difficulty bonus:', eloCalculation.performance.difficultyBonus);
+    console.log('Streak bonus:', eloCalculation.performance.streakBonus);
+    console.log('Total eloChange:', eloChange);
+    console.log('Old Elo:', test.user.soloElo);
+    console.log('==============================');
 
     // Calculate final Elo and rank
     const newElo = clampElo(test.user.soloElo + eloChange);
