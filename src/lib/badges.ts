@@ -1,15 +1,13 @@
 import { prisma } from './prisma';
 
 // Helper functions for rarity
-function getRarityFromRank(rank: string): string {
-  const tier = rank.charAt(0);
-  switch (tier) {
-    case 'S': return 'legendary';
-    case 'A': return 'epic';
-    case 'B': return 'rare';
-    case 'C': return 'common';
-    default: return 'common';
-  }
+function getRarityFromRank(frenchClass: string): string {
+  // Classes les plus avancées ont les rarités les plus élevées
+  if (frenchClass === 'Pro') return 'legendary';
+  if (frenchClass.startsWith('Sup')) return 'legendary';
+  if (['Tle', '1re', '2de'].includes(frenchClass)) return 'epic';
+  if (['3e', '4e', '5e', '6e'].includes(frenchClass)) return 'rare';
+  return 'common'; // CP, CE1, CE2, CM1, CM2
 }
 
 function getAchievementRarity(id: string): string {
@@ -19,29 +17,24 @@ function getAchievementRarity(id: string): string {
   return 'common';
 }
 
-// Badges de rang - attribués automatiquement
+// Badges de rang - attribués automatiquement (système de classes françaises)
 export const RANK_BADGES = {
-  'S+': { name: 'Maître S+', icon: '🌟', color: '#FFD700', description: 'Atteint le rang S+' },
-  'S': { name: 'Légende S', icon: '⭐', color: '#FFA500', description: 'Atteint le rang S' },
-  'S-': { name: 'Elite S-', icon: '💎', color: '#C0C0C0', description: 'Atteint le rang S-' },
-  'A+': { name: 'Expert A+', icon: '�', color: '#FF6B35', description: 'Atteint le rang A+' },
-  'A': { name: 'Vétéran A', icon: '🎖️', color: '#FF8C42', description: 'Atteint le rang A' },
-  'A-': { name: 'Spécialiste A-', icon: '🎯', color: '#FF9F5A', description: 'Atteint le rang A-' },
-  'B+': { name: 'Confirmé B+', icon: '⚔️', color: '#9B59B6', description: 'Atteint le rang B+' },
-  'B': { name: 'Adepte B', icon: '🛡️', color: '#AF7AC5', description: 'Atteint le rang B' },
-  'B-': { name: 'Initié B-', icon: '🔮', color: '#C39BD3', description: 'Atteint le rang B-' },
-  'C+': { name: 'Avancé C+', icon: '⚡', color: '#3498DB', description: 'Atteint le rang C+' },
-  'C': { name: 'Intermédiaire C', icon: '🔷', color: '#5DADE2', description: 'Atteint le rang C' },
-  'C-': { name: 'Débutant+ C-', icon: '💠', color: '#85C1E9', description: 'Atteint le rang C-' },
-  'D+': { name: 'Novice D+', icon: '🌱', color: '#1ABC9C', description: 'Atteint le rang D+' },
-  'D': { name: 'Apprenti D', icon: '🍃', color: '#48C9B0', description: 'Atteint le rang D' },
-  'D-': { name: 'Recrue D-', icon: '🌿', color: '#76D7C4', description: 'Atteint le rang D-' },
-  'E+': { name: 'Stagiaire E+', icon: '📗', color: '#27AE60', description: 'Atteint le rang E+' },
-  'E': { name: 'Débutant E', icon: '📘', color: '#52BE80', description: 'Atteint le rang E' },
-  'E-': { name: 'Initié E-', icon: '📙', color: '#7DCEA0', description: 'Atteint le rang E-' },
-  'F+': { name: 'Amateur F+', icon: '📝', color: '#95A5A6', description: 'Atteint le rang F+' },
-  'F': { name: 'Novice F', icon: '✏️', color: '#B2BABB', description: 'Atteint le rang F' },
-  'F-': { name: 'Débutant F-', icon: '📋', color: '#CFD8DC', description: 'Bienvenue dans le classement !' },
+  'Pro': { name: 'Mathématicien Pro', icon: '🌟', color: '#FFD700', description: 'Atteint la classe Pro' },
+  'Sup3': { name: 'Expert Sup3', icon: '⭐', color: '#FFA500', description: 'Atteint la classe Sup3' },
+  'Sup2': { name: 'Spécialiste Sup2', icon: '💎', color: '#C0C0C0', description: 'Atteint la classe Sup2' },
+  'Sup1': { name: 'Vétéran Sup1', icon: '🎖️', color: '#FF6B35', description: 'Atteint la classe Sup1' },
+  'Tle': { name: 'Confirmé Tle', icon: '⚔️', color: '#9B59B6', description: 'Atteint la classe Tle' },
+  '1re': { name: 'Adepte 1re', icon: '🛡️', color: '#AF7AC5', description: 'Atteint la classe 1re' },
+  '2de': { name: 'Initié 2de', icon: '🔮', color: '#C39BD3', description: 'Atteint la classe 2de' },
+  '3e': { name: 'Avancé 3e', icon: '⚡', color: '#3498DB', description: 'Atteint la classe 3e' },
+  '4e': { name: 'Intermédiaire 4e', icon: '🔷', color: '#5DADE2', description: 'Atteint la classe 4e' },
+  '5e': { name: 'Débutant+ 5e', icon: '💠', color: '#85C1E9', description: 'Atteint la classe 5e' },
+  '6e': { name: 'Novice 6e', icon: '🌱', color: '#1ABC9C', description: 'Atteint la classe 6e' },
+  'CM2': { name: 'Apprenti CM2', icon: '🍃', color: '#48C9B0', description: 'Atteint la classe CM2' },
+  'CM1': { name: 'Recrue CM1', icon: '🌿', color: '#76D7C4', description: 'Atteint la classe CM1' },
+  'CE2': { name: 'Stagiaire CE2', icon: '📗', color: '#27AE60', description: 'Atteint la classe CE2' },
+  'CE1': { name: 'Débutant CE1', icon: '📘', color: '#52BE80', description: 'Atteint la classe CE1' },
+  'CP': { name: 'Élève CP', icon: '�', color: '#7DCEA0', description: 'Bienvenue dans le système éducatif !' },
 };
 
 // Badges d'accomplissements
@@ -75,7 +68,7 @@ export async function initializeBadges() {
             icon: badge.icon,
             category: 'rank',
             rarity: getRarityFromRank(rank),
-            condition: `Atteindre le rang ${rank}`,
+            condition: `Atteindre la classe ${rank}`,
           }
         });
         console.log(`Created rank badge: ${badge.name}`);
