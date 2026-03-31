@@ -73,12 +73,12 @@ export async function GET(
     }
 
     // Récupérer l'historique des questions pour tous les étudiants
-    const questionHistory = await prisma.questionHistory.findMany({
+    const questionHistory = await prisma.public_QuestionHistory.findMany({
       where: {
-        userId: { in: studentIds }
+        user_id: { in: studentIds }
       },
       orderBy: {
-        answeredAt: 'asc'
+        answered_at: 'asc'
       }
     });
 
@@ -92,7 +92,7 @@ export async function GET(
     // Statistiques par étudiant
     const studentsStats = studentIds.map(studentId => {
       const student = students.find(s => s.user.id === studentId);
-      const studentHistory = questionHistory.filter(q => q.userId === studentId);
+      const studentHistory = questionHistory.filter(q => q.user_id === studentId);
       
       const studentCorrect = studentHistory.filter(q => q.correct).length;
       const studentTotal = studentHistory.length;
@@ -110,14 +110,14 @@ export async function GET(
         averageScore: studentAverage,
         accuracy: studentAverage,
         lastActivity: studentHistory.length > 0 
-          ? studentHistory[studentHistory.length - 1].answeredAt 
+          ? studentHistory[studentHistory.length - 1].answered_at 
           : null
       };
     }).sort((a, b) => b.averageScore - a.averageScore);
 
     // Performance par matière
     const subjectPerformance = questionHistory.reduce((acc, q) => {
-      const subject = 'unknown'; // Subject field doesn't exist in question history
+      const subject = q.subject || 'unknown';
       if (!acc[subject]) {
         acc[subject] = { total: 0, correct: 0, subject };
       }
@@ -135,7 +135,7 @@ export async function GET(
 
     // Performance par difficulté
     const difficultyPerformance = questionHistory.reduce((acc, q) => {
-      const difficulty = 'unknown'; // Difficulty field doesn't exist in question history
+      const difficulty = q.difficulty || 'unknown';
       if (!acc[difficulty]) {
         acc[difficulty] = { total: 0, correct: 0, difficulty };
       }
@@ -157,10 +157,10 @@ export async function GET(
 
     // Évolution temporelle (derniers 30 jours)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const recentHistory = questionHistory.filter(q => q.answeredAt >= thirtyDaysAgo);
+    const recentHistory = questionHistory.filter(q => q.answered_at && q.answered_at >= thirtyDaysAgo);
     
     const timeEvolution = recentHistory.reduce((acc, q) => {
-      const dateKey = q.answeredAt.toISOString().split('T')[0]; // YYYY-MM-DD
+      const dateKey = q.answered_at!.toISOString().split('T')[0]; // YYYY-MM-DD
       if (!acc[dateKey]) {
         acc[dateKey] = { date: dateKey, total: 0, correct: 0 };
       }

@@ -5,7 +5,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { AchievementService } from '@/lib/achievement-service';
 
-// POST /api/tests - Complete a test and update Elo
+// POST /api/tests - Create or Complete a test and update Elo
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -23,168 +23,192 @@ export async function POST(req: NextRequest) {
 
     const testData = await req.json();
     
-    const {
-      questions,
-      answers,
-      timePerQuestion,
-      testMode,
-      elapsedTime,
-      courseType
-    } = testData;
-
-    // Calculate results
-    let correct = 0;
-    const questionResults = questions.map((q: any, i: number) => {
-      const isCorrect = q.answer === answers[i];
-      if (isCorrect) correct++;
-      return {
-        type: q.type,
-        difficulty: q.difficulty,
-        question: q.question,
-        answer: q.answer,
-        userAnswer: answers[i],
-        isCorrect,
-        timeTaken: timePerQuestion[i],
-        order: i
-      };
-    });
-
-    const score = Math.round((correct / questions.length) * 100);
-    const timeTaken = Math.round(elapsedTime / 1000); // Convert to seconds
-
-    const eloBefore = user.soloElo;
-    let eloAfter = eloBefore;
-    let eloChange = 0;
-
-    // ---- NOUVEL ALGORITHME ELO : calcul question par question ----
-    if (testMode === 'competitive') {
-      let simulatedElo = eloBefore;
-      let streak = user.soloCurrentStreak;
-      const maxTime = 60; // placeholder
-
-      const difficultyToElo = (d: number) => clampElo(400 + (d - 1) * 320);
-
-      for (let i = 0; i < questions.length; i++) {
-        const qElo = difficultyToElo(questions[i].difficulty);
-        const scoreReal = questionResults[i].isCorrect ? 1 : 0;
-        const delta = calculateEloChange(
-          simulatedElo,
-          qElo,
-          scoreReal,
-          timePerQuestion[i],
-          maxTime,
-          streak,
-          false // solo mode
-        );
-        eloChange += delta;
-        simulatedElo += delta;
-        streak = scoreReal === 1 ? streak + 1 : 0;
-      }
-
-      eloAfter = clampElo(eloBefore + eloChange);
-
-      // Update user Elo and rank
-      const newFrenchClass = getClassFromElo(eloAfter);
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          soloElo: eloAfter,
-          soloClass: newFrenchClass,
-          soloBestElo: Math.max(user.soloBestElo || 0, eloAfter),
-          soloBestClass: eloAfter > (user.soloBestElo || 0) ? newFrenchClass : (user.soloBestClass || 'F-')
-        }
-      });
-
-      // Check for rank achievement
-      await AchievementService.checkRankAchievement(user.id, newFrenchClass);
+    // Check if this is test creation or completion
+    const { totalQuestions, testMode, courseType, questions, answers, timePerQuestion, elapsedTime, testId } = testData;
+    
+    if (questions && answers && testId) {
+      // This is test completion - use existing logic
+      return await handleTestCompletion(testData, user, questions, answers, timePerQuestion, elapsedTime, testMode);
+    } else {
+      // This is test creation
+      return await handleTestCreation(testData, user, totalQuestions, testMode, courseType);
     }
-
-    // Create test record
-    const test = await prisma.soloTest.create({
-      data: {
-        userId: user.id,
-        completedAt: new Date(),
-        totalQuestions: questions.length,
-        correctAnswers: correct,
-        score,
-        timeTaken,
-        eloBefore,
-        eloAfter,
-        eloChange,
-        isPerfect: correct === questions.length,
-        isStreakTest: testMode === 'competitive' && eloChange > 0,
-        questions: {
-          create: questionResults
-        }
-      },
-      include: {
-        questions: true
-      }
-    });
-
-    // Check for perfect test achievement
-    await AchievementService.checkPerfectTestAchievement(user.id, correct, questions.length);
-
-    // Update statistics
-    await prisma.soloStatistics.upsert({
-      where: { userId: user.id },
-      create: {
-        userId: user.id,
-        totalTests: 1,
-        totalCorrect: correct,
-        totalQuestions: questions.length,
-        totalTime: timeTaken,
-        averageScore: score,
-        averageTime: timeTaken
-      },
-      update: {
-        totalTests: { increment: 1 },
-        totalCorrect: { increment: correct },
-        totalQuestions: { increment: questions.length },
-        totalTime: { increment: timeTaken }
-      }
-    });
-
-    // Recalculate proper averages
-    const stats = await prisma.soloStatistics.findUnique({
-      where: { userId: user.id }
-    });
-
-    if (stats && stats.totalTests > 0) {
-      await prisma.soloStatistics.update({
-        where: { userId: user.id },
-        data: {
-          averageScore: (stats.totalCorrect / stats.totalQuestions) * 100,
-          averageTime: stats.totalTime / stats.totalTests
-        }
-      });
-    }
-
-    // Check for solo games achievements
-    await AchievementService.checkSoloGamesAchievements(user.id);
-
-    return NextResponse.json({
-      success: true,
-      test: {
-        id: test.id,
-        score,
-        correct,
-        total: questions.length,
-        timeTaken,
-        eloChange,
-        eloBefore,
-        eloAfter,
-        mode: testMode
-      }
-    });
-
+    
   } catch (error) {
-    console.error('Error saving test:', error);
-    return NextResponse.json(
-      { error: 'Failed to save test results' },
-      { status: 500 }
-    );
+    console.error('Error in tests API:', error);
+    return NextResponse.json({ error: 'Failed to process test' }, { status: 500 });
   }
+}
+
+async function handleTestCreation(testData: any, user: any, totalQuestions: number, testMode: string, courseType?: string) {
+  // Create test in database
+  const test = await prisma.soloTest.create({
+    data: {
+      userId: user.id,
+      totalQuestions: totalQuestions || 20,
+      score: 0, // Will be updated on completion
+      timeTaken: 0, // Will be updated on completion
+      eloBefore: user.soloElo || 400,
+      eloAfter: user.soloElo || 400, // Will be updated on completion
+      eloChange: 0 // Will be updated on completion
+    }
+  });
+
+  return NextResponse.json({ 
+    id: test.id,
+    message: 'Test created successfully'
+  });
+}
+
+async function handleTestCompletion(testData: any, user: any, questions: any[], answers: string[], timePerQuestion: number[], elapsedTime: number, testMode: string) {
+  // Calculate results
+  let correct = 0;
+  const questionResults = questions.map((q: any, i: number) => {
+    const isCorrect = q.answer === answers[i];
+    if (isCorrect) correct++;
+    return {
+      type: q.type,
+      difficulty: q.difficulty,
+      question: q.question,
+      answer: q.answer,
+      userAnswer: answers[i],
+      isCorrect,
+      timeTaken: timePerQuestion[i],
+      order: i
+    };
+  });
+
+  const score = Math.round((correct / questions.length) * 100);
+  const timeTaken = Math.round(elapsedTime / 1000); // Convert to seconds
+
+  const eloBefore = user.soloElo;
+  let eloAfter = eloBefore;
+  let eloChange = 0;
+
+  // ---- NOUVEL ALGORITHME ELO : calcul question par question ----
+  if (testMode === 'competitive') {
+    let simulatedElo = eloBefore;
+    let streak = user.soloCurrentStreak;
+    const maxTime = 60; // placeholder
+
+    const difficultyToElo = (d: number) => clampElo(400 + (d - 1) * 320);
+
+    for (let i = 0; i < questions.length; i++) {
+      const qElo = difficultyToElo(questions[i].difficulty);
+      const scoreReal = questionResults[i].isCorrect ? 1 : 0;
+      const delta = calculateEloChange(
+        simulatedElo,
+        qElo,
+        scoreReal,
+        timePerQuestion[i],
+        maxTime,
+        streak,
+        false // solo mode
+      );
+      eloChange += delta;
+      simulatedElo += delta;
+      streak = scoreReal === 1 ? streak + 1 : 0;
+    }
+
+    eloAfter = clampElo(eloBefore + eloChange);
+
+    // Update user Elo and rank
+    const newFrenchClass = getClassFromElo(eloAfter);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        soloElo: eloAfter,
+        soloClass: newFrenchClass,
+        soloBestElo: Math.max(user.soloBestElo || 0, eloAfter),
+        soloBestClass: eloAfter > (user.soloBestElo || 0) ? newFrenchClass : (user.soloBestClass || 'F-')
+      }
+    });
+
+    // Check for rank achievement
+    await AchievementService.checkRankAchievement(user.id, newFrenchClass);
+  }
+
+  // Update existing test record instead of creating new one
+  const test = await prisma.soloTest.update({
+    where: { 
+      id: testData.testId,
+      userId: user.id 
+    },
+    data: {
+      completedAt: new Date(),
+      totalQuestions: questions.length,
+      correctAnswers: correct,
+      score,
+      timeTaken,
+      eloBefore,
+      eloAfter,
+      eloChange,
+      isPerfect: correct === questions.length,
+      isStreakTest: testMode === 'competitive' && eloChange > 0,
+      questions: {
+        create: questionResults
+      }
+    },
+    include: {
+      questions: true
+    }
+  });
+
+  // Check for perfect test achievement
+  await AchievementService.checkPerfectTestAchievement(user.id, correct, questions.length);
+
+  // Update statistics
+  await prisma.soloStatistics.upsert({
+    where: { userId: user.id },
+    create: {
+      userId: user.id,
+      totalTests: 1,
+      totalCorrect: correct,
+      totalQuestions: questions.length,
+      totalTime: timeTaken,
+      averageScore: score,
+      averageTime: timeTaken
+    },
+    update: {
+      totalTests: { increment: 1 },
+      totalCorrect: { increment: correct },
+      totalQuestions: { increment: questions.length },
+      totalTime: { increment: timeTaken }
+    }
+  });
+
+  // Recalculate proper averages
+  const stats = await prisma.soloStatistics.findUnique({
+    where: { userId: user.id }
+  });
+
+  if (stats && stats.totalTests > 0) {
+    await prisma.soloStatistics.update({
+      where: { userId: user.id },
+      data: {
+        averageScore: (stats.totalCorrect / stats.totalQuestions) * 100,
+        averageTime: stats.totalTime / stats.totalTests
+      }
+    });
+  }
+
+  // Check for solo games achievements
+  await AchievementService.checkSoloGamesAchievements(user.id);
+
+  return NextResponse.json({
+    success: true,
+    test: {
+      id: test.id,
+      score,
+      correct,
+      total: questions.length,
+      timeTaken,
+      eloChange,
+      eloBefore,
+      eloAfter,
+      mode: testMode
+    }
+  });
 }
 
 // GET /api/tests - Get user's tests

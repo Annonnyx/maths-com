@@ -30,6 +30,7 @@ interface TestState {
   isComplete: boolean;
   showAnswer?: boolean;
   attempts?: number[];
+  testId?: string | null;
 }
 
 interface PerformanceBreakdown {
@@ -135,11 +136,35 @@ function TestPage() {
     return { questions, title };
   }, [session, searchParams, courseType]);
 
-  const startTest = useCallback((mode: TestMode) => {
+  const startTest = useCallback(async (mode: TestMode) => {
     if (!mode) return;
     playSound('click');
     
     const { questions, title } = generateQuestions(mode);
+    
+    // Create test in database first to get testId
+    let testId = null;
+    if (session?.user) {
+      try {
+        const response = await fetch('/api/tests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            totalQuestions: questions.length,
+            testMode: mode,
+            courseType
+          })
+        });
+        
+        if (response.ok) {
+          const testData = await response.json();
+          testId = testData.id;
+          console.log('Test created with ID:', testId);
+        }
+      } catch (error) {
+        console.error('Failed to create test:', error);
+      }
+    }
     
     setTestState({
       questions,
@@ -149,7 +174,8 @@ function TestPage() {
       startTime: Date.now(),
       isComplete: false,
       showAnswer: false,
-      attempts: new Array(questions.length).fill(0)
+      attempts: new Array(questions.length).fill(0),
+      testId // Add testId to state
     });
     setTestMode(mode);
     setTestTitle(title);
@@ -157,7 +183,7 @@ function TestPage() {
     setElapsedTime(0);
     setShowResults(false);
     setDetailedResults(null);
-  }, [generateQuestions]);
+  }, [generateQuestions, session, courseType]);
 
   useEffect(() => {
     if (!testState || testState.isComplete || testMode !== 'competitive') return;
@@ -347,7 +373,7 @@ function TestPage() {
   };
 
   const saveTestResults = async () => {
-    if (!testState || !testMode) return;
+    if (!testState || !testMode || !testState.testId) return;
     
     // Don't save if user is not authenticated (guest mode)
     if (!session?.user) {
@@ -356,12 +382,13 @@ function TestPage() {
     }
 
     try {
-      const response = await fetch('/api/tests', {
+      const response = await fetch(`/api/tests/${testState.testId}/complete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          testId: testState.testId,
           questions: testState.questions,
           answers: testState.answers,
           timePerQuestion: testState.timePerQuestion,

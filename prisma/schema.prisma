@@ -78,7 +78,6 @@ model User {
   childLinks                  ParentChildLink[]        @relation("ChildLinks")
   parentLinks                 ParentChildLink[]        @relation("ParentLinks")
   inviteCodes                 ParentInviteCode[]       @relation("InviteCodes")
-  questionHistory             QuestionHistory[]
   soloStatistics              SoloStatistics?
   soloTests                   SoloTest[]
   teacherRequests             TeacherRequest[]
@@ -529,18 +528,6 @@ model ClassMessage {
   @@schema("public")
 }
 
-model QuestionHistory {
-  id          String   @id @default(cuid()) @map("id")
-  userId      String   @map("user_id")
-  questionId  String   @map("question_id")
-  answeredAt  DateTime @default(now())
-  correct     Boolean
-  eloAtMoment Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("question_history")
-  @@schema("public")
-}
 
 model ClassJoinRequest {
   id        String   @id @default(cuid())
