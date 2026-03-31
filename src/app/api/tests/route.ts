@@ -23,6 +23,11 @@ export async function POST(req: NextRequest) {
 
     const testData = await req.json();
     
+    console.log('=== TEST DATA RECEIVED ===');
+    console.log('Full testData:', JSON.stringify(testData, null, 2));
+    console.log('testMode:', testData.testMode);
+    console.log('==========================');
+    
     // Check if this is test creation or completion
     const { totalQuestions, testMode, courseType, questions, answers, timePerQuestion, elapsedTime, testId } = testData;
     
@@ -87,6 +92,10 @@ async function handleTestCompletion(testData: any, user: any, questions: any[], 
 
   // ---- NOUVEL ALGORITHME ELO : calcul question par question ----
   if (testMode === 'competitive') {
+    console.log('=== COMPETITIVE MODE DETECTED ===');
+    console.log('Test mode:', testMode);
+    console.log('Questions count:', questions.length);
+    
     let simulatedElo = eloBefore;
     let streak = user.soloCurrentStreak;
     const maxTime = 60; // placeholder
@@ -105,16 +114,29 @@ async function handleTestCompletion(testData: any, user: any, questions: any[], 
         streak,
         false // solo mode
       );
+      console.log(`Question ${i+1}: delta=${delta}, simulatedElo=${simulatedElo} -> ${simulatedElo + delta}`);
       eloChange += delta;
       simulatedElo += delta;
       streak = scoreReal === 1 ? streak + 1 : 0;
     }
 
     eloAfter = clampElo(eloBefore + eloChange);
+    console.log('Final eloChange:', eloChange);
+    console.log('Final eloAfter:', eloAfter);
 
     // Update user Elo and rank
     const newFrenchClass = getClassFromElo(eloAfter);
-    await prisma.user.update({
+    
+    console.log('=== ELO UPDATE DEBUG ===');
+    console.log('User ID:', user.id);
+    console.log('Elo Before:', eloBefore);
+    console.log('Elo Change:', eloChange);
+    console.log('Elo After:', eloAfter);
+    console.log('New French Class:', newFrenchClass);
+    console.log('Current soloElo in DB:', user.soloElo);
+    console.log('========================');
+    
+    const updateResult = await prisma.user.update({
       where: { id: user.id },
       data: {
         soloElo: eloAfter,
@@ -123,9 +145,16 @@ async function handleTestCompletion(testData: any, user: any, questions: any[], 
         soloBestClass: eloAfter > (user.soloBestElo || 0) ? newFrenchClass : (user.soloBestClass || 'F-')
       }
     });
+    
+    console.log('Update result:', updateResult.soloElo, updateResult.soloClass);
 
     // Check for rank achievement
     await AchievementService.checkRankAchievement(user.id, newFrenchClass);
+  } else {
+    console.log('=== NOT COMPETITIVE MODE ===');
+    console.log('Test mode:', testMode);
+    console.log('Elo will not be updated');
+    console.log('=============================');
   }
 
   // Update existing test record instead of creating new one

@@ -29,6 +29,13 @@ export async function POST(
     const body = await req.json();
     const { answers, timeTaken } = body;
 
+    console.log('=== TEST COMPLETION DEBUG ===');
+    console.log('Test ID:', testId);
+    console.log('Body received:', JSON.stringify(body, null, 2));
+    console.log('Answers count:', answers?.length);
+    console.log('Time taken:', timeTaken);
+    console.log('============================');
+
     // Get test with questions
     const test = await prisma.soloTest.findUnique({
       where: { id: testId },
@@ -94,6 +101,12 @@ export async function POST(
     }
 
     // ---- NOUVEL ALGORITHME ELO : calcul question par question ----
+    console.log('=== ELO CALCULATION START ===');
+    console.log('Current user Elo:', test.user.soloElo);
+    console.log('Current streak:', currentUser.soloCurrentStreak);
+    console.log('Correct answers:', correctCount, '/', test.totalQuestions);
+    console.log('============================');
+    
     let eloChange = 0;
     let simulatedElo = test.user.soloElo;
     let streak = currentUser.soloCurrentStreak;
@@ -115,6 +128,7 @@ export async function POST(
         streak,
         false // solo mode
       );
+      console.log(`Q${i+1}: correct=${scoreReal}, delta=${delta}, elo=${simulatedElo}->${simulatedElo + delta}`);
       eloChange += delta;
       simulatedElo += delta;
       streak = scoreReal === 1 ? streak + 1 : 0;
@@ -122,6 +136,13 @@ export async function POST(
 
     const newElo = clampElo(test.user.soloElo + eloChange);
     const newRank = getClassFromElo(newElo);
+    
+    console.log('=== ELO CALCULATION RESULTS ===');
+    console.log('Total eloChange:', eloChange);
+    console.log('Old Elo:', test.user.soloElo);
+    console.log('New Elo:', newElo);
+    console.log('New Rank:', newRank);
+    console.log('===============================');
 
     // Check streak
     let newStreak = currentUser.soloCurrentStreak;
@@ -168,7 +189,12 @@ export async function POST(
     });
 
     // Update user
-    await prisma.user.update({
+    console.log('=== USER UPDATE ===');
+    console.log('Updating user ID:', test.userId);
+    console.log('Setting soloElo from', test.user.soloElo, 'to', newElo);
+    console.log('Setting soloClass from', test.user.soloClass, 'to', newRank);
+    
+    const userUpdateResult = await prisma.user.update({
       where: { id: test.userId },
       data: {
         soloElo: newElo,
@@ -180,6 +206,9 @@ export async function POST(
         lastTestDate: new Date()
       }
     });
+    
+    console.log('User update completed:', userUpdateResult.soloElo, userUpdateResult.soloClass);
+    console.log('==================');
 
     // Update statistics
     await updateStatistics(test.userId, test, score, correctCount);
