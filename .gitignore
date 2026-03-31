@@ -56,13 +56,23 @@ prod.db
 # Analytics files
 google-analytics.json
 
-# SQL scripts with sensitive data (emails, admin scripts)
-/sql/
-
 # Local env files
 .env.local
 .env.production
 .env
+
+# All SQL files
+*.sql
+/sql/
+/prisma/migrations/
+
+# Most markdown files (keep important ones)
+*.md
+!README.md
+!README-*.md
+!CONTRIBUTING.md
+!CHANGELOG.md
+!LICENSE.md
 
 # Debug/temp files (guides, scripts, notes)
 GUIDE_*.md
