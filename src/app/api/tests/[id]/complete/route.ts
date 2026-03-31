@@ -27,12 +27,23 @@ export async function POST(
 
     const { id: testId } = await params;
     const body = await req.json();
+    
+    // Validation robuste des données
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    }
+    
     const { answers, timePerQuestion, questions, testMode, elapsedTime, courseType } = body;
-
+    
+    if (!answers || !Array.isArray(answers) || !questions || !Array.isArray(questions)) {
+      return NextResponse.json({ error: 'Missing required fields: answers and questions' }, { status: 400 });
+    }
+    
     console.log('=== TEST COMPLETION DEBUG ===');
     console.log('Test ID:', testId);
     console.log('Body received:', JSON.stringify(body, null, 2));
     console.log('Answers count:', answers?.length);
+    console.log('Questions count:', questions?.length);
     console.log('Time per question:', timePerQuestion);
     console.log('Elapsed time:', elapsedTime);
     console.log('============================');
@@ -87,8 +98,11 @@ export async function POST(
     const rawScore = (correctCount / test.totalQuestions) * 100;
     const score = Math.min(100, Math.max(0, Math.round(rawScore)));
     
+    // Use elapsedTime if available, otherwise calculate from timePerQuestion
+    const totalTime = elapsedTime || timePerQuestion.reduce((sum: number, time: number) => sum + (time || 0), 0);
+    
     // Calculate time bonus with custom formula
-    const baseTime = Math.max(0, 120 - timeTaken);
+    const baseTime = Math.max(0, 120 - (totalTime || 0));
     
     let timeBonus = 0;
     if (correctCount === 0) {
@@ -114,31 +128,49 @@ export async function POST(
     let simulatedElo = test.user.soloElo;
     let streak = currentUser.soloCurrentStreak;
     
-    // Use elapsedTime if available, otherwise calculate from timePerQuestion
-    const totalTime = elapsedTime || timePerQuestion.reduce((sum, time) => sum + (time || 0), 0);
     const perQuestionTime = totalTime / test.totalQuestions;
     const maxTime = 60; // placeholder max time per question
 
     // Map difficulty (1-10) to ELO equivalent
-    const difficultyToElo = (d: number) => clampElo(400 + (d - 1) * 320);
+    const difficultyToElo = (d: number) => {
+      const elo = clampElo(400 + (d - 1) * 320);
+      console.log(`Difficulty ${d} -> Elo ${elo}`);
+      return elo;
+    };
 
     for (let i = 0; i < test.totalQuestions; i++) {
-      const qElo = difficultyToElo(difficulties[i]);
-      const scoreReal = isCorrectArray[i] ? 1 : 0;
-      const questionTime = timePerQuestion?.[i] || perQuestionTime;
-      const delta = calculateEloChange(
-        simulatedElo,
-        qElo,
-        scoreReal,
-        questionTime,
-        maxTime,
-        streak,
-        false // solo mode
-      );
-      console.log(`Q${i+1}: correct=${scoreReal}, time=${questionTime}s, delta=${delta}, elo=${simulatedElo}->${simulatedElo + delta}`);
-      eloChange += delta;
-      simulatedElo += delta;
-      streak = scoreReal === 1 ? streak + 1 : 0;
+      try {
+        const qElo = difficultyToElo(difficulties[i]);
+        const scoreReal = isCorrectArray[i] ? 1 : 0;
+        const questionTime = timePerQuestion?.[i] || perQuestionTime;
+        
+        // Validation des valeurs
+        if (isNaN(qElo) || isNaN(simulatedElo) || isNaN(questionTime)) {
+          console.error(`Invalid values at question ${i+1}: qElo=${qElo}, simulatedElo=${simulatedElo}, questionTime=${questionTime}`);
+          continue;
+        }
+        
+        const delta = calculateEloChange(
+          simulatedElo,
+          qElo,
+          scoreReal,
+          questionTime,
+          maxTime,
+          streak,
+          false // solo mode
+        );
+        
+        console.log(`Q${i+1}: correct=${scoreReal}, time=${questionTime}s, delta=${delta}, elo=${simulatedElo}->${simulatedElo + delta}`);
+        
+        if (!isNaN(delta)) {
+          eloChange += delta;
+          simulatedElo += delta;
+        }
+        streak = scoreReal === 1 ? streak + 1 : 0;
+      } catch (error) {
+        console.error(`Error processing question ${i+1}:`, error);
+        continue;
+      }
     }
 
     const newElo = clampElo(test.user.soloElo + eloChange);
@@ -150,6 +182,12 @@ export async function POST(
     console.log('New Elo:', newElo);
     console.log('New Rank:', newRank);
     console.log('===============================');
+
+    // Validation finale des valeurs
+    if (isNaN(newElo) || !newRank) {
+      console.error('Invalid calculated values - skipping database update');
+      return NextResponse.json({ error: 'Invalid calculation results' }, { status: 500 });
+    }
 
     // Check streak
     let newStreak = currentUser.soloCurrentStreak;

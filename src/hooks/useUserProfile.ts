@@ -49,6 +49,7 @@ export function useUserProfile() {
 
   const fetchProfile = useCallback(async (forceRefresh = false) => {
     if (!session?.user?.email) {
+      console.log('No session email found');
       return;
     }
 
@@ -62,10 +63,12 @@ export function useUserProfile() {
     const cached = profileCache.get(cacheKey);
     
     if (!forceRefresh && cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      console.log('Using cached profile data');
       setProfile(cached.data);
       return;
     }
     
+    console.log('Fetching fresh profile data, forceRefresh:', forceRefresh);
     setIsLoading(true);
     setError(null);
     
@@ -80,10 +83,17 @@ export function useUserProfile() {
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch profile: ${response.status}`);
+        throw new Error(`Failed to fetch profile: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
+      console.log('Profile data received:', {
+        user: data.user?.username,
+        hasStats: !!data.statistics,
+        recentTests: data.recentTests?.length || 0,
+        recentGames: data.recentGames?.length || 0
+      });
+      
       setProfile(data);
       
       // Update cache
@@ -100,8 +110,10 @@ export function useUserProfile() {
       }
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {
+        console.log('Profile fetch cancelled');
         return; // Request was cancelled
       }
+      console.error('Profile fetch error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setIsLoading(false);

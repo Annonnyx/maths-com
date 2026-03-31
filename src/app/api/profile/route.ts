@@ -131,13 +131,46 @@ export async function GET(req: NextRequest) {
 
     // Get recent tests
     const recentTests = await prisma.soloTest.findMany({
-      where: { userId: user.id },
+      where: { 
+        userId: user.id,
+        completedAt: { not: null } // Uniquement les tests terminés
+      },
       orderBy: { completedAt: 'desc' },
       take: 10,
-      include: {
-        questions: true
+      select: {
+        id: true,
+        completedAt: true,
+        totalQuestions: true,
+        correctAnswers: true,
+        score: true,
+        timeTaken: true,
+        eloBefore: true,
+        eloAfter: true,
+        isPerfect: true,
+        isStreakTest: true,
+        questions: {
+          select: {
+            id: true,
+            type: true,
+            difficulty: true,
+            question: true,
+            answer: true,
+            userAnswer: true,
+            isCorrect: true,
+            timeTaken: true,
+            order: true
+          }
+        }
       }
     });
+
+    console.log('=== PROFILE API DEBUG ===');
+    console.log('User ID:', user.id);
+    console.log('Recent tests found:', recentTests.length);
+    recentTests.forEach((test, i) => {
+      console.log(`Recent test ${i+1}: ${test.id}, score: ${test.score}, completed: ${test.completedAt}`);
+    });
+    console.log('========================');
 
     
     return NextResponse.json({

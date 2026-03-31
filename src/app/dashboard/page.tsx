@@ -293,12 +293,16 @@ export default function DashboardPage() {
               <p className="text-sm text-gray-400 flex-grow">
                 Lance des exercices de calcul mental pour t'entraîner et monter en ELO
               </p>
-              {!loadingPreviews && (
+              {!loadingPreviews && profile.recentTests && profile.recentTests.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm">
-                  <span className="text-muted-foreground">Dernier score</span>
-                  <span className="font-medium text-indigo-400">
-                    {stats?.lastScore ? `${stats.lastScore}%` : 'Aucun'}
-                  </span>
+                  <span className="text-muted-foreground">Tests récents</span>
+                  <div className="flex gap-2">
+                    {profile.recentTests.slice(0, 3).map((test: any, index) => (
+                      <div key={test.id} className="text-xs bg-gray-800 px-2 py-1 rounded">
+                        {test.score}% - {test.isPerfect ? '✨' : ''}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
