@@ -406,28 +406,15 @@ function TestPage() {
       const data = await response.json();
       console.log('Test results saved:', data);
       
-      // Force session refresh to get updated Elo
-      try {
-        const refreshResponse = await fetch('/api/auth/refresh', {
-          method: 'POST',
-        });
+      // Utiliser directement les nouvelles données Elo de la réponse
+      if (data.success && data.user) {
+        console.log('New Elo from API:', data.user.soloElo);
+        console.log('Elo change:', data.user.eloChange);
+        console.log('New class:', data.user.soloClass);
+        setEloUpdated(true);
         
-        if (refreshResponse.ok) {
-          const refreshData = await refreshResponse.json();
-          console.log('Session refreshed with new Elo:', refreshData.user.soloElo);
-          setEloUpdated(true);
-          
-          // Forcer un rechargement des données de session via next-auth
-          const { data: currentSession } = useSession();
-          // Note: La mise à jour de session sera gérée par le AuthProvider
-          // await update({
-          //   ...currentSession?.user,
-          //   soloElo: refreshData.user.soloElo,
-          //   soloClass: refreshData.user.soloClass
-          // });
-        }
-      } catch (refreshError) {
-        console.error('Failed to refresh session:', refreshError);
+        // Mettre à jour directement le state local si besoin
+        // (le dashboard utilisera les données fraîches de l'API)
       }
     } catch (error) {
       console.error('Error saving test results:', error);

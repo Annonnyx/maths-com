@@ -18,8 +18,16 @@ import { AdUnit } from '@/components/AdUnit';
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const { profile, isLoading, error } = useUserProfile();
+  const { profile, isLoading, error, refetch } = useUserProfile();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  // Forcer le rafraîchissement du profil au chargement du dashboard
+  useEffect(() => {
+    if (session?.user?.email) {
+      console.log('Dashboard loaded - forcing profile refresh');
+      refetch();
+    }
+  }, [session?.user?.email, refetch]);
   
   // Toggle pour le rang
   const [gameMode, setGameMode] = useState<'solo' | 'multiplayer'>('solo');

@@ -330,7 +330,16 @@ export async function POST(
     await AchievementService.checkPerfectTestAchievement(test.userId, score, test.totalQuestions);
     await AchievementService.checkSoloGamesAchievements(test.userId);
 
-    return NextResponse.json(updatedTest);
+    return NextResponse.json({
+    success: true,
+    test: updatedTest,
+    user: {
+      soloElo: newElo,
+      soloClass: newRank,
+      eloChange: eloChange,
+      oldElo: test.user.soloElo
+    }
+  });
   } catch (error) {
     console.error('Error completing test:', error);
     return NextResponse.json({ error: 'Failed to complete test' }, { status: 500 });
