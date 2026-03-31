@@ -362,7 +362,7 @@ export default function MultiplayerPage() {
               <div className="text-center">
                 <Swords className="w-12 h-12 mx-auto mb-4 text-blue-400" />
                 <h3 className="text-xl font-bold mb-2">1 vs 1</h3>
-                <p className="text-sm text-foreground/80 mb-4">Duels intenses (2 joueurs)</p>
+                <p className="text-sm text-foreground mb-4">Duels intenses (2 joueurs)</p>
                 <div className="flex items-center justify-center gap-2 text-xs">
                   <Shield className="w-4 h-4" />
                   <span>ELO ranked disponible</span>
