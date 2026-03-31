@@ -99,12 +99,30 @@ export async function POST(
       
       // Validation robuste
       if (!dbQuestion) {
-        console.error(`Database question not found at index ${i}, skipping...`);
-        continue;
+        console.error(`Database question not found at index ${i}, using frontend data only...`);
+        // Utiliser quand même les données frontend pour le calcul Elo
+        const userAnswer = answers[i] || '';
+        const isCorrect = userAnswer.trim() === frontendQuestion.answer.trim();
+        isCorrectArray.push(isCorrect);
+        
+        const difficulty = frontendQuestion.level ? classToDifficulty[frontendQuestion.level] || 5 : 5;
+        difficulties.push(difficulty);
+        
+        if (isCorrect) correctCount++;
+        continue; // Skip database update but keep Elo calculation
       }
       
       if (!dbQuestion.answer) {
-        console.error(`Database question ${dbQuestion.id} has no answer, skipping...`);
+        console.error(`Database question ${dbQuestion.id} has no answer, using frontend answer...`);
+        // Utiliser la réponse frontend pour la comparaison
+        const userAnswer = answers[i] || '';
+        const isCorrect = userAnswer.trim() === frontendQuestion.answer.trim();
+        isCorrectArray.push(isCorrect);
+        
+        const difficulty = frontendQuestion.level ? classToDifficulty[frontendQuestion.level] || 5 : 5;
+        difficulties.push(difficulty);
+        
+        if (isCorrect) correctCount++;
         continue;
       }
       
