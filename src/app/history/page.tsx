@@ -6,7 +6,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Calendar, Clock, Target, Trophy, TrendingUp, Eye, CheckCircle, XCircle, RotateCcw, Play } from 'lucide-react';
 import Link from 'next/link';
-import { getRankFromElo, RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { getClassFromElo, FRENCH_CLASS_COLORS, FRENCH_CLASS_BG_COLORS } from '@/lib/elo';
 import { getClassFromDifficulty, formatClassName } from '@/lib/french-classes';
 
 interface Test {
@@ -103,10 +103,10 @@ export default function TestHistoryPage() {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold" style={{ color: RANK_COLORS[profile.user.soloRankClass] }}>
+            <div className="text-2xl font-bold" style={{ color: FRENCH_CLASS_COLORS[profile.user.soloClass as keyof typeof FRENCH_CLASS_COLORS] }}>
               {profile.user.soloElo} Elo
             </div>
-            <div className="text-sm text-purple-300">{profile.user.soloRankClass}</div>
+            <div className="text-sm text-purple-300">{profile.user.soloClass}</div>
           </div>
         </div>
 

@@ -37,7 +37,6 @@ export class CPGenerator implements LevelGenerator {
     return randomChoice([
       () => this.generateAddition(context),
       () => this.generateSubtraction(context),
-      () => this.generateCounting(context),
       () => this.generateComparison(context),
     ])();
   }
@@ -118,7 +117,7 @@ export class CPGenerator implements LevelGenerator {
       domain: 'calculation',
       level: this.level,
       difficultyElo: context.userElo,
-      question: `${a} ? ${b}`,
+      question: `Complète avec le bon symbole : ${a} ___ ${b}`,
       answer: correctSymbol,
       options,
       explanation: `${a} est ${a > b ? 'plus grand que' : a < b ? 'plus petit que' : 'égal à'} ${b}`,

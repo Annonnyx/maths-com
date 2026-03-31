@@ -103,7 +103,7 @@ export async function GET(
         username: student?.user.username || 'Unknown',
         displayName: student?.user.displayName || 'Unknown',
         soloElo: student?.user.soloElo || 0,
-        soloRankClass: student?.user.soloRankClass || 'F-',
+        soloClass: student?.user.soloRankClass || 'F-',
         totalQuestions: studentTotal,
         correctAnswers: studentCorrect,
         wrongAnswers: studentTotal - studentCorrect,

@@ -82,7 +82,7 @@ export function useLocalProgress() {
     key: 'mathcom-progress',
     initialValue: {
       soloElo: 400,
-      soloRankClass: 'F-',
+      soloClass: 'F-',
       totalTests: 0,
       totalCorrect: 0,
       totalQuestions: 0,

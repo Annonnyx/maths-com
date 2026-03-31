@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { initializeBadges, awardRankBadge, RANK_BADGES } from '@/lib/badges';
-import { RANK_CLASSES } from '@/lib/elo';
+import { FRENCH_CLASSES } from '@/lib/elo';
 
 async function isAdminEmail(email: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
@@ -167,8 +167,8 @@ export async function POST(req: NextRequest) {
         }
         
         // Remove badges of higher ranks
-        const currentRankIndex = RANK_CLASSES.indexOf(user.soloRankClass as any);
-        const higherRanks = RANK_CLASSES.slice(currentRankIndex + 1);
+        const currentRankIndex = FRENCH_CLASSES.indexOf(user.soloRankClass as any);
+        const higherRanks = FRENCH_CLASSES.slice(currentRankIndex + 1);
         
         for (const higherRank of higherRanks) {
           const higherBadgeInfo = RANK_BADGES[higherRank as keyof typeof RANK_BADGES];

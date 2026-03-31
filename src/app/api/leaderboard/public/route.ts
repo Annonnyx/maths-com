@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getRankFromElo } from '@/lib/elo';
+import { getClassFromElo } from '@/lib/elo';
 import { calculateLeaderboardAccuracy } from '@/lib/utils/accuracy';
 
 // School level to ELO rank conversion
@@ -21,11 +21,11 @@ const SCHOOL_LEVEL_TO_ELO: Record<string, number> = {
 
 // Sanitize rank - convert old school levels to proper ELO ranks
 function sanitizeRank(rank: string | null | undefined, elo: number): string {
-  if (!rank) return getRankFromElo(elo);
+  if (!rank) return getClassFromElo(elo);
   
   // If it's a school level, convert it
   if (rank in SCHOOL_LEVEL_TO_ELO) {
-    return getRankFromElo(elo);
+    return getClassFromElo(elo);
   }
   
   // Valid ELO ranks: F-, F, F+, E-, E, E+, D-, D, D+, C-, C, C+, B-, B, B+, A-, A, A+, S-, S, S+
@@ -35,7 +35,7 @@ function sanitizeRank(rank: string | null | undefined, elo: number): string {
   }
   
   // Fallback: calculate from ELO
-  return getRankFromElo(elo);
+  return getClassFromElo(elo);
 }
 
 export async function GET(req: NextRequest) {
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
 
     // Determine which fields and relations to use based on mode
     const eloField = mode === 'solo' ? 'soloElo' : 'multiplayerElo';
-    const rankClassField = mode === 'solo' ? 'soloRankClass' : 'multiplayerRankClass';
+    const rankClassField = mode === 'solo' ? 'soloClass' : 'multiplayerClass';
     const statisticsRelation = mode === 'solo' ? 'soloStatistics' : 'multiplayerStatistics';
 
     // Get leaderboard data with statistics (public version - no auth required)
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
           currentElo: mode === 'solo' ? user.soloElo : user.multiplayerElo,
           currentRank: sanitizeRank(mode === 'solo' ? user.soloRankClass : user.multiplayerRankClass, mode === 'solo' ? user.soloElo : user.multiplayerElo),
           bestElo: mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo,
-          bestRank: sanitizeRank(mode === 'solo' ? user.soloBestRankClass : user.multiplayerBestRankClass, mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo)
+          bestRank: sanitizeRank(mode === 'solo' ? user.soloBestClass : user.multiplayerBestClass, mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo)
         },
         // Ensure username is never undefined
         username: user.username || user.displayName || 'Anonymous'

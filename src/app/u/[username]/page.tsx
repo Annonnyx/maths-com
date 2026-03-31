@@ -10,7 +10,7 @@ import {
   ChevronLeft, Share2, CheckCircle, Clock, TrendingUp, Award, Zap, BarChart3,
   UserPlus, Medal, Swords, Shield
 } from 'lucide-react';
-import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES } from '@/lib/elo';
+import { FRENCH_CLASS_COLORS, FRENCH_CLASS_BG_COLORS, FRENCH_CLASSES } from '@/lib/elo';
 import { useSession } from 'next-auth/react';
 
 interface PublicProfile {
@@ -20,9 +20,9 @@ interface PublicProfile {
   avatarUrl: string | null;
   bannerUrl: string | null;
   soloElo: number;
-  soloRankClass: string;
+  soloClass: string;
   multiplayerElo: number;
-  multiplayerRankClass: string;
+  multiplayerClass: string;
   isTeacher: boolean;
   isAdmin: boolean;
   createdAt: string;
@@ -183,12 +183,12 @@ export default function PublicProfilePage() {
 
   const getRankColor = (rankClass: string) => {
     const tier = rankClass.charAt(0);
-    return RANK_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
+    return FRENCH_CLASS_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
   };
 
   const getRankTextColor = (rankClass: string) => {
     const tier = rankClass.charAt(0);
-    return RANK_COLORS[tier] || 'text-gray-400';
+    return FRENCH_CLASS_COLORS[tier] || 'text-gray-400';
   };
 
   const profileUrl = typeof window !== 'undefined' ? window.location.href : '';
@@ -351,10 +351,10 @@ export default function PublicProfilePage() {
               </div>
               
               {/* Rank Badge */}
-              <div className={`px-4 py-2 rounded-xl border ${getRankColor(profile.soloRankClass)} flex items-center gap-2`}>
-                <Medal className={`w-5 h-5 ${getRankTextColor(profile.soloRankClass)}`} />
-                <span className={`font-bold ${getRankTextColor(profile.soloRankClass)}`}>
-                  {profile.soloRankClass}
+              <div className={`px-4 py-2 rounded-xl border ${getRankColor(profile.soloClass)} flex items-center gap-2`}>
+                <Medal className={`w-5 h-5 ${getRankTextColor(profile.soloClass)}`} />
+                <span className={`font-bold ${getRankTextColor(profile.soloClass)}`}>
+                  {profile.soloClass}
                 </span>
               </div>
             </div>

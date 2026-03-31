@@ -16,7 +16,7 @@ import {
   Palette, Image as ImageIcon, Star, Award, Swords, Volume2, MessageSquare, Clock,
   Share2, Copy, Key, Plus, Trash2, AlertCircle, RefreshCw
 } from 'lucide-react';
-import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { FRENCH_CLASS_COLORS, FRENCH_CLASS_BG_COLORS } from '@/lib/elo';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
 import { useTheme } from '@/components/ThemeProvider';
 import ThemeSelector from '@/components/ThemeSelector';
@@ -241,7 +241,7 @@ function ProfileContent() {
 
   const getRankColor = (rank: string) => {
     const tier = rank.charAt(0);
-    return RANK_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
+    return FRENCH_CLASS_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
   };
 
   return (
@@ -390,7 +390,7 @@ function ProfileContent() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold">{profile?.user?.displayName || profile?.user?.username}</h3>
-                      <p className="text-white/80">{profile?.user?.soloRankClass} • {profile?.user?.soloElo} Elo</p>
+                      <p className="text-white/80">{profile?.user?.soloClass} • {profile?.user?.soloElo} Elo</p>
                     </div>
                   </div>
                 </div>
@@ -451,7 +451,7 @@ function ProfileContent() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white drop-shadow-md">{profile?.user?.displayName || profile?.user?.username}</h3>
-                      <p className="text-white/80 drop-shadow-md">{profile?.user?.soloRankClass} • {profile?.user?.soloElo} Elo</p>
+                      <p className="text-white/80 drop-shadow-md">{profile?.user?.soloClass} • {profile?.user?.soloElo} Elo</p>
                     </div>
                   </div>
                 </div>
@@ -538,9 +538,9 @@ function ProfileContent() {
                 Membre depuis {new Date().toLocaleDateString('fr-FR')}
               </p>
             </div>
-            <div className={`px-6 py-3 rounded-xl border text-center ${getRankColor(profile?.user?.soloRankClass)}`}>
+            <div className={`px-6 py-3 rounded-xl border text-center ${getRankColor(profile?.user?.soloClass)}`}>
               <p className="text-sm text-muted-foreground">Classe</p>
-              <p className="text-2xl font-bold">{profile?.user?.soloRankClass}</p>
+              <p className="text-2xl font-bold">{profile?.user?.soloClass}</p>
             </div>
           </div>
 
@@ -714,7 +714,7 @@ function ProfileContent() {
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">Vers {profile?.user?.soloBestRankClass}</span>
+                  <span className="text-muted-foreground">Vers {profile?.user?.soloBestClass}</span>
                   <span>{profile?.user?.soloElo} / {profile?.user?.soloBestElo + 100}</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
@@ -735,8 +735,8 @@ function ProfileContent() {
             <div className="space-y-3">
               {profile?.recentTests && Array.isArray(profile.recentTests) && profile.recentTests.length > 0 ? (
                 (profile.recentTests || []).slice(0, 5).map((test: any, index: number) => {
-                  const score = Math.round((test.correctAnswers / test.totalQuestions) * 100);
-                  const timeAgo = getTimeAgo(test.completedAt);
+                  const score = test.score || Math.round((test.correctAnswers / test.totalQuestions) * 100);
+                  const timeAgo = test.completedAt ? getTimeAgo(test.completedAt) : 'Date inconnue';
                   const isPerfect = score === 100;
                   const isGood = score >= 80;
                   const isFailed = score < 60;
@@ -756,7 +756,7 @@ function ProfileContent() {
                             {isPerfect ? 'Test parfait' : isGood ? 'Test réussi' : isFailed ? 'Test échoué' : 'Test complété'}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            Score: {score}% • {test.totalQuestions} questions • {Math.round(test.duration / 1000)}s
+                            Score: {score}% • {test.totalQuestions || 20} questions • {test.timeTaken ? Math.round(test.timeTaken / 1000) + 's' : 'Temps inconnu'}
                           </div>
                         </div>
                       </div>
@@ -923,8 +923,8 @@ function ProfileContent() {
                           <Trophy className="w-5 h-5 text-yellow-400" />
                           <span className="font-medium">Classe actuelle</span>
                         </div>
-                        <div className="text-2xl font-bold text-yellow-400">{profile?.user?.soloRankClass}</div>
-                        <div className="text-sm text-muted-foreground">Prochaine classe: {profile?.user?.soloBestRankClass}</div>
+                        <div className="text-2xl font-bold text-yellow-400">{profile?.user?.soloClass}</div>
+                        <div className="text-sm text-muted-foreground">Prochaine classe: {profile?.user?.soloBestClass}</div>
                       </div>
                       <div className="p-4 bg-card rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
@@ -993,7 +993,7 @@ function ProfileContent() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white drop-shadow-md">{profile?.user?.displayName || profile?.user?.username}</h3>
-                      <p className="text-white/80 drop-shadow-md">{profile?.user?.soloRankClass} • {profile?.user?.soloElo} Elo</p>
+                      <p className="text-white/80 drop-shadow-md">{profile?.user?.soloClass} • {profile?.user?.soloElo} Elo</p>
                     </div>
                   </div>
                   
@@ -1054,7 +1054,7 @@ function ProfileContent() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold">{profile?.user?.displayName || profile?.user?.username}</h3>
-                      <p className="text-white/80">{profile?.user?.soloRankClass} • {profile?.user?.soloElo} Elo</p>
+                      <p className="text-white/80">{profile?.user?.soloClass} • {profile?.user?.soloElo} Elo</p>
                     </div>
                   </div>
                 </div>

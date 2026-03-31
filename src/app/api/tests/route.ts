@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { calculateEloChange, getRankFromElo, clampElo } from '@/lib/elo';
+import { calculateEloChange, getClassFromElo, clampElo } from '@/lib/elo';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { AchievementService } from '@/lib/achievement-service';
@@ -84,19 +84,19 @@ export async function POST(req: NextRequest) {
       eloAfter = clampElo(eloBefore + eloChange);
 
       // Update user Elo and rank
-      const newRankClass = getRankFromElo(eloAfter);
+      const newFrenchClass = getClassFromElo(eloAfter);
       await prisma.user.update({
         where: { id: user.id },
         data: {
           soloElo: eloAfter,
-          soloRankClass: newRankClass,
+          soloRankClass: newFrenchClass,
           soloBestElo: Math.max(user.soloBestElo || 0, eloAfter),
-          soloBestRankClass: eloAfter > (user.soloBestElo || 0) ? newRankClass : (user.soloBestRankClass || 'F-')
+          soloBestRankClass: eloAfter > (user.soloBestElo || 0) ? newFrenchClass : (user.soloBestRankClass || 'F-')
         }
       });
 
       // Check for rank achievement
-      await AchievementService.checkRankAchievement(user.id, newRankClass);
+      await AchievementService.checkRankAchievement(user.id, newFrenchClass);
     }
 
     // Create test record

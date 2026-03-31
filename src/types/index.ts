@@ -1,4 +1,4 @@
-import { RankClass } from '@/lib/elo';
+import { FrenchClass } from '@/lib/elo';
 import { OperationType } from '@/lib/french-classes';
 
 export interface User {
@@ -9,16 +9,16 @@ export interface User {
   avatarUrl?: string;
   // SOLO Ranking
   soloElo: number;
-  soloRankClass: RankClass;
+  soloClass: FrenchClass;
   soloBestElo: number;
-  soloBestRankClass: RankClass;
+  soloBestClass: FrenchClass;
   soloCurrentStreak: number;
   soloBestStreak: number;
   // MULTIPLAYER Ranking  
   multiplayerElo: number;
-  multiplayerRankClass: RankClass;
+  multiplayerClass: FrenchClass;
   multiplayerBestElo: number;
-  multiplayerBestRankClass: RankClass;
+  multiplayerBestClass: FrenchClass;
   // Profile
   classe?: string;
   birthYear?: number;

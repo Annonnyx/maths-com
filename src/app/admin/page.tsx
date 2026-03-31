@@ -28,7 +28,7 @@ interface User {
   elo: number;
   rankClass: string;
   multiplayerElo: number;
-  multiplayerRankClass: string;
+  multiplayerClass: string;
 }
 
 interface CustomBanner {
@@ -72,13 +72,13 @@ export default function AdminPage() {
   // Elo modification
   const [myElo, setMyElo] = useState({
     soloElo: 400,
-    soloRankClass: 'F-',
+    soloClass: 'F-',
     multiplayerElo: 400,
-    multiplayerRankClass: 'F-',
+    multiplayerClass: 'F-',
     bestElo: 400,
-    bestRankClass: 'F-',
+    bestFrenchClass: 'F-',
     bestMultiplayerElo: 400,
-    bestMultiplayerRankClass: 'F-'
+    bestMultiplayerFrenchClass: 'F-'
   });
   const [newElo, setNewElo] = useState('');
   const [newMultiplayerElo, setNewMultiplayerElo] = useState('');
@@ -613,12 +613,12 @@ export default function AdminPage() {
                 <div className="p-3 bg-card rounded-lg">
                   <p className="text-gray-400">Elo Solo actuel</p>
                   <p className="text-xl font-bold">{myElo.soloElo}</p>
-                  <p className="text-sm text-purple-400">{myElo.soloRankClass}</p>
+                  <p className="text-sm text-purple-400">{myElo.soloClass}</p>
                 </div>
                 <div className="p-3 bg-card rounded-lg">
                   <p className="text-gray-400">Elo Multi actuel</p>
                   <p className="text-xl font-bold">{myElo.multiplayerElo}</p>
-                  <p className="text-sm text-purple-400">{myElo.multiplayerRankClass}</p>
+                  <p className="text-sm text-purple-400">{myElo.multiplayerClass}</p>
                 </div>
               </div>
 
@@ -1387,9 +1387,9 @@ export default function AdminPage() {
                           u.email,
                           u.displayName || '',
                           (u as any).soloElo,
-                          (u as any).soloRankClass,
+                          (u as any).soloClass,
                           (u as any).multiplayerElo,
-                          (u as any).multiplayerRankClass
+                          (u as any).multiplayerClass
                         ].join(','),
                       ].join(','))
                     ].join('\n');
@@ -1427,9 +1427,9 @@ export default function AdminPage() {
                         <td className="p-2 font-medium">{user.username}</td>
                         <td className="p-2 text-gray-400">{user.email}</td>
                         <td className="p-2">{(user as any).soloElo}</td>
-                        <td className="p-2 text-purple-400">{(user as any).soloRankClass}</td>
+                        <td className="p-2 text-purple-400">{(user as any).soloClass}</td>
                         <td className="p-2">{(user as any).multiplayerElo}</td>
-                        <td className="p-2 text-purple-400">{(user as any).multiplayerRankClass}</td>
+                        <td className="p-2 text-purple-400">{(user as any).multiplayerClass}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -81,7 +81,7 @@ export interface MultiplayerGame {
     username: string;
     displayName: string | null;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
     isOnline: boolean;
   };
   player2?: {
@@ -89,7 +89,7 @@ export interface MultiplayerGame {
     username: string;
     displayName: string | null;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
     isOnline: boolean;
   };
   questions?: MultiplayerQuestion[];
@@ -191,7 +191,7 @@ export interface GameSearchResult {
     username: string;
     displayName: string | null;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
   };
 }
 

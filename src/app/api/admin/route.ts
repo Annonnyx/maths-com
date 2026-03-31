@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getRankFromElo } from '@/lib/elo';
-import { getClassFromElo, checkClassPromotion, FrenchClass, getUnlockedClasses } from '@/lib/french-classes';
+import { checkClassPromotion, FrenchClass, getUnlockedClasses, getClassFromElo } from '@/lib/french-classes';
 import crypto from 'crypto';
 
 import { Session } from 'next-auth';
@@ -118,26 +117,26 @@ export async function POST(req: NextRequest) {
         const newElo = parseInt(elo);
         updateData.soloElo = newElo;
         // Auto-calculate rank from ELO
-        updateData.soloRankClass = getRankFromElo(newElo);
+        updateData.soloClass = getClassFromElo(newElo);
       }
       
       if (multiplayerElo !== undefined) {
         const newMultiElo = parseInt(multiplayerElo);
         updateData.multiplayerElo = newMultiElo;
         // Auto-calculate rank from ELO
-        updateData.multiplayerRankClass = getRankFromElo(newMultiElo);
+        updateData.multiplayerClass = getClassFromElo(newMultiElo);
       }
       
       if (bestElo !== undefined) {
         const newBestElo = parseInt(bestElo);
         updateData.soloBestElo = newBestElo;
-        updateData.soloBestRankClass = getRankFromElo(newBestElo);
+        updateData.soloBestClass = getClassFromElo(newBestElo);
       }
       
       if (bestMultiplayerElo !== undefined) {
         const newBestMultiElo = parseInt(bestMultiplayerElo);
         updateData.multiplayerBestElo = newBestMultiElo;
-        updateData.multiplayerBestRankClass = getRankFromElo(newBestMultiElo);
+        updateData.multiplayerBestClass = getClassFromElo(newBestMultiElo);
       }
 
       const user = await prisma.user.update({
@@ -292,8 +291,8 @@ export async function POST(req: NextRequest) {
           soloBestRankClass: 'F-',
           multiplayerElo: 400,
           multiplayerRankClass: 'F-',
-          multiplayerBestElo: 400,
-          multiplayerBestRankClass: 'F-'
+          multiplayerBestRankClass: 'F-',
+          multiplayerBestElo: 400
         }
       });
 

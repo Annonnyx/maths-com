@@ -23,7 +23,7 @@ interface Game {
     username: string;
     displayName: string;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
     isOnline: boolean;
   };
   player2?: {
@@ -31,7 +31,7 @@ interface Game {
     username: string;
     displayName: string;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
     isOnline: boolean;
   };
   gameType: GameType;
@@ -50,7 +50,7 @@ interface Friend {
     displayName: string | null;
     isOnline: boolean;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
   };
 }
 

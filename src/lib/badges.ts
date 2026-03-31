@@ -187,7 +187,7 @@ export async function checkAndAwardBadges(userId: string) {
     if (!user) return;
 
     // Badge de rang actuel
-    await awardRankBadge(userId, user.soloRankClass);
+    await awardRankBadge(userId, user.soloClass);
 
     // Badge premier victoire multijoueur
     if ((user.multiplayerStatistics?.totalWins || 0) >= 1) {

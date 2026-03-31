@@ -23,7 +23,7 @@ interface Friend {
     username: string;
     displayName: string | null;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
     isOnline: boolean;
   };
 }

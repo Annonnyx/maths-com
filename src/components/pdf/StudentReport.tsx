@@ -225,7 +225,7 @@ export default function StudentReport({ student, stats }: StudentReportProps) {
     return sorted.slice(0, 2);
   };
 
-  const getNextRank = (currentRank: string) => {
+  const getNextClass = (currentRank: string) => {
     const ranks = ['Débutant', 'D', 'D+', 'C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+'];
     const currentIndex = ranks.indexOf(currentRank);
     return currentIndex < ranks.length - 1 ? ranks[currentIndex + 1] : currentRank;
@@ -424,7 +424,7 @@ export default function StudentReport({ student, stats }: StudentReportProps) {
           <View style={styles.recommendationBox}>
             <Text style={styles.recommendationTitle}>🚀 Objectif suggéré</Text>
             <Text style={styles.recommendationText}>
-              Atteindre le rang {getNextRank(student.rank)} pour progresser dans le classement.
+              Atteindre le rang {getNextClass(student.rank)} pour progresser dans le classement.
             </Text>
             <Text style={styles.recommendationText}>
               Continuez votre travail régulier pour maintenir votre progression !

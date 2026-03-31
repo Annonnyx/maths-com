@@ -10,7 +10,7 @@ import {
   Eye, CheckCircle, XCircle, RotateCcw, Play,
   Filter, Download, BarChart3
 } from 'lucide-react';
-import { getRankFromElo, RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { getClassFromElo, FRENCH_CLASS_COLORS, FRENCH_CLASS_BG_COLORS } from '@/lib/elo';
 import { getClassFromDifficulty, formatClassName } from '@/lib/french-classes';
 
 interface Test {

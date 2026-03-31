@@ -215,7 +215,7 @@ export default function MultiplayerResultPage() {
               
               <div className="flex justify-between">
                 <span className="text-gray-400">Classement</span>
-                <span className="font-semibold">{opponent?.multiplayerRankClass || 'F-'}</span>
+                <span className="font-semibold">{opponent?.multiplayerClass || 'F-'}</span>
               </div>
               
               <div className="flex justify-between">

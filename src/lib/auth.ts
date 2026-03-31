@@ -142,9 +142,9 @@ export const authOptions: NextAuthOptions = {
             username: user.username,
             displayName: user.displayName,
             soloElo: user.soloElo,
-            soloRankClass: user.soloRankClass,
+            soloClass: user.soloClass,
             multiplayerElo: user.multiplayerElo,
-            multiplayerRankClass: user.multiplayerRankClass,
+            multiplayerClass: user.multiplayerClass,
             hasCompletedOnboarding: user.hasCompletedOnboarding,
             isTeacher: user.isTeacher,
             isAdmin: user.isAdmin,
@@ -192,9 +192,9 @@ export const authOptions: NextAuthOptions = {
                 displayName: user.name || username,
                 avatarUrl: user.image,
                 soloElo: 400,
-                soloRankClass: 'F-',
+                soloClass: 'F-',
                 multiplayerElo: 400,
-                multiplayerRankClass: 'F-',
+                multiplayerClass: 'F-',
                 hasCompletedOnboarding: false,
               },
             });
@@ -207,7 +207,7 @@ export const authOptions: NextAuthOptions = {
           (user as any).username = existingUser.username;
           (user as any).displayName = existingUser.displayName;
           (user as any).soloElo = existingUser.soloElo;
-          (user as any).soloRankClass = existingUser.soloRankClass;
+          (user as any).soloClass = existingUser.soloClass;
           (user as any).hasCompletedOnboarding = existingUser.hasCompletedOnboarding;
           return true;
         } catch (error) {
@@ -234,9 +234,9 @@ export const authOptions: NextAuthOptions = {
           (user as any).username = existingUser.username;
           (user as any).displayName = existingUser.displayName;
           (user as any).soloElo = existingUser.soloElo;
-          (user as any).soloRankClass = existingUser.soloRankClass;
+          (user as any).soloClass = existingUser.soloClass;
           (user as any).multiplayerElo = existingUser.multiplayerElo;
-          (user as any).multiplayerRankClass = existingUser.multiplayerRankClass;
+          (user as any).multiplayerClass = existingUser.multiplayerClass;
           (user as any).hasCompletedOnboarding = existingUser.hasCompletedOnboarding;
           (user as any).isTeacher = existingUser.isTeacher;
           (user as any).isAdmin = existingUser.isAdmin;
@@ -259,9 +259,9 @@ export const authOptions: NextAuthOptions = {
         token.username = (user as any).username;
         token.displayName = (user as any).displayName;
         token.soloElo = (user as any).soloElo;
-        token.soloRankClass = (user as any).soloRankClass;
+        token.soloClass = (user as any).soloClass;
         token.multiplayerElo = (user as any).multiplayerElo;
-        token.multiplayerRankClass = (user as any).multiplayerRankClass;
+        token.multiplayerClass = (user as any).multiplayerClass;
         token.hasCompletedOnboarding = (user as any).hasCompletedOnboarding;
         token.isTeacher = (user as any).isTeacher;
         token.isAdmin = (user as any).isAdmin;
@@ -279,9 +279,9 @@ export const authOptions: NextAuthOptions = {
         session.user.username = token.username;
         session.user.displayName = token.displayName;
         session.user.soloElo = token.soloElo;
-        session.user.soloRankClass = token.soloRankClass;
+        session.user.soloClass = token.soloClass;
         session.user.multiplayerElo = token.multiplayerElo;
-        session.user.multiplayerRankClass = token.multiplayerRankClass;
+        session.user.multiplayerClass = token.multiplayerClass;
         session.user.hasCompletedOnboarding = token.hasCompletedOnboarding;
         session.user.isTeacher = token.isTeacher;
         session.user.isAdmin = token.isAdmin;

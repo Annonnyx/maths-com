@@ -1,7 +1,7 @@
 // Système de classes françaises pour le remplacement du système de niveaux 1-10
 // Basé sur le programme scolaire français : CP, CE1, CE2, CM1, CM2, 6e, 5e, 4e, 3e, 2de, 1re, Tle, Sup1, Sup2, Sup3, Pro
 
-import { RankClass, RANK_CLASSES, RANK_THRESHOLDS } from './elo';
+import { FrenchClass, FRENCH_CLASSES, FRENCH_CLASS_THRESHOLDS } from './elo';
 import { ELO_LEVEL_RANGES, getLevelFromElo } from './question-generators/elo-ranges';
 
 // Types d'opérations pour les exercices
@@ -82,7 +82,7 @@ export type FrenchClass = typeof FRENCH_CLASSES[number];
 
 // Mapping des rangs ELO vers les classes débloquées
 // Format: [rang minimum, classes débloquées[]]
-export const RANK_TO_CLASS_UNLOCKS: Record<RankClass, FrenchClass[]> = {
+export const RANK_TO_CLASS_UNLOCKS: Record<FrenchClass, FrenchClass[]> = {
   'F-':  ['CP'],
   'F':   ['CP'],
   'F+':  ['CP', 'CE1'],
@@ -304,12 +304,12 @@ export function getClassFromElo(elo: number): FrenchClass {
 }
 
 // Fonction pour obtenir les classes débloquées selon le rang
-export function getUnlockedClasses(rank: RankClass): FrenchClass[] {
+export function getUnlockedClasses(rank: FrenchClass): FrenchClass[] {
   return RANK_TO_CLASS_UNLOCKS[rank] || ['CP'];
 }
 
 // Fonction pour vérifier si une classe est débloquée
-export function isClassUnlocked(className: FrenchClass, elo: number, rank: RankClass): boolean {
+export function isClassUnlocked(className: FrenchClass, elo: number, rank: FrenchClass): boolean {
   const unlocked = getUnlockedClasses(rank);
   return unlocked.includes(className);
 }

@@ -330,19 +330,19 @@ export class CM1Generator implements LevelGenerator {
     
     const problems = [
       {
-        text: `Un rectangle mesure ${length} cm de longueur et ${width} cm de largeur. Quel est son périmètre ?`,
+        text: `Rectangle : ${length} cm × ${width} cm. Périmètre ?`,
         answer: (2 * (length + width)).toString() + ' cm',
-        explanation: `Périmètre = 2 × (longueur + largeur) = 2 × (${length} + ${width}) = ${2 * (length + width)} cm`
+        explanation: `P = 2 × (${length} + ${width}) = ${2 * (length + width)} cm`
       },
       {
-        text: `Un carré a un côté de ${length} cm. Quel est son périmètre ?`,
+        text: `Carré : côté ${length} cm. Périmètre ?`,
         answer: (4 * length).toString() + ' cm',
-        explanation: `Périmètre du carré = 4 × côté = 4 × ${length} = ${4 * length} cm`
+        explanation: `P = 4 × ${length} = ${4 * length} cm`
       },
       {
-        text: `Un rectangle mesure ${length} cm sur ${width} cm. Quelle est son aire ?`,
+        text: `Rectangle : ${length} cm × ${width} cm. Aire ?`,
         answer: (length * width).toString() + ' cm²',
-        explanation: `Aire du rectangle = longueur × largeur = ${length} × ${width} = ${length * width} cm²`
+        explanation: `A = ${length} × ${width} = ${length * width} cm²`
       },
     ];
     
@@ -369,17 +369,17 @@ export class CM1Generator implements LevelGenerator {
     
     const scenarios = [
       {
-        text: `Une usine produit ${a} boîtes par jour pendant ${b} jours. Elle vend ${c} boîtes puis en produit ${d} supplémentaires. Combien de boîtes reste-t-il ?`,
+        text: `Production : ${a} boîtes/jour pendant ${b} jours. Vente : ${c} boîtes. Production supplémentaire : ${d} boîtes. Reste ?`,
         answer: (a * b - c + d).toString(),
         explanation: `${a} × ${b} - ${c} + ${d} = ${a * b - c + d}`
       },
       {
-        text: `${a} classes de ${b} élèves partent en voyage. Le bus peut contenir ${c} élèves. Combien d'élèves ne peuvent pas monter dans le bus ?`,
+        text: `${a} classes de ${b} élèves. Bus : ${c} places. Élèves exclus ?`,
         answer: Math.max(0, a * b - c).toString(),
         explanation: `${a} × ${b} - ${c} = ${Math.max(0, a * b - c)} élèves`
       },
       {
-        text: `Un livre a ${a} pages. Chaque jour, je lis ${b} pages pendant ${c} jours, puis ${d} pages le jour suivant. Combien de pages me reste-t-il à lire ?`,
+        text: `Livre : ${a} pages. Lecture : ${b} pages/jour pendant ${c} jours, puis ${d} pages. Pages restantes ?`,
         answer: Math.max(0, a - (b * c + d)).toString(),
         explanation: `${a} - (${b} × ${c} + ${d}) = ${Math.max(0, a - (b * c + d))} pages`
       },
@@ -411,17 +411,17 @@ export class CM1Generator implements LevelGenerator {
     
     const problems = [
       {
-        text: `Léo achète ${decimalA.toFixed(1)} kg de pommes à 2€ le kg et ${decimalB.toFixed(1)} kg de poires à 3€ le kg. Combien dépense-t-il ?`,
+        text: `${decimalA.toFixed(1)} kg pommes à 2€/kg + ${decimalB.toFixed(1)} kg poires à 3€/kg. Coût total ?`,
         answer: (decimalA * 2 + decimalB * 3).toFixed(1) + '€',
         explanation: `${decimalA.toFixed(1)} × 2 + ${decimalB.toFixed(1)} × 3 = ${(decimalA * 2 + decimalB * 3).toFixed(1)}€`
       },
       {
-        text: `Une bouteille contient ${decimalA.toFixed(1)} L d'eau. On en boit ${decimalB.toFixed(1)} L. Combien en reste-t-il ?`,
+        text: `Bouteille : ${decimalA.toFixed(1)} L. On boit ${decimalB.toFixed(1)} L. Reste ?`,
         answer: Math.max(0, decimalA - decimalB).toFixed(1) + ' L',
         explanation: `${decimalA.toFixed(1)} - ${decimalB.toFixed(1)} = ${Math.max(0, decimalA - decimalB).toFixed(1)} L`
       },
       {
-        text: `Un film dure ${decimalA.toFixed(1)} heures et une pause de ${decimalB.toFixed(1)} heures. Quelle est la durée totale ?`,
+        text: `Film : ${decimalA.toFixed(1)} h + pause ${decimalB.toFixed(1)} h. Durée totale ?`,
         answer: (decimalA + decimalB).toFixed(1) + ' heures',
         explanation: `${decimalA.toFixed(1)} + ${decimalB.toFixed(1)} = ${(decimalA + decimalB).toFixed(1)} heures`
       },

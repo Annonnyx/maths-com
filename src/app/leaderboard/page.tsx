@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { Trophy, Medal, TrendingUp, Users, ArrowLeft, Crown, Swords, Target, Clock, Search, ArrowUpDown } from 'lucide-react';
-import { RANK_COLORS, RANK_BG_COLORS } from '@/lib/elo';
+import { FRENCH_CLASS_COLORS, FRENCH_CLASS_BG_COLORS } from '@/lib/elo';
 import { supabase } from '@/lib/supabase';
 import React from 'react';
 
@@ -125,12 +125,12 @@ export default function LeaderboardPage() {
 
   const getRankColor = (rank: string) => {
     const tier = rank.charAt(0);
-    return RANK_COLORS[tier] || 'text-muted-foreground';
+    return FRENCH_CLASS_COLORS[tier as keyof typeof FRENCH_CLASS_COLORS] || 'text-muted-foreground';
   };
 
   const getRankBgColor = (rank: string) => {
     const tier = rank.charAt(0);
-    return RANK_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
+    return FRENCH_CLASS_BG_COLORS[tier as keyof typeof FRENCH_CLASS_BG_COLORS] || 'bg-gray-500/20 border-gray-500';
   };
 
   // Filter and sort leaderboard client-side

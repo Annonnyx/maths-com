@@ -12,7 +12,7 @@ import {
   Award, BarChart3, History, GraduationCap, Sparkles, LineChart,
   UserCircle, ChevronRight, Loader2, Flame, BookOpen
 } from 'lucide-react';
-import { RANK_COLORS, RANK_BG_COLORS, RANK_CLASSES, RANK_THRESHOLDS, RankClass } from '@/lib/elo';
+import { FRENCH_CLASS_COLORS, FRENCH_CLASS_BG_COLORS, FRENCH_CLASSES, FRENCH_CLASS_THRESHOLDS, FrenchClass } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
 
 export default function DashboardPage() {
@@ -55,7 +55,7 @@ export default function DashboardPage() {
         credentials: 'include',
         body: JSON.stringify({
           soloElo: 400,
-          soloRankClass: 'F-',
+          soloClass: 'F-',
           hasCompletedOnboarding: true
         })
       });
@@ -105,13 +105,13 @@ export default function DashboardPage() {
   const stats = profile.statistics;
 
   // Déterminer les stats à afficher selon le mode
-  const currentRank = gameMode === 'multiplayer' ? user.multiplayerRankClass : user.soloRankClass;
+  const currentRank = gameMode === 'multiplayer' ? user.multiplayerClass : user.soloClass;
   const currentElo = gameMode === 'multiplayer' ? user.multiplayerElo : user.soloElo;
   
   const getRankColor = (rank: string | undefined | null) => {
     if (!rank) return 'bg-gray-500/20 border-gray-500';
     const tier = rank.charAt(0);
-    return RANK_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
+    return FRENCH_CLASS_BG_COLORS[tier as FrenchClass] || 'bg-gray-500/20 border-gray-500';
   };
 
   // Mini sparkline component
@@ -253,8 +253,8 @@ export default function DashboardPage() {
               <span>{currentElo} Elo</span>
               <span>
                 Prochain rang: {(() => {
-                  const currentRankIndex = RANK_CLASSES.indexOf(currentRank as any);
-                  const nextRank = currentRankIndex < RANK_CLASSES.length - 1 ? RANK_CLASSES[currentRankIndex + 1] : null;
+                  const currentRankIndex = FRENCH_CLASSES.indexOf(currentRank as any);
+                  const nextRank = currentRankIndex < FRENCH_CLASSES.length - 1 ? FRENCH_CLASSES[currentRankIndex + 1] : null;
                   return nextRank || 'Max';
                 })()}
               </span>
@@ -263,8 +263,8 @@ export default function DashboardPage() {
               <div 
                 className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
                 style={{ width: `${(() => {
-                  const rankClass = currentRank as RankClass;
-                  const threshold = RANK_THRESHOLDS[rankClass];
+                  const rankClass = currentRank as FrenchClass;
+                  const threshold = FRENCH_CLASS_THRESHOLDS[rankClass];
                   const progress = Math.min(100, Math.max(0, ((currentElo - Number(threshold || 0)) / 100) * 100));
                   return `${progress}%`;
                 })()}` }}

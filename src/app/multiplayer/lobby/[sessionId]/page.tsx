@@ -33,7 +33,7 @@ interface Player {
     username: string;
     displayName: string | null;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
   };
 }
 
@@ -286,7 +286,7 @@ export default function GameLobbyPage() {
                           {player.user.displayName || player.user.username}
                         </div>
                         <div className="text-sm text-gray-400">
-                          {player.user.multiplayerElo} • {player.user.multiplayerRankClass}
+                          {player.user.multiplayerElo} • {player.user.multiplayerClass}
                         </div>
                       </div>
                       {player.userId === gameSession.hostId && (

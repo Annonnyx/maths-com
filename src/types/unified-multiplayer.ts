@@ -44,21 +44,21 @@ export interface UnifiedGameSession {
     username: string;
     displayName?: string;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
   };
   player1?: {
     id: string;
     username: string;
     displayName?: string;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
   };
   player2?: {
     id: string;
     username: string;
     displayName?: string;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
   };
   players: GamePlayer[];
   questions: GameQuestion[];
@@ -76,7 +76,7 @@ export interface GamePlayer {
     username: string;
     displayName?: string;
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
   };
 }
 

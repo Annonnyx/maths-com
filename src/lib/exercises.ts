@@ -139,13 +139,21 @@ export function validateAnswer(exercise: UnifiedExercise | Exercise, userAnswer:
     }
   }
   
-  // Validation standard (ancien système)
+  // Validation standard améliorée
   const cleanUserAnswer = userAnswer.trim().toLowerCase();
   const cleanCorrectAnswer = exercise.answer.trim().toLowerCase();
   
   // Handle numeric answers with various formats
   if (!isNaN(Number(cleanUserAnswer)) && !isNaN(Number(cleanCorrectAnswer))) {
     return Math.abs(Number(cleanUserAnswer) - Number(cleanCorrectAnswer)) < 0.01;
+  }
+  
+  // Gérer les réponses avec unités (ex: "30m" vs "30")
+  const numericUserAnswer = parseFloat(cleanUserAnswer.replace(/[^0-9.-]/g, ''));
+  const numericCorrectAnswer = parseFloat(cleanCorrectAnswer.replace(/[^0-9.-]/g, ''));
+  
+  if (!isNaN(numericUserAnswer) && !isNaN(numericCorrectAnswer)) {
+    return Math.abs(numericUserAnswer - numericCorrectAnswer) < 0.01;
   }
   
   // Handle exact string matches

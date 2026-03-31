@@ -1,60 +1,68 @@
-// Rank classes from F- to S+
-export const RANK_CLASSES = [
-  'F-', 'F', 'F+',
-  'E-', 'E', 'E+',
-  'D-', 'D', 'D+',
-  'C-', 'C', 'C+',
-  'B-', 'B', 'B+',
-  'A-', 'A', 'A+',
-  'S-', 'S', 'S+'
+// French classes from CP to Pro
+export const FRENCH_CLASSES = [
+  'CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1', 'Sup2', 'Sup3', 'Pro'
 ] as const;
 
-export type RankClass = typeof RANK_CLASSES[number];
+export type FrenchClass = typeof FRENCH_CLASSES[number];
 
-// Elo thresholds for each rank - consistent 100 point gaps
-export const RANK_THRESHOLDS: Record<RankClass, { min: number; max: number }> = {
-  'F-': { min: 0, max: 399 },
-  'F': { min: 400, max: 499 },
-  'F+': { min: 500, max: 599 },
-  'E-': { min: 600, max: 699 },
-  'E': { min: 700, max: 799 },
-  'E+': { min: 800, max: 899 },
-  'D-': { min: 900, max: 999 },
-  'D': { min: 1000, max: 1099 },
-  'D+': { min: 1100, max: 1199 },
-  'C-': { min: 1200, max: 1299 },
-  'C': { min: 1300, max: 1399 },
-  'C+': { min: 1400, max: 1499 },
-  'B-': { min: 1500, max: 1599 },
-  'B': { min: 1600, max: 1699 },
-  'B+': { min: 1700, max: 1799 },
-  'A-': { min: 1800, max: 1899 },
-  'A': { min: 1900, max: 1999 },
-  'A+': { min: 2000, max: 2099 },
-  'S-': { min: 2100, max: 2249 },
-  'S': { min: 2250, max: 2499 },
-  'S+': { min: 2500, max: Infinity }
+// Elo thresholds for each French class
+export const FRENCH_CLASS_THRESHOLDS: Record<FrenchClass, { min: number; max: number }> = {
+  'CP': { min: 0, max: 499 },
+  'CE1': { min: 500, max: 749 },
+  'CE2': { min: 750, max: 999 },
+  'CM1': { min: 1000, max: 1249 },
+  'CM2': { min: 1250, max: 1499 },
+  '6e': { min: 1500, max: 1749 },
+  '5e': { min: 1750, max: 1999 },
+  '4e': { min: 2000, max: 2249 },
+  '3e': { min: 2250, max: 2499 },
+  '2de': { min: 2500, max: 2749 },
+  '1re': { min: 2750, max: 2999 },
+  'Tle': { min: 3000, max: 3249 },
+  'Sup1': { min: 3250, max: 3499 },
+  'Sup2': { min: 3500, max: 3749 },
+  'Sup3': { min: 3750, max: 3999 },
+  'Pro': { min: 4000, max: Infinity }
 };
 
-// Colors for each rank tier
-export const RANK_COLORS: Record<string, string> = {
-  'F': 'text-gray-500',
-  'E': 'text-green-500',
-  'D': 'text-teal-500',
-  'C': 'text-blue-500',
-  'B': 'text-purple-500',
-  'A': 'text-orange-500',
-  'S': 'text-yellow-500'
+// Colors for each French class
+export const FRENCH_CLASS_COLORS: Record<FrenchClass, string> = {
+  'CP': 'text-green-600',
+  'CE1': 'text-emerald-600',
+  'CE2': 'text-teal-600',
+  'CM1': 'text-cyan-600',
+  'CM2': 'text-blue-600',
+  '6e': 'text-indigo-600',
+  '5e': 'text-violet-600',
+  '4e': 'text-purple-600',
+  '3e': 'text-pink-600',
+  '2de': 'text-rose-600',
+  '1re': 'text-orange-600',
+  'Tle': 'text-amber-600',
+  'Sup1': 'text-yellow-600',
+  'Sup2': 'text-lime-600',
+  'Sup3': 'text-green-500',
+  'Pro': 'text-red-600'
 };
 
-export const RANK_BG_COLORS: Record<string, string> = {
-  'F': 'bg-gray-500/20 border-gray-500',
-  'E': 'bg-green-500/20 border-green-500',
-  'D': 'bg-teal-500/20 border-teal-500',
-  'C': 'bg-blue-500/20 border-blue-500',
-  'B': 'bg-purple-500/20 border-purple-500',
-  'A': 'bg-orange-500/20 border-orange-500',
-  'S': 'bg-yellow-500/20 border-yellow-500'
+// Background colors for each French class
+export const FRENCH_CLASS_BG_COLORS: Record<FrenchClass, string> = {
+  'CP': 'bg-green-500/20 border-green-500',
+  'CE1': 'bg-emerald-500/20 border-emerald-500',
+  'CE2': 'bg-teal-500/20 border-teal-500',
+  'CM1': 'bg-cyan-500/20 border-cyan-500',
+  'CM2': 'bg-blue-500/20 border-blue-500',
+  '6e': 'bg-indigo-500/20 border-indigo-500',
+  '5e': 'bg-violet-500/20 border-violet-500',
+  '4e': 'bg-purple-500/20 border-purple-500',
+  '3e': 'bg-pink-500/20 border-pink-500',
+  '2de': 'bg-rose-500/20 border-rose-500',
+  '1re': 'bg-orange-500/20 border-orange-500',
+  'Tle': 'bg-amber-500/20 border-amber-500',
+  'Sup1': 'bg-yellow-500/20 border-yellow-500',
+  'Sup2': 'bg-lime-500/20 border-lime-500',
+  'Sup3': 'bg-green-500/20 border-green-500',
+  'Pro': 'bg-red-500/20 border-red-500'
 };
 
 // Clamp ELO within reasonable bounds
@@ -62,28 +70,28 @@ export function clampElo(elo: number): number {
   return Math.max(0, Math.min(4000, elo));
 }
 
-// Get rank class from Elo
-export function getRankFromElo(elo: number): RankClass {
-  for (const [rank, { min, max }] of Object.entries(RANK_THRESHOLDS)) {
+// Get French class from Elo
+export function getClassFromElo(elo: number): FrenchClass {
+  for (const [className, { min, max }] of Object.entries(FRENCH_CLASS_THRESHOLDS)) {
     if (elo >= min && elo <= max) {
-      return rank as RankClass;
+      return className as FrenchClass;
     }
   }
-  return 'F-';
+  return 'CP';
 }
 
-// Get next rank class
-export function getNextRank(currentRank: RankClass): RankClass | null {
-  const index = RANK_CLASSES.indexOf(currentRank);
-  if (index < RANK_CLASSES.length - 1) {
-    return RANK_CLASSES[index + 1];
+// Get next French class
+export function getNextClass(currentClass: FrenchClass): FrenchClass | null {
+  const index = FRENCH_CLASSES.indexOf(currentClass);
+  if (index < FRENCH_CLASSES.length - 1) {
+    return FRENCH_CLASSES[index + 1];
   }
   return null;
 }
 
-// Get progress to next rank (0-100)
-export function getRankProgress(elo: number, rank: RankClass): number {
-  const threshold = RANK_THRESHOLDS[rank];
+// Get progress to next French class (0-100)
+export function getClassProgress(elo: number, currentClass: FrenchClass): number {
+  const threshold = FRENCH_CLASS_THRESHOLDS[currentClass];
   const range = threshold.max - threshold.min;
   const progress = elo - threshold.min;
   return Math.min(100, Math.max(0, (progress / range) * 100));
@@ -228,33 +236,33 @@ export function calculateAdvancedEloChange(result: TestResult): {
   };
 }
 
-// Calculate rank tier for display - adjusted for new Elo system
+// Calculate performance tier for display - adjusted for French class system
 export function getPerformanceTier(eloChange: number): {
-  tier: 'S' | 'A' | 'B' | 'C' | 'D' | 'F';
+  tier: 'Pro' | 'Sup3' | 'Sup2' | 'Sup1' | 'Tle' | '1re' | '2de' | '3e' | '4e' | '5e' | '6e' | 'CM2' | 'CM1' | 'CE2' | 'CE1' | 'CP';
   color: string;
   message: string;
 } {
-  if (eloChange >= 12) return { tier: 'S', color: 'text-yellow-400', message: 'Exceptionnel!' };
-  if (eloChange >= 8) return { tier: 'A', color: 'text-green-400', message: 'Excellent!' };
-  if (eloChange >= 4) return { tier: 'B', color: 'text-blue-400', message: 'Très bien!' };
-  if (eloChange >= 1) return { tier: 'C', color: 'text-teal-400', message: 'Bien joué!' };
-  if (eloChange >= -2) return { tier: 'D', color: 'text-gray-400', message: 'Passable' };
-  return { tier: 'F', color: 'text-red-400', message: 'À réviser...' };
+  if (eloChange >= 12) return { tier: 'Pro', color: 'text-red-400', message: 'Exceptionnel!' };
+  if (eloChange >= 8) return { tier: 'Sup3', color: 'text-green-400', message: 'Excellent!' };
+  if (eloChange >= 4) return { tier: 'Sup2', color: 'text-blue-400', message: 'Très bien!' };
+  if (eloChange >= 1) return { tier: 'Sup1', color: 'text-teal-400', message: 'Bien joué!' };
+  if (eloChange >= -2) return { tier: 'Tle', color: 'text-gray-400', message: 'Passable' };
+  return { tier: 'CP', color: 'text-red-400', message: 'À réviser...' };
 }
 
-// Get operation types unlocked at each level - adjusted for new rank system
+// Get operation types unlocked at each level - adjusted for French class system
 export function getUnlockedOperations(elo: number): string[] {
   const operations = ['addition', 'mental_math', 'logic'];
   
-  if (elo >= 400) operations.push('subtraction');  // F rank
-  if (elo >= 500) operations.push('percentage');  // F+ rank
-  if (elo >= 600) operations.push('multiplication'); // E- rank
-  if (elo >= 700) operations.push('fraction');    // E rank
-  if (elo >= 800) operations.push('division');    // E+ rank
-  if (elo >= 900) operations.push('equation');    // D- rank
-  if (elo >= 1000) operations.push('power');      // D rank
-  if (elo >= 1100) operations.push('root');       // D+ rank
-  if (elo >= 1200) operations.push('factorization'); // C- rank
+  if (elo >= 500) operations.push('subtraction');  // CE1
+  if (elo >= 750) operations.push('percentage');  // CE2
+  if (elo >= 1000) operations.push('multiplication'); // CM1
+  if (elo >= 1250) operations.push('fraction');    // CM2
+  if (elo >= 1500) operations.push('division');    // 6e
+  if (elo >= 1750) operations.push('equation');    // 5e
+  if (elo >= 2000) operations.push('power');      // 4e
+  if (elo >= 2250) operations.push('root');       // 3e
+  if (elo >= 2500) operations.push('factorization'); // 2de
   
   return operations;
 }
@@ -266,22 +274,28 @@ export function isOperationUnlocked(elo: number, operation: string): boolean {
 }
 
 // Calculate initial ELO based on onboarding performance
-export function calculateInitialElo(finalLevel: number, accuracy: number, avgTime: number): number {
-  // Base ELO according to final level (1-10)
-  const levelEloMap: Record<number, number> = {
-    1: 300,  // CP
-    2: 400,  // CE1
-    3: 500,  // CE2
-    4: 600,  // CM1
-    5: 700,  // CM2
-    6: 800,  // 6ème
-    7: 900,  // 5ème
-    8: 1000, // 4ème
-    9: 1100, // 3ème
-    10: 1200 // 2nde et plus
+export function calculateInitialElo(finalClass: FrenchClass, accuracy: number, avgTime: number): number {
+  // Base ELO according to final class
+  const classEloMap: Record<FrenchClass, number> = {
+    'CP': 250,   // Cours Préparatoire
+    'CE1': 400,  // Cours Élémentaire 1
+    'CE2': 600,  // Cours Élémentaire 2
+    'CM1': 850,  // Cours Moyen 1
+    'CM2': 1100, // Cours Moyen 2
+    '6e': 1400,  // Sixième
+    '5e': 1700,  // Cinquième
+    '4e': 2000,  // Quatrième
+    '3e': 2300,  // Troisième
+    '2de': 2600, // Seconde
+    '1re': 2900, // Première
+    'Tle': 3200, // Terminale
+    'Sup1': 3500, // Supérieur 1
+    'Sup2': 3750, // Supérieur 2
+    'Sup3': 4000, // Supérieur 3
+    'Pro': 4000  // Expert
   };
   
-  const baseElo = levelEloMap[finalLevel] || 500;
+  const baseElo = classEloMap[finalClass] || 500;
   
   // Accuracy bonus (0-100%)
   const accuracyBonus = Math.round((accuracy - 0.5) * 200); // -100 to +100

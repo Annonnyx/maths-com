@@ -11,14 +11,14 @@ declare module 'next-auth' {
       elo: number;
       rankClass: string;
       bestElo: number;
-      bestRankClass: string;
+      bestFrenchClass: string;
       currentStreak: number;
       bestStreak: number;
       // Multiplayer fields
       multiplayerElo: number;
-      multiplayerRankClass: string;
+      multiplayerClass: string;
       bestMultiplayerElo: number;
-      bestMultiplayerRankClass: string;
+      bestMultiplayerFrenchClass: string;
       multiplayerGames: number;
       multiplayerWins: number;
       multiplayerLosses: number;
@@ -37,9 +37,9 @@ export function useExtendedSession() {
     user: {
       ...session.user,
       multiplayerElo: session.user.multiplayerElo || 400,
-      multiplayerRankClass: session.user.multiplayerRankClass || 'F-',
+      multiplayerClass: session.user.multiplayerClass || 'F-',
       bestMultiplayerElo: session.user.bestMultiplayerElo || 400,
-      bestMultiplayerRankClass: session.user.bestMultiplayerRankClass || 'F-',
+      bestMultiplayerFrenchClass: session.user.bestMultiplayerFrenchClass || 'F-',
       multiplayerGames: session.user.multiplayerGames || 0,
       multiplayerWins: session.user.multiplayerWins || 0,
       multiplayerLosses: session.user.multiplayerLosses || 0,

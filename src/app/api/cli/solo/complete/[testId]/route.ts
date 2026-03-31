@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateCliKey } from '@/lib/cli-auth'
-import { calculateEloChange, getRankFromElo, clampElo } from '@/lib/elo'
+import { calculateEloChange, getClassFromElo, clampElo } from '@/lib/elo'
 import { prisma } from '@/lib/prisma'
 import { AchievementService } from '@/lib/achievement-service'
 
@@ -82,14 +82,14 @@ export async function POST(
     eloAfter = clampElo(eloAfter)
 
     // Mettre à jour l'utilisateur
-    const newRankClass = getRankFromElo(eloAfter)
+    const newFrenchClass = getClassFromElo(eloAfter)
     await prisma.user.update({
       where: { id: user.id },
       data: {
         soloElo: eloAfter,
-        soloRankClass: newRankClass,
+        soloRankClass: newFrenchClass,
         soloBestElo: Math.max(user.soloBestElo || 0, eloAfter),
-        soloBestRankClass: eloAfter > (user.soloBestElo || 0) ? newRankClass : (user.soloBestRankClass || 'F-'),
+        soloBestRankClass: eloAfter > (user.soloBestElo || 0) ? newFrenchClass : (user.soloBestRankClass || 'F-'),
         soloCurrentStreak: eloChange > 0 ? user.soloCurrentStreak + 1 : 0
       }
     })
@@ -117,7 +117,7 @@ export async function POST(
     })
 
     // Vérifier les achievements
-    await AchievementService.checkRankAchievement(user.id, newRankClass)
+    await AchievementService.checkRankAchievement(user.id, newFrenchClass)
     await AchievementService.checkPerfectTestAchievement(user.id, correct, answers.length)
     await AchievementService.checkSoloGamesAchievements(user.id)
 

@@ -425,7 +425,7 @@ export default function MultiplayerGamePage() {
               username: player1Profile.user.username,
               displayName: player1Profile.user.displayName,
               elo: player1Profile.user.multiplayerElo,
-              rankClass: player1Profile.user.multiplayerRankClass,
+              rankClass: player1Profile.user.multiplayerClass,
               bannerUrl: player1Profile.user.bannerUrl,
               selectedBadgeIds: player1Profile.user.selectedBadgeIds,
               isOnline: true
@@ -434,7 +434,7 @@ export default function MultiplayerGamePage() {
               username: player2Profile.user.username,
               displayName: player2Profile.user.displayName,
               elo: player2Profile.user.multiplayerElo,
-              rankClass: player2Profile.user.multiplayerRankClass,
+              rankClass: player2Profile.user.multiplayerClass,
               bannerUrl: player2Profile.user.bannerUrl,
               selectedBadgeIds: player2Profile.user.selectedBadgeIds,
               isOnline: true

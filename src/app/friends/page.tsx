@@ -456,7 +456,7 @@ export default function FriendsPage() {
                               </span>
                             )}
                           </div>
-                          <div className="text-xs text-gray-500 mt-1">ELO: {user.soloElo || 400} • Rang: {user.soloRankClass || 'F-'}</div>
+                          <div className="text-xs text-gray-500 mt-1">ELO: {user.soloElo || 400} • Rang: {user.soloClass || 'F-'}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

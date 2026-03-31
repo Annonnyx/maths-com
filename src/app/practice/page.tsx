@@ -13,7 +13,7 @@ import { Exercise, OperationType, FrenchClass, FRENCH_CLASSES, CLASS_INFO, getUn
 import { useSound } from '@/components/SoundProvider';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 import { useSession } from 'next-auth/react';
-import { RankClass } from '@/lib/elo';
+import { FrenchClass } from '@/lib/elo';
 
 // Types pour le mode ciblé
 interface Course {

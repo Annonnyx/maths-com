@@ -1,11 +1,11 @@
 import { prisma } from '@/lib/prisma';
-import { RANK_CLASSES, RankClass } from '@/lib/elo';
+import { FRENCH_CLASSES, FrenchClass } from '@/lib/elo';
 import { RANK_BADGES } from '@/lib/badges';
 
 export class AchievementService {
   // Check and award rank achievements
-  static async checkRankAchievement(userId: string, newRankClass: string) {
-    const badgeInfo = RANK_BADGES[newRankClass as keyof typeof RANK_BADGES];
+  static async checkRankAchievement(userId: string, newFrenchClass: string) {
+    const badgeInfo = RANK_BADGES[newFrenchClass as keyof typeof RANK_BADGES];
     if (!badgeInfo) return;
     
     const badge = await prisma.badge.findFirst({
@@ -36,15 +36,15 @@ export class AchievementService {
     }
     
     // Remove badges of higher ranks when ranking down
-    await this.removeHigherRankBadges(userId, newRankClass as RankClass);
+    await this.removeHigherRankBadges(userId, newFrenchClass as FrenchClass);
   }
   
   // Remove badges of ranks higher than current rank
-  static async removeHigherRankBadges(userId: string, currentRank: RankClass) {
-    const currentRankIndex = RANK_CLASSES.indexOf(currentRank);
+  static async removeHigherRankBadges(userId: string, currentRank: FrenchClass) {
+    const currentRankIndex = FRENCH_CLASSES.indexOf(currentRank);
     
     // Get all rank badges that are higher than current rank
-    const higherRanks = RANK_CLASSES.slice(currentRankIndex + 1);
+    const higherRanks = FRENCH_CLASSES.slice(currentRankIndex + 1);
     
     for (const rank of higherRanks) {
       const badgeInfo = RANK_BADGES[rank as keyof typeof RANK_BADGES];
@@ -307,7 +307,7 @@ export class AchievementService {
     });
     
     if (user) {
-      await this.checkRankAchievement(userId, user.soloRankClass);
+      await this.checkRankAchievement(userId, user.soloClass);
     }
   }
 }

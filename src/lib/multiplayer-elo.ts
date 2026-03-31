@@ -1,7 +1,7 @@
 import { MultiplayerGame, MultiplayerStats, TimeControl, GameType } from './multiplayer';
 import { calculateEloChange, clampElo } from '@/lib/elo';
 import { User } from '@/types';
-import { getRankFromElo } from './elo';
+import { getClassFromElo } from './elo';
 
 // Calculate Elo change for multiplayer games using unified ELO algorithm
 export function calculateMultiplayerEloChange(

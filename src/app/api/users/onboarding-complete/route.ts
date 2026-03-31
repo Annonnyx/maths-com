@@ -17,15 +17,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log('🔍 Request body:', body);
 
-    const { soloElo, soloRankClass, hasCompletedOnboarding } = body;
+    const { soloElo, soloClass, hasCompletedOnboarding } = body;
 
     // Validation des données
     if (typeof soloElo !== 'number' || soloElo < 0 || soloElo > 3000) {
       return NextResponse.json({ error: 'Invalid soloElo value' }, { status: 400 });
     }
     
-    if (typeof soloRankClass !== 'string' || !/^[A-F][+-]?$/.test(soloRankClass)) {
-      return NextResponse.json({ error: 'Invalid soloRankClass format' }, { status: 400 });
+    if (typeof soloClass !== 'string' || !/^[A-F][+-]?$/.test(soloClass)) {
+      return NextResponse.json({ error: 'Invalid soloClass format' }, { status: 400 });
     }
     
     if (typeof hasCompletedOnboarding !== 'boolean') {
@@ -49,9 +49,9 @@ export async function POST(req: NextRequest) {
       where: { id: session.user.id },
       data: {
         soloElo: soloElo || 400,
-        soloRankClass: soloRankClass || 'F-',
+        soloRankClass: soloClass || 'F-',
         multiplayerElo: soloElo || 400, // Initialiser multiplayer Elo aussi
-        multiplayerRankClass: soloRankClass || 'F-',
+        multiplayerRankClass: soloClass || 'F-',
         hasCompletedOnboarding: hasCompletedOnboarding ?? true,
       },
       select: {

@@ -9,7 +9,7 @@ import {
   ArrowLeft, LineChart, Calendar, Activity, Trophy, Target, 
   TrendingUp, Clock, Zap, BarChart3, Award
 } from 'lucide-react';
-import { RANK_BG_COLORS, RANK_THRESHOLDS, RankClass, RANK_CLASSES } from '@/lib/elo';
+import { FRENCH_CLASS_BG_COLORS, FRENCH_CLASS_THRESHOLDS, FrenchClass, FRENCH_CLASSES } from '@/lib/elo';
 import { AdUnit } from '@/components/AdUnit';
 import { EloChart } from '@/components/EloChart';
 
@@ -80,13 +80,13 @@ export default function StatsPage() {
   const user = profile.user;
   const stats = profile.statistics;
   
-  const currentRank = gameMode === 'multiplayer' ? user.multiplayerRankClass : user.soloRankClass;
+  const currentRank = gameMode === 'multiplayer' ? user.multiplayerClass : user.soloClass;
   const currentElo = gameMode === 'multiplayer' ? user.multiplayerElo : user.soloElo;
 
   const getRankColor = (rank: string | undefined | null) => {
     if (!rank) return 'bg-gray-500/20 border-gray-500';
     const tier = rank.charAt(0);
-    return RANK_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
+    return FRENCH_CLASS_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
   };
 
   return (

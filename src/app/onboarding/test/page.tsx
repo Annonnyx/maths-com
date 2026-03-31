@@ -122,7 +122,7 @@ export default function OnboardingTestPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           soloElo: baseElo,
-          soloRankClass: schoolClass,
+          soloClass: schoolClass,
           hasCompletedOnboarding: true
         })
       });

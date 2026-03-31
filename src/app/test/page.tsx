@@ -15,7 +15,7 @@ import { useSound } from '@/components/SoundProvider';
 import { useUserPreferences } from '@/hooks/useLocalStorage';
 import { Exercise, OperationType } from '@/lib/french-classes';
 import { generateTest, generateEvaluationTest, generateFocusedTest, getOperationTypesForCourse, validateAnswer } from '@/lib/exercises';
-import { calculateEloChange, getPerformanceTier, getRankFromElo, RANK_COLORS, RANK_BG_COLORS, calculateAdvancedEloChange } from '@/lib/elo';
+import { calculateEloChange, getPerformanceTier, FRENCH_CLASS_COLORS, FRENCH_CLASS_BG_COLORS, calculateAdvancedEloChange } from '@/lib/elo';
 import { getClassFromDifficulty, formatClassName, getClassFromElo } from '@/lib/french-classes';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 
@@ -389,6 +389,16 @@ function TestPage() {
           const refreshData = await refreshResponse.json();
           console.log('Session refreshed with new Elo:', refreshData.user.soloElo);
           setEloUpdated(true);
+          
+          // Forcer un rechargement des données de session via next-auth
+          const { data: sessionData } = await import('next-auth/react');
+          if (sessionData.update) {
+            await sessionData.update({
+              ...session?.user,
+              soloElo: refreshData.user.soloElo,
+              soloClass: refreshData.user.soloClass
+            });
+          }
         }
       } catch (refreshError) {
         console.error('Failed to refresh session:', refreshError);

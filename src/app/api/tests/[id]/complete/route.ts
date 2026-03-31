@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { calculateEloChange, getRankFromElo, clampElo } from '@/lib/elo';
+import { calculateEloChange, getClassFromElo, clampElo } from '@/lib/elo';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { AchievementService } from '@/lib/achievement-service';
@@ -121,7 +121,7 @@ export async function POST(
     }
 
     const newElo = clampElo(test.user.soloElo + eloChange);
-    const newRank = getRankFromElo(newElo);
+    const newRank = getClassFromElo(newElo);
 
     // Check streak
     let newStreak = currentUser.soloCurrentStreak;

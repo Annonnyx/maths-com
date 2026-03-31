@@ -9,16 +9,16 @@ interface UserProfile {
     displayName?: string;
     // SOLO Ranking
     soloElo: number;
-    soloRankClass: string;
+    soloClass: string;
     soloBestElo: number;
-    soloBestRankClass: string;
+    soloBestClass: string;
     soloCurrentStreak: number;
     soloBestStreak: number;
     // MULTIPLAYER Ranking
     multiplayerElo: number;
-    multiplayerRankClass: string;
+    multiplayerClass: string;
     multiplayerBestElo: number;
-    multiplayerBestRankClass: string;
+    multiplayerBestClass: string;
     // Profile
     bannerUrl?: string;
     selectedBadgeIds?: string;
