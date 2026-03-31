@@ -71,18 +71,37 @@ export async function POST(
     const isCorrectArray: boolean[] = [];
     const difficulties: number[] = [];
     
-    for (let i = 0; i < test.questions.length; i++) {
-      const question = test.questions[i];
+    // Map French class names to difficulty numbers (1-10)
+    const classToDifficulty: { [key: string]: number } = {
+      'CP': 1,
+      'CE1': 2,
+      'CE2': 3,
+      'CM1': 4,
+      'CM2': 5,
+      '6e': 6,
+      '5e': 7,
+      '4e': 8,
+      '3e': 9,
+      '2nde': 10
+    };
+
+    // Use frontend questions data for difficulty mapping
+    for (let i = 0; i < questions.length; i++) {
+      const frontendQuestion = questions[i];
+      const dbQuestion = test.questions[i];
       const userAnswer = answers[i] || '';
-      const isCorrect = userAnswer.trim() === question.answer.trim();
+      const isCorrect = userAnswer.trim() === dbQuestion.answer.trim();
       isCorrectArray.push(isCorrect);
-      difficulties.push(question.difficulty || 5);
+      
+      // Use level from frontend question to get difficulty, fallback to 5
+      const difficulty = frontendQuestion.level ? classToDifficulty[frontendQuestion.level] || 5 : 5;
+      difficulties.push(difficulty);
       
       if (isCorrect) correctCount++;
 
       questionUpdates.push(
         prisma.soloQuestion.update({
-          where: { id: question.id },
+          where: { id: dbQuestion.id },
           data: {
             userAnswer,
             isCorrect
