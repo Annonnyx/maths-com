@@ -173,15 +173,39 @@ async function handleTestCompletion(testData: any, user: any, questions: any[], 
       eloAfter,
       eloChange,
       isPerfect: correct === questions.length,
-      isStreakTest: testMode === 'competitive' && eloChange > 0,
-      questions: {
-        create: questionResults
-      }
+      isStreakTest: testMode === 'competitive' && eloChange > 0
     },
     include: {
       questions: true
     }
   });
+
+  // Insert questions separately
+  console.log('=== INSERTING QUESTIONS ===');
+  console.log('Question results count:', questionResults.length);
+  
+  for (const questionResult of questionResults) {
+    try {
+      await prisma.soloQuestion.create({
+        data: {
+          testId: testData.testId,
+          type: questionResult.type,
+          difficulty: questionResult.difficulty,
+          question: questionResult.question,
+          answer: questionResult.answer,
+          userAnswer: questionResult.userAnswer,
+          isCorrect: questionResult.isCorrect,
+          timeTaken: questionResult.timeTaken,
+          explanation: null, // Will be added later if needed
+          order: questionResult.order
+        }
+      });
+      console.log(`Inserted question: ${questionResult.question.substring(0, 30)}...`);
+    } catch (error) {
+      console.error('Error inserting question:', error);
+    }
+  }
+  console.log('========================');
 
   // Check for perfect test achievement
   await AchievementService.checkPerfectTestAchievement(user.id, correct, questions.length);
