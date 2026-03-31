@@ -85,10 +85,29 @@ export async function POST(
       '2nde': 10
     };
 
+    console.log('=== QUESTION COMPARISON DEBUG ===');
+    console.log('Frontend questions count:', questions.length);
+    console.log('Database questions count:', test.questions.length);
+    console.log('Frontend question IDs:', questions.map(q => q.id));
+    console.log('Database question IDs:', test.questions.map(q => q.id));
+    console.log('===============================');
+
     // Use frontend questions data for difficulty mapping
     for (let i = 0; i < questions.length; i++) {
       const frontendQuestion = questions[i];
       const dbQuestion = test.questions[i];
+      
+      // Validation robuste
+      if (!dbQuestion) {
+        console.error(`Database question not found at index ${i}, skipping...`);
+        continue;
+      }
+      
+      if (!dbQuestion.answer) {
+        console.error(`Database question ${dbQuestion.id} has no answer, skipping...`);
+        continue;
+      }
+      
       const userAnswer = answers[i] || '';
       const isCorrect = userAnswer.trim() === dbQuestion.answer.trim();
       isCorrectArray.push(isCorrect);
