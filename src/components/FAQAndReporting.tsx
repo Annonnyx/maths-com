@@ -230,7 +230,7 @@ export default function FAQAndReporting() {
                         exit={{ height: 0, opacity: 0 }}
                         className="px-4 pb-4"
                       >
-                        <p className="text-gray-300">{faq.answer}</p>
+                        <p className="text-foreground">{faq.answer}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
