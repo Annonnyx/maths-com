@@ -132,6 +132,38 @@ export async function POST(
     // Execute all question updates
     await Promise.all(questionUpdates);
 
+    // Insert questions into database if they don't exist
+    console.log('=== INSERTING QUESTIONS IN COMPLETE API ===');
+    console.log('Questions count:', questions.length);
+    
+    for (let i = 0; i < questions.length; i++) {
+      const frontendQuestion = questions[i];
+      const userAnswer = answers[i] || '';
+      const isCorrect = userAnswer.trim() === frontendQuestion.answer.trim();
+      
+      try {
+        await prisma.soloQuestion.create({
+          data: {
+            testId: test.id,
+            type: frontendQuestion.type || 'numeric',
+            difficulty: frontendQuestion.level ? classToDifficulty[frontendQuestion.level] || 5 : 5,
+            question: frontendQuestion.question,
+            answer: frontendQuestion.answer,
+            userAnswer: userAnswer,
+            isCorrect: isCorrect,
+            timeTaken: timePerQuestion[i] || 0,
+            explanation: frontendQuestion.explanation || null,
+            order: i
+          }
+        });
+        console.log(`Inserted question ${i + 1}: ${frontendQuestion.question.substring(0, 30)}...`);
+      } catch (error) {
+        // Question might already exist, that's ok
+        console.log(`Question ${i + 1} might already exist or failed:`, error instanceof Error ? error.message : String(error));
+      }
+    }
+    console.log('==========================================');
+
     // Calculate score
     const rawScore = (correctCount / test.totalQuestions) * 100;
     const score = Math.min(100, Math.max(0, Math.round(rawScore)));
