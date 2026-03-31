@@ -21,13 +21,13 @@ export default function DashboardPage() {
   const { profile, isLoading, error, refetch } = useUserProfile();
   const [showOnboarding, setShowOnboarding] = useState(false);
   
-  // Forcer le rafraîchissement du profil au chargement du dashboard
+  // Forcer le rafraîchissement du profil une seule fois au chargement du dashboard
   useEffect(() => {
     if (session?.user?.email) {
       console.log('Dashboard loaded - forcing profile refresh');
       refetch();
     }
-  }, [session?.user?.email, refetch]);
+  }, []); // Pas de dépendances pour ne boucler qu'une seule fois
   
   // Toggle pour le rang
   const [gameMode, setGameMode] = useState<'solo' | 'multiplayer'>('solo');
