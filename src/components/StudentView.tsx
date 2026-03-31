@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, startTransition } from 'react';
 import { Search, GraduationCap, Users, BookOpen, Plus, Send, User } from 'lucide-react';
 import JoinClassSection from './JoinClassSection';
 
@@ -144,11 +144,13 @@ export default function StudentView({
               }
               value={searchType === 'teacher' ? teacherQuery : searchQuery}
               onChange={(e) => {
-                if (searchType === 'teacher') {
-                  setTeacherQuery(e.target.value);
-                } else {
-                  setSearchQuery(e.target.value);
-                }
+                startTransition(() => {
+                  if (searchType === 'teacher') {
+                    setTeacherQuery(e.target.value);
+                  } else {
+                    setSearchQuery(e.target.value);
+                  }
+                });
               }}
               className="w-full pl-10 pr-4 py-3 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
             />

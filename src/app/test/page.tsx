@@ -466,7 +466,7 @@ function TestPage() {
                 <Zap className="w-8 h-8 text-red-400" />
               </div>
               <h2 className="text-2xl font-bold mb-3">Mode Compétitif</h2>
-              <ul className="space-y-2 text-gray-300 text-sm">
+              <ul className="space-y-2 text-gray-100 text-sm">
                 <li className="flex items-center gap-2">
                   <Timer className="w-4 h-4 text-red-400" />
                   Chronométré - sois rapide!
@@ -499,7 +499,7 @@ function TestPage() {
                 <Target className="w-8 h-8 text-blue-400" />
               </div>
               <h2 className="text-2xl font-bold mb-3">Mode Entraînement</h2>
-              <ul className="space-y-2 text-gray-300 text-sm">
+              <ul className="space-y-2 text-gray-100 text-sm">
                 <li className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-blue-400" />
                   Voir les erreurs immédiatement

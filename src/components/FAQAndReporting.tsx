@@ -216,7 +216,7 @@ export default function FAQAndReporting() {
                     className="w-full p-4 text-left hover:bg-[#1a1a2e] transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">{faq.question}</span>
+                      <span className="font-medium text-foreground">{faq.question}</span>
                       <div className={`transform transition-transform ${expandedFAQ === faq.question ? 'rotate-180' : ''}`}>
                         ▼
                       </div>
@@ -230,7 +230,7 @@ export default function FAQAndReporting() {
                         exit={{ height: 0, opacity: 0 }}
                         className="px-4 pb-4"
                       >
-                        <p className="text-gray-400">{faq.answer}</p>
+                        <p className="text-gray-300">{faq.answer}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
