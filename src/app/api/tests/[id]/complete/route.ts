@@ -27,13 +27,14 @@ export async function POST(
 
     const { id: testId } = await params;
     const body = await req.json();
-    const { answers, timeTaken } = body;
+    const { answers, timePerQuestion, questions, testMode, elapsedTime, courseType } = body;
 
     console.log('=== TEST COMPLETION DEBUG ===');
     console.log('Test ID:', testId);
     console.log('Body received:', JSON.stringify(body, null, 2));
     console.log('Answers count:', answers?.length);
-    console.log('Time taken:', timeTaken);
+    console.log('Time per question:', timePerQuestion);
+    console.log('Elapsed time:', elapsedTime);
     console.log('============================');
 
     // Get test with questions
@@ -105,12 +106,17 @@ export async function POST(
     console.log('Current user Elo:', test.user.soloElo);
     console.log('Current streak:', currentUser.soloCurrentStreak);
     console.log('Correct answers:', correctCount, '/', test.totalQuestions);
+    console.log('Total elapsed time:', elapsedTime);
+    console.log('Time per question array:', timePerQuestion);
     console.log('============================');
     
     let eloChange = 0;
     let simulatedElo = test.user.soloElo;
     let streak = currentUser.soloCurrentStreak;
-    const perQuestionTime = timeTaken / test.totalQuestions;
+    
+    // Use elapsedTime if available, otherwise calculate from timePerQuestion
+    const totalTime = elapsedTime || timePerQuestion.reduce((sum, time) => sum + (time || 0), 0);
+    const perQuestionTime = totalTime / test.totalQuestions;
     const maxTime = 60; // placeholder max time per question
 
     // Map difficulty (1-10) to ELO equivalent
@@ -119,16 +125,17 @@ export async function POST(
     for (let i = 0; i < test.totalQuestions; i++) {
       const qElo = difficultyToElo(difficulties[i]);
       const scoreReal = isCorrectArray[i] ? 1 : 0;
+      const questionTime = timePerQuestion?.[i] || perQuestionTime;
       const delta = calculateEloChange(
         simulatedElo,
         qElo,
         scoreReal,
-        perQuestionTime,
+        questionTime,
         maxTime,
         streak,
         false // solo mode
       );
-      console.log(`Q${i+1}: correct=${scoreReal}, delta=${delta}, elo=${simulatedElo}->${simulatedElo + delta}`);
+      console.log(`Q${i+1}: correct=${scoreReal}, time=${questionTime}s, delta=${delta}, elo=${simulatedElo}->${simulatedElo + delta}`);
       eloChange += delta;
       simulatedElo += delta;
       streak = scoreReal === 1 ? streak + 1 : 0;
@@ -176,7 +183,7 @@ export async function POST(
         completedAt: new Date(),
         correctAnswers: correctCount,
         score,
-        timeTaken,
+        timeTaken: totalTime,
         timeBonus,
         eloAfter: newElo,
         eloChange,
@@ -211,7 +218,7 @@ export async function POST(
     console.log('==================');
 
     // Update statistics
-    await updateStatistics(test.userId, test, score, correctCount);
+    await updateStatistics(test.userId, test, score, correctCount, totalTime);
 
     // Check and award badges automatically
     await AchievementService.checkRankAchievement(test.userId, newRank);
@@ -229,7 +236,8 @@ async function updateStatistics(
   userId: string,
   test: any,
   score: number,
-  correctCount: number
+  correctCount: number,
+  totalTime: number
 ) {
   const existingStats = await prisma.soloStatistics.findUnique({
     where: { userId }
@@ -239,10 +247,10 @@ async function updateStatistics(
     const newTotalTests = existingStats.totalTests + 1;
     const newTotalCorrect = existingStats.totalCorrect + correctCount;
     const newTotalQuestions = existingStats.totalQuestions + test.totalQuestions;
-    const newTotalTime = existingStats.totalTime + test.timeTaken;
+    const newTotalTime = existingStats.totalTime + totalTime;
     
     const newAverageScore = ((existingStats.averageScore * existingStats.totalTests) + score) / newTotalTests;
-    const newAverageTime = ((existingStats.averageTime * existingStats.totalTests) + test.timeTaken) / newTotalTests;
+    const newAverageTime = ((existingStats.averageTime * existingStats.totalTests) + totalTime) / newTotalTests;
 
     await prisma.soloStatistics.update({
       where: { userId },
@@ -267,7 +275,7 @@ async function updateStatistics(
         totalCorrect: correctCount,
         totalTime: test.timeTaken,
         averageScore: score,
-        averageTime: test.timeTaken,
+        averageTime: totalTime,
       }
     });
   }
