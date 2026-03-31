@@ -9,6 +9,8 @@
 // Aligné sur le nouveau système de classes françaises
 // ============================================================================
 
+import { FrenchClass } from '@/lib/elo';
+
 export type SchoolLevel =
   | 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2'
   | '6e' | '5e' | '4e' | '3e'
@@ -38,16 +40,12 @@ export const ELO_LEVEL_RANGES: EloRange = {
   Pro:   { min: 4000, max: 4500 },
 };
 
-// ── Seuils Elo pour les rangs (F- → S+, 21 paliers) ─────────────────────────
-// Répartis uniformément sur 400-4500 (~195 pts / palier)
-export const RANK_ELO_THRESHOLDS: Record<RankTier, number> = {
-  'F-': 400,  'F':  595,  'F+':  790,
-  'E-': 985,  'E':  1180, 'E+':  1375,
-  'D-': 1570, 'D':  1765, 'D+':  1960,
-  'C-': 2155, 'C':  2350, 'C+':  2545,
-  'B-': 2740, 'B':  2935, 'B+':  3130,
-  'A-': 3325, 'A':  3520, 'A+':  3715,
-  'S-': 3910, 'S':  4105, 'S+':  4300,
+// ── Seuils Elo pour les classes françaises (CP → Pro) ───────────────────────────
+// Basé sur le système de classes françaises
+export const RANK_ELO_THRESHOLDS: Record<FrenchClass, number> = {
+  'CP': 0,     'CE1': 500,  'CE2': 750,  'CM1': 1000, 'CM2': 1250,
+  '6e': 1500,  '5e': 1750,  '4e': 2000,  '3e': 2250,  '2de': 2500,
+  '1re': 2750, 'Tle': 3000, 'Sup1': 3250, 'Sup2': 3500, 'Sup3': 3750, 'Pro': 4000
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -68,22 +66,22 @@ export function getLevelFromElo(elo: number): SchoolLevel {
 }
 
 
-// Règles de déblocage : quel rang minimum pour accéder à chaque niveau
+// Règles de déblocage : quel classe minimum pour accéder à chaque niveau
 export const LEVEL_UNLOCK_AT_ELO: Record<SchoolLevel, number> = {
   CP:    0,
-  CE1:   RANK_ELO_THRESHOLDS['F+'],   // F+
-  CE2:   RANK_ELO_THRESHOLDS['E'],    // E
-  CM1:   RANK_ELO_THRESHOLDS['E+'],   // E+
-  CM2:   RANK_ELO_THRESHOLDS['D'],    // D
-  '6e':  RANK_ELO_THRESHOLDS['D+'],   // D+
-  '5e':  RANK_ELO_THRESHOLDS['C-'],   // C-
-  '4e':  RANK_ELO_THRESHOLDS['C'],    // C
-  '3e':  RANK_ELO_THRESHOLDS['C+'],   // C+
-  '2de': RANK_ELO_THRESHOLDS['B-'],   // B-
-  '1re': RANK_ELO_THRESHOLDS['B'],    // B
-  'Tle': RANK_ELO_THRESHOLDS['B+'],   // B+
-  Sup1:  RANK_ELO_THRESHOLDS['A-'],   // A-
-  Sup2:  RANK_ELO_THRESHOLDS['A'],    // A
-  Sup3:  RANK_ELO_THRESHOLDS['A+'],   // A+
-  Pro:   RANK_ELO_THRESHOLDS['S-'],   // S-
+  CE1:   500,   // CE1 threshold
+  CE2:   750,   // CE2 threshold
+  CM1:   1000,  // CM1 threshold
+  CM2:   1250,  // CM2 threshold
+  '6e':  1500,  // 6e threshold
+  '5e':  1750,  // 5e threshold
+  '4e':  2000,  // 4e threshold
+  '3e':  2250,  // 3e threshold
+  '2de': 2500,  // 2de threshold
+  '1re': 2750,  // 1re threshold
+  'Tle': 3000,  // Tle threshold
+  Sup1:  3250,  // Sup1 threshold
+  Sup2:  3500,  // Sup2 threshold
+  Sup3:  3750,  // Sup3 threshold
+  Pro:   4000,  // Pro threshold
 };
