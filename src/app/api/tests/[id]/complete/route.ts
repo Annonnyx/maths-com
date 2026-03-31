@@ -243,21 +243,9 @@ export async function POST(
       }
     }
 
+    // Calculate final Elo and rank
     const newElo = clampElo(test.user.soloElo + eloChange);
     const newRank = getClassFromElo(newElo);
-    
-    console.log('=== ELO CALCULATION RESULTS ===');
-    console.log('Total eloChange:', eloChange);
-    console.log('Old Elo:', test.user.soloElo);
-    console.log('New Elo:', newElo);
-    console.log('New Rank:', newRank);
-    console.log('===============================');
-
-    // Validation finale des valeurs
-    if (isNaN(newElo) || !newRank) {
-      console.error('Invalid calculated values - skipping database update');
-      return NextResponse.json({ error: 'Invalid calculation results' }, { status: 500 });
-    }
 
     // Check streak
     let newStreak = currentUser.soloCurrentStreak;
@@ -304,6 +292,15 @@ export async function POST(
     });
 
     // Update user
+    console.log('=== ELO CALCULATION RESULTS ===');
+    console.log('Total eloChange:', eloChange);
+    console.log('Old Elo:', test.user.soloElo);
+    console.log('New Elo:', newElo);
+    console.log('New Rank:', newRank);
+    console.log('Correct answers:', correctCount, '/', questions.length);
+    console.log('Score:', score, '%');
+    console.log('==============================');
+    
     console.log('=== USER UPDATE ===');
     console.log('Updating user ID:', test.userId);
     console.log('Setting soloElo from', test.user.soloElo, 'to', newElo);
