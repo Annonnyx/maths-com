@@ -44,7 +44,7 @@ export async function GET(
           firstName: student.displayName || student.username,
           lastName: '',
           class: student.classe || 'Non défini',
-          rank: student.soloRankClass || 'Débutant',
+          rank: student.soloClass || 'Débutant',
           elo: student.soloElo || 1000
         },
         stats: stats

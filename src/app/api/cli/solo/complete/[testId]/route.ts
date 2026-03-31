@@ -87,9 +87,9 @@ export async function POST(
       where: { id: user.id },
       data: {
         soloElo: eloAfter,
-        soloRankClass: newFrenchClass,
+        soloClass: newFrenchClass,
         soloBestElo: Math.max(user.soloBestElo || 0, eloAfter),
-        soloBestRankClass: eloAfter > (user.soloBestElo || 0) ? newFrenchClass : (user.soloBestRankClass || 'F-'),
+        soloBestClass: eloAfter > (user.soloBestElo || 0) ? newFrenchClass : (user.soloBestClass || 'F-'),
         soloCurrentStreak: eloChange > 0 ? user.soloCurrentStreak + 1 : 0
       }
     })

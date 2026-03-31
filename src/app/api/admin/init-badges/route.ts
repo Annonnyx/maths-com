@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     const users = await prisma.user.findMany({
       select: { 
         id: true, 
-        soloRankClass: true, 
+        soloClass: true, 
         soloElo: true,
         birthYear: true,
         classe: true,
@@ -151,8 +151,8 @@ export async function POST(req: NextRequest) {
       });
 
       // Award ONLY current rank badge (not all previous ones)
-      if (user.soloRankClass && (soloGames > 0 || multiGames > 0)) {
-        const badgeInfo = RANK_BADGES[user.soloRankClass as keyof typeof RANK_BADGES];
+      if (user.soloClass && (soloGames > 0 || multiGames > 0)) {
+        const badgeInfo = RANK_BADGES[user.soloClass as keyof typeof RANK_BADGES];
         if (badgeInfo) {
           const badge = allRankBadges.find(b => b.name === badgeInfo.name);
           if (badge) {
@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
         }
         
         // Remove badges of higher ranks
-        const currentRankIndex = FRENCH_CLASSES.indexOf(user.soloRankClass as any);
+        const currentRankIndex = FRENCH_CLASSES.indexOf(user.soloClass as any);
         const higherRanks = FRENCH_CLASSES.slice(currentRankIndex + 1);
         
         for (const higherRank of higherRanks) {

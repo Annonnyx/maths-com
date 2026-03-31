@@ -31,7 +31,7 @@ export async function GET(
                 username: true,
                 displayName: true,
                 soloElo: true,
-                soloRankClass: true
+                soloClass: true
               }
             }
           }
@@ -103,7 +103,7 @@ export async function GET(
         username: student?.user.username || 'Unknown',
         displayName: student?.user.displayName || 'Unknown',
         soloElo: student?.user.soloElo || 0,
-        soloClass: student?.user.soloRankClass || 'F-',
+        soloClass: student?.user.soloClass || 'F-',
         totalQuestions: studentTotal,
         correctAnswers: studentCorrect,
         wrongAnswers: studentTotal - studentCorrect,

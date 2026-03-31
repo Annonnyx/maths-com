@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
             username: true,
             displayName: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         }
       }

@@ -27,7 +27,7 @@ export async function GET(
                 username: true,
                 displayName: true,
                 multiplayerElo: true,
-                multiplayerRankClass: true
+                multiplayerClass: true
               }
             }
           }

@@ -62,9 +62,9 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         displayName: username,
         soloElo: 400,
-        soloRankClass: 'F-',
+        soloClass: 'F-',
         soloBestElo: 400,
-        soloBestRankClass: 'F-',
+        soloBestClass: 'F-',
         hasCompletedOnboarding: false,
       },
     });

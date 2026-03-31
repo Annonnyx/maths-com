@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
         displayName: true,
         email: true,
         soloElo: true,
-        soloRankClass: true,
+        soloClass: true,
         isTeacher: true,
         isAdmin: true,
         createdAt: true,

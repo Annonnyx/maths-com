@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
           winRate,
           totalGames,
           currentElo: mode === 'solo' ? user.soloElo : user.multiplayerElo,
-          currentRank: sanitizeRank(mode === 'solo' ? user.soloRankClass : user.multiplayerRankClass, mode === 'solo' ? user.soloElo : user.multiplayerElo),
+          currentRank: sanitizeRank(mode === 'solo' ? user.soloClass : user.multiplayerClass, mode === 'solo' ? user.soloElo : user.multiplayerElo),
           bestElo: mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo,
           bestRank: sanitizeRank(mode === 'solo' ? user.soloBestClass : user.multiplayerBestClass, mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo)
         },

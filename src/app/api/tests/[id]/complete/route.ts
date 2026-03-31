@@ -172,9 +172,9 @@ export async function POST(
       where: { id: test.userId },
       data: {
         soloElo: newElo,
-        soloRankClass: newRank,
+        soloClass: newRank,
         soloBestElo: Math.max(test.user.soloBestElo || 0, newElo),
-        soloBestRankClass: newElo > (test.user.soloBestElo || 0) ? newRank : (test.user.soloBestRankClass || 'F-'),
+        soloBestClass: newElo > (test.user.soloBestElo || 0) ? newRank : (test.user.soloBestClass || 'F-'),
         soloCurrentStreak: newStreak,
         soloBestStreak: Math.max(newStreak, currentUser.soloCurrentStreak),
         lastTestDate: new Date()

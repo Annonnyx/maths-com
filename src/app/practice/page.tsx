@@ -9,7 +9,7 @@ import {
   RotateCcw, Calculator, Settings2, BookOpen, Clock
 } from 'lucide-react';
 import { generateExercise, validateAnswer } from '@/lib/exercises';
-import { Exercise, OperationType, FrenchClass, FRENCH_CLASSES, CLASS_INFO, getUnlockedClasses, getClassFromDifficulty } from '@/lib/french-classes';
+import { Exercise, OperationType, FRENCH_CLASSES, CLASS_INFO, getUnlockedClasses, getClassFromDifficulty } from '@/lib/french-classes';
 import { useSound } from '@/components/SoundProvider';
 import { HomePageSideAds } from '@/components/ResponsiveSideAd';
 import { useSession } from 'next-auth/react';

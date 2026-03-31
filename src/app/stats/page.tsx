@@ -83,10 +83,10 @@ export default function StatsPage() {
   const currentRank = gameMode === 'multiplayer' ? user.multiplayerClass : user.soloClass;
   const currentElo = gameMode === 'multiplayer' ? user.multiplayerElo : user.soloElo;
 
-  const getRankColor = (rank: string | undefined | null) => {
+  const getRankColor = (rank: string) => {
     if (!rank) return 'bg-gray-500/20 border-gray-500';
     const tier = rank.charAt(0);
-    return FRENCH_CLASS_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
+    return FRENCH_CLASS_BG_COLORS[tier as keyof typeof FRENCH_CLASS_BG_COLORS] || 'bg-gray-500/20 border-gray-500';
   };
 
   return (

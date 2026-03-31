@@ -110,8 +110,8 @@ export default function OnboardingTestPage() {
       const accuracy = correctCount / finalAnswers.length;
       const avgTime = finalTimes.reduce((a, b) => a + b, 0) / finalTimes.length;
       
-      // Calculer l'ELO initial basé sur la performance (niveau moyen 5)
-      const baseElo = calculateInitialElo(5, accuracy, avgTime);
+      // Calculer l'ELO initial basé sur la performance (niveau moyen 5 = CM2)
+      const baseElo = calculateInitialElo('CM2', accuracy, avgTime);
       
       // Déterminer la classe scolaire
       const schoolClass = getClassFromElo(baseElo);

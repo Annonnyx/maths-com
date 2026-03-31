@@ -49,9 +49,9 @@ export async function POST(req: NextRequest) {
       where: { id: session.user.id },
       data: {
         soloElo: soloElo || 400,
-        soloRankClass: soloClass || 'F-',
+        soloClass: soloClass || 'F-',
         multiplayerElo: soloElo || 400, // Initialiser multiplayer Elo aussi
-        multiplayerRankClass: soloClass || 'F-',
+        multiplayerClass: soloClass || 'F-',
         hasCompletedOnboarding: hasCompletedOnboarding ?? true,
       },
       select: {
@@ -59,14 +59,14 @@ export async function POST(req: NextRequest) {
         username: true,
         displayName: true,
         soloElo: true,
-        soloRankClass: true,
+        soloClass: true,
         multiplayerElo: true,
-        multiplayerRankClass: true,
+        multiplayerClass: true,
         hasCompletedOnboarding: true,
       }
     });
 
-    console.log(`✅ Onboarding completed for user ${updatedUser.username}: ELO ${updatedUser.soloElo}, Class ${updatedUser.soloRankClass}`);
+    console.log(`✅ Onboarding completed for user ${updatedUser.username}: ELO ${updatedUser.soloElo}, Class ${updatedUser.soloClass}`);
 
     return NextResponse.json({ 
       success: true, 

@@ -42,7 +42,7 @@ export async function POST(
             id: true,
             username: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         player2: {
@@ -50,7 +50,7 @@ export async function POST(
             id: true,
             username: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         questions: true
@@ -134,7 +134,7 @@ export async function POST(
             id: true,
             username: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         player2: {
@@ -142,7 +142,7 @@ export async function POST(
             id: true,
             username: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         }
       }

@@ -18,9 +18,9 @@ export async function POST(req: NextRequest) {
         username: true,
         displayName: true,
         soloElo: true,
-        soloRankClass: true,
+        soloClass: true,
         soloBestElo: true,
-        soloBestRankClass: true,
+        soloBestClass: true,
         hasCompletedOnboarding: true
       }
     });

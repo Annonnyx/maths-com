@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
             displayName: true,
             avatarUrl: true,
             soloElo: true,
-            soloRankClass: true
+            soloClass: true
           }
         }
       },
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
             displayName: true,
             avatarUrl: true,
             soloElo: true,
-            soloRankClass: true
+            soloClass: true
           }
         }
       },
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
             displayName: true,
             avatarUrl: true,
             soloElo: true,
-            soloRankClass: true
+            soloClass: true
           }
         }
       }

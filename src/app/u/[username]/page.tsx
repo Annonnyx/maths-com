@@ -183,12 +183,12 @@ export default function PublicProfilePage() {
 
   const getRankColor = (rankClass: string) => {
     const tier = rankClass.charAt(0);
-    return FRENCH_CLASS_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
+    return FRENCH_CLASS_BG_COLORS[tier as keyof typeof FRENCH_CLASS_BG_COLORS] || 'bg-gray-500/20 border-gray-500';
   };
 
   const getRankTextColor = (rankClass: string) => {
     const tier = rankClass.charAt(0);
-    return FRENCH_CLASS_COLORS[tier] || 'text-gray-400';
+    return FRENCH_CLASS_COLORS[tier as keyof typeof FRENCH_CLASS_COLORS] || 'text-gray-400';
   };
 
   const profileUrl = typeof window !== 'undefined' ? window.location.href : '';

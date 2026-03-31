@@ -64,14 +64,14 @@ export async function GET(req: NextRequest) {
           displayName: true,
           // SOLO Ranking
           soloElo: true,
-          soloRankClass: true,
+          soloClass: true,
           soloBestElo: true,
-          soloBestRankClass: true,
+          soloBestClass: true,
           // MULTIPLAYER Ranking
           multiplayerElo: true,
-          multiplayerRankClass: true,
+          multiplayerClass: true,
           multiplayerBestElo: true,
-          multiplayerBestRankClass: true,
+          multiplayerBestClass: true,
         }
       });
     }
@@ -128,7 +128,7 @@ export async function GET(req: NextRequest) {
             displayName: currentUser.displayName,
             stats: {
               currentElo: mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo,
-              currentRank: mode === 'solo' ? currentUser.soloRankClass : currentUser.multiplayerRankClass,
+              currentRank: mode === 'solo' ? currentUser.soloClass : currentUser.multiplayerClass,
               totalGames: 0
             }
           }
@@ -207,7 +207,7 @@ export async function GET(req: NextRequest) {
           winRate,
           totalGames,
           currentElo: mode === 'solo' ? user.soloElo : user.multiplayerElo,
-          currentRank: sanitizeRank(mode === 'solo' ? user.soloRankClass : user.multiplayerRankClass, mode === 'solo' ? user.soloElo : user.multiplayerElo),
+          currentRank: sanitizeRank(mode === 'solo' ? user.soloClass : user.multiplayerClass, mode === 'solo' ? user.soloElo : user.multiplayerElo),
           bestElo: mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo,
           bestRank: sanitizeRank(mode === 'solo' ? user.soloBestClass : user.multiplayerBestClass, mode === 'solo' ? user.soloBestElo : user.multiplayerBestElo)
         },
@@ -245,7 +245,7 @@ export async function GET(req: NextRequest) {
         displayName: currentUser.displayName,
         stats: {
           currentElo: mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo,
-          currentRank: sanitizeRank(mode === 'solo' ? currentUser.soloRankClass : currentUser.multiplayerRankClass, mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo),
+          currentRank: sanitizeRank(mode === 'solo' ? currentUser.soloClass : currentUser.multiplayerClass, mode === 'solo' ? currentUser.soloElo : currentUser.multiplayerElo),
           totalGames: 0 // Will be populated from actual statistics
         }
       } : null

@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
           firstName: child.displayName || child.username,
           lastName: '',
           class: child.classe || 'Non défini',
-          rank: child.soloRankClass || 'Débutant',
+          rank: child.soloClass || 'Débutant',
           elo: child.soloElo || 1000,
           weeklyTime: stats.weeklyTime,
           successRate: stats.successRate,

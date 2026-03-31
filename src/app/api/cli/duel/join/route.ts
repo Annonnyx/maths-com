@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
             username: true,
             displayName: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         questions: {
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
             username: true,
             displayName: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         player2: {
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
             username: true,
             displayName: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         questions: {

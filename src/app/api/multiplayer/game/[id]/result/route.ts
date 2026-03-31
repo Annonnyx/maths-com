@@ -40,7 +40,7 @@ export async function GET(
             username: true,
             displayName: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         player2: {
@@ -49,7 +49,7 @@ export async function GET(
             username: true,
             displayName: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         questions: true

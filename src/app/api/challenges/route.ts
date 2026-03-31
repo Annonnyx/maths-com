@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
             displayName: true,
             avatarUrl: true,
             soloElo: true,
-            soloRankClass: true,
+            soloClass: true,
             isOnline: true,
             lastSeenAt: true
           }
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
             displayName: true,
             avatarUrl: true,
             soloElo: true,
-            soloRankClass: true,
+            soloClass: true,
             isOnline: true,
             lastSeenAt: true
           }
@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
             username: true,
             displayName: true,
             soloElo: true,
-            soloRankClass: true
+            soloClass: true
           }
         },
         challenged: {
@@ -185,7 +185,7 @@ export async function POST(req: NextRequest) {
             username: true,
             displayName: true,
             soloElo: true,
-            soloRankClass: true
+            soloClass: true
           }
         }
       }

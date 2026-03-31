@@ -79,15 +79,15 @@ export async function POST(req: NextRequest) {
 
     // Step 3: Re-assign rank badges to users based on their current rank
     const users = await prisma.user.findMany({
-      select: { id: true, soloRankClass: true, soloStatistics: { select: { totalTests: true } } }
+      select: { id: true, soloClass: true, soloStatistics: { select: { totalTests: true } } }
     });
 
     let assignedCount = 0;
     for (const user of users) {
       const soloGames = user.soloStatistics?.totalTests || 0;
       
-      if (user.soloRankClass && soloGames > 0) {
-        const badgeInfo = RANK_BADGES[user.soloRankClass as keyof typeof RANK_BADGES];
+      if (user.soloClass && soloGames > 0) {
+        const badgeInfo = RANK_BADGES[user.soloClass as keyof typeof RANK_BADGES];
         if (badgeInfo) {
           const badge = await prisma.badge.findFirst({
             where: { name: badgeInfo.name }

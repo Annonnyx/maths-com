@@ -241,7 +241,7 @@ function ProfileContent() {
 
   const getRankColor = (rank: string) => {
     const tier = rank.charAt(0);
-    return FRENCH_CLASS_BG_COLORS[tier] || 'bg-gray-500/20 border-gray-500';
+    return FRENCH_CLASS_BG_COLORS[tier as keyof typeof FRENCH_CLASS_BG_COLORS] || 'bg-gray-500/20 border-gray-500';
   };
 
   return (

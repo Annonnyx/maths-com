@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
         id: true,
         username: true,
         multiplayerElo: true,
-        multiplayerRankClass: true
+        multiplayerClass: true
       }
     });
 
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
             username: true,
             displayName: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         player2: {
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
             username: true,
             displayName: true,
             multiplayerElo: true,
-            multiplayerRankClass: true
+            multiplayerClass: true
           }
         },
         questions: {

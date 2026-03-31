@@ -307,7 +307,7 @@ export class AchievementService {
     });
     
     if (user) {
-      await this.checkRankAchievement(userId, user.soloClass);
+      await this.checkRankAchievement(userId, user.soloClass || 'CP');
     }
   }
 }

@@ -391,14 +391,13 @@ function TestPage() {
           setEloUpdated(true);
           
           // Forcer un rechargement des données de session via next-auth
-          const { data: sessionData } = await import('next-auth/react');
-          if (sessionData.update) {
-            await sessionData.update({
-              ...session?.user,
-              soloElo: refreshData.user.soloElo,
-              soloClass: refreshData.user.soloClass
-            });
-          }
+          const { data: currentSession } = useSession();
+          // Note: La mise à jour de session sera gérée par le AuthProvider
+          // await update({
+          //   ...currentSession?.user,
+          //   soloElo: refreshData.user.soloElo,
+          //   soloClass: refreshData.user.soloClass
+          // });
         }
       } catch (refreshError) {
         console.error('Failed to refresh session:', refreshError);

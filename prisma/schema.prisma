@@ -10,77 +10,85 @@ datasource db {
 }
 
 model User {
-  id                       String                   @id @default(cuid())
-  email                    String                   @unique
-  username                 String                   @unique
-  password                 String?
-  acceptJoinRequests       Boolean                  @default(true) @map("accept_join_requests")
-  avatarUrl                String?                  @map("avatar_url")
-  bannerUrl                String?                  @map("banner_url")
-  birthYear                Int?                     @map("birth_year")
-  classe                   String?
-  createdAt                DateTime                 @default(now()) @map("created_at")
-  customBannerId           String?                  @map("custom_banner_id")
-  discordId                String?                  @unique @map("discord_id")
-  discordLinkCode          String?                  @unique @map("discord_link_code")
-  discordLinkedAt          DateTime?                @map("discord_linked_at")
-  discordUsername          String?                  @map("discord_username")
-  displayName              String?                  @map("display_name")
-  hasCompletedOnboarding   Boolean                  @default(false) @map("has_completed_onboarding")
-  isAdmin                  Boolean                  @default(false) @map("is_admin")
-  isOnline                 Boolean                  @default(false) @map("is_online")
-  isTeacher                Boolean                  @default(false) @map("is_teacher")
-  lastSeenAt               DateTime                 @default(now()) @map("last_seen_at")
-  lastTestDate             DateTime?                @map("last_test_date")
-  multiplayerBestElo       Int                      @default(400) @map("multiplayer_best_elo")
-  multiplayerBestClass String? @default("CP") @map("multiplayer_best_class")
-  multiplayerElo           Int                      @default(400) @map("multiplayer_elo")
-  multiplayerClass        String?                  @default("CP") @map("multiplayer_class")
-  school                   String?
-  selectedBadgeIds         String?                  @map("selected_badge_ids")
-  soloBestElo              Int                      @default(400) @map("solo_best_elo")
-  soloBestClass           String?                  @default("CP") @map("solo_best_class")
-  soloBestStreak           Int                      @default(0) @map("solo_best_streak")
-  soloCurrentStreak        Int                      @default(0) @map("solo_current_streak")
-  soloElo                  Int                      @default(400) @map("solo_elo")
-  soloClass               String?                  @default("CP") @map("solo_class")
-  subject                  String?
-  updatedAt                DateTime                 @updatedAt @map("updated_at")
-  role                     String                   @default("student")
-  QuestionHistory          public_QuestionHistory[]
-  assignmentSubmissions    AssignmentSubmission[]
-  receivedChallenges       Challenge[]              @relation("Challenged")
-  sentChallenges           Challenge[]              @relation("Challenger")
-  groupMemberships         ClassGroupMember[]
-  taughtGroups             ClassGroup[]             @relation("GroupTeacher")
-  receivedJoinRequests     ClassJoinRequest[]       @relation("StudentJoinRequests")
-  sentJoinRequests         ClassJoinRequest[]       @relation("TeacherJoinRequests")
-  groupMessages            ClassMessage[]
-  cliApiKeys               CliApiKey[]
-  coursePracticeHistories  CoursePracticeHistory[]
-  createdBanners           CustomBanner[]           @relation("BannerCreator")
-  exerciseAttempts         ExerciseAttempt[]
-  sentFriendships          Friendship[]             @relation("User1")
-  receivedFriendships      Friendship[]             @relation("User2")
-  gamePlayerships          GamePlayer[]             @relation("GamePlayerships")
-  hostedSessions           GameSession[]            @relation("HostedSessions")
-  receivedMessages         Message[]                @relation("ReceivedMessages")
-  sentMessages             Message[]                @relation("SentMessages")
-  player1Games             MultiplayerGame[]        @relation("Player1Games")
-  player2Games             MultiplayerGame[]        @relation("Player2Games")
-  multiplayerStatistics    MultiplayerStatistics?
-  sentNotifications        Notification[]           @relation("NotificationSender")
-  notifications            Notification[]
-  childLinks               ParentChildLink[]        @relation("ChildLinks")
-  parentLinks              ParentChildLink[]        @relation("ParentLinks")
-  inviteCodes              ParentInviteCode[]       @relation("InviteCodes")
-  questionHistory          QuestionHistory[]
-  soloStatistics           SoloStatistics?
-  soloTests                SoloTest[]
-  teacherRequests          TeacherRequest[]
-  userBadges               UserBadge[]
-  customBanners            CustomBanner[]           @relation("UserBanners")
+  id                          String                   @id @default(cuid())
+  email                       String                   @unique
+  username                    String                   @unique
+  password                    String?
+  acceptJoinRequests          Boolean                  @default(true) @map("accept_join_requests")
+  avatarUrl                   String?                  @map("avatar_url")
+  bannerUrl                   String?                  @map("banner_url")
+  birthYear                   Int?                     @map("birth_year")
+  classe                      String?
+  createdAt                   DateTime                 @default(now()) @map("created_at")
+  customBannerId              String?                  @map("custom_banner_id")
+  discordId                   String?                  @unique @map("discord_id")
+  discordLinkCode             String?                  @unique @map("discord_link_code")
+  discordLinkedAt             DateTime?                @map("discord_linked_at")
+  discordUsername             String?                  @map("discord_username")
+  displayName                 String?                  @map("display_name")
+  hasCompletedOnboarding      Boolean                  @default(false) @map("has_completed_onboarding")
+  isAdmin                     Boolean                  @default(false) @map("is_admin")
+  isOnline                    Boolean                  @default(false) @map("is_online")
+  isTeacher                   Boolean                  @default(false) @map("is_teacher")
+  lastSeenAt                  DateTime                 @default(now()) @map("last_seen_at")
+  lastTestDate                DateTime?                @map("last_test_date")
+  multiplayerBestElo          Int                      @default(400) @map("multiplayer_best_elo")
+  multiplayer_best_rank_class String                   @default("F-")
+  multiplayerElo              Int                      @default(400) @map("multiplayer_elo")
+  multiplayer_rank_class      String                   @default("F-")
+  school                      String?
+  selectedBadgeIds            String?                  @map("selected_badge_ids")
+  soloBestElo                 Int                      @default(400) @map("solo_best_elo")
+  solo_best_rank_class        String                   @default("F-")
+  soloBestStreak              Int                      @default(0) @map("solo_best_streak")
+  soloCurrentStreak           Int                      @default(0) @map("solo_current_streak")
+  soloElo                     Int                      @default(400) @map("solo_elo")
+  solo_rank_class             String                   @default("F-")
+  subject                     String?
+  updatedAt                   DateTime                 @updatedAt @map("updated_at")
+  role                        String                   @default("student")
+  soloClass                   String?                  @default("CP") @map("solo_class") @db.VarChar(10)
+  soloBestClass               String?                  @default("CP") @map("solo_best_class") @db.VarChar(10)
+  multiplayerClass            String?                  @default("CP") @map("multiplayer_class") @db.VarChar(10)
+  multiplayerBestClass        String?                  @default("CP") @map("multiplayer_best_class") @db.VarChar(10)
+  QuestionHistory             public_QuestionHistory[]
+  assignmentSubmissions       AssignmentSubmission[]
+  receivedChallenges          Challenge[]              @relation("Challenged")
+  sentChallenges              Challenge[]              @relation("Challenger")
+  groupMemberships            ClassGroupMember[]
+  taughtGroups                ClassGroup[]             @relation("GroupTeacher")
+  receivedJoinRequests        ClassJoinRequest[]       @relation("StudentJoinRequests")
+  sentJoinRequests            ClassJoinRequest[]       @relation("TeacherJoinRequests")
+  groupMessages               ClassMessage[]
+  cliApiKeys                  CliApiKey[]
+  coursePracticeHistories     CoursePracticeHistory[]
+  createdBanners              CustomBanner[]           @relation("BannerCreator")
+  exerciseAttempts            ExerciseAttempt[]
+  sentFriendships             Friendship[]             @relation("User1")
+  receivedFriendships         Friendship[]             @relation("User2")
+  gamePlayerships             GamePlayer[]             @relation("GamePlayerships")
+  hostedSessions              GameSession[]            @relation("HostedSessions")
+  receivedMessages            Message[]                @relation("ReceivedMessages")
+  sentMessages                Message[]                @relation("SentMessages")
+  player1Games                MultiplayerGame[]        @relation("Player1Games")
+  player2Games                MultiplayerGame[]        @relation("Player2Games")
+  multiplayerStatistics       MultiplayerStatistics?
+  sentNotifications           Notification[]           @relation("NotificationSender")
+  notifications               Notification[]
+  childLinks                  ParentChildLink[]        @relation("ChildLinks")
+  parentLinks                 ParentChildLink[]        @relation("ParentLinks")
+  inviteCodes                 ParentInviteCode[]       @relation("InviteCodes")
+  questionHistory             QuestionHistory[]
+  soloStatistics              SoloStatistics?
+  soloTests                   SoloTest[]
+  teacherRequests             TeacherRequest[]
+  userBadges                  UserBadge[]
+  customBanners               CustomBanner[]           @relation("UserBanners")
 
+  @@index([multiplayerBestClass], map: "idx_users_multiplayer_best_class")
+  @@index([multiplayerClass], map: "idx_users_multiplayer_class")
+  @@index([soloBestClass], map: "idx_users_solo_best_class")
+  @@index([soloClass], map: "idx_users_solo_class")
   @@map("users")
   @@schema("public")
 }
@@ -1236,6 +1244,19 @@ model user_discord_links {
   @@schema("public")
 }
 
+model DiscordLinkCode {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  discordId String   @map("discord_id")
+  code      String
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("discord_link_codes")
+  @@schema("public")
+}
+
 enum aal_level {
   aal1
   aal2
@@ -1304,17 +1325,4 @@ enum one_time_token_type {
   phone_change_token
 
   @@schema("auth")
-}
-
-model DiscordLinkCode {
-  id         String   @id @default(cuid())
-  userId     String   @map("user_id")
-  discordId  String   @map("discord_id")
-  code       String
-  expiresAt  DateTime @map("expires_at")
-  used       Boolean  @default(false)
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  @@map("discord_link_codes")
-  @@schema("public")
 }

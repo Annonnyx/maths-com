@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
         username: true,
         displayName: true,
         soloElo: true,
-        soloRankClass: true
+        soloClass: true
       },
       take: 1
     });
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
         username: true,
         displayName: true,
         multiplayerElo: true,
-        multiplayerRankClass: true
+        multiplayerClass: true
       },
       take: 1
     });

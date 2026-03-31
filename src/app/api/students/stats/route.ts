@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         displayName: true,
         email: true,
         soloElo: true,
-        soloRankClass: true,
+        soloClass: true,
         createdAt: true
       }
     });
@@ -212,7 +212,7 @@ export async function GET(request: NextRequest) {
         username: user.username,
         displayName: user.displayName,
         email: user.email,
-        level: user.soloRankClass,
+        level: user.soloClass,
         xp: user.soloElo,
         joinedAt: user.createdAt
       },

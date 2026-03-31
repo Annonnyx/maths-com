@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
           email: true,
           displayName: true,
           soloElo: true,
-          soloRankClass: true
+          soloClass: true
         },
         orderBy: { createdAt: 'desc' },
         take: 100
@@ -75,9 +75,9 @@ export async function GET(req: NextRequest) {
           username: true,
           displayName: true,
           soloElo: true,
-          soloRankClass: true,
+          soloClass: true,
           soloBestElo: true,
-          soloBestRankClass: true
+          soloBestClass: true
         }
       });
       return NextResponse.json({ user });
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
         select: {
           id: true,
           soloElo: true,
-          soloRankClass: true
+          soloClass: true
         }
       });
 
@@ -286,12 +286,12 @@ export async function POST(req: NextRequest) {
       const resetResult = await prisma.user.updateMany({
         data: {
           soloElo: 400,
-          soloRankClass: 'F-',
+          soloClass: 'F-',
           soloBestElo: 400,
-          soloBestRankClass: 'F-',
+          soloBestClass: 'F-',
           multiplayerElo: 400,
-          multiplayerRankClass: 'F-',
-          multiplayerBestRankClass: 'F-',
+          multiplayerClass: 'F-',
+          multiplayerBestClass: 'F-',
           multiplayerBestElo: 400
         }
       });
@@ -392,7 +392,7 @@ export async function POST(req: NextRequest) {
       
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { soloElo: true, soloRankClass: true }
+        select: { soloElo: true, soloClass: true }
       });
 
       if (!user) {
@@ -400,13 +400,13 @@ export async function POST(req: NextRequest) {
       }
 
       const currentClass = getClassFromElo(user.soloElo);
-      const unlockedClasses = getUnlockedClasses(user.soloRankClass as any);
+      const unlockedClasses = getUnlockedClasses(user.soloClass as any);
 
       return NextResponse.json({
         currentClass,
         unlockedClasses,
         elo: user.soloElo,
-        rankClass: user.soloRankClass
+        rankClass: user.soloClass
       });
     }
 

@@ -1,8 +1,12 @@
 // Système de classes françaises pour le remplacement du système de niveaux 1-10
 // Basé sur le programme scolaire français : CP, CE1, CE2, CM1, CM2, 6e, 5e, 4e, 3e, 2de, 1re, Tle, Sup1, Sup2, Sup3, Pro
 
-import { FrenchClass, FRENCH_CLASSES, FRENCH_CLASS_THRESHOLDS } from './elo';
+import { FRENCH_CLASS_THRESHOLDS, FRENCH_CLASSES, FrenchClass } from './elo';
 import { ELO_LEVEL_RANGES, getLevelFromElo } from './question-generators/elo-ranges';
+
+// Re-export for other modules
+export { FRENCH_CLASS_THRESHOLDS, FRENCH_CLASSES };
+export type { FrenchClass };
 
 // Types d'opérations pour les exercices
 export type OperationType = 
@@ -59,51 +63,26 @@ export interface Exercise {
 }
 
 // Définition des classes françaises
-export const FRENCH_CLASSES = [
-  'CP',      // Cours Préparatoire (6-7 ans)
-  'CE1',     // Cours Élémentaire 1 (7-8 ans)
-  'CE2',     // Cours Élémentaire 2 (8-9 ans)
-  'CM1',     // Cours Moyen 1 (9-10 ans)
-  'CM2',     // Cours Moyen 2 (10-11 ans)
-  '6e',      // Sixième (11-12 ans) - début collège
-  '5e',      // Cinquième (12-13 ans)
-  '4e',      // Quatrième (13-14 ans)
-  '3e',      // Troisième (14-15 ans) - fin collège
-  '2de',     // Seconde (15-16 ans) - début lycée
-  '1re',     // Première (16-17 ans)
-  'Tle',     // Terminale (17-18 ans) - fin lycée
-  'Sup1',    // Supérieur 1 (L1/M1)
-  'Sup2',    // Supérieur 2 (L2/M2)
-  'Sup3',    // Supérieur 3 (L3/M3/Doctorat)
-  'Pro'      // Professionnel / Expert
-] as const;
 
-export type FrenchClass = typeof FRENCH_CLASSES[number];
-
-// Mapping des rangs ELO vers les classes débloquées
-// Format: [rang minimum, classes débloquées[]]
-export const RANK_TO_CLASS_UNLOCKS: Record<FrenchClass, FrenchClass[]> = {
-  'F-':  ['CP'],
-  'F':   ['CP'],
-  'F+':  ['CP', 'CE1'],
-  'E-':  ['CP', 'CE1'],
-  'E':   ['CP', 'CE1', 'CE2'],
-  'E+':  ['CP', 'CE1', 'CE2'],
-  'D-':  ['CP', 'CE1', 'CE2', 'CM1'],
-  'D':   ['CP', 'CE1', 'CE2', 'CM1', 'CM2'],
-  'D+':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e'],
-  'C-':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e'],
-  'C':   ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e'],
-  'C+':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
-  'B-':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de'],
-  'B':   ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re'],
-  'B+':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle'],
-  'A-':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1'],
-  'A':   ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1', 'Sup2'],
-  'A+':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1', 'Sup2', 'Sup3'],
-  'S-':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1', 'Sup2', 'Sup3', 'Pro'],
-  'S':   ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1', 'Sup2', 'Sup3', 'Pro'],
-  'S+':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1', 'Sup2', 'Sup3', 'Pro']
+// Mapping des classes françaises vers les classes débloquées
+// Format: [classe actuelle, classes débloquées[]]
+export const CLASS_TO_CLASS_UNLOCKS: Record<FrenchClass, FrenchClass[]> = {
+  'CP':  ['CP'],
+  'CE1': ['CP', 'CE1'],
+  'CE2': ['CP', 'CE1', 'CE2'],
+  'CM1': ['CP', 'CE1', 'CE2', 'CM1'],
+  'CM2': ['CP', 'CE1', 'CE2', 'CM1', 'CM2'],
+  '6e':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e'],
+  '5e':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e'],
+  '4e':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e'],
+  '3e':  ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
+  '2de': ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de'],
+  '1re': ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re'],
+  'Tle': ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle'],
+  'Sup1': ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1'],
+  'Sup2': ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1', 'Sup2'],
+  'Sup3': ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1', 'Sup2', 'Sup3'],
+  'Pro': ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e', '2de', '1re', 'Tle', 'Sup1', 'Sup2', 'Sup3', 'Pro']
 };
 
 // Informations sur chaque classe
@@ -303,14 +282,14 @@ export function getClassFromElo(elo: number): FrenchClass {
   return getLevelFromElo(elo) as FrenchClass;
 }
 
-// Fonction pour obtenir les classes débloquées selon le rang
-export function getUnlockedClasses(rank: FrenchClass): FrenchClass[] {
-  return RANK_TO_CLASS_UNLOCKS[rank] || ['CP'];
+// Fonction pour obtenir les classes débloquées selon la classe actuelle
+export function getUnlockedClasses(currentClass: FrenchClass): FrenchClass[] {
+  return CLASS_TO_CLASS_UNLOCKS[currentClass] || ['CP'];
 }
 
 // Fonction pour vérifier si une classe est débloquée
-export function isClassUnlocked(className: FrenchClass, elo: number, rank: FrenchClass): boolean {
-  const unlocked = getUnlockedClasses(rank);
+export function isClassUnlocked(className: FrenchClass, elo: number, currentClass: FrenchClass): boolean {
+  const unlocked = getUnlockedClasses(currentClass);
   return unlocked.includes(className);
 }
 

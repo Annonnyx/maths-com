@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
             displayName: true, 
             avatarUrl: true,
             soloElo: true,
-            soloRankClass: true
+            soloClass: true
           }
         },
         group: {
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
             displayName: true, 
             avatarUrl: true,
             soloElo: true,
-            soloRankClass: true
+            soloClass: true
           }
         },
         group: {
