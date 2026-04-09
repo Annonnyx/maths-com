@@ -176,12 +176,12 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
     }));
 
   return (
-    <div className="fixed inset-0 bg-[#0a0a0f] z-50">
+    <div className="fixed inset-0 bg-[var(--bg-secondary)] z-50">
       {/* Header */}
-      <div className="bg-[#12121a] border-b border-gray-800 p-4">
+      <div className="bg-[var(--bg-primary)] border-b border-[var(--border)]y-800 p-4">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <h2 className="text-xl font-bold">Mode Groupe - Défi Maths</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <button onClick={onClose} className="text-[var(--text-muted)] hover:text-white">
             ✕
           </button>
         </div>
@@ -194,7 +194,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
               <Users className="w-10 h-10 text-indigo-400" />
             </div>
             <h3 className="text-2xl font-bold mb-4">En attente des joueurs...</h3>
-            <p className="text-gray-400 mb-8">{members.length} joueurs prêts</p>
+            <p className="text-[var(--text-muted)] mb-8">{members.length} joueurs prêts</p>
             <div className="flex justify-center gap-4">
               {(members || []).map((m, i) => (
                 <div key={m.userId} className="text-center">
@@ -218,7 +218,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
           <div className="max-w-2xl mx-auto">
             {/* Progress */}
             <div className="mb-6">
-              <div className="flex justify-between text-sm text-gray-400 mb-2">
+              <div className="flex justify-between text-sm text-[var(--text-muted)] mb-2">
                 <span>Question {currentQuestion + 1} / {questions.length}</span>
                 <span className={timeLeft <= 3 ? 'text-red-400 font-bold' : ''}>⏱ {timeLeft}s</span>
               </div>
@@ -231,7 +231,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
             </div>
 
             {/* Question */}
-            <div className="bg-[#12121a] rounded-2xl border border-gray-800 p-8 mb-6">
+            <div className="bg-[var(--bg-primary)] rounded-2xl border border-[var(--border)]y-800 p-8 mb-6">
               <h3 className="text-3xl font-bold text-center mb-8">{questions[currentQuestion].question}</h3>
               
               <div className="grid grid-cols-2 gap-4">
@@ -244,7 +244,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
                       answered 
                         ? i === questions[currentQuestion].correct 
                           ? 'bg-green-500 text-white' 
-                          : 'bg-gray-800 text-gray-400'
+                          : 'bg-gray-800 text-[var(--text-muted)]'
                         : 'bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400'
                     }`}
                   >
@@ -255,8 +255,8 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
             </div>
 
             {/* Live scores mini */}
-            <div className="bg-[#12121a] rounded-xl border border-gray-800 p-4">
-              <p className="text-sm text-gray-400 mb-3">Classement en direct</p>
+            <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)]y-800 p-4">
+              <p className="text-sm text-[var(--text-muted)] mb-3">Classement en direct</p>
               <div className="flex gap-4 overflow-x-auto">
                 {(sortedScores || []).slice(0, 3).map((score) => (
                   <div key={score.userId} className="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2">
@@ -291,19 +291,19 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
                     i === 0 ? 'text-yellow-400' :
                     i === 1 ? 'text-gray-300' :
                     i === 2 ? 'text-orange-400' :
-                    'text-gray-500'
+                    'text-[var(--text-secondary)]'
                   }`}>
                     {i + 1}
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold">{score.member?.displayName || score.member?.username}</p>
-                    <p className="text-sm text-gray-400">{score.score} points</p>
+                    <p className="text-sm text-[var(--text-muted)]">{score.score} points</p>
                   </div>
                   {i === 0 && <Crown className="w-6 h-6 text-yellow-400" />}
                 </motion.div>
               ))}
             </div>
-            <p className="text-center text-gray-400 mt-6">Prochaine question dans 3 secondes...</p>
+            <p className="text-center text-[var(--text-muted)] mt-6">Prochaine question dans 3 secondes...</p>
           </div>
         )}
 
@@ -322,7 +322,7 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
                   }`}>
                     {i + 1}
                   </div>
-                  <div className="bg-[#12121a] p-3 rounded-b-xl border border-gray-800">
+                  <div className="bg-[var(--bg-primary)] p-3 rounded-b-xl border border-[var(--border)]y-800">
                     <p className="font-semibold text-sm truncate max-w-[100px]">
                       {score.member?.displayName || score.member?.username}
                     </p>
@@ -333,13 +333,13 @@ function GroupTestMode({ groupId, members, onClose }: GroupTestModeProps) {
             </div>
 
             {/* All scores */}
-            <div className="bg-[#12121a] rounded-xl border border-gray-800 p-4 mb-6">
+            <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)]y-800 p-4 mb-6">
               <h4 className="font-semibold mb-4">Tous les joueurs</h4>
               <div className="space-y-2">
                 {(sortedScores || []).map((score) => (
-                  <div key={score.userId} className="flex justify-between items-center py-2 border-b border-gray-800 last:border-0">
+                  <div key={score.userId} className="flex justify-between items-center py-2 border-b border-[var(--border)]y-800 last:border-0">
                     <div className="flex items-center gap-3">
-                      <span className="text-gray-500 w-6">{score.rank}</span>
+                      <span className="text-[var(--text-secondary)] w-6">{score.rank}</span>
                       <span>{score.member?.displayName || score.member?.username}</span>
                     </div>
                     <span className="font-bold text-indigo-400">{score.score}</span>
@@ -442,8 +442,8 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">Chargement...</div>
+      <div className="min-h-screen bg-[var(--bg-secondary)] flex items-center justify-center">
+        <div className="animate-pulse text-[var(--text-muted)]">Chargement...</div>
       </div>
     );
   }
@@ -451,9 +451,9 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
   const isTeacher = session?.user?.id === group.teacherId;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-[var(--bg-secondary)] text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-[var(--border)]y-800 bg-[var(--bg-primary)]/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -462,7 +462,7 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
               </div>
               <div>
                 <h1 className="text-xl font-bold">{group.name}</h1>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-[var(--text-muted)]">
                   {group.members.length} membres • Prof: {group.teacherName}
                 </p>
               </div>
@@ -510,10 +510,10 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
       {!isMember ? (
         <div className="max-w-4xl mx-auto px-4 py-12 text-center">
           <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock className="w-10 h-10 text-gray-400" />
+            <Lock className="w-10 h-10 text-[var(--text-muted)]" />
           </div>
           <h2 className="text-2xl font-bold mb-4">Groupe privé</h2>
-          <p className="text-gray-400 mb-8">
+          <p className="text-[var(--text-muted)] mb-8">
             Ce groupe est réservé aux élèves de la classe. 
             Demandez à votre professeur l'accès pour rejoindre.
           </p>
@@ -529,7 +529,7 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
           <div className="grid md:grid-cols-3 gap-6">
             {/* Chat */}
             <div className="md:col-span-2">
-              <div className="bg-[#12121a] rounded-xl border border-gray-800 h-[500px] flex flex-col">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)]y-800 h-[500px] flex flex-col">
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {(group?.messages || []).map((msg) => (
@@ -547,10 +547,10 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
                         }`}
                       >
                         {msg.type !== 'system' && msg.userId !== session?.user?.id && (
-                          <p className="text-xs text-gray-400 mb-1">{msg.username}</p>
+                          <p className="text-xs text-[var(--text-muted)] mb-1">{msg.username}</p>
                         )}
                         <p>{msg.content}</p>
-                        <p className={`text-xs mt-1 ${msg.userId === session?.user?.id ? 'text-indigo-300' : 'text-gray-500'}`}>
+                        <p className={`text-xs mt-1 ${msg.userId === session?.user?.id ? 'text-indigo-300' : 'text-[var(--text-secondary)]'}`}>
                           {new Date(msg.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
@@ -559,14 +559,14 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
                 </div>
 
                 {/* Input */}
-                <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-800">
+                <form onSubmit={handleSendMessage} className="p-4 border-t border-[var(--border)]y-800">
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Écrivez un message..."
-                      className="flex-1 p-3 bg-[#1a1a2e] border border-gray-700 rounded-xl text-white focus:border-indigo-500 outline-none"
+                      className="flex-1 p-3 bg-[var(--bg-primary)] border border-[var(--border)]y-700 rounded-xl text-white focus:border-indigo-500 outline-none"
                     />
                     <button
                       type="submit"
@@ -582,7 +582,7 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
             {/* Sidebar */}
             <div className="space-y-4">
               {/* Members */}
-              <div className="bg-[#12121a] rounded-xl border border-gray-800 p-4">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)]y-800 p-4">
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo-400" />
                   Membres ({group.members.length})
@@ -605,19 +605,19 @@ export default function ClassGroup({ groupId }: ClassGroupProps) {
               </div>
 
               {/* Group Stats */}
-              <div className="bg-[#12121a] rounded-xl border border-gray-800 p-4">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)]y-800 p-4">
                 <h3 className="font-semibold mb-4">Statistiques du groupe</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Tests collectifs</span>
+                    <span className="text-[var(--text-muted)]">Tests collectifs</span>
                     <span className="font-semibold">12</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Moyenne du groupe</span>
+                    <span className="text-[var(--text-muted)]">Moyenne du groupe</span>
                     <span className="font-semibold text-green-400">1450 ELO</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Meilleur joueur</span>
+                    <span className="text-[var(--text-muted)]">Meilleur joueur</span>
                     <span className="font-semibold text-yellow-400">Alice</span>
                   </div>
                 </div>

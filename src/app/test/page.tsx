@@ -446,7 +446,7 @@ function TestPage() {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
-          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors">
               <Trophy className="w-6 h-6" />
               <span className="font-bold">maths-app.com</span>
@@ -460,13 +460,13 @@ function TestPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl font-bold mb-4">Choisis ton mode</h1>
-            <p className="text-xl text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Choisis ton mode</h1>
+            <p className="text-lg sm:text-xl text-muted-foreground">
               Sélectionne le mode qui correspond à ton objectif
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
             {/* Competitive Mode */}
             <motion.button
               initial={{ opacity: 0, x: -20 }}
@@ -474,12 +474,12 @@ function TestPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => startTest('competitive')}
-              className="p-8 rounded-2xl bg-gradient-to-br from-red-500/20 to-orange-500/20 border-2 border-red-500/50 hover:border-red-400 transition-all group text-left"
+              className="p-5 sm:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-red-500/20 to-orange-500/20 border-2 border-red-500/50 hover:border-red-400 transition-all group text-left"
             >
-              <div className="w-16 h-16 bg-red-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Zap className="w-8 h-8 text-red-400" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-500/20 rounded-lg sm:rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+                <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-red-400" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">Mode Compétitif</h2>
+              <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">Mode Compétitif</h2>
               <ul className="space-y-2 text-foreground text-sm">
                 <li className="flex items-center gap-2">
                   <Timer className="w-4 h-4 text-red-400" />
@@ -507,12 +507,12 @@ function TestPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => startTest('training')}
-              className="p-8 rounded-2xl bg-gradient-to-br from-blue-500/20 to-teal-500/20 border-2 border-blue-500/50 hover:border-blue-400 transition-all group text-left"
+              className="p-5 sm:p-8 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500/20 to-teal-500/20 border-2 border-blue-500/50 hover:border-blue-400 transition-all group text-left"
             >
-              <div className="w-16 h-16 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Target className="w-8 h-8 text-blue-400" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/20 rounded-lg sm:rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+                <Target className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">Mode Entraînement</h2>
+              <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">Mode Entraînement</h2>
               <ul className="space-y-2 text-foreground text-sm">
                 <li className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-blue-400" />
@@ -578,7 +578,7 @@ function TestPage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={resetToModeSelection}

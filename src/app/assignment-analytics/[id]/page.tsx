@@ -94,7 +94,7 @@ export default function AssignmentAnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f0f1a] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
       </div>
     );
@@ -102,11 +102,11 @@ export default function AssignmentAnalyticsPage() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[#0f0f1a] flex items-center justify-center p-4">
-        <div className="bg-[#1a1a2e] rounded-lg border border-[#3a3a4a] p-8 max-w-md w-full text-center">
-          <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-400" />
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
+        <div className="bg-[var(--bg-primary)] rounded-lg border border-[var(--border)] p-8 max-w-md w-full text-center">
+          <AlertCircle className="w-16 h-16 mx-auto mb-4 text-[var(--text-secondary)]" />
           <h1 className="text-xl font-bold text-white mb-2">Erreur</h1>
-          <p className="text-gray-400 mb-6">{error || 'Données non trouvées'}</p>
+          <p className="text-[var(--text-muted)] mb-6">{error || 'Données non trouvées'}</p>
           <button
             onClick={() => router.back()}
             className="text-purple-400 hover:text-purple-300"
@@ -134,20 +134,20 @@ export default function AssignmentAnalyticsPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a]">
+    <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
-      <header className="bg-[#1a1a2e] border-b border-[#2a2a3a] sticky top-0 z-10">
+      <header className="bg-[var(--bg-primary)] border-b border-[var(--border)] sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-[#2a2a3a] rounded-lg transition-colors"
+              className="p-2 hover:bg-[var(--bg-secondary)] rounded-lg transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-400" />
+              <ArrowLeft className="w-5 h-5 text-[var(--text-muted)]" />
             </button>
             <div>
               <h1 className="text-xl font-semibold text-white">Analytiques: {assignment.title}</h1>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[var(--text-muted)]">
                 {assignment.completedCount} élèves ont terminé sur {assignment.totalSubmissions} inscrits
               </p>
             </div>
@@ -169,7 +169,7 @@ export default function AssignmentAnalyticsPage() {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 activeTab === tab.id
                   ? 'bg-purple-600 text-white'
-                  : 'bg-[#1a1a2e] text-gray-400 hover:bg-[#2a2a3a]'
+                  : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:bg-[var(--bg-secondary)]'
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -187,34 +187,34 @@ export default function AssignmentAnalyticsPage() {
           >
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <Users className="w-5 h-5 text-blue-400" />
-                  <span className="text-gray-400 text-sm">Total participants</span>
+                  <span className="text-[var(--text-muted)] text-sm">Total participants</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{assignment.totalSubmissions}</p>
               </div>
               
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <CheckCircle className="w-5 h-5 text-green-400" />
-                  <span className="text-gray-400 text-sm">Terminés</span>
+                  <span className="text-[var(--text-muted)] text-sm">Terminés</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{assignment.completedCount}</p>
               </div>
               
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <TrendingUp className="w-5 h-5 text-yellow-400" />
-                  <span className="text-gray-400 text-sm">Score moyen</span>
+                  <span className="text-[var(--text-muted)] text-sm">Score moyen</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{assignment.averageScore.toFixed(1)}%</p>
               </div>
               
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <Target className="w-5 h-5 text-purple-400" />
-                  <span className="text-gray-400 text-sm">Questions</span>
+                  <span className="text-[var(--text-muted)] text-sm">Questions</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{assignment.questionCount}</p>
               </div>
@@ -223,7 +223,7 @@ export default function AssignmentAnalyticsPage() {
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Score Distribution */}
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <h3 className="text-lg font-semibold text-white mb-4">Distribution des scores</h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
@@ -243,8 +243,8 @@ export default function AssignmentAnalyticsPage() {
                       </Pie>
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: '#1a1a2e', 
-                          border: '1px solid #3a3a4a',
+                          backgroundColor: '[var(--bg-primary)]', 
+                          border: '1px solid [var(--border)]',
                           borderRadius: '8px'
                         }}
                       />
@@ -258,14 +258,14 @@ export default function AssignmentAnalyticsPage() {
                         className="w-3 h-3 rounded-full" 
                         style={{ backgroundColor: item.color }}
                       />
-                      <span className="text-sm text-gray-400">{item.name}: {item.value}</span>
+                      <span className="text-sm text-[var(--text-muted)]">{item.name}: {item.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Question Success Rate */}
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <h3 className="text-lg font-semibold text-white mb-4">Taux de réussite par question</h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
@@ -274,8 +274,8 @@ export default function AssignmentAnalyticsPage() {
                       <YAxis stroke="#6b7280" />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: '#1a1a2e', 
-                          border: '1px solid #3a3a4a',
+                          backgroundColor: '[var(--bg-primary)]', 
+                          border: '1px solid [var(--border)]',
                           borderRadius: '8px'
                         }}
                       />
@@ -288,7 +288,7 @@ export default function AssignmentAnalyticsPage() {
 
             {/* Top Students */}
             {ranking.length > 0 && (
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <Trophy className="w-5 h-5 text-yellow-400" />
                   Classement
@@ -297,19 +297,19 @@ export default function AssignmentAnalyticsPage() {
                   {ranking.slice(0, 5).map((student, idx) => (
                     <div 
                       key={student.submissionId}
-                      className="flex items-center gap-4 p-3 bg-[#2a2a3a] rounded-lg"
+                      className="flex items-center gap-4 p-3 bg-[var(--bg-secondary)] rounded-lg"
                     >
                       <div className={`
                         w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm
                         ${idx === 0 ? 'bg-yellow-500/20 text-yellow-400' : 
-                          idx === 1 ? 'bg-gray-400/20 text-gray-300' : 
+                          idx === 1 ? 'bg-gray-400/20 text-[var(--text-secondary)]' : 
                           idx === 2 ? 'bg-orange-600/20 text-orange-400' : 'bg-purple-500/20 text-purple-400'}
                       `}>
                         {idx + 1}
                       </div>
                       <div className="flex-1">
                         <p className="text-white font-medium">{student.studentName}</p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-[var(--text-muted)]">
                           {student.correctCount}/{student.totalQuestions} correct
                         </p>
                       </div>
@@ -334,13 +334,13 @@ export default function AssignmentAnalyticsPage() {
             {questionStats.map((q, idx) => (
               <div 
                 key={q.questionId}
-                className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] overflow-hidden"
+                className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] overflow-hidden"
               >
                 <button
                   onClick={() => setExpandedQuestion(
                     expandedQuestion === q.questionId ? null : q.questionId
                   )}
-                  className="w-full p-4 flex items-center justify-between hover:bg-[#2a2a3a] transition-colors"
+                  className="w-full p-4 flex items-center justify-between hover:bg-[var(--bg-secondary)] transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <span className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-semibold">
@@ -348,7 +348,7 @@ export default function AssignmentAnalyticsPage() {
                     </span>
                     <div className="text-left">
                       <p className="text-white font-medium truncate max-w-md">{q.question}</p>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-[var(--text-muted)]">
                         {q.questionType === 'single' ? 'Réponse unique' : 
                          q.questionType === 'multiple' ? 'Choix multiples' : 'Réponse libre'} • 
                         Difficulté {q.difficulty}/10
@@ -358,39 +358,39 @@ export default function AssignmentAnalyticsPage() {
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <p className="text-lg font-bold text-white">{q.successRate.toFixed(1)}%</p>
-                      <p className="text-xs text-gray-400">de réussite</p>
+                      <p className="text-xs text-[var(--text-muted)]">de réussite</p>
                     </div>
                     {expandedQuestion === q.questionId ? 
-                      <ChevronUp className="w-5 h-5 text-gray-400" /> : 
-                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                      <ChevronUp className="w-5 h-5 text-[var(--text-muted)]" /> : 
+                      <ChevronDown className="w-5 h-5 text-[var(--text-muted)]" />
                     }
                   </div>
                 </button>
 
                 {expandedQuestion === q.questionId && (
-                  <div className="px-4 pb-4 border-t border-[#2a2a3a]">
+                  <div className="px-4 pb-4 border-t border-[var(--border)]">
                     <div className="pt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="p-3 bg-[#2a2a3a] rounded-lg">
-                        <p className="text-sm text-gray-400">Réponses reçues</p>
+                      <div className="p-3 bg-[var(--bg-secondary)] rounded-lg">
+                        <p className="text-sm text-[var(--text-muted)]">Réponses reçues</p>
                         <p className="text-xl font-bold text-white">{q.totalAnswers}</p>
                       </div>
-                      <div className="p-3 bg-[#2a2a3a] rounded-lg">
-                        <p className="text-sm text-gray-400">Réponses correctes</p>
+                      <div className="p-3 bg-[var(--bg-secondary)] rounded-lg">
+                        <p className="text-sm text-[var(--text-muted)]">Réponses correctes</p>
                         <p className="text-xl font-bold text-green-400">{q.correctAnswers}</p>
                       </div>
-                      <div className="p-3 bg-[#2a2a3a] rounded-lg">
-                        <p className="text-sm text-gray-400">Points moyens</p>
+                      <div className="p-3 bg-[var(--bg-secondary)] rounded-lg">
+                        <p className="text-sm text-[var(--text-muted)]">Points moyens</p>
                         <p className="text-xl font-bold text-white">{q.averagePoints.toFixed(1)}</p>
                       </div>
                     </div>
 
                     {q.topAnswers.length > 0 && (
                       <div className="mt-4">
-                        <p className="text-sm text-gray-400 mb-2">Réponses les plus fréquentes</p>
+                        <p className="text-sm text-[var(--text-muted)] mb-2">Réponses les plus fréquentes</p>
                         <div className="space-y-2">
                           {q.topAnswers.map(([answer, count], idx) => (
                             <div key={idx} className="flex items-center gap-2">
-                              <div className="flex-1 h-8 bg-[#2a2a3a] rounded-lg overflow-hidden">
+                              <div className="flex-1 h-8 bg-[var(--bg-secondary)] rounded-lg overflow-hidden">
                                 <div 
                                   className="h-full bg-purple-500/30 flex items-center px-3"
                                   style={{ width: `${(count / q.totalAnswers) * 100}%` }}
@@ -398,7 +398,7 @@ export default function AssignmentAnalyticsPage() {
                                   <span className="text-sm text-white truncate">{answer}</span>
                                 </div>
                               </div>
-                              <span className="text-sm text-gray-400 w-12 text-right">{count}</span>
+                              <span className="text-sm text-[var(--text-muted)] w-12 text-right">{count}</span>
                             </div>
                           ))}
                         </div>
@@ -421,13 +421,13 @@ export default function AssignmentAnalyticsPage() {
             {studentStats.map((student) => (
               <div 
                 key={student.submissionId}
-                className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] overflow-hidden"
+                className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] overflow-hidden"
               >
                 <button
                   onClick={() => setExpandedStudent(
                     expandedStudent === student.submissionId ? null : student.submissionId
                   )}
-                  className="w-full p-4 flex items-center justify-between hover:bg-[#2a2a3a] transition-colors"
+                  className="w-full p-4 flex items-center justify-between hover:bg-[var(--bg-secondary)] transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div className={`
@@ -441,7 +441,7 @@ export default function AssignmentAnalyticsPage() {
                     </div>
                     <div className="text-left">
                       <p className="text-white font-medium">{student.studentName}</p>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-[var(--text-muted)]">
                         {student.status === 'completed' 
                           ? `Terminé le ${new Date(student.completedAt!).toLocaleDateString('fr-FR')}`
                           : `Commencé le ${new Date(student.startedAt).toLocaleDateString('fr-FR')}`
@@ -453,31 +453,31 @@ export default function AssignmentAnalyticsPage() {
                     {student.status === 'completed' && (
                       <div className="text-right">
                         <p className="text-2xl font-bold text-white">{student.score?.toFixed(0)}%</p>
-                        <p className="text-xs text-gray-400">{student.correctCount}/{student.totalQuestions}</p>
+                        <p className="text-xs text-[var(--text-muted)]">{student.correctCount}/{student.totalQuestions}</p>
                       </div>
                     )}
                     {expandedStudent === student.submissionId ? 
-                      <ChevronUp className="w-5 h-5 text-gray-400" /> : 
-                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                      <ChevronUp className="w-5 h-5 text-[var(--text-muted)]" /> : 
+                      <ChevronDown className="w-5 h-5 text-[var(--text-muted)]" />
                     }
                   </div>
                 </button>
 
                 {expandedStudent === student.submissionId && student.answers && (
-                  <div className="px-4 pb-4 border-t border-[#2a2a3a]">
+                  <div className="px-4 pb-4 border-t border-[var(--border)]">
                     <div className="pt-4 space-y-2">
                       {student.answers.map((answer, idx) => (
                         <div 
                           key={answer.questionId}
-                          className="flex items-center gap-3 p-3 bg-[#2a2a3a] rounded-lg"
+                          className="flex items-center gap-3 p-3 bg-[var(--bg-secondary)] rounded-lg"
                         >
-                          <span className="text-sm text-gray-400 w-8">Q{idx + 1}</span>
+                          <span className="text-sm text-[var(--text-muted)] w-8">Q{idx + 1}</span>
                           <div className="flex-1">
                             <p className="text-white text-sm truncate">{answer.answer || '(vide)'}</p>
                           </div>
                           {answer.isCorrect ? 
                             <CheckCircle className="w-5 h-5 text-green-400" /> : 
-                            <XCircle className="w-5 h-5 text-red-400" />
+                            <XCircle className="w-5 h-5 text-[var(--text-secondary)]" />
                           }
                           <span className="text-sm text-white w-16 text-right">
                             {answer.points} pts

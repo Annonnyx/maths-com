@@ -321,7 +321,7 @@ export default function MultiplayerPage() {
   return (
     <div className="min-h-screen bg-background text-white">
       <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold">Multijoueur</h1>
           </div>
@@ -336,10 +336,10 @@ export default function MultiplayerPage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* SECTION 1 - Choix du mode */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h2 className="text-2xl font-bold mb-6 text-center">Choisis ton mode de jeu</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">Choisis ton mode de jeu</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Mode 1v1 */}
             <motion.button
@@ -353,15 +353,15 @@ export default function MultiplayerPage() {
               }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`p-8 rounded-2xl border-2 transition-all ${
+              className={`p-5 sm:p-8 rounded-xl sm:rounded-2xl border-2 transition-all ${
                 selectedMode.startsWith('ranked_1v1') || selectedMode === 'casual_1v1'
                   ? 'border-primary bg-blue-500/20'
                   : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-blue-500/10'
               }`}
             >
               <div className="text-center">
-                <Swords className="w-12 h-12 mx-auto mb-4 text-blue-400" />
-                <h3 className="text-xl font-bold mb-2">1 vs 1</h3>
+                <Swords className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-blue-400" />
+                <h3 className="text-lg sm:text-xl font-bold mb-2">1 vs 1</h3>
                 <p className="text-sm text-foreground mb-4">Duels intenses (2 joueurs)</p>
                 <div className="flex items-center justify-center gap-2 text-xs">
                   <Shield className="w-4 h-4" />
@@ -375,15 +375,15 @@ export default function MultiplayerPage() {
               onClick={() => setSelectedMode('group_quiz')}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`p-8 rounded-2xl border-2 transition-all ${
+              className={`p-5 sm:p-8 rounded-xl sm:rounded-2xl border-2 transition-all ${
                 selectedMode === 'group_quiz'
                   ? 'border-primary bg-purple-500/20'
                   : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-purple-500/10'
               }`}
             >
               <div className="text-center">
-                <Users className="w-12 h-12 mx-auto mb-4 text-purple-400" />
-                <h3 className="text-xl font-bold mb-2">Partie de groupe</h3>
+                <Users className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-purple-400" />
+                <h3 className="text-lg sm:text-xl font-bold mb-2">Partie de groupe</h3>
                 <p className="text-sm text-muted-foreground mb-4">Quiz multijoueur (3-30 joueurs)</p>
                 <div className="flex items-center justify-center gap-2 text-xs">
                   <QrCode className="w-4 h-4" />
@@ -402,7 +402,7 @@ export default function MultiplayerPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-2xl border border-blue-500/30 p-8"
+              className="bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-xl sm:rounded-2xl border border-blue-500/30 p-5 sm:p-8"
             >
               <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
                 <Settings className="w-6 h-6 text-blue-400" />

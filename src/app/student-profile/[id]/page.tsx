@@ -79,7 +79,7 @@ export default function StudentProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f0f1a] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
       </div>
     );
@@ -87,11 +87,11 @@ export default function StudentProfilePage() {
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-[#0f0f1a] flex items-center justify-center p-4">
-        <div className="bg-[#1a1a2e] rounded-lg border border-[#3a3a4a] p-8 max-w-md w-full text-center">
-          <div className="text-red-400 text-4xl mb-4">⚠️</div>
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
+        <div className="bg-[var(--bg-primary)] rounded-lg border border-[var(--border)] p-8 max-w-md w-full text-center">
+          <div className="text-[var(--text-secondary)] text-4xl mb-4">⚠️</div>
           <h1 className="text-xl font-bold text-white mb-2">Erreur</h1>
-          <p className="text-gray-400 mb-6">{error || 'Profil non trouvé'}</p>
+          <p className="text-[var(--text-muted)] mb-6">{error || 'Profil non trouvé'}</p>
           <button
             onClick={() => router.back()}
             className="text-purple-400 hover:text-purple-300"
@@ -140,7 +140,7 @@ export default function StudentProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a]">
+    <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
       <header className="bg-gradient-to-r from-purple-900 to-pink-900">
         <div className="max-w-6xl mx-auto px-4 py-8">
@@ -192,7 +192,7 @@ export default function StudentProfilePage() {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                 activeTab === tab.id
                   ? 'bg-purple-600 text-white'
-                  : 'bg-[#1a1a2e] text-gray-400 hover:bg-[#2a2a3a]'
+                  : 'bg-[var(--bg-primary)] text-[var(--text-muted)] hover:bg-[var(--bg-secondary)]'
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -210,46 +210,46 @@ export default function StudentProfilePage() {
           >
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <BookOpen className="w-5 h-5 text-blue-400" />
-                  <span className="text-gray-400 text-sm">Devoirs</span>
+                  <span className="text-[var(--text-muted)] text-sm">Devoirs</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{stats.totalAssignments}</p>
-                <p className="text-sm text-gray-500">{stats.completedCount} terminés</p>
+                <p className="text-sm text-[var(--text-secondary)]">{stats.completedCount} terminés</p>
               </div>
 
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <Award className="w-5 h-5 text-yellow-400" />
-                  <span className="text-gray-400 text-sm">Score moyen</span>
+                  <span className="text-[var(--text-muted)] text-sm">Score moyen</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{stats.averageScore.toFixed(1)}%</p>
-                <p className="text-sm text-gray-500">Précision</p>
+                <p className="text-sm text-[var(--text-secondary)]">Précision</p>
               </div>
 
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <Target className="w-5 h-5 text-green-400" />
-                  <span className="text-gray-400 text-sm">Taux de complétion</span>
+                  <span className="text-[var(--text-muted)] text-sm">Taux de complétion</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{stats.completionRate.toFixed(0)}%</p>
-                <p className="text-sm text-gray-500">{stats.completedCount}/{stats.totalAssignments}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{stats.completedCount}/{stats.totalAssignments}</p>
               </div>
 
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <Clock className="w-5 h-5 text-purple-400" />
-                  <span className="text-gray-400 text-sm">Temps moyen</span>
+                  <span className="text-[var(--text-muted)] text-sm">Temps moyen</span>
                 </div>
                 <p className="text-3xl font-bold text-white">{stats.avgTimePerAssignment.toFixed(0)}m</p>
-                <p className="text-sm text-gray-500">par devoir</p>
+                <p className="text-sm text-[var(--text-secondary)]">par devoir</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Skills Radar */}
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <Star className="w-5 h-5 text-yellow-400" />
                   Compétences
@@ -273,7 +273,7 @@ export default function StudentProfilePage() {
               </div>
 
               {/* Class Rankings */}
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <Trophy className="w-5 h-5 text-yellow-400" />
                   Classement
@@ -281,7 +281,7 @@ export default function StudentProfilePage() {
                 {classRankings.length > 0 ? (
                   <div className="space-y-3">
                     {classRankings.map((ranking) => (
-                      <div key={ranking.classId} className="p-4 bg-[#2a2a3a] rounded-lg">
+                      <div key={ranking.classId} className="p-4 bg-[var(--bg-secondary)] rounded-lg">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white font-medium">{ranking.className}</span>
                           <span className="text-2xl font-bold text-purple-400">
@@ -289,7 +289,7 @@ export default function StudentProfilePage() {
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-400">
+                          <span className="text-[var(--text-muted)]">
                             sur {ranking.totalStudents} élèves
                           </span>
                           <span className="text-green-400">
@@ -306,7 +306,7 @@ export default function StudentProfilePage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-400 text-center py-8">
+                  <p className="text-[var(--text-muted)] text-center py-8">
                     Aucun classement disponible pour le moment
                   </p>
                 )}
@@ -314,7 +314,7 @@ export default function StudentProfilePage() {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+            <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-blue-400" />
                 Activité récente
@@ -324,7 +324,7 @@ export default function StudentProfilePage() {
                   {recentAssignments.slice(0, 5).map((assignment) => (
                     <div
                       key={assignment.id}
-                      className="flex items-center gap-4 p-3 bg-[#2a2a3a] rounded-lg hover:bg-[#3a3a4a] transition-colors cursor-pointer"
+                      className="flex items-center gap-4 p-3 bg-[var(--bg-secondary)] rounded-lg hover:bg-[#3a3a4a] transition-colors cursor-pointer"
                     >
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                         assignment.status === 'completed' 
@@ -339,12 +339,12 @@ export default function StudentProfilePage() {
                       </div>
                       <div className="flex-1">
                         <p className="text-white font-medium">{assignment.assignmentTitle}</p>
-                        <p className="text-sm text-gray-400">{assignment.className}</p>
+                        <p className="text-sm text-[var(--text-muted)]">{assignment.className}</p>
                       </div>
                       {assignment.status === 'completed' && assignment.score !== null && (
                         <div className="text-right">
                           <p className="text-xl font-bold text-white">{assignment.score.toFixed(0)}%</p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-[var(--text-muted)]">
                             {assignment.correctCount}/{assignment.totalQuestions}
                           </p>
                         </div>
@@ -353,7 +353,7 @@ export default function StudentProfilePage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-400 text-center py-8">
+                <p className="text-[var(--text-muted)] text-center py-8">
                   Aucune activité récente
                 </p>
               )}
@@ -370,7 +370,7 @@ export default function StudentProfilePage() {
           >
             {progressData.length > 0 ? (
               <>
-                <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+                <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                   <h3 className="text-lg font-semibold text-white mb-4">
                     Progression mensuelle
                   </h3>
@@ -405,7 +405,7 @@ export default function StudentProfilePage() {
                   </div>
                 </div>
 
-                <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-6">
+                <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-6">
                   <h3 className="text-lg font-semibold text-white mb-4">
                     Performance par difficulté
                   </h3>
@@ -434,10 +434,10 @@ export default function StudentProfilePage() {
                 </div>
               </>
             ) : (
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-12 text-center">
-                <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-500" />
-                <p className="text-gray-400">Pas assez de données pour afficher les graphiques</p>
-                <p className="text-sm text-gray-500 mt-2">
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-12 text-center">
+                <BarChart3 className="w-16 h-16 mx-auto mb-4 text-[var(--text-secondary)]" />
+                <p className="text-[var(--text-muted)]">Pas assez de données pour afficher les graphiques</p>
+                <p className="text-sm text-[var(--text-secondary)] mt-2">
                   Complétez plus de devoirs pour voir votre progression
                 </p>
               </div>
@@ -456,7 +456,7 @@ export default function StudentProfilePage() {
               recentAssignments.map((assignment) => (
                 <div
                   key={assignment.id}
-                  className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-4 hover:border-purple-500/30 transition-colors"
+                  className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-4 hover:border-purple-500/30 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -474,13 +474,13 @@ export default function StudentProfilePage() {
                             <Award className="w-6 h-6 text-yellow-400" />
                           )
                         ) : (
-                          <Clock className="w-6 h-6 text-gray-400" />
+                          <Clock className="w-6 h-6 text-[var(--text-muted)]" />
                         )}
                       </div>
                       <div>
                         <h4 className="text-white font-medium">{assignment.assignmentTitle}</h4>
-                        <p className="text-sm text-gray-400">{assignment.className}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm text-[var(--text-muted)]">{assignment.className}</p>
+                        <p className="text-xs text-[var(--text-secondary)]">
                           {assignment.completedAt
                             ? new Date(assignment.completedAt).toLocaleDateString('fr-FR', {
                                 weekday: 'long',
@@ -497,20 +497,20 @@ export default function StudentProfilePage() {
                       {assignment.status === 'completed' && assignment.score !== null && (
                         <div className="text-right">
                           <p className="text-2xl font-bold text-white">{assignment.score.toFixed(0)}%</p>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-sm text-[var(--text-muted)]">
                             {assignment.correctCount}/{assignment.totalQuestions} correct
                           </p>
                         </div>
                       )}
-                      <ChevronRight className="w-5 h-5 text-gray-500" />
+                      <ChevronRight className="w-5 h-5 text-[var(--text-secondary)]" />
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] p-12 text-center">
-                <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-500" />
-                <p className="text-gray-400">Aucun devoir complété</p>
+              <div className="bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] p-12 text-center">
+                <BookOpen className="w-16 h-16 mx-auto mb-4 text-[var(--text-secondary)]" />
+                <p className="text-[var(--text-muted)]">Aucun devoir complété</p>
               </div>
             )}
           </motion.div>

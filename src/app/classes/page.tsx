@@ -238,9 +238,9 @@ export default function ClassesPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <GraduationCap className="w-16 h-16 mx-auto mb-4 text-gray-500" />
+          <GraduationCap className="w-16 h-16 mx-auto mb-4 text-[var(--text-secondary)]" />
           <h1 className="text-2xl font-bold text-white mb-2">Connexion requise</h1>
-          <p className="text-gray-400">Vous devez être connecté pour accéder à cette page</p>
+          <p className="text-[var(--text-muted)]">Vous devez être connecté pour accéder à cette page</p>
           <Link href="/login" className="mt-4 inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
             Se connecter
           </Link>
@@ -252,8 +252,8 @@ export default function ClassesPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <header className="border-b border-border bg-[var(--bg-primary)]/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -262,7 +262,7 @@ export default function ClassesPage() {
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <h1 className="text-2xl font-bold flex items-center gap-2">
+              <h1 className="text-lg sm:text-2xl font-bold flex items-center gap-2">
                 <GraduationCap className="w-6 h-6 text-purple-400" />
                 Mes classes
               </h1>
@@ -282,14 +282,14 @@ export default function ClassesPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* SECTION 1 — Mes classes inscrites */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-10"
         >
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-purple-400" />
             Mes classes inscrites
           </h2>
@@ -301,18 +301,18 @@ export default function ClassesPage() {
           ) : myClasses.length === 0 ? (
             <div className="bg-card rounded-xl border border-border p-8 text-center">
               <GraduationCap className="w-12 h-12 mx-auto mb-4 text-gray-600" />
-              <h3 className="text-lg font-medium text-gray-400 mb-2">Aucune classe</h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="text-lg font-medium text-[var(--text-muted)] mb-2">Aucune classe</h3>
+              <p className="text-sm text-[var(--text-secondary)]">
                 Vous n'êtes membre d'aucune classe pour le moment.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {myClasses.map((classItem) => (
                 <Link
                   key={classItem.id}
                   href={`/class-management/${classItem.id}`}
-                  className="block p-5 bg-[#1e1e2e] rounded-xl border border-[#3a3a4a] hover:border-purple-500/50 transition-all group"
+                  className="block p-4 sm:p-5 bg-[var(--bg-primary)] rounded-xl border border-[var(--border)] hover:border-purple-500/50 transition-all group"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
@@ -330,12 +330,12 @@ export default function ClassesPage() {
                   <h3 className="font-semibold text-white mb-1 group-hover:text-purple-400 transition-colors">
                     {classItem.name}
                   </h3>
-                  <p className="text-sm text-gray-400 mb-3 line-clamp-2">
+                  <p className="text-sm text-[var(--text-muted)] mb-3 line-clamp-2">
                     {classItem.description || 'Aucune description'}
                   </p>
                   
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-400">
+                    <span className="text-[var(--text-muted)]">
                       {classItem.teacher?.displayName || classItem.teacher?.username || 'Professeur'}
                     </span>
                     <span className="text-purple-400 flex items-center gap-1">
@@ -345,7 +345,7 @@ export default function ClassesPage() {
                   </div>
                   
                   {classItem.joinedAt && (
-                    <div className="mt-3 pt-3 border-t border-[#3a3a4a] flex items-center gap-2 text-xs text-gray-500">
+                    <div className="mt-3 pt-3 border-t border-[var(--border)] flex items-center gap-2 text-xs text-[var(--text-secondary)]">
                       <Clock className="w-3 h-3" />
                       Rejoint le {new Date(classItem.joinedAt).toLocaleDateString('fr-FR')}
                     </div>
@@ -369,7 +369,7 @@ export default function ClassesPage() {
               className={`flex-1 px-6 py-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                 activeTab === 'search'
                   ? 'text-purple-400 border-b-2 border-purple-400 bg-purple-400/10'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  : 'text-[var(--text-muted)] hover:text-white hover:bg-white/5'
               }`}
             >
               <Search className="w-4 h-4" />
@@ -380,7 +380,7 @@ export default function ClassesPage() {
               className={`flex-1 px-6 py-4 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                 activeTab === 'invite'
                   ? 'text-purple-400 border-b-2 border-purple-400 bg-purple-400/10'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  : 'text-[var(--text-muted)] hover:text-white hover:bg-white/5'
               }`}
             >
               <Lock className="w-4 h-4" />
@@ -397,18 +397,18 @@ export default function ClassesPage() {
               >
                 {/* Barre de recherche */}
                 <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={getSearchPlaceholder()}
-                    className="w-full pl-10 pr-4 py-3 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                    className="w-full pl-10 pr-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--text-muted)] hover:text-white"
                     >
                       <AlertCircle className="w-5 h-5" />
                     </button>
@@ -446,13 +446,13 @@ export default function ClassesPage() {
                   </div>
                 ) : searchResults.length > 0 ? (
                   <div className="space-y-3">
-                    <p className="text-sm text-gray-400 mb-3">
+                    <p className="text-sm text-[var(--text-muted)] mb-3">
                       {searchResults.length} classe{searchResults.length > 1 ? 's' : ''} trouvée{searchResults.length > 1 ? 's' : ''}
                     </p>
                     {searchResults.map((classItem) => (
                       <div
                         key={classItem.id}
-                        className="p-4 bg-[#1e1e2e] rounded-lg border border-[#3a3a4a] flex items-center justify-between"
+                        className="p-4 bg-[var(--bg-primary)] rounded-lg border border-[var(--border)] flex items-center justify-between"
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -461,10 +461,10 @@ export default function ClassesPage() {
                               Publique
                             </span>
                           </div>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-sm text-[var(--text-muted)]">
                             Prof: {classItem.teacher?.displayName || classItem.teacher?.username}
                           </p>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                          <div className="flex items-center gap-4 mt-2 text-sm text-[var(--text-secondary)]">
                             <span className="flex items-center gap-1">
                               <Users className="w-4 h-4" />
                               {classItem.studentCount || 0} élèves
@@ -482,7 +482,7 @@ export default function ClassesPage() {
                           disabled={isJoining === classItem.id || isAlreadyMember(classItem.id)}
                           className={`ml-4 px-4 py-2 rounded-lg font-medium transition-colors ${
                             isAlreadyMember(classItem.id)
-                              ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                              ? 'bg-gray-600 text-[var(--text-muted)] cursor-not-allowed'
                               : 'bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50'
                           }`}
                         >
@@ -497,18 +497,18 @@ export default function ClassesPage() {
                     ))}
                   </div>
                 ) : searchQuery ? (
-                  <div className="text-center py-8 text-gray-400">
+                  <div className="text-center py-8 text-[var(--text-muted)]">
                     <Search className="w-10 h-10 mx-auto mb-3 text-gray-600" />
                     <p>Aucune classe publique trouvée pour cette recherche</p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">
                       Essayez avec un autre nom ou utilisez un code d'invitation pour les classes privées
                     </p>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-400">
+                  <div className="text-center py-8 text-[var(--text-muted)]">
                     <Search className="w-10 h-10 mx-auto mb-3 text-gray-600" />
                     <p>Recherchez une classe par son nom</p>
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-sm text-[var(--text-secondary)] mt-2">
                       Utilisez <span className="text-yellow-400">#ABC123</span> pour chercher par ID ou{' '}
                       <span className="text-blue-400">@NomProf</span> pour chercher par professeur
                     </p>
@@ -523,7 +523,7 @@ export default function ClassesPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <p className="text-gray-400 mb-4">
+                <p className="text-[var(--text-muted)] mb-4">
                   Entrez le code d'invitation fourni par votre professeur pour rejoindre une classe privée.
                   Une demande sera envoyée au professeur pour approbation.
                 </p>
@@ -534,7 +534,7 @@ export default function ClassesPage() {
                     value={inviteCode}
                     onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                     placeholder="INV-XXXXX"
-                    className="flex-1 px-4 py-3 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 uppercase"
+                    className="flex-1 px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 uppercase"
                   />
                   <button
                     onClick={submitInviteRequest}
@@ -570,7 +570,7 @@ export default function ClassesPage() {
 
                 {/* Demandes en attente */}
                 {pendingRequests.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-[#3a3a4a]">
+                  <div className="mt-6 pt-6 border-t border-[var(--border)]">
                     <h4 className="font-medium text-white mb-3 flex items-center gap-2">
                       <Clock3 className="w-4 h-4 text-yellow-400" />
                       Demandes en attente
@@ -583,7 +583,7 @@ export default function ClassesPage() {
                         >
                           <div>
                             <p className="font-medium text-white">{req.groupName}</p>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-[var(--text-muted)]">
                               Demande envoyée le {new Date(req.joinedAt).toLocaleDateString('fr-FR')}
                             </p>
                           </div>

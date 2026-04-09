@@ -86,32 +86,32 @@ function ManualQuestionEditor({ onAdd }: { onAdd: (question: any) => void }) {
         <button
           type="button"
           onClick={() => setQuestionType('single')}
-          className={`px-3 py-1 rounded text-sm ${questionType === 'single' ? 'bg-purple-600 text-white' : 'bg-[#2a2a3a] text-gray-400'}`}
+          className={`px-3 py-1 rounded text-sm ${questionType === 'single' ? 'bg-purple-600 text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}
         >
           Réponse unique
         </button>
         <button
           type="button"
           onClick={() => setQuestionType('multiple')}
-          className={`px-3 py-1 rounded text-sm ${questionType === 'multiple' ? 'bg-purple-600 text-white' : 'bg-[#2a2a3a] text-gray-400'}`}
+          className={`px-3 py-1 rounded text-sm ${questionType === 'multiple' ? 'bg-purple-600 text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}
         >
           Choix multiples
         </button>
         <button
           type="button"
           onClick={() => setQuestionType('free_text')}
-          className={`px-3 py-1 rounded text-sm ${questionType === 'free_text' ? 'bg-purple-600 text-white' : 'bg-[#2a2a3a] text-gray-400'}`}
+          className={`px-3 py-1 rounded text-sm ${questionType === 'free_text' ? 'bg-purple-600 text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}
         >
           Réponse libre
         </button>
       </div>
 
       <div>
-        <label className="block text-xs text-gray-400 mb-1">Question</label>
+        <label className="block text-xs text-[var(--text-muted)] mb-1">Question</label>
         <textarea
           value={questionText}
           onChange={(e) => setQuestionText(e.target.value)}
-          className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+          className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white text-sm"
           rows={2}
           placeholder="Entrez votre question..."
         />
@@ -119,12 +119,12 @@ function ManualQuestionEditor({ onAdd }: { onAdd: (question: any) => void }) {
 
       {questionType === 'single' && (
         <div>
-          <label className="block text-xs text-gray-400 mb-1">Réponse correcte</label>
+          <label className="block text-xs text-[var(--text-muted)] mb-1">Réponse correcte</label>
           <input
             type="text"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
-            className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+            className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white text-sm"
             placeholder="Réponse attendue..."
           />
         </div>
@@ -132,7 +132,7 @@ function ManualQuestionEditor({ onAdd }: { onAdd: (question: any) => void }) {
 
       {questionType === 'multiple' && (
         <div className="space-y-2">
-          <label className="block text-xs text-gray-400">Options (cochez les correctes)</label>
+          <label className="block text-xs text-[var(--text-muted)]">Options (cochez les correctes)</label>
           {options.map((opt) => (
             <div key={opt.id} className="flex items-center gap-2">
               <input
@@ -145,7 +145,7 @@ function ManualQuestionEditor({ onAdd }: { onAdd: (question: any) => void }) {
                 type="text"
                 value={opt.text}
                 onChange={(e) => handleOptionChange(opt.id, e.target.value)}
-                className="flex-1 px-3 py-1 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+                className="flex-1 px-3 py-1 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white text-sm"
                 placeholder={`Option ${opt.id}`}
               />
               {options.length > 2 && (
@@ -172,17 +172,17 @@ function ManualQuestionEditor({ onAdd }: { onAdd: (question: any) => void }) {
 
       {questionType === 'free_text' && (
         <div>
-          <label className="block text-xs text-gray-400 mb-1">
+          <label className="block text-xs text-[var(--text-muted)] mb-1">
             Réponses acceptées (séparées par des virgules, laisser vide pour correction manuelle)
           </label>
           <input
             type="text"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
-            className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+            className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white text-sm"
             placeholder="ex: Paris, paris, capitale de la France"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
             Laissez vide si vous souhaitez corriger manuellement chaque réponse.
           </p>
         </div>
@@ -190,25 +190,25 @@ function ManualQuestionEditor({ onAdd }: { onAdd: (question: any) => void }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs text-gray-400 mb-1">Points</label>
+          <label className="block text-xs text-[var(--text-muted)] mb-1">Points</label>
           <input
             type="number"
             min="1"
             max="10"
             value={points}
             onChange={(e) => setPoints(parseInt(e.target.value))}
-            className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+            className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-400 mb-1">Difficulté (1-10)</label>
+          <label className="block text-xs text-[var(--text-muted)] mb-1">Difficulté (1-10)</label>
           <input
             type="number"
             min="1"
             max="10"
             value={difficulty}
             onChange={(e) => setDifficulty(parseInt(e.target.value))}
-            className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+            className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white text-sm"
           />
         </div>
       </div>
@@ -666,7 +666,7 @@ export default function ClassDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -674,7 +674,7 @@ export default function ClassDetailsPage() {
 
   if (!classDetails) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-white mb-4">Classe non trouvée</h2>
           <Link
@@ -689,21 +689,21 @@ export default function ClassDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
+    <div className="min-h-screen bg-[var(--bg-primary)]">
       {/* Header */}
-      <div className="bg-[#1a1a2e] border-b border-[#2a2a3a]">
+      <div className="bg-[var(--bg-secondary)] border-b border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 href="/class-management"
-                className="p-2 hover:bg-[#2a2a3a] rounded-lg transition-colors"
+                className="p-2 hover:bg-[var(--bg-secondary)] rounded-lg transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-400" />
+                <ArrowLeft className="w-5 h-5 text-[var(--text-muted)]" />
               </Link>
               <div>
                 <h1 className="text-2xl font-bold text-white">{classDetails.name}</h1>
-                <p className="text-gray-400">{classDetails.level} • {classDetails.subject}</p>
+                <p className="text-[var(--text-muted)]">{classDetails.level} • {classDetails.subject}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -725,7 +725,7 @@ export default function ClassDetailsPage() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="bg-[#1a1a2e] border-b border-[#2a2a3a]">
+      <div className="bg-[var(--bg-secondary)] border-b border-[var(--border)]">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex space-x-1">
             {tabs.map((tab) => (
@@ -734,8 +734,8 @@ export default function ClassDetailsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 rounded-t-lg transition-colors ${
                   activeTab === tab.id
-                    ? 'bg-[#0a0a0f] text-purple-400 border-b-2 border-purple-500'
-                    : 'text-gray-400 hover:text-white hover:bg-[#2a2a3a]'
+                    ? 'bg-[var(--bg-primary)] text-purple-400 border-b-2 border-purple-500'
+                    : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-secondary)]'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -770,69 +770,69 @@ export default function ClassDetailsPage() {
               )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
+                <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center justify-between mb-2">
                     <Users className="w-8 h-8 text-blue-400" />
                     <span className="text-2xl font-bold text-white">{classDetails.studentCount}</span>
                   </div>
-                  <p className="text-gray-400">Élèves inscrits</p>
-                  <p className="text-sm text-gray-500 mt-1">sur {classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents}</p>
+                  <p className="text-[var(--text-muted)]">Élèves inscrits</p>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">sur {classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents}</p>
                 </div>
                 
-                <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
+                <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center justify-between mb-2">
                     <BookOpen className="w-8 h-8 text-green-400" />
                     <span className="text-2xl font-bold text-white">0</span>
                   </div>
-                  <p className="text-gray-400">Devoirs actifs</p>
-                  <p className="text-sm text-gray-500 mt-1">À configurer</p>
+                  <p className="text-[var(--text-muted)]">Devoirs actifs</p>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">À configurer</p>
                 </div>
                 
-                <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
+                <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center justify-between mb-2">
                     <MessageSquare className="w-8 h-8 text-purple-400" />
                     <span className="text-2xl font-bold text-white">0</span>
                   </div>
-                  <p className="text-gray-400">Messages</p>
-                  <p className="text-sm text-gray-500 mt-1">Aucun nouveau message</p>
+                  <p className="text-[var(--text-muted)]">Messages</p>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">Aucun nouveau message</p>
                 </div>
                 
-                <div className="bg-[#1a1a2e] p-6 rounded-lg border border-[#2a2a3a]">
+                <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center justify-between mb-2">
                     <TrendingUp className="w-8 h-8 text-orange-400" />
                     <span className="text-2xl font-bold text-white">--</span>
                   </div>
-                  <p className="text-gray-400">Progression moyenne</p>
-                  <p className="text-sm text-gray-500 mt-1">Données à venir</p>
+                  <p className="text-[var(--text-muted)]">Progression moyenne</p>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">Données à venir</p>
                 </div>
               </div>
             </div>
           )}
 
           {activeTab === 'my-classes' && (
-            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+            <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-white mb-2">Mes Classes</h2>
-                <p className="text-gray-400">Toutes les classes dans lesquelles tu es inscrit</p>
+                <p className="text-[var(--text-muted)]">Toutes les classes dans lesquelles tu es inscrit</p>
               </div>
 
               {userClassesLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                  <span className="ml-3 text-gray-400">Chargement de tes classes...</span>
+                  <span className="ml-3 text-[var(--text-muted)]">Chargement de tes classes...</span>
                 </div>
               ) : userClasses.length === 0 ? (
                 <div className="text-center py-8">
-                  <Users className="w-12 h-12 mx-auto mb-4 text-gray-600" />
-                  <p className="text-gray-400 mb-4">Tu n'es inscrit dans aucune classe pour le moment.</p>
-                  <div className="text-sm text-gray-500">
+                  <Users className="w-12 h-12 mx-auto mb-4 text-[var(--text-muted)]" />
+                  <p className="text-[var(--text-muted)] mb-4">Tu n'es inscrit dans aucune classe pour le moment.</p>
+                  <div className="text-sm text-[var(--text-secondary)]">
                     Utilise un code d'invitation pour rejoindre une classe.
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {userClasses.map((classItem: any) => (
-                    <div key={classItem.id} className="bg-[#2a2a3a] rounded-lg border border-[#3a3a4a] p-4 hover:border-[#4a4a5a] transition-all">
+                    <div key={classItem.id} className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-4 hover:border-[var(--border-focus)] transition-all">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-lg flex items-center justify-center">
@@ -840,10 +840,10 @@ export default function ClassDetailsPage() {
                           </div>
                           <div>
                             <h3 className="text-lg font-semibold text-white">{classItem.name}</h3>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-[var(--text-muted)]">
                               Professeur: {classItem.teacher?.displayName || classItem.teacher?.username || 'Inconnu'}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-[var(--text-secondary)]">
                               {classItem.studentCount || 0} élèves • Code: {classItem.inviteCode}
                             </p>
                           </div>
@@ -865,75 +865,75 @@ export default function ClassDetailsPage() {
           )}
 
           {activeTab === 'view-class' && (
-            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+            <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-white mb-2">Vue Élève</h2>
-                <p className="text-gray-400">Tu consultes cette classe en tant qu'élève</p>
+                <p className="text-[var(--text-muted)]">Tu consultes cette classe en tant qu'élève</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center gap-3 mb-3">
                     <Users className="w-6 h-6 text-blue-400" />
                     <h3 className="text-lg font-semibold text-white">Informations</h3>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Nom de la classe</span>
+                      <span className="text-[var(--text-muted)]">Nom de la classe</span>
                       <span className="text-white font-medium">{classDetails.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Professeur</span>
+                      <span className="text-[var(--text-muted)]">Professeur</span>
                       <span className="text-white font-medium">{classDetails.teacher?.displayName || classDetails.teacher?.username || 'Inconnu'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Nombre d'élèves</span>
+                      <span className="text-[var(--text-muted)]">Nombre d'élèves</span>
                       <span className="text-white font-medium">{students.length}/{classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Code d'invitation</span>
+                      <span className="text-[var(--text-muted)]">Code d'invitation</span>
                       <span className="text-white font-mono">{classDetails.inviteCode}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center gap-3 mb-3">
                     <BookOpen className="w-6 h-6 text-green-400" />
                     <h3 className="text-lg font-semibold text-white">Devoirs</h3>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Devoirs actifs</span>
+                      <span className="text-[var(--text-muted)]">Devoirs actifs</span>
                       <span className="text-white font-medium">0</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Devoirs complétés</span>
+                      <span className="text-[var(--text-muted)]">Devoirs complétés</span>
                       <span className="text-white font-medium">0</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Moyenne</span>
+                      <span className="text-[var(--text-muted)]">Moyenne</span>
                       <span className="text-white font-medium">-</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center gap-3 mb-3">
                     <Trophy className="w-6 h-6 text-yellow-400" />
                     <h3 className="text-lg font-semibold text-white">Classement</h3>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Ton rang</span>
+                      <span className="text-[var(--text-muted)]">Ton rang</span>
                       <span className="text-white font-medium">-</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Points</span>
+                      <span className="text-[var(--text-muted)]">Points</span>
                       <span className="text-white font-medium">0</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Participation</span>
+                      <span className="text-[var(--text-muted)]">Participation</span>
                       <span className="text-white font-medium">0%</span>
                     </div>
                   </div>
@@ -943,10 +943,10 @@ export default function ClassDetailsPage() {
           )}
 
           {activeTab === 'students' && (
-            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+            <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Liste des élèves ({students.length})</h3>
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-[var(--text-muted)]">
                   {classDetails.studentCount}/{classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents} places
                 </div>
               </div>
@@ -960,7 +960,7 @@ export default function ClassDetailsPage() {
                   </h4>
                   <div className="space-y-2">
                     {joinRequests.map((request) => (
-                      <div key={request.id} className="flex items-center justify-between p-3 bg-[#2a2a3a] rounded-lg">
+                      <div key={request.id} className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] rounded-lg">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
                             <span className="text-yellow-400 text-sm">
@@ -969,7 +969,7 @@ export default function ClassDetailsPage() {
                           </div>
                           <div>
                             <p className="text-white text-sm">{request.user.displayName || request.user.username}</p>
-                            <p className="text-xs text-gray-400">@{request.user.username}</p>
+                            <p className="text-xs text-[var(--text-muted)]">@{request.user.username}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -996,9 +996,9 @@ export default function ClassDetailsPage() {
               
               {students.length === 0 ? (
                 <div className="text-center py-8">
-                  <Users className="w-12 h-12 mx-auto mb-4 text-gray-600" />
-                  <p className="text-gray-400 mb-4">Aucun élève inscrit pour le moment.</p>
-                  <div className="text-sm text-gray-500">
+                  <Users className="w-12 h-12 mx-auto mb-4 text-[var(--text-muted)]" />
+                  <p className="text-[var(--text-muted)] mb-4">Aucun élève inscrit pour le moment.</p>
+                  <div className="text-sm text-[var(--text-secondary)]">
                     Partagez le code d'invitation <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded font-mono">
                       {classDetails.inviteCode}
                     </span> pour que les élèves puissent rejoindre.
@@ -1007,7 +1007,7 @@ export default function ClassDetailsPage() {
               ) : (
                 <div className="space-y-3">
                   {students.map((student) => (
-                    <div key={student.id} className="flex items-center justify-between p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                    <div key={student.id} className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
                           <span className="text-purple-400 font-medium">
@@ -1018,7 +1018,7 @@ export default function ClassDetailsPage() {
                           <p className="text-white font-medium">
                             {student.user.displayName || student.user.username}
                           </p>
-                          <p className="text-sm text-gray-400">@{student.user.username}</p>
+                          <p className="text-sm text-[var(--text-muted)]">@{student.user.username}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1043,7 +1043,7 @@ export default function ClassDetailsPage() {
           )}
 
           {activeTab === 'assignments' && (
-            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+            <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Devoirs et exercices ({assignments.length})</h3>
                 {isTeacher && (
@@ -1058,44 +1058,44 @@ export default function ClassDetailsPage() {
               </div>
 
               {showAssignmentForm && (
-                <form onSubmit={createAssignment} className="mb-6 p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                <form onSubmit={createAssignment} className="mb-6 p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
                   <h4 className="text-lg font-semibold text-white mb-4">Nouveau devoir</h4>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm text-gray-400 mb-1">Titre</label>
+                      <label className="block text-sm text-[var(--text-muted)] mb-1">Titre</label>
                       <input
                         type="text"
                         value={newAssignment.title}
                         onChange={(e) => setNewAssignment({...newAssignment, title: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white"
                         placeholder="Titre du devoir"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-gray-400 mb-1">Description</label>
+                      <label className="block text-sm text-[var(--text-muted)] mb-1">Description</label>
                       <textarea
                         value={newAssignment.description}
                         onChange={(e) => setNewAssignment({...newAssignment, description: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white"
                         placeholder="Description du devoir"
                         rows={2}
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm text-gray-400 mb-1">Nombre de questions</label>
+                        <label className="block text-sm text-[var(--text-muted)] mb-1">Nombre de questions</label>
                         <input
                           type="number"
                           min="1"
                           max="100"
                           value={newAssignment.questionCount || 10}
                           onChange={(e) => setNewAssignment({...newAssignment, questionCount: parseInt(e.target.value)})}
-                          className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                          className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-gray-400 mb-1">Durée (minutes)</label>
+                        <label className="block text-sm text-[var(--text-muted)] mb-1">Durée (minutes)</label>
                         <input
                           type="number"
                           min="1"
@@ -1103,17 +1103,17 @@ export default function ClassDetailsPage() {
                           placeholder="Sans limite"
                           value={newAssignment.timeLimit || ''}
                           onChange={(e) => setNewAssignment({...newAssignment, timeLimit: e.target.value ? parseInt(e.target.value) : null})}
-                          className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                          className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white"
                         />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm text-gray-400 mb-1">Niveau scolaire</label>
+                        <label className="block text-sm text-[var(--text-muted)] mb-1">Niveau scolaire</label>
                         <select
                           value={newAssignment.schoolLevel || '6eme'}
                           onChange={(e) => setNewAssignment({...newAssignment, schoolLevel: e.target.value})}
-                          className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                          className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white"
                         >
                           <option value="CP">CP</option>
                           <option value="CE1">CE1</option>
@@ -1130,11 +1130,11 @@ export default function ClassDetailsPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm text-gray-400 mb-1">Difficulté</label>
+                        <label className="block text-sm text-[var(--text-muted)] mb-1">Difficulté</label>
                         <select
                           value={newAssignment.difficulty || 'mixed'}
                           onChange={(e) => setNewAssignment({...newAssignment, difficulty: e.target.value})}
-                          className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                          className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white"
                         >
                           <option value="easy">Facile</option>
                           <option value="medium">Moyen</option>
@@ -1144,10 +1144,10 @@ export default function ClassDetailsPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm text-gray-400 mb-1">Types d'opérations</label>
+                      <label className="block text-sm text-[var(--text-muted)] mb-1">Types d'opérations</label>
                       <div className="flex flex-wrap gap-2">
                         {['addition', 'subtraction', 'multiplication', 'division'].map((op) => (
-                          <label key={op} className="flex items-center gap-1 text-sm text-gray-300">
+                          <label key={op} className="flex items-center gap-1 text-sm text-[var(--text-secondary)]">
                             <input
                               type="checkbox"
                               checked={newAssignment.operationTypes?.includes(op) ?? true}
@@ -1170,9 +1170,9 @@ export default function ClassDetailsPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm text-gray-400 mb-2">Source des questions</label>
+                      <label className="block text-sm text-[var(--text-muted)] mb-2">Source des questions</label>
                       <div className="flex gap-4">
-                        <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                        <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
                           <input
                             type="radio"
                             name="questionSource"
@@ -1183,7 +1183,7 @@ export default function ClassDetailsPage() {
                           />
                           Générées automatiquement
                         </label>
-                        <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                        <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
                           <input
                             type="radio"
                             name="questionSource"
@@ -1197,20 +1197,20 @@ export default function ClassDetailsPage() {
                       </div>
                     </div>
                     {newAssignment.questionSource === 'manual' && (
-                      <div className="p-4 bg-[#1a1a2e] rounded border border-[#3a3a4a]">
+                      <div className="p-4 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
                         <div className="flex items-center justify-between mb-3">
                           <h5 className="text-sm font-medium text-white">Questions manuelles</h5>
-                          <span className="text-xs text-gray-400">{newAssignment.manualQuestions?.length || 0} questions</span>
+                          <span className="text-xs text-[var(--text-muted)]">{newAssignment.manualQuestions?.length || 0} questions</span>
                         </div>
                         
                         {newAssignment.manualQuestions && newAssignment.manualQuestions.length > 0 && (
                           <div className="space-y-2 mb-4 max-h-60 overflow-y-auto">
                             {newAssignment.manualQuestions.map((q: any, idx: number) => (
-                              <div key={idx} className="p-3 bg-[#2a2a3a] rounded flex items-center justify-between">
+                              <div key={idx} className="p-3 bg-[var(--bg-secondary)] rounded flex items-center justify-between">
                                 <div>
                                   <span className="text-xs text-purple-400">Q{idx + 1}</span>
                                   <p className="text-sm text-white truncate max-w-md">{q.question}</p>
-                                  <span className="text-xs text-gray-400">{q.type === 'single' ? 'Réponse unique' : q.type === 'multiple' ? 'Choix multiples' : 'Réponse libre'}</span>
+                                  <span className="text-xs text-[var(--text-muted)]">{q.type === 'single' ? 'Réponse unique' : q.type === 'multiple' ? 'Choix multiples' : 'Réponse libre'}</span>
                                 </div>
                                 <button
                                   type="button"
@@ -1238,7 +1238,7 @@ export default function ClassDetailsPage() {
                       </div>
                     )}
                     <div className="flex items-center gap-6">
-                      <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                      <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
                         <input
                           type="checkbox"
                           checked={newAssignment.negativePoints || false}
@@ -1247,7 +1247,7 @@ export default function ClassDetailsPage() {
                         />
                         Points négatifs
                       </label>
-                      <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                      <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
                         <input
                           type="checkbox"
                           checked={newAssignment.shareEnabled || false}
@@ -1258,12 +1258,12 @@ export default function ClassDetailsPage() {
                       </label>
                     </div>
                     <div>
-                      <label className="block text-sm text-gray-400 mb-1">Date de rendu</label>
+                      <label className="block text-sm text-[var(--text-muted)] mb-1">Date de rendu</label>
                       <input
                         type="date"
                         value={newAssignment.dueDate}
                         onChange={(e) => setNewAssignment({...newAssignment, dueDate: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white"
                       />
                     </div>
                     <div className="flex gap-2">
@@ -1277,7 +1277,7 @@ export default function ClassDetailsPage() {
                       <button
                         type="button"
                         onClick={() => setShowAssignmentForm(false)}
-                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+                        className="px-4 py-2 bg-gray-600 hover:bg-[var(--bg-secondary)] text-white rounded transition-colors"
                       >
                         Annuler
                       </button>
@@ -1289,20 +1289,20 @@ export default function ClassDetailsPage() {
               {assignments.length > 0 ? (
                 <div className="space-y-4">
                   {assignments.map((assignment: any) => (
-                    <div key={assignment.id} className="p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                    <div key={assignment.id} className="p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h4 className="text-lg font-semibold text-white">{assignment.title}</h4>
-                          <p className="text-sm text-gray-400">{assignment.description || 'Pas de description'}</p>
+                          <p className="text-sm text-[var(--text-muted)]">{assignment.description || 'Pas de description'}</p>
                         </div>
                         <span className={`px-2 py-1 rounded text-xs ${
-                          assignment.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
+                          assignment.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-[var(--text-muted)]'
                         }`}>
                           {assignment.status === 'active' ? 'Actif' : 'Fermé'}
                         </span>
                       </div>
                       
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-400 mb-3">
+                      <div className="flex flex-wrap gap-4 text-sm text-[var(--text-muted)] mb-3">
                         <span className="flex items-center gap-1">
                           <Target className="w-4 h-4" />
                           {assignment.questionCount} questions
@@ -1327,9 +1327,9 @@ export default function ClassDetailsPage() {
 
                       {/* Progression pour l'élève */}
                       {!isTeacher && assignment.mySubmission && (
-                        <div className="mb-3 p-3 bg-[#1a1a2e] rounded">
+                        <div className="mb-3 p-3 bg-[var(--bg-secondary)] rounded">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-300">
+                            <span className="text-sm text-[var(--text-secondary)]">
                               {assignment.mySubmission.status === 'submitted' ? 'Rendu' : 
                                assignment.mySubmission.status === 'graded' ? 'Noté' : 'En cours'}
                             </span>
@@ -1342,7 +1342,7 @@ export default function ClassDetailsPage() {
                               </span>
                             )}
                           </div>
-                          <div className="mt-2 text-sm text-gray-400">
+                          <div className="mt-2 text-sm text-[var(--text-muted)]">
                             {assignment.mySubmission.correctCount}/{assignment.mySubmission.totalAnswered} correct
                           </div>
                         </div>
@@ -1350,8 +1350,8 @@ export default function ClassDetailsPage() {
 
                       {/* Liste des questions (visible par le prof) */}
                       {isTeacher && assignment.questions && assignment.questions.length > 0 && (
-                        <div className="mt-3 border-t border-[#3a3a4a] pt-3">
-                          <h5 className="text-sm font-medium text-gray-300 mb-2">Questions ({assignment.questions.length})</h5>
+                        <div className="mt-3 border-t border-[var(--border)] pt-3">
+                          <h5 className="text-sm font-medium text-[var(--text-secondary)] mb-2">Questions ({assignment.questions.length})</h5>
                           <div className="grid grid-cols-5 gap-2">
                             {assignment.questions.slice(0, 10).map((q: any, idx: number) => (
                               <div 
@@ -1367,7 +1367,7 @@ export default function ClassDetailsPage() {
                               </div>
                             ))}
                             {assignment.questions.length > 10 && (
-                              <div className="p-2 rounded text-center text-xs bg-gray-500/20 text-gray-400">
+                              <div className="p-2 rounded text-center text-xs bg-gray-500/20 text-[var(--text-muted)]">
                                 +{assignment.questions.length - 10}
                               </div>
                             )}
@@ -1419,12 +1419,12 @@ export default function ClassDetailsPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                  <p className="text-gray-400 mb-2">Aucun devoir créé pour le moment.</p>
+                  <BookOpen className="w-16 h-16 mx-auto mb-4 text-[var(--text-muted)]" />
+                  <p className="text-[var(--text-muted)] mb-2">Aucun devoir créé pour le moment.</p>
                   {isTeacher ? (
-                    <p className="text-sm text-gray-500">Commencez par créer votre premier devoir pour cette classe.</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Commencez par créer votre premier devoir pour cette classe.</p>
                   ) : (
-                    <p className="text-sm text-gray-500">Votre professeur n&apos;a pas encore créé de devoirs.</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Votre professeur n&apos;a pas encore créé de devoirs.</p>
                   )}
                 </div>
               )}
@@ -1432,7 +1432,7 @@ export default function ClassDetailsPage() {
           )}
 
           {activeTab === 'messages' && (
-            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+            <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Messages de la classe</h3>
                 {isTeacher && (
@@ -1447,15 +1447,15 @@ export default function ClassDetailsPage() {
               </div>
 
               {showMessageForm && (
-                <form onSubmit={sendMessage} className="mb-6 p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                <form onSubmit={sendMessage} className="mb-6 p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
                   <h4 className="text-lg font-semibold text-white mb-4">Nouveau message</h4>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm text-gray-400 mb-1">Message</label>
+                      <label className="block text-sm text-[var(--text-muted)] mb-1">Message</label>
                       <textarea
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#1a1a2e] border border-[#3a3a4a] rounded text-white"
+                        className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white"
                         placeholder="Votre message pour la classe..."
                         rows={4}
                         required
@@ -1472,7 +1472,7 @@ export default function ClassDetailsPage() {
                       <button
                         type="button"
                         onClick={() => setShowMessageForm(false)}
-                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+                        className="px-4 py-2 bg-gray-600 hover:bg-[var(--bg-secondary)] text-white rounded transition-colors"
                       >
                         Annuler
                       </button>
@@ -1484,7 +1484,7 @@ export default function ClassDetailsPage() {
               {messages.length > 0 ? (
                 <div className="space-y-4">
                   {messages.map((msg: any) => (
-                    <div key={msg.id} className="p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                    <div key={msg.id} className="p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
                       <div className="flex items-center gap-3 mb-2">
                         <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center">
                           <span className="text-purple-400 text-sm">
@@ -1495,23 +1495,23 @@ export default function ClassDetailsPage() {
                           <p className="text-white font-medium text-sm">
                             {msg.user?.displayName || msg.user?.username}
                           </p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-[var(--text-muted)]">
                             {new Date(msg.createdAt).toLocaleString('fr-FR')}
                           </p>
                         </div>
                       </div>
-                      <p className="text-gray-300 text-sm">{msg.content}</p>
+                      <p className="text-[var(--text-secondary)] text-sm">{msg.content}</p>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                  <p className="text-gray-400 mb-2">Aucun message pour le moment.</p>
+                  <MessageSquare className="w-16 h-16 mx-auto mb-4 text-[var(--text-muted)]" />
+                  <p className="text-[var(--text-muted)] mb-2">Aucun message pour le moment.</p>
                   {isTeacher ? (
-                    <p className="text-sm text-gray-500">Communiquez avec vos élèves en envoyant un message à la classe.</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Communiquez avec vos élèves en envoyant un message à la classe.</p>
                   ) : (
-                    <p className="text-sm text-gray-500">Le professeur n&apos;a pas encore envoyé de messages.</p>
+                    <p className="text-sm text-[var(--text-secondary)]">Le professeur n&apos;a pas encore envoyé de messages.</p>
                   )}
                 </div>
               )}
@@ -1519,7 +1519,7 @@ export default function ClassDetailsPage() {
           )}
 
           {activeTab === 'analytics' && (
-            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+            <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Analytiques de la classe</h3>
                 <button 
@@ -1539,49 +1539,49 @@ export default function ClassDetailsPage() {
                 <div className="space-y-8">
                   {/* Statistiques globales */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                    <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                       <div className="flex items-center justify-between mb-2">
                         <TrendingUp className="w-6 h-6 text-green-400" />
                         <span className="text-2xl font-bold text-white">
                           {analyticsData.globalStats.averageScore.toFixed(1)}%
                         </span>
                       </div>
-                      <p className="text-gray-400 text-sm">Score moyen</p>
+                      <p className="text-[var(--text-muted)] text-sm">Score moyen</p>
                     </div>
                     
-                    <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                    <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                       <div className="flex items-center justify-between mb-2">
                         <Target className="w-6 h-6 text-blue-400" />
                         <span className="text-2xl font-bold text-white">
                           {analyticsData.globalStats.accuracy.toFixed(1)}%
                         </span>
                       </div>
-                      <p className="text-gray-400 text-sm">Taux de réussite</p>
+                      <p className="text-[var(--text-muted)] text-sm">Taux de réussite</p>
                     </div>
                     
-                    <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                    <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                       <div className="flex items-center justify-between mb-2">
                         <Calendar className="w-6 h-6 text-purple-400" />
                         <span className="text-2xl font-bold text-white">
                           {analyticsData.globalStats.totalQuestions}
                         </span>
                       </div>
-                      <p className="text-gray-400 text-sm">Total questions</p>
+                      <p className="text-[var(--text-muted)] text-sm">Total questions</p>
                     </div>
                     
-                    <div className="bg-[#2a2a3a] p-4 rounded-lg border border-[#3a3a4a]">
+                    <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                       <div className="flex items-center justify-between mb-2">
                         <Award className="w-6 h-6 text-yellow-400" />
                         <span className="text-2xl font-bold text-white">
                           {(analyticsData.globalStats.averageTime / 1000).toFixed(1)}s
                         </span>
                       </div>
-                      <p className="text-gray-400 text-sm">Temps moyen</p>
+                      <p className="text-[var(--text-muted)] text-sm">Temps moyen</p>
                     </div>
                   </div>
 
                   {/* Performance par matière */}
-                  <div className="bg-[#2a2a3a] rounded-lg border border-[#3a3a4a] p-6">
+                  <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
                     <h4 className="text-lg font-semibold text-white mb-4">Performance par matière</h4>
                     <div className="space-y-3">
                       {analyticsData.subjectPerformance.map((subject: any) => (
@@ -1591,7 +1591,7 @@ export default function ClassDetailsPage() {
                             <span className="text-white capitalize">{subject.subject}</span>
                           </div>
                           <div className="flex items-center gap-4">
-                            <span className="text-gray-400 text-sm">
+                            <span className="text-[var(--text-muted)] text-sm">
                               {subject.correctAnswers}/{subject.totalQuestions}
                             </span>
                             <span className="text-green-400 font-semibold">
@@ -1604,7 +1604,7 @@ export default function ClassDetailsPage() {
                   </div>
 
                   {/* Top élèves */}
-                  <div className="bg-[#2a2a3a] rounded-lg border border-[#3a3a4a] p-6">
+                  <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
                     <h4 className="text-lg font-semibold text-white mb-4">Top des élèves</h4>
                     <div className="space-y-3">
                       {analyticsData.studentsStats.slice(0, 5).map((student: any, index: number) => (
@@ -1615,14 +1615,14 @@ export default function ClassDetailsPage() {
                             </div>
                             <div>
                               <p className="text-white font-medium">{student.displayName}</p>
-                              <p className="text-gray-400 text-sm">@{student.username}</p>
+                              <p className="text-[var(--text-muted)] text-sm">@{student.username}</p>
                             </div>
                           </div>
                           <div className="text-right">
                             <p className="text-green-400 font-semibold">
                               {student.averageScore.toFixed(1)}%
                             </p>
-                            <p className="text-gray-400 text-sm">
+                            <p className="text-[var(--text-muted)] text-sm">
                               {student.totalQuestions} questions
                             </p>
                           </div>
@@ -1633,19 +1633,19 @@ export default function ClassDetailsPage() {
 
                   {/* Évolution temporelle */}
                   {analyticsData.timeEvolution.length > 0 && (
-                    <div className="bg-[#2a2a3a] rounded-lg border border-[#3a3a4a] p-6">
+                    <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
                       <h4 className="text-lg font-semibold text-white mb-4">Progression (30 derniers jours)</h4>
                       <div className="space-y-2">
                         {analyticsData.timeEvolution.slice(-7).map((day: any) => (
                           <div key={day.date} className="flex items-center justify-between text-sm">
-                            <span className="text-gray-400">
+                            <span className="text-[var(--text-muted)]">
                               {new Date(day.date).toLocaleDateString('fr-FR', { 
                                 month: 'short', 
                                 day: 'numeric' 
                               })}
                             </span>
                             <div className="flex items-center gap-4">
-                              <span className="text-gray-400">
+                              <span className="text-[var(--text-muted)]">
                                 {day.totalQuestions} q
                               </span>
                               <span className="text-green-400">
@@ -1660,9 +1660,9 @@ export default function ClassDetailsPage() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                  <p className="text-gray-400 mb-2">Aucune donnée analytique disponible</p>
-                  <p className="text-sm text-gray-500">
+                  <BarChart3 className="w-16 h-16 mx-auto mb-4 text-[var(--text-muted)]" />
+                  <p className="text-[var(--text-muted)] mb-2">Aucune donnée analytique disponible</p>
+                  <p className="text-sm text-[var(--text-secondary)]">
                     Les élèves doivent commencer à répondre à des questions pour voir les analytiques.
                   </p>
                 </div>
@@ -1671,7 +1671,7 @@ export default function ClassDetailsPage() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="bg-[#1a1a2e] rounded-lg border border-[#2a2a3a] p-6">
+            <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-semibold text-white">Paramètres de la classe</h3>
                 <div className="flex gap-2">
@@ -1694,7 +1694,7 @@ export default function ClassDetailsPage() {
                             isPrivate: classDetails.isPrivate
                           });
                         }}
-                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                        className="px-4 py-2 bg-gray-600 hover:bg-[var(--bg-secondary)] text-white rounded-lg transition-colors"
                       >
                         Annuler
                       </button>
@@ -1713,26 +1713,26 @@ export default function ClassDetailsPage() {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">Nom de la classe</label>
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">Nom de la classe</label>
                     {isEditing ? (
                       <input
                         type="text"
                         value={editForm.name}
                         onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                        className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                        className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-white"
                       />
                     ) : (
                       <input
                         type="text"
                         value={classDetails.name}
-                        className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                        className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-white"
                         readOnly
                       />
                     )}
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">Nombre maximum d'élèves</label>
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">Nombre maximum d'élèves</label>
                     {isEditing ? (
                       <input
                         type="number"
@@ -1740,13 +1740,13 @@ export default function ClassDetailsPage() {
                         max="100"
                         value={editForm.maxStudents}
                         onChange={(e) => setEditForm({...editForm, maxStudents: parseInt(e.target.value) || 0})}
-                        className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                        className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-white"
                       />
                     ) : (
                       <input
                         type="text"
                         value={classDetails.maxStudents === 0 ? 'Illimité' : classDetails.maxStudents}
-                        className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                        className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-white"
                         readOnly
                       />
                     )}
@@ -1754,25 +1754,25 @@ export default function ClassDetailsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Description</label>
+                  <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">Description</label>
                   {isEditing ? (
                     <textarea
                       value={editForm.description}
                       onChange={(e) => setEditForm({...editForm, description: e.target.value})}
-                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                      className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-white"
                       rows={3}
                     />
                   ) : (
                     <textarea
                       value={classDetails.description || ''}
-                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                      className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-white"
                       rows={3}
                       readOnly
                     />
                   )}
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-[#2a2a3a] rounded-lg border border-[#3a3a4a]">
+                <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
                   <div className="flex items-center gap-3">
                     <input
                       type="checkbox"
@@ -1780,13 +1780,13 @@ export default function ClassDetailsPage() {
                       checked={isEditing ? editForm.isPrivate : classDetails.isPrivate}
                       onChange={(e) => isEditing && setEditForm({...editForm, isPrivate: e.target.checked})}
                       disabled={!isEditing}
-                      className="w-4 h-4 text-purple-600 bg-[#2a2a3a] border border-[#3a3a4a] rounded focus:ring-purple-500"
+                      className="w-4 h-4 text-purple-600 bg-[var(--bg-secondary)] border border-[var(--border)] rounded focus:ring-purple-500"
                     />
                     <div>
                       <label htmlFor="private" className="text-sm font-medium text-white">
                         Classe privée
                       </label>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-[var(--text-muted)]">
                         {isEditing ? editForm.isPrivate : classDetails.isPrivate 
                           ? "Uniquement accessible avec un code d'invitation" 
                           : "Visible et rejoignable par tous les élèves"
@@ -1804,12 +1804,12 @@ export default function ClassDetailsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Code d'invitation</label>
+                  <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">Code d'invitation</label>
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={classDetails.inviteCode || 'Aucun'}
-                      className="flex-1 px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded-lg text-white"
+                      className="flex-1 px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-white"
                       readOnly
                     />
                     <button
@@ -1824,7 +1824,7 @@ export default function ClassDetailsPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[var(--text-muted)]">
                   <div>
                     <span className="font-medium">Niveau:</span> {classDetails.level || 'Non défini'}
                   </div>
@@ -1841,10 +1841,10 @@ export default function ClassDetailsPage() {
               </div>
 
               {/* Actions dangereuses */}
-              <div className="mt-8 pt-6 border-t border-[#3a3a4a]">
+              <div className="mt-8 pt-6 border-t border-[var(--border)]">
                 <h4 className="text-lg font-semibold text-red-400 mb-4">Actions dangereuses</h4>
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-[var(--text-muted)]">
                     Une fois supprimée, la classe ne pourra pas être récupérée. Tous les élèves seront retirés et les données associées seront perdues.
                   </p>
                   <button
@@ -1863,7 +1863,7 @@ export default function ClassDetailsPage() {
       {/* Modal de partage */}
       {shareModalOpen && selectedAssignmentForShare && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1a1a2e] rounded-lg border border-[#3a3a4a] p-6 max-w-md w-full">
+          <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6 max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold text-white flex items-center gap-2">
                 <QrCode className="w-5 h-5" />
@@ -1871,9 +1871,9 @@ export default function ClassDetailsPage() {
               </h3>
               <button
                 onClick={() => setShareModalOpen(false)}
-                className="p-1 hover:bg-gray-700 rounded"
+                className="p-1 hover:bg-[var(--bg-secondary)] rounded"
               >
-                <X className="w-5 h-5 text-gray-400" />
+                <X className="w-5 h-5 text-[var(--text-muted)]" />
               </button>
             </div>
             
@@ -1884,17 +1884,17 @@ export default function ClassDetailsPage() {
                   size={200}
                   level="H"
                 />
-                <p className="mt-2 text-sm text-gray-600">Scannez pour accéder au devoir</p>
+                <p className="mt-2 text-sm text-[var(--text-muted)]">Scannez pour accéder au devoir</p>
               </div>
               
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Lien de partage</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-1">Lien de partage</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     readOnly
                     value={`${window.location.origin}/shared-assignment/${selectedAssignmentForShare.shareCode}`}
-                    className="flex-1 px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-white text-sm"
+                    className="flex-1 px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-white text-sm"
                   />
                   <button
                     onClick={() => {
@@ -1909,8 +1909,8 @@ export default function ClassDetailsPage() {
               </div>
               
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Code de partage</label>
-                <div className="px-3 py-2 bg-[#2a2a3a] border border-[#3a3a4a] rounded text-center">
+                <label className="block text-sm text-[var(--text-muted)] mb-1">Code de partage</label>
+                <div className="px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded text-center">
                   <span className="text-2xl font-mono font-bold text-purple-400 tracking-wider">
                     {selectedAssignmentForShare.shareCode}
                   </span>
@@ -1919,7 +1919,7 @@ export default function ClassDetailsPage() {
               
               <button
                 onClick={() => setShareModalOpen(false)}
-                className="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+                className="w-full px-4 py-2 bg-gray-600 hover:bg-[var(--bg-secondary)] text-white rounded transition-colors"
               >
                 Fermer
               </button>

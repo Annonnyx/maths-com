@@ -545,7 +545,7 @@ export default function AdminPage() {
         <div className="text-center">
           <Shield className="w-16 h-16 mx-auto mb-4 text-red-500" />
           <h1 className="text-2xl font-bold mb-4">Accès refusé</h1>
-          <p className="text-gray-400">Cette page est réservée à Ønyx</p>
+          <p className="text-[var(--text-muted)]">Cette page est réservée à Ønyx</p>
           <Link href="/dashboard" className="mt-4 inline-block text-indigo-400 hover:text-indigo-300">
             Retour au dashboard
           </Link>
@@ -557,7 +557,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-foreground">
       {/* Header */}
-      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-[var(--bg-primary)]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300">
@@ -601,7 +601,7 @@ export default function AdminPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-border"
+            className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-border"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Zap className="w-5 h-5 text-yellow-400" />
@@ -611,19 +611,19 @@ export default function AdminPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="p-3 bg-card rounded-lg">
-                  <p className="text-gray-400">Elo Solo actuel</p>
+                  <p className="text-[var(--text-muted)]">Elo Solo actuel</p>
                   <p className="text-xl font-bold">{myElo.soloElo}</p>
                   <p className="text-sm text-purple-400">{myElo.soloClass}</p>
                 </div>
                 <div className="p-3 bg-card rounded-lg">
-                  <p className="text-gray-400">Elo Multi actuel</p>
+                  <p className="text-[var(--text-muted)]">Elo Multi actuel</p>
                   <p className="text-xl font-bold">{myElo.multiplayerElo}</p>
                   <p className="text-sm text-purple-400">{myElo.multiplayerClass}</p>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Nouvel Elo Solo</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Nouvel Elo Solo</label>
                 <input
                   type="number"
                   value={newElo}
@@ -633,7 +633,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Nouvel Elo Multi</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Nouvel Elo Multi</label>
                 <input
                   type="number"
                   value={newMultiplayerElo}
@@ -656,7 +656,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-red-500/30"
+            className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-red-500/30"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-red-400">
               <RotateCcw className="w-5 h-5" />
@@ -664,7 +664,7 @@ export default function AdminPage() {
             </h2>
             
             <div className="space-y-4">
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[var(--text-muted)]">
                 Réinitialise l&apos;ELO de TOUS les joueurs à 400 (F-). Cette action est irréversible.
               </p>
 
@@ -715,7 +715,7 @@ export default function AdminPage() {
                         Copier
                       </button>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-[var(--text-secondary)] mt-2">
                       Ce code est aussi envoyé dans tes messages. Il reste valide tant que tu ne quittes pas cette page.
                     </p>
                   </div>
@@ -785,7 +785,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-border"
+            className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-border"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Award className="w-5 h-5 text-purple-400" />
@@ -794,7 +794,7 @@ export default function AdminPage() {
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Nom</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Nom</label>
                 <input
                   type="text"
                   value={badgeName}
@@ -805,7 +805,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Description</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Description</label>
                 <input
                   type="text"
                   value={badgeDescription}
@@ -817,7 +817,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Icône</label>
+                  <label className="block text-sm text-[var(--text-muted)] mb-2">Icône</label>
                   <select
                     value={badgeIcon}
                     onChange={(e) => setBadgeIcon(e.target.value)}
@@ -830,7 +830,7 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Couleur</label>
+                  <label className="block text-sm text-[var(--text-muted)] mb-2">Couleur</label>
                   <input
                     type="color"
                     value={badgeColor}
@@ -841,7 +841,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Catégorie</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Catégorie</label>
                 <select
                   value={badgeCategory}
                   onChange={(e) => setBadgeCategory(e.target.value)}
@@ -854,7 +854,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Condition d&apos;obtention</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Condition d&apos;obtention</label>
                 <input
                   type="text"
                   value={badgeRequirement}
@@ -879,7 +879,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-border"
+            className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-border"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <UserPlus className="w-5 h-5 text-green-400" />
@@ -888,7 +888,7 @@ export default function AdminPage() {
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Badge (tous les badges)</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Badge (tous les badges)</label>
                 <select
                   value={selectedBadge}
                   onChange={(e) => setSelectedBadge(e.target.value)}
@@ -927,7 +927,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Utilisateur</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Utilisateur</label>
                 <select
                   value={selectedUser}
                   onChange={(e) => setSelectedUser(e.target.value)}
@@ -957,7 +957,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-border md:col-span-2"
+            className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-border md:col-span-2"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Medal className="w-5 h-5 text-yellow-400" />
@@ -1018,7 +1018,7 @@ export default function AdminPage() {
               {/* Badges de Rang */}
               {badges.filter(b => b.category === 'rank').length > 0 && (
                 <div>
-                  <h3 className="text-sm text-gray-400 mb-2">Classes (Rang)</h3>
+                  <h3 className="text-sm text-[var(--text-muted)] mb-2">Classes (Rang)</h3>
                   <div className="grid md:grid-cols-4 gap-3">
                     {badges.filter(b => b.category === 'rank').map(badge => (
                       <div
@@ -1033,7 +1033,7 @@ export default function AdminPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm truncate">{badge.name}</p>
-                          <p className="text-xs text-gray-400 truncate">{badge.description}</p>
+                          <p className="text-xs text-[var(--text-muted)] truncate">{badge.description}</p>
                         </div>
                       </div>
                     ))}
@@ -1044,7 +1044,7 @@ export default function AdminPage() {
               {/* Badges de Succès */}
               {badges.filter(b => b.category === 'achievement').length > 0 && (
                 <div>
-                  <h3 className="text-sm text-gray-400 mb-2">Succès</h3>
+                  <h3 className="text-sm text-[var(--text-muted)] mb-2">Succès</h3>
                   <div className="grid md:grid-cols-4 gap-3">
                     {badges.filter(b => b.category === 'achievement').map(badge => (
                       <div
@@ -1059,7 +1059,7 @@ export default function AdminPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm truncate">{badge.name}</p>
-                          <p className="text-xs text-gray-400 truncate">{badge.description}</p>
+                          <p className="text-xs text-[var(--text-muted)] truncate">{badge.description}</p>
                         </div>
                       </div>
                     ))}
@@ -1070,7 +1070,7 @@ export default function AdminPage() {
               {/* Badges Spéciaux (Top 1, etc) */}
               {badges.filter(b => b.category === 'special').length > 0 && (
                 <div>
-                  <h3 className="text-sm text-gray-400 mb-2">Spécial (Top 1)</h3>
+                  <h3 className="text-sm text-[var(--text-muted)] mb-2">Spécial (Top 1)</h3>
                   <div className="grid md:grid-cols-4 gap-3">
                     {badges.filter(b => b.category === 'special').map(badge => (
                       <div
@@ -1085,7 +1085,7 @@ export default function AdminPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm truncate">{badge.name}</p>
-                          <p className="text-xs text-gray-400 truncate">{badge.description}</p>
+                          <p className="text-xs text-[var(--text-muted)] truncate">{badge.description}</p>
                         </div>
                       </div>
                     ))}
@@ -1096,7 +1096,7 @@ export default function AdminPage() {
               {/* Badges Custom (supprimables) */}
               {badges.filter(b => b.category === 'custom').length > 0 && (
                 <div>
-                  <h3 className="text-sm text-gray-400 mb-2">Badges Custom (créés par toi)</h3>
+                  <h3 className="text-sm text-[var(--text-muted)] mb-2">Badges Custom (créés par toi)</h3>
                   <div className="grid md:grid-cols-3 gap-4">
                     {badges.filter(b => b.category === 'custom').map(badge => (
                       <div
@@ -1111,7 +1111,7 @@ export default function AdminPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold truncate">{badge.name}</p>
-                          <p className="text-xs text-gray-400 truncate">{badge.description}</p>
+                          <p className="text-xs text-[var(--text-muted)] truncate">{badge.description}</p>
                         </div>
                         <button
                           onClick={() => deleteBadge(badge.id)}
@@ -1127,7 +1127,7 @@ export default function AdminPage() {
               
               {badges.length === 0 && (
                 <div className="text-center py-8">
-                  <p className="text-gray-400 mb-4">
+                  <p className="text-[var(--text-muted)] mb-4">
                     Aucun badge dans le système - clique ci-dessous pour initialiser
                   </p>
                   <button
@@ -1162,7 +1162,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-border md:col-span-2"
+            className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-border md:col-span-2"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Image className="w-5 h-5 text-purple-400" />
@@ -1181,7 +1181,7 @@ export default function AdminPage() {
                       onChange={(e) => setBannerFormData(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="Nom de la bannière"
                       required
-                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
+                      className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-border rounded-lg text-foreground text-sm"
                     />
                   </div>
                   <div>
@@ -1190,7 +1190,7 @@ export default function AdminPage() {
                       value={bannerFormData.description}
                       onChange={(e) => setBannerFormData(prev => ({ ...prev, description: e.target.value }))}
                       placeholder="Description (optionnel)"
-                      className="w-full px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
+                      className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-border rounded-lg text-foreground text-sm"
                     />
                   </div>
                 </div>
@@ -1199,7 +1199,7 @@ export default function AdminPage() {
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     required
-                    className="flex-1 px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
+                    className="flex-1 px-3 py-2 bg-[var(--bg-secondary)] border border-border rounded-lg text-foreground text-sm"
                   />
                   <label className="flex items-center gap-2 text-sm">
                     <input
@@ -1231,7 +1231,7 @@ export default function AdminPage() {
               <div className="grid grid-cols-3 gap-3">
                 <select
                   id="giveBannerUser"
-                  className="px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
+                  className="px-3 py-2 bg-[var(--bg-secondary)] border border-border rounded-lg text-foreground text-sm"
                 >
                   <option value="">Sélectionner un utilisateur</option>
                   {users.map(u => (
@@ -1240,7 +1240,7 @@ export default function AdminPage() {
                 </select>
                 <select
                   id="giveBannerSelect"
-                  className="px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground text-sm"
+                  className="px-3 py-2 bg-[var(--bg-secondary)] border border-border rounded-lg text-foreground text-sm"
                 >
                   <option value="">Sélectionner une bannière</option>
                   {banners.map(b => (
@@ -1319,10 +1319,10 @@ export default function AdminPage() {
                   <div className="p-3">
                     <h4 className="font-semibold text-sm mb-1">{banner.name}</h4>
                     {banner.description && (
-                      <p className="text-xs text-gray-400 mb-2">{banner.description}</p>
+                      <p className="text-xs text-[var(--text-muted)] mb-2">{banner.description}</p>
                     )}
                     
-                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-3">
                       <span>{banner._count?.users ?? 0} utilisateurs</span>
                       <span>{new Date(banner.createdAt).toLocaleDateString('fr-FR')}</span>
                     </div>
@@ -1348,7 +1348,7 @@ export default function AdminPage() {
             </div>
 
             {banners.length === 0 && (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-[var(--text-muted)]">
                 <Image className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p>Aucune bannière uploadée</p>
                 <p className="text-sm">Commence par uploader ta première bannière personnalisée</p>
@@ -1361,7 +1361,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-border md:col-span-2"
+            className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-border md:col-span-2"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -1371,7 +1371,7 @@ export default function AdminPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowUserList(!showUserList)}
-                  className="px-4 py-2 bg-card hover:bg-[#2a2a3a] border border-border rounded-lg text-sm transition-colors"
+                  className="px-4 py-2 bg-card hover:bg-[var(--bg-secondary)] border border-border rounded-lg text-sm transition-colors"
                 >
                   {showUserList ? 'Masquer' : 'Afficher'} la liste
                 </button>
@@ -1413,19 +1413,19 @@ export default function AdminPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left p-2 text-gray-400">Username</th>
-                      <th className="text-left p-2 text-gray-400">Email</th>
-                      <th className="text-left p-2 text-gray-400">Elo Solo</th>
-                      <th className="text-left p-2 text-gray-400">Classe</th>
-                      <th className="text-left p-2 text-gray-400">Elo Multi</th>
-                      <th className="text-left p-2 text-gray-400">Classe Multi</th>
+                      <th className="text-left p-2 text-[var(--text-muted)]">Username</th>
+                      <th className="text-left p-2 text-[var(--text-muted)]">Email</th>
+                      <th className="text-left p-2 text-[var(--text-muted)]">Elo Solo</th>
+                      <th className="text-left p-2 text-[var(--text-muted)]">Classe</th>
+                      <th className="text-left p-2 text-[var(--text-muted)]">Elo Multi</th>
+                      <th className="text-left p-2 text-[var(--text-muted)]">Classe Multi</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map(user => (
                       <tr key={user.id} className="border-b border-[#1e1e2e] hover:bg-card">
                         <td className="p-2 font-medium">{user.username}</td>
-                        <td className="p-2 text-gray-400">{user.email}</td>
+                        <td className="p-2 text-[var(--text-muted)]">{user.email}</td>
                         <td className="p-2">{(user as any).soloElo}</td>
                         <td className="p-2 text-purple-400">{(user as any).soloClass}</td>
                         <td className="p-2">{(user as any).multiplayerElo}</td>
@@ -1444,7 +1444,7 @@ export default function AdminPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="p-6 bg-[#12121a] rounded-2xl border border-border"
+          className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-border"
         >
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Users className="w-5 h-5 text-blue-400" />
@@ -1464,7 +1464,7 @@ export default function AdminPage() {
 
             {searchLoading && (
               <div className="text-center py-4">
-                <Loader2 className="w-6 h-6 animate-spin mx-auto text-gray-400" />
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-[var(--text-muted)]" />
               </div>
             )}
 
@@ -1481,8 +1481,8 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <div className="font-semibold">{player.displayName || player.username}</div>
-                        <div className="text-sm text-gray-400">@{player.username}</div>
-                        <div className="text-xs text-gray-500">ID: {player.id}</div>
+                        <div className="text-sm text-[var(--text-muted)]">@{player.username}</div>
+                        <div className="text-xs text-[var(--text-secondary)]">ID: {player.id}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -1516,11 +1516,11 @@ export default function AdminPage() {
                 <h3 className="font-semibold mb-3">Modifier le pseudonyme</h3>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Joueur</label>
+                    <label className="block text-sm text-[var(--text-muted)] mb-1">Joueur</label>
                     <div className="text-sm">{selectedPlayer.displayName || selectedPlayer.username} (@{selectedPlayer.username})</div>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Nouveau pseudonyme</label>
+                    <label className="block text-sm text-[var(--text-muted)] mb-1">Nouveau pseudonyme</label>
                     <input
                       type="text"
                       value={newUsername}
@@ -1558,7 +1558,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
-            className="p-6 bg-[#12121a] rounded-2xl border border-red-500/30"
+            className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-red-500/30"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-red-400">
               <Trash2 className="w-5 h-5" />
@@ -1567,7 +1567,7 @@ export default function AdminPage() {
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Utilisateur à supprimer</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Utilisateur à supprimer</label>
                 <select
                   value={deleteUserId}
                   onChange={(e) => setDeleteUserId(e.target.value)}
@@ -1583,7 +1583,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Votre mot de passe administrateur</label>
+                <label className="block text-sm text-[var(--text-muted)] mb-2">Votre mot de passe administrateur</label>
                 <input
                   type="password"
                   value={deletePassword}
@@ -1643,7 +1643,7 @@ export default function AdminPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="p-6 bg-[#12121a] rounded-2xl border border-blue-500/30"
+        className="p-6 bg-[var(--bg-primary)] rounded-2xl border border-blue-500/30"
       >
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-400">
           <MessageSquare className="w-5 h-5" />
@@ -1651,9 +1651,9 @@ export default function AdminPage() {
         </h2>
         
         <div className="text-center py-8">
-          <MessageSquare className="w-12 h-12 mx-auto text-gray-500 mb-2" />
-          <p className="text-gray-400">Les signalements apparaîtront ici</p>
-          <p className="text-xs text-gray-500 mt-2">API prête - Section à développer</p>
+          <MessageSquare className="w-12 h-12 mx-auto text-[var(--text-secondary)] mb-2" />
+          <p className="text-[var(--text-muted)]">Les signalements apparaîtront ici</p>
+          <p className="text-xs text-[var(--text-secondary)] mt-2">API prête - Section à développer</p>
         </div>
       </motion.div>
     </main>

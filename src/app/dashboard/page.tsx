@@ -164,42 +164,42 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors">
-            <Trophy className="w-6 h-6" />
-            <span className="font-bold">maths-app.com</span>
+            <Trophy className="w-5 h-5 sm:w-6 sm:h-6" />
+            <span className="font-bold text-sm sm:text-base">maths-app</span>
           </Link>
-          
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link href="/friends" className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Amis">
               <Users className="w-5 h-5" />
             </Link>
-            <Link href="/messages" className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Messages">
+            <Link href="/messages" className="hidden sm:block p-2 text-muted-foreground hover:text-foreground transition-colors" title="Messages">
               <MessageCircle className="w-5 h-5" />
             </Link>
-            <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg">
-              <Award className="w-5 h-5 text-yellow-400" />
+            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-card rounded-lg text-sm sm:text-base">
+              <Award className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
               <span className="font-semibold">{currentRank}</span>
-              <span className="text-muted-foreground">|</span>
-              <span className="font-mono">{currentElo} Elo</span>
+              <span className="text-muted-foreground hidden sm:inline">|</span>
+              <span className="font-mono hidden sm:inline">{currentElo}</span>
             </div>
           </div>
         </div>
       </header>
 
       {/* Header Ad */}
-      <div className="max-w-6xl mx-auto px-4 mb-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 mb-4 sm:mb-6">
         <AdUnit type="header" className="transform scale-90 opacity-80" />
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Welcome */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold mb-2">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
             Bonjour, {user.username || user.displayName || 'Mathématicien'} !
           </h1>
           <p className="text-muted-foreground">Prêt à améliorer tes capacités de calcul mental ?</p>
@@ -210,10 +210,10 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className={`p-6 rounded-2xl border mb-8 ${getRankColor(currentRank)}`}
+          className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl border mb-6 sm:mb-8 ${getRankColor(currentRank)}`}
         >
           {/* Toggle Solo/Multijoueur */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
             <div className="flex bg-black/20 rounded-lg p-1">
               <button
                 onClick={() => setGameMode('solo')}
@@ -242,16 +242,16 @@ export default function DashboardPage() {
           {/* Affichage du rang */}
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-bold mb-1">
-                Rang actuel : {currentRank}
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-1">
+                Rang : {currentRank}
               </h2>
               <p className="text-muted-foreground">
                 {gameMode === 'solo' ? 'Progression en mode solo' : 'Progression en multijoueur'}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-4xl font-bold">{currentElo}</div>
-              <div className="text-sm text-muted-foreground">ELO</div>
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold">{currentElo}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">ELO</div>
             </div>
           </div>
           
@@ -286,7 +286,7 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+          className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
         >
           {/* BOUTON 1 — Tests */}
           <Link href="/test" className="group">
@@ -481,7 +481,7 @@ export default function DashboardPage() {
       </main>
 
       {/* Footer Ad */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <AdUnit type="footer" className="transform scale-85 opacity-75" />
       </div>
     </div>
