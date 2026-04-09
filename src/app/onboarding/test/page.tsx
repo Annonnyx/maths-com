@@ -248,16 +248,11 @@ export default function OnboardingTestPage() {
                 <span>{currentQuestion.type}</span>
               </div>
               
-              <div className="text-4xl font-bold mb-2">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
                 {currentQuestion.question}
               </div>
               
-              {currentQuestion.explanation && (
-                <p className="text-muted-foreground text-sm mt-2">
-                  {currentQuestion.explanation}
-                </p>
-              )}
-            </div>
+                          </div>
 
             {/* Answer input */}
             <div className="space-y-4">

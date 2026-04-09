@@ -702,7 +702,7 @@ function TestPage() {
                       {formatClassName(testState.questions[testState.currentIndex].className || '6e')}
                     </span>
                   </div>
-                  <h2 className="text-5xl md:text-6xl font-bold font-mono">
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-mono">
                     {testState.questions[testState.currentIndex].question}
                   </h2>
                 </motion.div>
