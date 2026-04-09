@@ -137,9 +137,9 @@ export default function DashboardHistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Chargement de l'historique...</p>
         </div>
       </div>
@@ -147,8 +147,8 @@ export default function DashboardHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -156,15 +156,15 @@ export default function DashboardHistoryPage() {
           className="mb-8"
         >
           <div className="flex items-center justify-between">
-            <Link 
+            <Link
               href="/dashboard"
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>Retour au dashboard</span>
+              <span className="hidden sm:inline">Retour au dashboard</span>
             </Link>
-            
-            <h1 className="text-3xl font-bold text-white">Historique complet</h1>
+
+            <h1 className="text-xl sm:text-3xl font-bold text-foreground">Historique complet</h1>
             
             <button
               onClick={exportHistory}
@@ -181,12 +181,12 @@ export default function DashboardHistoryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6 p-6 bg-[#1a1a2a] rounded-2xl border border-[#2a2a3a]"
+          className="mb-6 p-4 sm:p-6 bg-card rounded-2xl border border-border"
         >
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-purple-400" />
-              <span className="text-white font-medium">Filtrer:</span>
+              <Filter className="w-4 h-4 text-primary" />
+              <span className="text-foreground font-medium">Filtrer:</span>
             </div>
             
             {['all', 'recent', 'perfect', 'errors'].map(f => (
@@ -194,9 +194,9 @@ export default function DashboardHistoryPage() {
                 key={f}
                 onClick={() => setFilter(f as any)}
                 className={`px-3 py-1 rounded-lg transition-colors ${
-                  filter === f 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-[#2a2a3a] text-gray-400 hover:bg-[#3a3a4a] hover:text-white'
+                  filter === f
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
                 }`}
               >
                 {f === 'all' && 'Tous'}
@@ -206,9 +206,9 @@ export default function DashboardHistoryPage() {
               </button>
             ))}
             
-            <div className="flex items-center gap-2 ml-4">
-              <BarChart3 className="w-4 h-4 text-purple-400" />
-              <span className="text-white font-medium">Trier par:</span>
+            <div className="flex items-center gap-2 ml-0 sm:ml-4 mt-2 sm:mt-0">
+              <BarChart3 className="w-4 h-4 text-primary" />
+              <span className="text-foreground font-medium">Trier par:</span>
             </div>
             
             {['date', 'score', 'elo'].map(s => (
@@ -216,9 +216,9 @@ export default function DashboardHistoryPage() {
                 key={s}
                 onClick={() => setSortBy(s as any)}
                 className={`px-3 py-1 rounded-lg transition-colors ${
-                  sortBy === s 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-[#2a2a3a] text-gray-400 hover:bg-[#3a3a4a] hover:text-white'
+                  sortBy === s
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
                 }`}
               >
                 {s === 'date' && 'Date'}
@@ -234,32 +234,32 @@ export default function DashboardHistoryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mb-6 p-6 bg-[#1a1a2a] rounded-2xl border border-[#2a2a3a]"
+          className="mb-6 p-4 sm:p-6 bg-card rounded-2xl border border-border"
         >
-          <h2 className="text-xl font-bold text-white mb-4">Statistiques globales</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4">Statistiques globales</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-400">{tests.length}</div>
-              <div className="text-sm text-gray-400">Tests total</div>
+              <div className="text-sm text-muted-foreground">Tests total</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-green-400">
                 {tests.filter(t => t.isPerfect).length}
               </div>
-              <div className="text-sm text-gray-400">Tests parfaits</div>
+              <div className="text-sm text-muted-foreground">Tests parfaits</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-yellow-400">
                 {Math.round(tests.reduce((acc, t) => acc + t.score, 0) / tests.length || 0)}
               </div>
-              <div className="text-sm text-gray-400">Score moyen</div>
+              <div className="text-sm text-muted-foreground">Score moyen</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-400">
                 {tests.reduce((acc, t) => acc + t.eloChange, 0) > 0 ? '+' : ''}
                 {tests.reduce((acc, t) => acc + t.eloChange, 0)}
               </div>
-              <div className="text-sm text-gray-400">ELO total gagné</div>
+              <div className="text-sm text-muted-foreground">ELO total gagné</div>
             </div>
           </div>
         </motion.div>
@@ -275,15 +275,15 @@ export default function DashboardHistoryPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-12 bg-[#1a1a2a] rounded-2xl border border-[#2a2a3a]"
+              className="text-center py-12 bg-card rounded-2xl border border-border"
             >
-              <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2 text-white">
+              <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">
                 {filter === 'all' ? 'Aucun test' : `Aucun test ${filter}`}
               </h3>
-              <p className="text-gray-400">
-                {filter === 'all' 
-                  ? 'Commencez à pratiquer pour voir votre historique apparaître ici!'
+              <p className="text-muted-foreground">
+                {filter === 'all'
+                  ? 'Commence à pratiquer pour voir ton historique apparaître ici!'
                   : `Aucun test ${filter} trouvé`
                 }
               </p>
@@ -295,8 +295,8 @@ export default function DashboardHistoryPage() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={`p-6 bg-[#1a1a2a] rounded-2xl border transition-all hover:border-purple-500/50 ${
-                  selectedTest?.id === test.id ? 'ring-2 ring-purple-500' : ''
+                className={`p-4 sm:p-6 bg-card rounded-2xl border transition-all hover:border-primary/50 ${
+                  selectedTest?.id === test.id ? 'ring-2 ring-primary' : ''
                 }`}
                 onClick={() => setSelectedTest(test)}
               >
@@ -310,7 +310,7 @@ export default function DashboardHistoryPage() {
                     
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-white font-medium">
+                        <span className="text-foreground font-medium">
                           {new Date(test.completedAt).toLocaleDateString('fr-FR', {
                             day: 'numeric',
                             month: 'short',
@@ -328,7 +328,7 @@ export default function DashboardHistoryPage() {
                         </span>
                       </div>
                       
-                      <div className="flex items-center gap-4 text-sm text-gray-400">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>{test.totalQuestions} questions</span>
                         <span>•</span>
                         <span>{test.correctAnswers} correct</span>
@@ -370,9 +370,9 @@ export default function DashboardHistoryPage() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     transition={{ duration: 0.3 }}
-                    className="mt-4 pt-4 border-t border-[#2a2a3a]"
+                    className="mt-4 pt-4 border-t border-border"
                   >
-                    <h4 className="font-semibold text-white mb-3">Détails du test</h4>
+                    <h4 className="font-semibold text-foreground mb-3">Détails du test</h4>
                     
                     <div className="space-y-2">
                       {selectedTest.questions.map((question, qIndex) => (
@@ -386,7 +386,7 @@ export default function DashboardHistoryPage() {
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs bg-gray-600 px-2 py-1 rounded">
+                              <span className="text-xs bg-muted px-2 py-1 rounded">
                                 Q{qIndex + 1}
                               </span>
                               <span className="text-sm">
@@ -400,7 +400,7 @@ export default function DashboardHistoryPage() {
                             )}
                           </div>
                           
-                          <div className="text-sm text-gray-300">
+                          <div className="text-sm text-muted-foreground">
                             <div>Votre réponse: <span className={question.isCorrect ? 'text-green-400' : 'text-red-400'}>{question.userAnswer}</span></div>
                             <div>Bonne réponse: <span className="text-green-400">{question.answer}</span></div>
                           </div>
@@ -418,7 +418,7 @@ export default function DashboardHistoryPage() {
                       </button>
                       <button
                         onClick={() => setSelectedTest(null)}
-                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                        className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors"
                       >
                         Fermer
                       </button>
