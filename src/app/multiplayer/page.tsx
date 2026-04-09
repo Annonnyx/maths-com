@@ -319,8 +319,8 @@ export default function MultiplayerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-white">
-      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold">Multijoueur</h1>
@@ -356,7 +356,7 @@ export default function MultiplayerPage() {
               className={`p-5 sm:p-8 rounded-xl sm:rounded-2xl border-2 transition-all ${
                 selectedMode.startsWith('ranked_1v1') || selectedMode === 'casual_1v1'
                   ? 'border-primary bg-blue-500/20'
-                  : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-blue-500/10'
+                  : 'border-border hover:border-primary/50 hover:bg-blue-500/10'
               }`}
             >
               <div className="text-center">
@@ -378,7 +378,7 @@ export default function MultiplayerPage() {
               className={`p-5 sm:p-8 rounded-xl sm:rounded-2xl border-2 transition-all ${
                 selectedMode === 'group_quiz'
                   ? 'border-primary bg-purple-500/20'
-                  : 'border-[#3a3a4a] hover:border-primary/50 hover:bg-purple-500/10'
+                  : 'border-border hover:border-primary/50 hover:bg-purple-500/10'
               }`}
             >
               <div className="text-center">

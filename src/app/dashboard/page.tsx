@@ -290,7 +290,7 @@ export default function DashboardPage() {
         >
           {/* BOUTON 1 — Tests */}
           <Link href="/test" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all flex flex-col">
+            <div className="h-full p-5 bg-card rounded-xl border border-[var(--border)] hover:border-purple-500/50 transition-all flex flex-col">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-indigo-500/20 rounded-lg">
                   <Zap className="w-5 h-5 text-indigo-400" />
@@ -298,15 +298,15 @@ export default function DashboardPage() {
                 <h3 className="font-semibold">Tests</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              <p className="text-sm text-gray-400 flex-grow">
+              <p className="text-sm text-muted-foreground flex-grow">
                 Lance des exercices de calcul mental pour t'entraîner et monter en ELO
               </p>
               {!loadingPreviews && profile.recentTests && profile.recentTests.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm">
+                <div className="mt-3 pt-3 border-t border-[var(--border)] flex justify-between text-sm">
                   <span className="text-muted-foreground">Tests récents</span>
                   <div className="flex gap-2">
                     {profile.recentTests.slice(0, 3).map((test: any, index) => (
-                      <div key={test.id} className="text-xs bg-gray-800 px-2 py-1 rounded">
+                      <div key={test.id} className="text-xs bg-muted px-2 py-1 rounded">
                         {test.score}% - {test.isPerfect ? '✨' : ''}
                       </div>
                     ))}
@@ -318,7 +318,7 @@ export default function DashboardPage() {
 
           {/* BOUTON 2 — Multijoueur */}
           <Link href="/multiplayer" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-purple-500/50 transition-all flex flex-col">
+            <div className="h-full p-5 bg-card rounded-xl border border-[var(--border)] hover:border-purple-500/50 transition-all flex flex-col">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-purple-500/20 rounded-lg">
                   <Users className="w-5 h-5 text-purple-400" />
@@ -326,11 +326,11 @@ export default function DashboardPage() {
                 <h3 className="font-semibold">Multijoueur</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              <p className="text-sm text-gray-400 flex-grow">
+              <p className="text-sm text-muted-foreground flex-grow">
                 Affronte d'autres joueurs en temps réel et grimpe dans le classement
               </p>
               {!loadingPreviews && (
-                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm items-center">
+                <div className="mt-3 pt-3 border-t border-[var(--border)] flex justify-between text-sm items-center">
                   <span className="text-muted-foreground flex items-center gap-2">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                     En ligne
@@ -343,7 +343,7 @@ export default function DashboardPage() {
 
           {/* BOUTON 3 — Social */}
           <Link href="/friends" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-blue-500/50 transition-all flex flex-col">
+            <div className="h-full p-5 bg-card rounded-xl border border-[var(--border)] hover:border-blue-500/50 transition-all flex flex-col">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-blue-500/20 rounded-lg">
                   <MessageCircle className="w-5 h-5 text-blue-400" />
@@ -351,11 +351,11 @@ export default function DashboardPage() {
                 <h3 className="font-semibold">Social</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              <p className="text-sm text-gray-400 flex-grow">
+              <p className="text-sm text-muted-foreground flex-grow">
                 Gère tes amis, envoie des messages et défie-les en duel
               </p>
               {!loadingPreviews && (
-                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm">
+                <div className="mt-3 pt-3 border-t border-[var(--border)] flex justify-between text-sm">
                   <span className="text-muted-foreground">Amis</span>
                   <span className="font-medium text-blue-400">Voir les amis</span>
                 </div>
@@ -365,7 +365,7 @@ export default function DashboardPage() {
 
           {/* BOUTON 4 — Profil */}
           <Link href="/profile" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-pink-500/50 transition-all flex flex-col">
+            <div className="h-full p-5 bg-card rounded-xl border border-[var(--border)] hover:border-pink-500/50 transition-all flex flex-col">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-pink-500/20 rounded-lg">
                   <UserCircle className="w-5 h-5 text-pink-400" />
@@ -373,11 +373,11 @@ export default function DashboardPage() {
                 <h3 className="font-semibold">Profil & Bannière</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              <p className="text-sm text-gray-400 flex-grow">
+              <p className="text-sm text-muted-foreground flex-grow">
                 Personnalise ton avatar, ta bannière et vois ton historique public
               </p>
               {!loadingPreviews && (
-                <div className="mt-3 pt-3 border-t border-[#2a2a3a]">
+                <div className="mt-3 pt-3 border-t border-[var(--border)]">
                   {user.bannerUrl ? (
                     <div className="h-8 rounded bg-gradient-to-r from-purple-600 to-pink-600" />
                   ) : (
@@ -392,7 +392,7 @@ export default function DashboardPage() {
 
           {/* BOUTON 5 — Statistiques */}
           <Link href="/stats" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-green-500/50 transition-all flex flex-col">
+            <div className="h-full p-5 bg-card rounded-xl border border-[var(--border)] hover:border-green-500/50 transition-all flex flex-col">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-green-500/20 rounded-lg">
                   <LineChart className="w-5 h-5 text-green-400" />
@@ -400,11 +400,11 @@ export default function DashboardPage() {
                 <h3 className="font-semibold">Statistiques</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              <p className="text-sm text-gray-400 flex-grow">
+              <p className="text-sm text-muted-foreground flex-grow">
                 Analyse tes performances détaillées avec filtres par période
               </p>
               {!loadingPreviews && (
-                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm">
+                <div className="mt-3 pt-3 border-t border-[var(--border)] flex justify-between text-sm">
                   <span className="text-muted-foreground">Taux de réussite</span>
                   <span className="font-medium text-green-400">
                     {stats ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0}%
@@ -416,7 +416,7 @@ export default function DashboardPage() {
 
           {/* BOUTON 6 — Historique */}
           <Link href="/history" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-yellow-500/50 transition-all flex flex-col">
+            <div className="h-full p-5 bg-card rounded-xl border border-[var(--border)] hover:border-yellow-500/50 transition-all flex flex-col">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-yellow-500/20 rounded-lg">
                   <History className="w-5 h-5 text-yellow-400" />
@@ -424,11 +424,11 @@ export default function DashboardPage() {
                 <h3 className="font-semibold">Historique</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              <p className="text-sm text-gray-400 flex-grow">
+              <p className="text-sm text-muted-foreground flex-grow">
                 Retrouve tous tes résultats de tests et parties passées
               </p>
               {!loadingPreviews && (
-                <div className="mt-3 pt-3 border-t border-[#2a2a3a] flex justify-between text-sm">
+                <div className="mt-3 pt-3 border-t border-[var(--border)] flex justify-between text-sm">
                   <span className="text-muted-foreground">Tests complétés</span>
                   <span className="font-medium text-yellow-400">{stats?.totalTests || 0}</span>
                 </div>
@@ -438,7 +438,7 @@ export default function DashboardPage() {
 
           {/* BOUTON 7 — Mes Classes */}
           <Link href="/classes" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-cyan-500/50 transition-all flex flex-col">
+            <div className="h-full p-5 bg-card rounded-xl border border-[var(--border)] hover:border-cyan-500/50 transition-all flex flex-col">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-cyan-500/20 rounded-lg">
                   <GraduationCap className="w-5 h-5 text-cyan-400" />
@@ -446,11 +446,11 @@ export default function DashboardPage() {
                 <h3 className="font-semibold">Mes Classes</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              <p className="text-sm text-gray-400 flex-grow">
+              <p className="text-sm text-muted-foreground flex-grow">
                 Rejoins ou crée des classes pour apprendre avec tes camarades
               </p>
               {!loadingPreviews && (
-                <div className="mt-3 pt-3 border-t border-[#2a2a3a] text-xs text-muted-foreground">
+                <div className="mt-3 pt-3 border-t border-[var(--border)] text-xs text-muted-foreground">
                   Classes publiques et privées
                 </div>
               )}
@@ -459,7 +459,7 @@ export default function DashboardPage() {
 
           {/* BOUTON 8 — Cours */}
           <Link href="/courses" className="group">
-            <div className="h-full p-5 bg-[#1a1a2e] rounded-xl border border-[#2a2a3a] hover:border-green-500/50 transition-all flex flex-col">
+            <div className="h-full p-5 bg-card rounded-xl border border-[var(--border)] hover:border-green-500/50 transition-all flex flex-col">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-green-500/20 rounded-lg">
                   <BookOpen className="w-5 h-5 text-green-400" />
@@ -467,11 +467,11 @@ export default function DashboardPage() {
                 <h3 className="font-semibold">Cours</h3>
                 <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto group-hover:translate-x-1 transition-transform" />
               </div>
-              <p className="text-sm text-gray-400 flex-grow">
+              <p className="text-sm text-muted-foreground flex-grow">
                 Apprends les mathématiques avec nos cours interactifs par niveau
               </p>
               {!loadingPreviews && (
-                <div className="mt-3 pt-3 border-t border-[#2a2a3a] text-xs text-muted-foreground">
+                <div className="mt-3 pt-3 border-t border-[var(--border)] text-xs text-muted-foreground">
                   Du CP à la Terminale
                 </div>
               )}

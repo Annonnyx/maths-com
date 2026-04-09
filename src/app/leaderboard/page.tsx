@@ -118,7 +118,7 @@ export default function LeaderboardPage() {
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Crown className="w-5 h-5 text-yellow-400" />;
-    if (rank === 2) return <Medal className="w-5 h-5 text-gray-300" />;
+    if (rank === 2) return <Medal className="w-5 h-5 text-slate-400" />;
     if (rank === 3) return <Medal className="w-5 h-5 text-orange-400" />;
     return <span className="text-muted-foreground font-bold">#{rank}</span>;
   };
@@ -130,7 +130,7 @@ export default function LeaderboardPage() {
 
   const getRankBgColor = (rank: string) => {
     const tier = rank.charAt(0);
-    return FRENCH_CLASS_BG_COLORS[tier as keyof typeof FRENCH_CLASS_BG_COLORS] || 'bg-gray-500/20 border-gray-500';
+    return FRENCH_CLASS_BG_COLORS[tier as keyof typeof FRENCH_CLASS_BG_COLORS] || 'bg-muted border-muted-foreground';
   };
 
   // Filter and sort leaderboard client-side
