@@ -70,7 +70,6 @@ export class CinquiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer: result.toString(),
-      explanation: `${question.replace(' = ?', '')} = ${result}`,
       timeEstimate: 40,
     };
   }
@@ -115,7 +114,6 @@ export class CinquiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} × ${b} = ?`,
       answer: result.toString(),
-      explanation: `${a} × ${b} = ${result}`,
       timeEstimate: 60,
     };
   }
@@ -162,7 +160,6 @@ export class CinquiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${dividend} ÷ ${divisor} = ?`,
       answer: hasDecimal ? finalResult.toFixed(1) : finalResult.toString(),
-      explanation: `${dividend} ÷ ${divisor} = ${finalResult}`,
       timeEstimate: 80,
       expectedDecimals: hasDecimal ? 1 : 0,
     };
@@ -204,17 +201,14 @@ export class CinquiemeGenerator implements LevelGenerator {
       {
         text: `Calculer ${percentage}% de ${base}`,
         answer: result.toString(),
-        explanation: `${percentage}% de ${base} = (${percentage}/100) × ${base} = ${result}`
       },
       {
         text: `Un article de ${base}€ est soldé à ${percentage}% de son prix. Quel est le prix soldé ?`,
         answer: result.toString(),
-        explanation: `Prix soldé = ${percentage}% de ${base}€ = ${result}€`
       },
       {
         text: `Le prix d'un produit augmente de ${percentage}%. Il coûtait ${base}€. Quel est le nouveau prix ?`,
         answer: (base + result).toString(),
-        explanation: `Nouveau prix = ${base}€ + ${percentage}% de ${base}€ = ${base} + ${result} = ${base + result}€`
       },
     ];
     
@@ -228,7 +222,6 @@ export class CinquiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 80,
     };
   }
@@ -242,17 +235,14 @@ export class CinquiemeGenerator implements LevelGenerator {
       {
         text: `Si ${baseValue} kg de pommes coûtent 15€, combien coûtent ${multiplier} kg de pommes ?`,
         answer: (15 * multiplier / baseValue).toFixed(2) + '€',
-        explanation: `Proportionnalité : ${multiplier} × (15€/${baseValue}kg) = ${(15 * multiplier / baseValue).toFixed(2)}€`
       },
       {
         text: `Une voiture parcourt ${baseValue} km en 1 heure. Combien de temps faut-il pour parcourir ${resultValue} km ?`,
         answer: (resultValue / baseValue).toString() + ' heures',
-        explanation: `Temps = distance / vitesse = ${resultValue}km / ${baseValue}km/h = ${resultValue / baseValue} heures`
       },
       {
         text: `Un mélange contient ${baseValue}% de jus d'orange. Dans une bouteille de ${multiplier * 10}cL, combien de cL de jus d'orange y a-t-il ?`,
         answer: (baseValue * multiplier * 10 / 100).toString() + ' cL',
-        explanation: `${baseValue}% de ${multiplier * 10}cL = (${baseValue}/100) × ${multiplier * 10} = ${baseValue * multiplier * 10 / 100} cL`
       },
     ];
     
@@ -266,7 +256,6 @@ export class CinquiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 100,
     };
   }
@@ -276,17 +265,14 @@ export class CinquiemeGenerator implements LevelGenerator {
       {
         text: `Une bibliothèque achète 25 livres à 12€ chacun et reçoit une réduction de 15% sur le total. Combien paie-t-elle ?`,
         answer: '255',
-        explanation: 'Total sans réduction = 25 × 12 = 300€. Réduction = 15% de 300€ = 45€. Prix final = 300€ - 45€ = 255€'
       },
       {
         text: `Un cycliste parcourt 45 km en 2 heures. Quelle est sa vitesse moyenne en km/h ?`,
         answer: '22.5',
-        explanation: 'Vitesse = distance / temps = 45km / 2h = 22.5 km/h'
       },
       {
         text: `Dans une classe de 28 élèves, 3/4 des élèves ont réussi le test. Combien d'élèves ont réussi ?`,
         answer: '21',
-        explanation: '3/4 de 28 = (3 × 28) / 4 = 84 / 4 = 21 élèves'
       },
     ];
     
@@ -300,7 +286,6 @@ export class CinquiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 120,
     };
   }
@@ -330,7 +315,6 @@ export class CinquiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `Résoudre : ${equation}`,
       answer: x.toString(),
-      explanation: `${a}x + ${b} = ${c} → ${a}x = ${c - b} → x = ${c - b}/${a} = ${x}`,
       timeEstimate: 90,
     };
   }

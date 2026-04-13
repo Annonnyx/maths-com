@@ -88,7 +88,6 @@ export class GeometryGenerator implements QuestionGenerator {
       question: `Dans un triangle rectangle, les côtés de l'angle droit mesurent ${a} cm et ${b} cm. Quelle est la longueur de l'hypoténuse ?`,
       options: answers,
       answer: c.toFixed(1),
-      explanation: `Pythagore : c² = a² + b² = ${a}² + ${b}² = ${a * a} + ${b * b} = ${a * a + b * b}, donc c = √${a * a + b * b} ≈ ${c.toFixed(1)} cm`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -145,7 +144,6 @@ export class GeometryGenerator implements QuestionGenerator {
       question: `Dans une configuration de Thalès, si AB = ${ab} cm, AC = ${ac} cm et AD = ${ad} cm, quelle est la longueur AE ?`,
       options: answers,
       answer: ae.toFixed(1),
-      explanation: `Thalès : AD/AB = AE/AC, donc AE = (AD × AC) / AB = (${ad} × ${ac}) / ${ab} = ${ae.toFixed(1)} cm`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -223,7 +221,6 @@ export class GeometryGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: result.toFixed(3),
-      explanation: `${questionType}(${angle}°) = ${questionType === 'sin' ? 'opposé/hypoténuse' : questionType === 'cos' ? 'adjacent/hypoténuse' : 'opposé/adjacent'} = ${questionType === 'sin' ? opposite : questionType === 'cos' ? adjacent : opposite}/${questionType === 'sin' ? hypotenuse.toFixed(1) : questionType === 'cos' ? hypotenuse.toFixed(1) : adjacent} = ${result.toFixed(3)}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -288,28 +285,23 @@ export class GeometryGenerator implements QuestionGenerator {
 
     let area: number;
     let questionText: string;
-    let explanation: string;
 
     switch (shape) {
       case 'square':
         area = dimensions.side! * dimensions.side!;
         questionText = `Quelle est l'aire d'un carré de côté ${dimensions.side} cm ?`;
-        explanation = `Pense à la formule de l'aire d'un carré`;
         break;
       case 'rectangle':
         area = dimensions.length! * dimensions.width!;
         questionText = `Quelle est l'aire d'un rectangle de longueur ${dimensions.length} cm et de largeur ${dimensions.width} cm ?`;
-        explanation = `Pense à la formule de l'aire d'un rectangle`;
         break;
       case 'triangle':
         area = (dimensions.base! * dimensions.height!) / 2;
         questionText = `Quelle est l'aire d'un triangle de base ${dimensions.base} cm et de hauteur ${dimensions.height} cm ?`;
-        explanation = `Pense à la formule de l'aire d'un triangle`;
         break;
       case 'circle':
         area = Math.PI * dimensions.radius! * dimensions.radius!;
         questionText = `Quelle est l'aire d'un cercle de rayon ${dimensions.radius} cm ?`;
-        explanation = `Pense à la formule de l'aire d'un cercle`;
         break;
     }
 
@@ -330,7 +322,6 @@ export class GeometryGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: area.toFixed(1),
-      explanation,
       difficultyElo: difficulty * 100,
     };
   }
@@ -375,23 +366,19 @@ export class GeometryGenerator implements QuestionGenerator {
 
     let perimeter: number;
     let questionText: string;
-    let explanation: string;
 
     switch (shape) {
       case 'square':
         perimeter = 4 * dimensions.side!;
         questionText = `Quel est le périmètre d'un carré de côté ${dimensions.side} cm ?`;
-        explanation = `Pense à la formule du périmètre d'un carré`;
         break;
       case 'rectangle':
         perimeter = 2 * (dimensions.length! + dimensions.width!);
         questionText = `Quel est le périmètre d'un rectangle de longueur ${dimensions.length} cm et de largeur ${dimensions.width} cm ?`;
-        explanation = `Pense à la formule du périmètre d'un rectangle`;
         break;
       case 'triangle':
         perimeter = dimensions.side1! + dimensions.side2! + dimensions.side3!;
         questionText = `Quel est le périmètre d'un triangle avec des côtés de ${dimensions.side1} cm, ${dimensions.side2} cm et ${dimensions.side3} cm ?`;
-        explanation = `Pense à la formule du périmètre d'un triangle`;
         break;
     }
 
@@ -412,7 +399,6 @@ export class GeometryGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: perimeter.toString(),
-      explanation,
       difficultyElo: difficulty * 100,
     };
   }
@@ -451,23 +437,19 @@ export class GeometryGenerator implements QuestionGenerator {
 
     let volume: number;
     let questionText: string;
-    let explanation: string;
 
     switch (shape) {
       case 'cube':
         volume = dimensions.side! * dimensions.side! * dimensions.side!;
         questionText = `Quel est le volume d'un cube d'arête ${dimensions.side} cm ?`;
-        explanation = `Pense à la formule du volume d'un cube`;
         break;
       case 'rectangular_prism':
         volume = dimensions.length! * dimensions.width! * dimensions.height!;
         questionText = `Quel est le volume d'un pavé droit de dimensions ${dimensions.length} cm × ${dimensions.width} cm × ${dimensions.height} cm ?`;
-        explanation = `Pense à la formule du volume d'un pavé droit`;
         break;
       case 'cylinder':
         volume = Math.PI * dimensions.radius! * dimensions.radius! * dimensions.height!;
         questionText = `Quel est le volume d'un cylindre de rayon ${dimensions.radius} cm et de hauteur ${dimensions.height} cm ?`;
-        explanation = `Pense à la formule du volume d'un cylindre`;
         break;
     }
 
@@ -488,7 +470,6 @@ export class GeometryGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: volume.toFixed(1),
-      explanation,
       difficultyElo: difficulty * 100,
     };
   }

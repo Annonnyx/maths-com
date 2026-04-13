@@ -49,7 +49,6 @@ export class ComplexGenerator implements QuestionGenerator {
 
     let result: string;
     let questionText: string;
-    let explanation: string;
 
     switch (operation) {
       case 'add':
@@ -57,20 +56,17 @@ export class ComplexGenerator implements QuestionGenerator {
         const imagSum = b + d;
         result = `${realSum} ${imagSum >= 0 ? '+' : ''} ${imagSum}i`;
         questionText = `Calcule : (${a} ${b >= 0 ? '+' : ''} ${b}i) + (${c} ${d >= 0 ? '+' : ''} ${d}i)`;
-        explanation = `Pense à additionner les parties réelles et imaginaires séparément`;
         break;
       case 'multiply':
         const realProduct = a * c - b * d;
         const imagProduct = a * d + b * c;
         result = `${realProduct} ${imagProduct >= 0 ? '+' : ''} ${imagProduct}i`;
         questionText = `Calcule : (${a} ${b >= 0 ? '+' : ''} ${b}i) × (${c} ${d >= 0 ? '+' : ''} ${d}i)`;
-        explanation = `Pense à la formule du produit de nombres complexes`;
         break;
       case 'modulus':
         const modulus = Math.sqrt(a * a + b * b);
         result = modulus.toFixed(2);
         questionText = `Calcule le module de z = ${a} ${b >= 0 ? '+' : ''} ${b}i`;
-        explanation = `Pense à la formule du module d'un nombre complexe`;
         break;
     }
 
@@ -91,7 +87,6 @@ export class ComplexGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: result,
-      explanation,
       difficultyElo: difficulty * 100,
     };
   }
@@ -133,7 +128,6 @@ export class ComplexGenerator implements QuestionGenerator {
 
     let result: number[][];
     let questionText: string;
-    let explanation: string;
 
     if (operation === 'add') {
       result = [
@@ -141,7 +135,6 @@ export class ComplexGenerator implements QuestionGenerator {
         [matrixA[1][0] + matrixB[1][0], matrixA[1][1] + matrixB[1][1]]
       ];
       questionText = `Calcule A + B où A = [[${matrixA[0][0]}, ${matrixA[0][1]}], [${matrixA[1][0]}, ${matrixA[1][1]}]] et B = [[${matrixB[0][0]}, ${matrixB[0][1]}], [${matrixB[1][0]}, ${matrixB[1][1]}]]`;
-      explanation = `A + B = [[${matrixA[0][0]} + ${matrixB[0][0]}, ${matrixA[0][1]} + ${matrixB[0][1]}], [${matrixA[1][0]} + ${matrixB[1][0]}, ${matrixA[1][1]} + ${matrixB[1][1]}]] = [[${result[0][0]}, ${result[0][1]}], [${result[1][0]}, ${result[1][1]}]]`;
     } else {
       // Matrix multiplication
       result = [
@@ -155,7 +148,6 @@ export class ComplexGenerator implements QuestionGenerator {
         ]
       ];
       questionText = `Calcule A × B où A = [[${matrixA[0][0]}, ${matrixA[0][1]}], [${matrixA[1][0]}, ${matrixA[1][1]}]] et B = [[${matrixB[0][0]}, ${matrixB[0][1]}], [${matrixB[1][0]}, ${matrixB[1][1]}]]`;
-      explanation = `A × B = [[${matrixA[0][0]}×${matrixB[0][0]} + ${matrixA[0][1]}×${matrixB[1][0]}, ${matrixA[0][0]}×${matrixB[0][1]} + ${matrixA[0][1]}×${matrixB[1][1]}], [${matrixA[1][0]}×${matrixB[0][0]} + ${matrixA[1][1]}×${matrixB[1][0]}, ${matrixA[1][0]}×${matrixB[0][1]} + ${matrixA[1][1]}×${matrixB[1][1]}]] = [[${result[0][0]}, ${result[0][1]}], [${result[1][0]}, ${result[1][1]}]]`;
     }
 
     const resultString = `[[${result[0][0]}, ${result[0][1]}], [${result[1][0]}, ${result[1][1]}]]`;
@@ -176,7 +168,6 @@ export class ComplexGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: resultString,
-      explanation,
       difficultyElo: difficulty * 100,
     };
   }
@@ -202,24 +193,20 @@ export class ComplexGenerator implements QuestionGenerator {
 
     let result: string;
     let questionText: string;
-    let explanation: string;
 
     switch (questionType) {
       case 'vertices':
         result = vertices.toString();
         questionText = `Un graphe simple a ${edges} arêtes. Quel est le nombre maximum de sommets possibles ?`;
-        explanation = `Dans un graphe simple, le nombre maximum de sommets pour ${edges} arêtes est ${vertices} (graphe complet)`;
         break;
       case 'edges':
         result = edges.toString();
         questionText = `Un graphe complet a ${vertices} sommets. Combien d'arêtes possède-t-il ?`;
-        explanation = `Un graphe complet à n sommets a n(n-1)/2 arêtes. Pour ${vertices} sommets : ${vertices}×${vertices-1}/2 = ${edges} arêtes`;
         break;
       case 'degree':
         const degree = randomInt(1, vertices - 1);
         result = degree.toString();
         questionText = `Dans un graphe à ${vertices} sommets, un sommet a un degré de ${degree}. Que signifie le degré d'un sommet ?`;
-        explanation = `Le degré d'un sommet est le nombre d'arêtes incidentes à ce sommet. Un degré de ${degree} signifie que le sommet est connecté à ${degree} autres sommets`;
         break;
     }
 
@@ -240,7 +227,6 @@ export class ComplexGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: result,
-      explanation,
       difficultyElo: difficulty * 100,
     };
   }

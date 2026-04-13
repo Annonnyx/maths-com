@@ -109,7 +109,6 @@ export class AlgebraGenerator implements QuestionGenerator {
       question: `${a}x + ${b} = ${result}`,
       answer: x.toString(),
       options: answers,
-      explanation: `${a}x + ${b} = ${result} → ${a}x = ${result - b} → x = ${x}`,
       timeEstimate: 30
     };
   }
@@ -210,7 +209,6 @@ export class AlgebraGenerator implements QuestionGenerator {
       question: `${a}x² + ${b}x + ${c} = 0`,
       options: answers,
       answer: correctRoot.toString(),
-      explanation: `Δ = ${b}² - 4×${a}×${c} = ${b * b - 4 * a * c}, √Δ = ${sqrtDiscriminant.toFixed(2)}, x = (-${b} ± ${sqrtDiscriminant.toFixed(2)})/(2×${a}) = {${correctRoot.toFixed(2)}, ${((-b - sqrtDiscriminant) / (2 * a)).toFixed(2)}}`,
       difficultyElo: difficulty * 100,
       timeEstimate: 45
     };
@@ -300,7 +298,6 @@ export class AlgebraGenerator implements QuestionGenerator {
       question: `${a1}x + ${b1}y = ${c1}\n${a2}x + ${b2}y = ${c2}\nQue vaut x ?`,
       options: answers,
       answer: x.toString(),
-      explanation: `Par substitution ou élimination : x = ${x}`,
       timeEstimate: 60
     };
   }
@@ -357,7 +354,6 @@ export class AlgebraGenerator implements QuestionGenerator {
         : `Développe : (${a}x + ${b})² + ${c}`,
       options: answers,
       answer: expanded,
-      explanation: `(${a}x + ${b})² = ${a}²x² + 2×${a}×${b}x + ${b}² = ${expanded}`,
       timeEstimate: 45
     };
   }
@@ -418,7 +414,6 @@ export class AlgebraGenerator implements QuestionGenerator {
       question: `Factorise : x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}`,
       options: answers,
       answer: factorized,
-      explanation: `x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c} = (x${r1 > 0 ? '+' : ''}${r1})(x${r2 > 0 ? '+' : ''}${r2})`,
       timeEstimate: 50
     };
   }

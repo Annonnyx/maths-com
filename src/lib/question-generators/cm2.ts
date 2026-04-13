@@ -82,7 +82,6 @@ export class CM2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} × ${b} = ?`,
       answer: result.toString(),
-      explanation: `${a} × ${b} = ${result}`,
       timeEstimate: 120,
     };
   }
@@ -114,7 +113,6 @@ export class CM2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${dividend} ÷ ${divisor} = ?`,
       answer: hasRemainder ? `${quotient} r ${remainder}` : quotient.toString(),
-      explanation: `${dividend} ÷ ${divisor} = ${quotient}${hasRemainder ? ` reste ${remainder}` : ''}`,
       timeEstimate: 80,
       hasRemainder,
       acceptsDecimalInsteadOfRemainder: true,
@@ -197,7 +195,6 @@ export class CM2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer,
-      explanation: `${question.replace(' = ?', '')} = ${answer}`,
       timeEstimate: 90,
     };
   }
@@ -212,17 +209,14 @@ export class CM2Generator implements LevelGenerator {
       {
         text: `Calculer ${percentage}% de ${base}`,
         answer: result.toString(),
-        explanation: `${percentage}% de ${base} = (${percentage}/100) × ${base} = ${result}`
       },
       {
         text: `${base} a augmenté de ${percentage}%. Quel est le nouveau montant ?`,
         answer: (base + result).toString(),
-        explanation: `${base} + ${percentage}% de ${base} = ${base} + ${result} = ${base + result}`
       },
       {
         text: `Un article coûtait ${base}€, il est maintenant en solde à ${percentage}% de son prix. Quel est le prix soldé ?`,
         answer: result.toString(),
-        explanation: `${percentage}% de ${base}€ = ${result}€`
       },
     ];
     
@@ -236,7 +230,6 @@ export class CM2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: problem.text,
       answer: problem.answer,
-      explanation: problem.explanation,
       timeEstimate: 80,
     };
   }
@@ -261,7 +254,6 @@ export class CM2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} + ${multA} × ${multB} - ${b} + ${div} × ${quot} = ?`,
       answer: finalResult.toString(),
-      explanation: `Priorités opératoires : ${multA}×${multB}=${multResult}, ${div}×${quot}=${divResult}, puis ${a}+${multResult}-${b}+${divResult}=${finalResult}`,
       timeEstimate: 120,
     };
   }
@@ -328,7 +320,6 @@ export class CM2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: question + ' Donne ta réponse sous forme de fraction ou d\'entier',
       answer,
-      explanation: `${operation === 'addition' ? '+' : '-'} des fractions : mise au même dénominateur puis calcul = ${answer}`,
       timeEstimate: 120,
     };
     
@@ -388,17 +379,14 @@ export class CM2Generator implements LevelGenerator {
       {
         text: `Un pavé droit mesure ${length} cm de longueur, ${width} cm de largeur et ${height} cm de hauteur. Quel est son volume ?`,
         answer: (length * width * height).toString() + ' cm³',
-        explanation: `Volume = longueur × largeur × hauteur = ${length} × ${width} × ${height} = ${length * width * height} cm³`
       },
       {
         text: `Un cube a un arête de ${length} cm. Quel est son volume ?`,
         answer: (length * length * length).toString() + ' cm³',
-        explanation: `Volume du cube = arête³ = ${length}³ = ${length * length * length} cm³`
       },
       {
         text: `Une boîte a une base de ${length} cm sur ${width} cm et une hauteur de ${height} cm. Quelle est la surface totale de la boîte ?`,
         answer: (2 * (length * width + length * height + width * height)).toString() + ' cm²',
-        explanation: `Surface = 2 × (L×l + L×h + l×h) = 2 × (${length}×${width} + ${length}×${height} + ${width}×${height}) = ${2 * (length * width + length * height + width * height)} cm²`
       },
     ];
     
@@ -412,7 +400,6 @@ export class CM2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: solid.text,
       answer: solid.answer,
-      explanation: solid.explanation,
       timeEstimate: 100,
     };
   }
@@ -427,17 +414,14 @@ export class CM2Generator implements LevelGenerator {
       {
         text: `Une école a ${a} classes avec ${b} élèves chacune. ${percentage}% des élèves vont en sortie. Combien d'élèves partent en sortie ?`,
         answer: Math.round((a * b * percentage) / 100).toString(),
-        explanation: `Nombre total d'élèves = ${a} × ${b} = ${a * b}. ${percentage}% de ${a * b} = (${percentage}/100) × ${a * b} = ${Math.round((a * b * percentage) / 100)}`
       },
       {
         text: `Un magasin vend ${a} paquets de ${b} articles. Il offre une réduction de ${percentage}% sur le total. Combien d'articles sont vendus après réduction ?`,
         answer: (a * b).toString(), // Le nombre d'articles ne change pas avec la réduction
-        explanation: `Le nombre d'articles reste ${a} × ${b} = ${a * b}. La réduction s'applique au prix, pas à la quantité.`
       },
       {
         text: `Une usine produit ${a} machines par jour pendant ${b} jours. Elle augmente sa production de ${percentage}%. Combien de machines produit-elle maintenant ?`,
         answer: Math.round(a * b * (1 + percentage / 100)).toString(),
-        explanation: `Production initiale = ${a} × ${b} = ${a * b}. Augmentation de ${percentage}% : ${a * b} × (1 + ${percentage}/100) = ${Math.round(a * b * (1 + percentage / 100))}`
       },
     ];
     
@@ -451,7 +435,6 @@ export class CM2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 150,
     };
   }
@@ -466,17 +449,14 @@ export class CM2Generator implements LevelGenerator {
       {
         text: `Si 3 stylos coûtent ${baseValue}€, combien coûtent ${multiplier} stylos ?`,
         answer: resultValue.toString() + '€',
-        explanation: `Proportionnalité : ${baseValue}€/3 × ${multiplier} = ${resultValue}€`
       },
       {
         text: `Une voiture consomme ${baseValue}L pour 100km. Combien consomme-t-elle pour ${multiplier * 100}km ?`,
         answer: resultValue.toString() + 'L',
-        explanation: `Proportionnalité : ${baseValue}L/100km × ${multiplier * 100}km = ${resultValue}L`
       },
       {
         text: `Un employé gagne ${baseValue}€ par jour. Combien gagnera-t-il en ${multiplier} jours ?`,
         answer: resultValue.toString() + '€',
-        explanation: `Proportionnalité : ${baseValue}€/jour × ${multiplier} jours = ${resultValue}€`
       },
     ];
     
@@ -490,7 +470,6 @@ export class CM2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 90,
     };
   }

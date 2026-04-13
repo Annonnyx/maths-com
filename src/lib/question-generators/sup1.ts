@@ -55,7 +55,6 @@ export class Sup1Generator implements LevelGenerator {
       difficultyElo: context?.userElo ?? 2800,
       question: `Déterminant de la matrice triangulaire [[${a},2,1],[0,${b},3],[0,0,${c}]]`,
       answer: det.toString(),
-      explanation: `Pour une matrice triangulaire, det = produit des éléments diagonaux = ${a}×${b}×${c} = ${det}`,
       timeEstimate: 40,
     };
   }
@@ -77,7 +76,6 @@ export class Sup1Generator implements LevelGenerator {
       question: `Un système de ${n} équations à ${n} inconnues avec matrice de rang ${type === 'unique' ? n : n - 1} a :`,
       answer: answers[type],
       options: shuffleArray(Object.values(answers)),
-      explanation: `Rang = ${type === 'unique' ? n : n - 1} vs ${n} inconnues → ${answers[type]}`,
       timeEstimate: 30,
     };
   }
@@ -93,7 +91,6 @@ export class Sup1Generator implements LevelGenerator {
       difficultyElo: 2900,
       question: `Dans ℝ^${dim}, combien de vecteurs forment une base d'un sous-espace de dimension ${subdim} ?`,
       answer: subdim.toString(),
-      explanation: `Une base d'un sous-espace de dimension ${subdim} contient exactement ${subdim} vecteur${subdim > 1 ? 's' : ''} linéairement indépendants.`,
       timeEstimate: 25,
     };
   }
@@ -128,7 +125,6 @@ export class Sup1Generator implements LevelGenerator {
       question: `DL à l'ordre 2 de ${name} en 0`,
       answer: dl,
       options: shuffleArray([dl, ...wrongs]),
-      explanation: `${name} = ${dl}`,
       timeEstimate: 40,
     };
   }
@@ -149,7 +145,6 @@ export class Sup1Generator implements LevelGenerator {
         `Oui, f'(${a}) = ${a}`,
         `Non, f n'est pas continue`,
       ]),
-      explanation: `f'(x) = 2x pour tout x, donc f'(${a}) = ${2*a}. f est dérivable partout.`,
       timeEstimate: 25,
     };
   }
@@ -165,7 +160,6 @@ export class Sup1Generator implements LevelGenerator {
       question: `Calcule ∫₀¹ x·eˣ dx`,
       answer: '1',
       acceptableAnswers: ['1', 'e-1', '1.0'],
-      explanation: `IPP : u=x, v'=eˣ → [xeˣ]₀¹ - ∫₀¹ eˣdx = e - [eˣ]₀¹ = e - (e-1) = 1`,
       timeEstimate: 90,
     };
   }
@@ -192,7 +186,6 @@ export class Sup1Generator implements LevelGenerator {
       difficultyElo: 2870,
       question: `${a}^${n} mod ${mod} = ?`,
       answer: result.toString(),
-      explanation: `${a}^${n} = ${Math.pow(a,n)}, et ${Math.pow(a,n)} = ${Math.floor(Math.pow(a,n)/mod)}×${mod} + ${result}`,
       timeEstimate: 50,
     };
   }
@@ -211,7 +204,6 @@ export class Sup1Generator implements LevelGenerator {
       difficultyElo: 2780,
       question: `PGCD(${a}, ${b}) par l'algorithme d'Euclide`,
       answer: gcd.toString(),
-      explanation: `${a} = ${q}×${b} + ${r} → PGCD(${b},${r}) → … = ${gcd}`,
       timeEstimate: 45,
     };
   }
@@ -233,7 +225,6 @@ export class Sup1Generator implements LevelGenerator {
       question: `X ~ B(${n}, ${p}). P(X = ${k}) = ? (arrondi à 0,001)`,
       answer: prob.toFixed(3).replace('.', ','),
       acceptableAnswers: [prob.toFixed(3), prob.toFixed(3).replace('.', ',')],
-      explanation: `C(${n},${k})×${p}^${k}×${(1-p).toFixed(2)}^${n-k} = ${C}×${Math.pow(p,k).toFixed(4)}×${Math.pow(1-p,n-k).toFixed(4)} ≈ ${prob}`,
       timeEstimate: 60,
     };
   }

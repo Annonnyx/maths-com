@@ -64,7 +64,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} × ${b} = ?`,
       answer: result.toString(),
-      explanation: `${a} × ${b} = ${result}`,
       timeEstimate: 35,
     };
   }
@@ -84,7 +83,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${dividend} ÷ ${divisor} = ?`,
       answer: quotient.toString(),
-      explanation: `${dividend} ÷ ${divisor} = ${quotient}`,
       timeEstimate: 40,
     };
   }
@@ -104,7 +102,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} + ${b} = ?`,
       answer: result.toString(),
-      explanation: `${a} + ${b} = ${result}`,
       timeEstimate: 25,
     };
   }
@@ -125,7 +122,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} - ${b} = ?`,
       answer: result.toString(),
-      explanation: `${a} - ${b} = ${result}`,
       timeEstimate: 30,
     };
   }
@@ -146,7 +142,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} + ${multA} × ${multB} = ?`,
       answer: finalResult.toString(),
-      explanation: `D'abord la multiplication : ${multA} × ${multB} = ${multResult}, puis l'addition : ${a} + ${multResult} = ${finalResult}`,
       timeEstimate: 60,
     };
   }
@@ -183,7 +178,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer,
-      explanation: `${a} × ${b} = ${result}, donc le nombre manquant est ${answer}`,
       timeEstimate: 40,
     };
   }
@@ -228,7 +222,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: `Calcul : ${a} × ${b} ${scenario.text.includes('vend') ? '-' : '+'} ${c} = ${scenario.answer}`,
       timeEstimate: 90,
     };
   }
@@ -266,7 +259,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer,
-      explanation: `${numerator1}/${denominator} + ${numerator2}/${denominator} = ${numerator1 + numerator2}/${denominator} = ${answer}`,
       timeEstimate: 60,
     };
   }
@@ -316,7 +308,6 @@ export class CE2Generator implements LevelGenerator {
         difficultyElo: context.userElo,
         question,
         answer: correctAnswer,
-        explanation: `La suite ${pattern.type === 'multiplication' ? 'multiplie' : 'additionne'} par ${step} : ${sequence.join(', ')}`,
         timeEstimate: 45,
       };
     }
@@ -365,7 +356,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer: correctAnswer,
-      explanation: `La suite ${pattern.type === 'multiplication' ? 'multiplie' : 'additionne'} par ${step} : ${sequence.join(', ')}`,
       timeEstimate: 45,
     };
   }
@@ -400,7 +390,6 @@ export class CE2Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: `Calcul : ${scenario.text.includes('périmètre') ? `2 × (${a} + ${b}) = ${2 * (a + b)}` : `${a} × ${b} = ${a * b}`} ${unit}`,
       timeEstimate: 70,
     };
   }

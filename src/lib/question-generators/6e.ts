@@ -94,7 +94,6 @@ export class SixiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${dividend} ÷ ${divisor} = ?`,
       answer: expectedDecimals === 0 ? finalResult.toString() : finalResult.toFixed(1),
-      explanation: `${dividend} ÷ ${divisor} = ${finalResult}`,
       timeEstimate: 90,
       expectedDecimals,
     };
@@ -143,12 +142,10 @@ export class SixiemeGenerator implements LevelGenerator {
       {
         text: `Calculer ${percentage}% de ${base}`,
         answer: result.toString(),
-        explanation: `${percentage}% de ${base} = (${percentage}/100) × ${base} = ${result}`
       },
       {
         text: `Un article coûte ${base}€, il est en solde à ${percentage}% de son prix. Quel est le prix soldé ?`,
         answer: result.toString(),
-        explanation: `${percentage}% de ${base}€ = ${result}€`
       },
     ];
     
@@ -162,7 +159,6 @@ export class SixiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: problem.text,
       answer: problem.answer,
-      explanation: problem.explanation,
       timeEstimate: 70,
     };
   }
@@ -203,7 +199,6 @@ export class SixiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${numerator1}/${denominator1} × ${numerator2}/${denominator2} = ? Donne ta réponse sous forme de fraction ou d'entier`,
       answer,
-      explanation: `${numerator1}/${denominator1} × ${numerator2}/${denominator2} = ${resultNum}/${resultDen} = ${answer}`,
       timeEstimate: 100,
     };
     
@@ -261,17 +256,14 @@ export class SixiemeGenerator implements LevelGenerator {
       {
         text: `Un magasin fait une promotion de 25% sur un article à 80€. Quel est le prix après réduction ?`,
         answer: '60',
-        explanation: '25% de 80€ = 20€ de réduction, donc 80€ - 20€ = 60€'
       },
       {
         text: `Dans une classe de 24 élèves, 75% aiment les mathématiques. Combien d'élèves aiment les mathématiques ?`,
         answer: '18',
-        explanation: '75% de 24 = (75/100) × 24 = 18 élèves'
       },
       {
         text: `Une recette nécessite 3/4 de litre de lait. Si on veut faire 2 fois la recette, combien de litres faut-il ?`,
         answer: '1.5',
-        explanation: '3/4 × 2 = 6/4 = 1.5 litres'
       },
     ];
     
@@ -285,7 +277,6 @@ export class SixiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 120,
     };
   }
@@ -299,12 +290,10 @@ export class SixiemeGenerator implements LevelGenerator {
       {
         text: `Si ${baseValue} stylos coûtent 12€, combien coûtent ${multiplier} stylos ?`,
         answer: (12 * multiplier / baseValue).toFixed(2) + '€',
-        explanation: `Proportionnalité : ${multiplier} × (12€/${baseValue}) = ${(12 * multiplier / baseValue).toFixed(2)}€`
       },
       {
         text: `Une voiture consomme ${baseValue}L pour 100km. Combien consomme-t-elle pour ${multiplier * 100}km ?`,
         answer: (baseValue * multiplier).toString() + 'L',
-        explanation: `Proportionnalité : ${baseValue}L/100km × ${multiplier * 100}km = ${baseValue * multiplier}L`
       },
     ];
     
@@ -318,7 +307,6 @@ export class SixiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 90,
     };
   }
@@ -331,12 +319,10 @@ export class SixiemeGenerator implements LevelGenerator {
       {
         text: `Un rectangle mesure ${length} cm de longueur et ${width} cm de largeur. Quel est son périmètre ?`,
         answer: (2 * (length + width)).toString() + ' cm',
-        explanation: `Périmètre = 2 × (longueur + largeur) = 2 × (${length} + ${width}) = ${2 * (length + width)} cm`
       },
       {
         text: `Quelle est l'aire d'un carré de côté ${length} cm ?`,
         answer: (length * length).toString() + ' cm²',
-        explanation: `Aire = côté² = ${length}² = ${length * length} cm²`
       },
     ];
     
@@ -350,7 +336,6 @@ export class SixiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: problem.text,
       answer: problem.answer,
-      explanation: problem.explanation,
       timeEstimate: 80,
     };
   }

@@ -90,7 +90,6 @@ export class FunctionsGenerator implements QuestionGenerator {
       question: `Soit f(x) = ${a}x ${b >= 0 ? '+' : ''} ${b}. Calcule f(${x}).`,
       options: answers,
       answer: result.toString(),
-      explanation: `f(${x}) = ${a} × ${x} ${b >= 0 ? '+' : ''} ${b} = ${a * x} ${b >= 0 ? '+' : ''} ${b} = ${result}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -145,7 +144,6 @@ export class FunctionsGenerator implements QuestionGenerator {
       question: `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Calcule f(${x}).`,
       options: answers,
       answer: result.toString(),
-      explanation: `f(${x}) = ${a} × ${x}² ${b >= 0 ? '+' : ''} ${b} × ${x} ${c >= 0 ? '+' : ''} ${c} = ${a} × ${x * x} ${b >= 0 ? '+' : ''} ${b * x} ${c >= 0 ? '+' : ''} ${c} = ${result}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -190,23 +188,19 @@ export class FunctionsGenerator implements QuestionGenerator {
 
     let derivative: string;
     let questionText: string;
-    let explanation: string;
 
     switch (functionType) {
       case 'linear':
         derivative = a.toString();
         questionText = `Soit f(x) = ${a}x ${b >= 0 ? '+' : ''} ${b}. Quelle est f'(x) ?`;
-        explanation = `La dérivée de ${a}x est ${a}, et la dérivée de ${b} est 0. Donc f'(x) = ${a}`;
         break;
       case 'quadratic':
         derivative = `${2 * a}x ${b >= 0 ? '+' : ''} ${b}`;
         questionText = `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Quelle est f'(x) ?`;
-        explanation = `La dérivée de ${a}x² est ${2 * a}x, la dérivée de ${b}x est ${b}, et la dérivée de ${c} est 0. Donc f'(x) = ${2 * a}x ${b >= 0 ? '+' : ''} ${b}`;
         break;
       case 'cubic':
         derivative = `${3 * a}x² ${2 * b >= 0 ? '+' : ''} ${2 * b}`;
         questionText = `Soit f(x) = ${a}x³ ${b >= 0 ? '+' : ''} ${b}x² ${c >= 0 ? '+' : ''} ${c}x. Quelle est f'(x) ?`;
-        explanation = `La dérivée de ${a}x³ est ${3 * a}x², la dérivée de ${b}x² est ${2 * b}x, et la dérivée de ${c}x est ${c}. Donc f'(x) = ${3 * a}x² ${2 * b >= 0 ? '+' : ''} ${2 * b}x ${c >= 0 ? '+' : ''} ${c}`;
         break;
     }
 
@@ -227,7 +221,6 @@ export class FunctionsGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: derivative,
-      explanation,
       difficultyElo: difficulty * 100,
     };
   }
@@ -270,7 +263,6 @@ export class FunctionsGenerator implements QuestionGenerator {
       question: `Soit f(x) = ${a}(x - ${vertex})². Sur quel intervalle la fonction est-elle ${variation} ?`,
       options: answers,
       answer: interval,
-      explanation: `Comme a = ${a} ${a > 0 ? '> 0' : '< 0'}, la parabole est ${a > 0 ? 'ouverte vers le haut' : 'ouverte vers le bas'}. La fonction est ${variation} sur ${interval}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -299,23 +291,19 @@ export class FunctionsGenerator implements QuestionGenerator {
 
     let limit: string;
     let questionText: string;
-    let explanation: string;
 
     switch (limitType) {
       case 'infinity':
         limit = '+∞';
         questionText = `Calcule limₓ→+∞ (${a}x + ${b})`;
-        explanation = `Quand x tend vers +∞, ${a}x tend vers +∞ et ${b} devient négligeable. Donc la limite est +∞`;
         break;
       case 'zero':
         limit = '0';
         questionText = `Calcule limₓ→+∞ (${a}/x + ${b}/x²)`;
-        explanation = `Quand x tend vers +∞, ${a}/x tend vers 0 et ${b}/x² tend vers 0. Donc la limite est 0`;
         break;
       case 'finite':
         limit = a.toString();
         questionText = `Calcule limₓ→+∞ (${a} + ${b}/x)`;
-        explanation = `Quand x tend vers +∞, ${b}/x tend vers 0. Donc la limite est ${a}`;
         break;
     }
 
@@ -336,7 +324,6 @@ export class FunctionsGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: limit,
-      explanation,
       difficultyElo: difficulty * 100,
     };
   }

@@ -130,7 +130,6 @@ export class ArithmeticGenerator implements QuestionGenerator {
       question: `${a} + ${b} = ?`,
       options: answers,
       answer: result.toString(),
-      explanation: `${a} + ${b} = ${result}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -201,7 +200,6 @@ export class ArithmeticGenerator implements QuestionGenerator {
       question: `${a} - ${b} = ?`,
       options: answers,
       answer: result.toString(),
-      explanation: `${a} - ${b} = ${result}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -273,7 +271,6 @@ export class ArithmeticGenerator implements QuestionGenerator {
       question: `${a} × ${b} = ?`,
       options: answers,
       answer: result.toString(),
-      explanation: `${a} × ${b} = ${result}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -345,7 +342,6 @@ export class ArithmeticGenerator implements QuestionGenerator {
       question: `${dividend} ÷ ${divisor} = ?`,
       options: answers,
       answer: quotient.toString(),
-      explanation: `${dividend} ÷ ${divisor} = ${quotient}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -417,7 +413,6 @@ export class ArithmeticGenerator implements QuestionGenerator {
       question: `${base}^${exponent} = ?`,
       options: answers,
       answer: result.toString(),
-      explanation: `${base}^${exponent} = ${Array(exponent).fill(base).join(' × ')} = ${result}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -457,7 +452,6 @@ export class ArithmeticGenerator implements QuestionGenerator {
       question: `√${number} = ?`,
       options: answers,
       answer: result.toString(),
-      explanation: `√${number} = ${result} car ${result} × ${result} = ${number}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -529,7 +523,6 @@ export class ArithmeticGenerator implements QuestionGenerator {
       question: `${percentage}% de ${base} = ?`,
       options: answers,
       answer: result.toString(),
-      explanation: `${percentage}% de ${base} = (${percentage}/100) × ${base} = ${result}`,
       difficultyElo: difficulty * 100,
     };
   }
@@ -627,7 +620,6 @@ export class ArithmeticGenerator implements QuestionGenerator {
       question: questionText,
       options: answers,
       answer: roundedResult.toString(),
-      explanation: `${questionText.replace(' = ?', '')} = ${roundedResult}`,
       difficultyElo: difficulty * 100,
     };
   }

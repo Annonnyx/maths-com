@@ -84,7 +84,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer: result.toString(),
-      explanation: `${a} + ${b} = ${result}`,
       timeEstimate: 25,
     };
   }
@@ -134,7 +133,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer: result.toString(),
-      explanation: `${a} - ${b} = ${result}`,
       timeEstimate: 30,
     };
   }
@@ -173,7 +171,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} × ${b} = ?`,
       answer: result.toString(),
-      explanation: `${a} × ${b} = ${result}`,
       timeEstimate: 90,
     };
   }
@@ -196,7 +193,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${decimalA.toFixed(1)} + ${decimalB.toFixed(1)} = ?`,
       answer: result.toFixed(1),
-      explanation: `${decimalA.toFixed(1)} + ${decimalB.toFixed(1)} = ${result.toFixed(1)}`,
       timeEstimate: 60,
     };
   }
@@ -229,7 +225,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${dividend} ÷ ${divisor} = ?`,
       answer: hasRemainder ? `${quotient} r ${remainder}` : quotient.toString(),
-      explanation: `${dividend} ÷ ${divisor} = ${quotient}${hasRemainder ? ` reste ${remainder}` : ''}`,
       timeEstimate: 70,
       hasRemainder,
     };
@@ -263,7 +258,6 @@ export class CM1Generator implements LevelGenerator {
         return {
           question: `${a} + ${b} × ${c} = ?`,
           answer: finalResult.toString(),
-          explanation: `Priorité opératoire : ${b} × ${c} = ${multResult}, puis ${a} + ${multResult} = ${finalResult}`,
         };
       },
       () => {
@@ -277,7 +271,6 @@ export class CM1Generator implements LevelGenerator {
         return {
           question: `${a} × ${b} + ${c} = ?`,
           answer: finalResult.toString(),
-          explanation: `Priorité opératoire : ${a} × ${b} = ${multResult}, puis ${multResult} + ${c} = ${finalResult}`,
         };
       },
       () => {
@@ -290,7 +283,6 @@ export class CM1Generator implements LevelGenerator {
         return {
           question: `${a} + ${b} - ${c} = ?`,
           answer: finalResult.toString(),
-          explanation: `${a} + ${b} = ${a + b}, puis ${a + b} - ${c} = ${finalResult}`,
         };
       },
       () => {
@@ -304,12 +296,11 @@ export class CM1Generator implements LevelGenerator {
         return {
           question: `${a} × ${b} - ${c} = ?`,
           answer: finalResult.toString(),
-          explanation: `Priorité opératoire : ${a} × ${b} = ${multResult}, puis ${multResult} - ${c} = ${finalResult}`,
         };
       }
     ];
     
-    const { question, answer, explanation } = randomChoice(formats)();
+    const { question, answer } = randomChoice(formats)();
     
     return {
       id: hashQuestion(this.level, 'mixedops', [question]),
@@ -319,7 +310,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer,
-      explanation,
       timeEstimate: 60,
     };
   }
@@ -360,12 +350,10 @@ export class CM1Generator implements LevelGenerator {
       {
         text: `Calculer ${percentage}% de ${base}`,
         answer: result.toString(),
-        explanation: `${percentage}% de ${base} = (${percentage}/100) × ${base} = ${result}`
       },
       {
         text: `Un article coûte ${base}€, il est soldé à ${percentage}% de son prix. Quel est le prix soldé ?`,
         answer: result.toString(),
-        explanation: `${percentage}% de ${base}€ = ${result}€`
       },
     ];
     
@@ -379,7 +367,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: problem.text,
       answer: problem.answer,
-      explanation: problem.explanation,
       timeEstimate: 60,
     };
   }
@@ -427,7 +414,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer,
-      explanation: `${operation === 'addition' ? '+' : '-'} des fractions de même dénominateur : ${resultNum}/${denominator} = ${answer}`,
       timeEstimate: 70,
     };
   }
@@ -441,22 +427,18 @@ export class CM1Generator implements LevelGenerator {
       {
         text: `Rectangle : ${length} cm × ${width} cm. Périmètre ?`,
         answer: (2 * (length + width)).toString() + ' cm',
-        explanation: `P = 2 × (${length} + ${width}) = ${2 * (length + width)} cm`
       },
       {
         text: `Carré : côté ${length} cm. Périmètre ?`,
         answer: (4 * length).toString() + ' cm',
-        explanation: `P = 4 × ${length} = ${4 * length} cm`
       },
       {
         text: `Rectangle : ${length} cm × ${width} cm. Aire ?`,
         answer: (length * width).toString() + ' cm²',
-        explanation: `A = ${length} × ${width} = ${length * width} cm²`
       },
       {
         text: `Carré : côté ${length} cm. Aire ?`,
         answer: (length * length).toString() + ' cm²',
-        explanation: `A = ${length} × ${length} = ${length * length} cm²`
       },
     ];
     
@@ -470,7 +452,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: problem.text,
       answer: problem.answer,
-      explanation: problem.explanation,
       timeEstimate: 60,
     };
   }
@@ -481,22 +462,18 @@ export class CM1Generator implements LevelGenerator {
       {
         text: `${randomInt(2, 9)} boîtes de ${randomInt(2, 9)} crayons. Total crayons ?`,
         answer: (randomInt(2, 9) * randomInt(2, 9)).toString(),
-        explanation: `${randomInt(2, 9)} × ${randomInt(2, 9)} = ${randomInt(2, 9) * randomInt(2, 9)} crayons`
       },
       {
         text: `${randomInt(10, 50)} bonbons partagés entre ${randomInt(2, 8)} enfants. Bonbons par enfant ?`,
         answer: Math.floor(randomInt(10, 50) / randomInt(2, 8)).toString(),
-        explanation: `${randomInt(10, 50)} ÷ ${randomInt(2, 8)} = ${Math.floor(randomInt(10, 50) / randomInt(2, 8))} bonbons par enfant`
       },
       {
         text: `${randomInt(5, 15)} € par livre. ${randomInt(2, 5)} livres. Coût total ?`,
         answer: (randomInt(5, 15) * randomInt(2, 5)).toString() + '€',
-        explanation: `${randomInt(5, 15)} × ${randomInt(2, 5)} = ${randomInt(5, 15) * randomInt(2, 5)} €`
       },
       {
         text: `${randomInt(20, 99)} pages. Lecture de ${randomInt(5, 20)} pages. Pages restantes ?`,
         answer: Math.max(0, randomInt(20, 99) - randomInt(5, 20)).toString(),
-        explanation: `${randomInt(20, 99)} - ${randomInt(5, 20)} = ${Math.max(0, randomInt(20, 99) - randomInt(5, 20))} pages`
       },
     ];
     
@@ -510,7 +487,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 80,
     };
   }
@@ -524,17 +500,14 @@ export class CM1Generator implements LevelGenerator {
       {
         text: `${decimalA.toFixed(1)} kg + ${decimalB.toFixed(1)} kg. Poids total ?`,
         answer: (decimalA + decimalB).toFixed(1) + ' kg',
-        explanation: `${decimalA.toFixed(1)} + ${decimalB.toFixed(1)} = ${(decimalA + decimalB).toFixed(1)} kg`
       },
       {
         text: `${decimalA.toFixed(1)} m - ${decimalB.toFixed(1)} m. Longueur restante ?`,
         answer: Math.max(0, decimalA - decimalB).toFixed(1) + ' m',
-        explanation: `${decimalA.toFixed(1)} - ${decimalB.toFixed(1)} = ${Math.max(0, decimalA - decimalB).toFixed(1)} m`
       },
       {
         text: `Bouteille : ${decimalA.toFixed(1)} L. On boit ${decimalB.toFixed(1)} L. Reste ?`,
         answer: Math.max(0, decimalA - decimalB).toFixed(1) + ' L',
-        explanation: `${decimalA.toFixed(1)} - ${decimalB.toFixed(1)} = ${Math.max(0, decimalA - decimalB).toFixed(1)} L`
       },
     ];
     
@@ -548,7 +521,6 @@ export class CM1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: problem.text,
       answer: problem.answer,
-      explanation: problem.explanation,
       timeEstimate: 60,
     };
   }

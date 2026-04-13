@@ -65,7 +65,6 @@ export class PremiereGenerator implements LevelGenerator {
         difficultyElo: this.eloRange.min + randomInt(0, 100),
         question: `Suite arithmétique : u₀ = ${u0}, u₃ = ${u3}. Quelle est la raison ?`,
         answer: r.toString(),
-        explanation: `Raison = (u₃ - u₀) / 3 = (${u3} - ${u0}) / 3 = ${r}`,
         validate: (userInput: string | string[]) => {
           const input = Array.isArray(userInput) ? userInput[0] : userInput;
           const userResult = parseInt(input);
@@ -86,7 +85,6 @@ export class PremiereGenerator implements LevelGenerator {
         difficultyElo: this.eloRange.min + randomInt(50, 150),
         question: `Suite géométrique : u₀ = ${u0}, u₃ = ${u3}. Quelle est la raison ?`,
         answer: q.toFixed(1),
-        explanation: `Raison = (u₃/u₀)^(1/3) = ${u3}/${u0})^(1/3) = ${q.toFixed(1)}`,
         validate: (userInput: string | string[]) => {
           const input = Array.isArray(userInput) ? userInput[0] : userInput;
           const userResult = parseFloat(input);
@@ -113,7 +111,6 @@ export class PremiereGenerator implements LevelGenerator {
         difficultyElo: this.eloRange.min + randomInt(30, 120),
         question: `Suite arithmétique de raison r, u₀ = ${u0}. Calcule u_${n}.`,
         answer: un.toString(),
-        explanation: `u_${n} = u₀ + n×r = ${u0} + ${n}×${r} = ${un}`,
         validate: (userInput: string | string[]) => {
           const input = Array.isArray(userInput) ? userInput[0] : userInput;
           const userResult = parseInt(input);
@@ -134,7 +131,6 @@ export class PremiereGenerator implements LevelGenerator {
         difficultyElo: this.eloRange.min + randomInt(80, 200),
         question: `Suite géométrique de raison q, u₀ = ${u0}. Calcule u_${n}.`,
         answer: un.toFixed(1),
-        explanation: `u_${n} = u₀ × q^n = ${u0} × ${q}^${n} = ${un.toFixed(1)}`,
         validate: (userInput: string | string[]) => {
           const input = Array.isArray(userInput) ? userInput[0] : userInput;
           const userResult = parseFloat(input);
@@ -159,7 +155,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(40, 160),
       question: `Suite ${isArithmetic ? 'arithmétique' : 'géométrique'} de raison ${r}, u_${n} = ${un}. Calcule u₀.`,
       answer: u0.toString(),
-      explanation: `u₀ = u_${n} ${isArithmetic ? '-' : '÷'} ${r}^n = ${un} ${isArithmetic ? '-' : '÷'} ${r}^${n} = ${u0}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -186,7 +181,6 @@ export class PremiereGenerator implements LevelGenerator {
         difficultyElo: this.eloRange.min + randomInt(60, 180),
         question: `Calcule u₁ + u₂ + ... + u_${n} pour une suite arithmétique avec u₁ = ${u1}, u_${n} = ${un}.`,
         answer: sum.toString(),
-        explanation: `Somme = n × (u₁ + u_${n}) / 2 = ${n} × (${u1} + ${un}) / 2 = ${sum}`,
         validate: (userInput: string | string[]) => {
           const input = Array.isArray(userInput) ? userInput[0] : userInput;
           const userResult = parseInt(input);
@@ -208,7 +202,6 @@ export class PremiereGenerator implements LevelGenerator {
         difficultyElo: this.eloRange.min + randomInt(100, 250),
         question: `Calcule u₀ + u₁ + ... + u_${n-1} pour une suite géométrique avec u₀ = ${u0}, q = ${q}.`,
         answer: sum.toFixed(1),
-        explanation: `Somme = u₀ × (q^n - 1) / (q - 1) = ${u0} × (${Math.pow(q, n)} - 1) / ${q - 1} = ${sum.toFixed(1)}`,
         validate: (userInput: string | string[]) => {
           const input = Array.isArray(userInput) ? userInput[0] : userInput;
           const userResult = parseFloat(input);
@@ -232,7 +225,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(80, 200),
       question: `u₀ = ${u0}, u_{n+1} = a*u_n + b. Calcule u₃ (a = ${a}, b = ${b}).`,
       answer: u3.toString(),
-      explanation: `u₁ = ${a}×u₀ + ${b} = ${a*u0 + b}, u₂ = ${a}×u₁ + ${b} = ${a*(a*u0 + b) + b}, u₃ = ${a}×u₂ + ${b} = ${u3}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);
@@ -268,7 +260,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(100, 200),
       question: `X suit B(${n}, ${p}). Calcule P(X = ${k}).`,
       answer: probability.toFixed(4),
-      explanation: `P(X = ${k}) = C(${n},${k}) × ${p}^${k} × (1-${p})^${n-k} = ${probability.toFixed(4)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -292,7 +283,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(120, 220),
       question: `X suit B(${n}, ${p}). Calcule E(X) et V(X).`,
       answer: `E(X) = ${expectation.toFixed(2)}, V(X) = ${variance.toFixed(2)}`,
-      explanation: `E(X) = n×p = ${n}×${p} = ${expectation.toFixed(2)}, V(X) = n×p×(1-p) = ${n}×${p}×${(1-p)} = ${variance.toFixed(2)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const parts = input.split(',');
@@ -330,7 +320,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(140, 250),
       question: `Tableau de contingence :\n│     | B₁   | B₂   | Total │\n│ A₁ │ ${table[0][0]}   │ ${table[0][1]}   │ ${table[0][0] + table[0][1]} │\n│ A₂ │ ${table[1][0]}   │ ${table[1][1]}   │ ${table[1][0] + table[1][1]} │\n│ Total│ ${table[0][0] + table[1][0]} │ ${table[0][1] + table[1][1]} │ ${total} │\n\nCalcule P(A₁|B₁).`,
       answer: pBGivenA.toFixed(3),
-      explanation: `P(A₁|B₁) = P(A₁∩B₁) / P(A₁) = ${table[0][0]}/${total} ÷ ${(table[0][0] + table[0][1])}/${total} = ${pBGivenA.toFixed(3)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -360,7 +349,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(160, 280),
       question: `Arbre de probabilités : p = ${p}. Une expérience a deux essais. Calcule ${selected.desc}.`,
       answer: selected.prob.toFixed(3),
-      explanation: `${selected.desc} : ${p} × ${selected.prob} = ${selected.prob.toFixed(3)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -398,7 +386,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(80, 200),
       question: `Calcule la dérivée de ${selected.expr}.`,
       answer: selected.derivative,
-      explanation: `Dérivée de ${selected.expr} = ${selected.derivative}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input.replace(/\s/g, '') === selected.derivative.replace(/\s/g, '');
@@ -421,7 +408,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(100, 250),
       question: `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Sur quel intervalle f'(x) > 0 ?`,
       answer: `]${root1.toFixed(1)} ; ${root2.toFixed(1)}[`,
-      explanation: `f'(x) = ${2*a}x ${b >= 0 ? '+' : ''} ${b} > 0 quand x > ${root1.toFixed(1)} ou x < ${root2.toFixed(1)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         // Accepter divers formats d'intervalles
@@ -454,7 +440,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(120, 240),
       question: `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Donne le ${isMaximum ? 'maximum' : 'minimum'} de f.`,
       answer: extremum.toString(),
-      explanation: `Le ${isMaximum ? 'maximum' : 'minimum'} est atteint en x = ${-b/(2*a)} avec f(x) = ${extremum}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -480,7 +465,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(150, 280),
       question: `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Équation de la tangente en x₀ = ${x0} : y = ?`,
       answer: `${slope.toFixed(1)}x ${y0 >= 0 ? '+' : ''} ${y0.toFixed(1)}`,
-      explanation: `y = f'(x₀)(x - x₀) + f(x₀) = (${2*a*x0 + b})(x - ${x0}) + ${a*x0*x0 + b*x0 + c} = ${slope.toFixed(1)}x ${y0 >= 0 ? '+' : ''} ${y0.toFixed(1)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         // Parser "ax + b" format
@@ -518,7 +502,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(100, 250),
       question: `Résous e^x = ${result}.`,
       answer: `x = ${Math.log(result).toFixed(2)}`,
-      explanation: `e^x = ${result} ⇒ x = ln(${result}) = ${Math.log(result).toFixed(2)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         // Accepter "x = nombre" ou juste le nombre
@@ -560,7 +543,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(120, 260),
       question: `Calcule ln(${a} × ${b}).`,
       answer: answer,
-      explanation: `ln(a × b) = ln(a) + ln(b) = ${Math.log(a).toFixed(2)} + ${Math.log(b).toFixed(2)} = ${answer}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -590,7 +572,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(140, 280),
       question: `Simplifie ${selected.expr.replace('a', a.toString()).replace('b', b.toString()).replace('n', n.toString())}.`,
       answer: selected.result,
-      explanation: `${selected.desc} = ${selected.result}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input.replace(/\s/g, '') === selected.result;
@@ -620,7 +601,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(60, 180),
       question: `Dans un triangle rectangle, les côtés de l'angle droit mesurent ${a} cm et ${b} cm. Calcule la longueur de l'hypoténuse.`,
       answer: c.toFixed(1),
-      explanation: `Par le théorème de Pythagore : c² = a² + b² = ${a}² + ${b}² = ${c.toFixed(1)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -645,7 +625,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(80, 220),
       question: `Dans le triangle ABC, D est un point de [AB] tel que AD = ${ad} cm et AB = ${ab} cm. La parallèle à (BC) passant par D coupe [AC] en E. Calcule AE si AC = ${ac} cm.`,
       answer: ae.toString(),
-      explanation: `Par le théorème de Thalès : AD/AB = AE/AC donc AE = AC × AD/AB = ${ac} × ${ad}/${ab} = ${ae} cm`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);
@@ -677,7 +656,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(40, 120),
       question: `Calcule PGCD(${a}, ${b}) en utilisant l'algorithme d'Euclide.`,
       answer: pgcd.toString(),
-      explanation: `PGCD(${a}, ${b}) = ${pgcd}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);
@@ -699,7 +677,6 @@ export class PremiereGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(60, 150),
       question: `Trouve le plus petit entier x > 0 tel que ${a}x ≡ ${remainder} (mod ${n}).`,
       answer: `${remainder}`,
-      explanation: `Solution : x ≡ ${remainder} (mod ${n})`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);

@@ -57,7 +57,6 @@ export class CE1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} + ${b} = ?`,
       answer: result.toString(),
-      explanation: `${a} + ${b} = ${result}`,
       timeEstimate: 25,
     };
   }
@@ -77,7 +76,6 @@ export class CE1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} - ${b} = ?`,
       answer: result.toString(),
-      explanation: `${a} - ${b} = ${result}`,
       timeEstimate: 30,
     };
   }
@@ -130,7 +128,6 @@ export class CE1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${a} × ${b} = ?`,
       answer: result.toString(),
-      explanation: `${a} × ${b} = ${result}`,
       timeEstimate: 30,
     };
   }
@@ -168,7 +165,6 @@ export class CE1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer,
-      explanation: `${a} + ${b} = ${result}, donc le nombre manquant est ${answer}`,
       timeEstimate: 35,
     };
   }
@@ -205,7 +201,6 @@ export class CE1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: `${a} + ${b} = ${result}`,
       timeEstimate: 60,
     };
   }
@@ -233,7 +228,6 @@ export class CE1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: `${a} ${unit} + ${b} ${unit} = ${result} ${unit}`,
       timeEstimate: 45,
     };
   }
@@ -263,7 +257,6 @@ export class CE1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer: correctAnswer,
-      explanation: `La suite augmente de ${step} à chaque fois : ${sequence.join(', ')}`,
       timeEstimate: 35,
     };
   }
@@ -289,7 +282,6 @@ export class CE1Generator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: `${dividend} ÷ ${divisor} = ${quotient}`,
       timeEstimate: 50,
     };
   }

@@ -55,7 +55,6 @@ export class Sup2Generator implements LevelGenerator {
       difficultyElo: 3050,
       question: `Quel est l'ordre du groupe ℤ/${order}ℤ ?`,
       answer: order.toString(),
-      explanation: `ℤ/nℤ est un groupe cyclique d'ordre n. Ici n = ${p}^${n} = ${order}.`,
       timeEstimate: 25,
     };
   }
@@ -76,7 +75,6 @@ export class Sup2Generator implements LevelGenerator {
         `Oui, toujours pour ℤ/nℤ`,
         `Non, ℤ/nℤ n'est jamais un corps`,
       ]),
-      explanation: `ℤ/pℤ est un corps si et seulement si p est premier. ${p} est premier → c'est un corps.`,
       timeEstimate: 30,
     };
   }
@@ -96,7 +94,6 @@ export class Sup2Generator implements LevelGenerator {
       question: `Matrice A avec tr(A)=${trace} et det(A)=${det}. Valeurs propres ?`,
       answer: `${l1} et ${l2}`,
       acceptableAnswers: [`${l1} et ${l2}`, `${l2} et ${l1}`, `{${l1},${l2}}`, `{${l2},${l1}}`],
-      explanation: `Polynôme caract. : λ²-${trace}λ+${det}=0. Racines : λ=${l1} et λ=${l2}`,
       timeEstimate: 60,
     };
   }
@@ -130,7 +127,6 @@ export class Sup2Generator implements LevelGenerator {
       question: `La série ${s.expr} (n≥2) est-elle convergente ?`,
       answer: s.converges ? 'Oui, convergente' : 'Non, divergente',
       options: shuffleArray(['Oui, convergente', 'Non, divergente', 'On ne peut pas savoir', 'Conditionnellement convergente']),
-      explanation: `${s.expr} : ${s.raison}`,
       timeEstimate: 45,
     };
   }
@@ -146,7 +142,6 @@ export class Sup2Generator implements LevelGenerator {
       question: `Le coefficient de Fourier a_n de f(x)=1 sur [-π,π] vaut :`,
       answer: n === 0 ? '2π' : '0',
       options: shuffleArray(['0', '1', '2π', '1/π']),
-      explanation: `Pour f(x)=1, a_n = (1/π)∫₋ᵨᵨ cos(nx)dx = 0 pour n≥1 (intégrale d'un cosinus sur période entière).`,
       timeEstimate: 50,
     };
   }
@@ -166,7 +161,6 @@ export class Sup2Generator implements LevelGenerator {
         'Oui, il est connexe',
         'Non, il est non borné',
       ]),
-      explanation: `Un compact de ℝ est fermé ET borné (Heine-Borel). ]0,1[ est borné mais pas fermé → non compact.`,
       timeEstimate: 35,
     };
   }
@@ -197,7 +191,6 @@ export class Sup2Generator implements LevelGenerator {
       difficultyElo: 3050,
       question: `Forme algébrique de z = ${r > 1 ? r : ''}e^(i${rad})`,
       answer: `${r > 1 ? r+'×' : ''}${re} + ${r > 1 ? r+'×' : ''}${im}i`,
-      explanation: `e^(iθ) = cos(θ) + i·sin(θ). Ici : ${r}(${re} + ${im}i)`,
       timeEstimate: 40,
     };
   }
@@ -212,7 +205,6 @@ export class Sup2Generator implements LevelGenerator {
       difficultyElo: 3400,
       question: `Résidu de f(z) = 1/(z-${a}) en z = ${a}`,
       answer: '1',
-      explanation: `f a un pôle simple en z=${a}. Résidu = lim(z→${a}) (z-${a})·f(z) = 1.`,
       timeEstimate: 30,
     };
   }
@@ -236,7 +228,6 @@ export class Sup2Generator implements LevelGenerator {
       difficultyElo: 3080,
       question: `X ~ ${law.name}. ${q === 'espérance' ? 'E[X]' : 'Var(X)'} = ?`,
       answer: answer.toString(),
-      explanation: `Pour ${law.name} : E[X]=${law.mean}, Var(X)=${law.var_}`,
       timeEstimate: 20,
     };
   }

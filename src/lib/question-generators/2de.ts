@@ -60,7 +60,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(0, 100),
       question: `Pour le polynôme f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}, calcule le discriminant Δ.`,
       answer: discriminant.toString(),
-      explanation: `Δ = b² - 4ac = ${b}² - 4×${a}×${c} = ${discriminant}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userDelta = parseFloat(input);
@@ -91,7 +90,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(0, 50),
       question: `Soit f(x) = ${a}x ${b >= 0 ? '+' : ''} ${b}. Calcule f(${randomInt(0, 5)}).`,
       answer: (a * randomInt(0, 5) + b).toString(),
-      explanation: `f(${randomInt(0, 5)}) = ${a}×${randomInt(0, 5)} ${b >= 0 ? '+' : ''} ${b} = ${a * randomInt(0, 5) + b}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -117,7 +115,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(50, 100),
       question: `Soit f(x) = ${a}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}. Calcule f(${x}).`,
       answer: result.toFixed(1),
-      explanation: `f(${x}) = ${a}(${x} ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k} = ${result.toFixed(1)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -144,7 +141,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(30, 80),
       question: `Calcule la dérivée de f(x) = ${selected.expr}.`,
       answer: selected.derivative,
-      explanation: `f'(x) = ${selected.derivative}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input.replace(/\s/g, '') === selected.derivative.replace(/\s/g, '');
@@ -175,7 +171,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(0, 50),
       question: `Suite arithmétique : u₀ = ${u0}, raison = ${r}. Calcule u_${n}.`,
       answer: un.toString(),
-      explanation: `u_${n} = u₀ + n×r = ${u0} + ${n}×${r} = ${un}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);
@@ -198,7 +193,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(20, 70),
       question: `Suite géométrique : u₀ = ${u0}, raison = ${q}. Calcule u_${n}.`,
       answer: un.toFixed(1),
-      explanation: `u_${n} = u₀ × q^n = ${u0} × ${q}^${n} = ${un.toFixed(1)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -233,7 +227,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(30, 80),
       question: `X suit B(${n}, ${p}). Calcule P(X = ${k}).`,
       answer: probability.toFixed(4),
-      explanation: `P(X = ${k}) = C(${n},${k}) × ${p}^${k} × (1-${p})^${n-k} = ${probability.toFixed(4)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -263,7 +256,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(40, 90),
       question: `Dans un tableau :\n|     | B₁   | B₂   | Total |\n| A₁ | ${a}   | ${b}   | ${a+b} |\n| A₂ | ${c}   | ${d}   | ${c+d} |\n| Total| ${a+c} | ${b+d} | ${total} |\n\nCalcule P(A₁|B₁).`,
       answer: pBGivenA.toFixed(3),
-      explanation: `P(A₁|B₁) = P(A₁∩B₁) / P(A₁) = ${a}/${total} ÷ ${(a+b)}/${total} = ${pBGivenA.toFixed(3)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -294,7 +286,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(20, 60),
       question: `Dans un triangle rectangle, les côtés de l'angle droit mesurent ${a} cm et ${b} cm. Calcule la longueur de l'hypoténuse.`,
       answer: c.toFixed(1),
-      explanation: `Par le théorème de Pythagore : c² = a² + b² = ${a}² + ${b}² = ${c.toFixed(1)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -320,7 +311,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(30, 70),
       question: `Dans le triangle ABC, D est un point de [AB] tel que AD = ${ad} cm et AB = ${ab} cm. La parallèle à (BC) passant par D coupe [AC] en E. Calcule AE si AC = ${ac} cm.`,
       answer: ae.toString(),
-      explanation: `Par le théorème de Thalès : AD/AB = AE/AC donc AE = AC × AD/AB = ${ac} × ${ad}/${ab} = ${ae} cm`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);
@@ -352,7 +342,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(0, 40),
       question: `Calcule PGCD(${a}, ${b}).`,
       answer: pgcd.toString(),
-      explanation: `PGCD(${a}, ${b}) = ${pgcd}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);
@@ -374,7 +363,6 @@ export class SecondeGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(20, 60),
       question: `Trouve le reste de la division de ${a} par ${n}.`,
       answer: remainder.toString(),
-      explanation: `${a} ≡ ${remainder} (mod ${n})`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);

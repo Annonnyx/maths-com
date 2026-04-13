@@ -75,7 +75,6 @@ export class CPGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer: result.toString(),
-      explanation: `${a} + ${b} = ${result}`,
       timeEstimate: 20,
     };
   }
@@ -114,7 +113,6 @@ export class CPGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer: result.toString(),
-      explanation: `${a} - ${b} = ${result}`,
       timeEstimate: 25,
     };
   }
@@ -135,7 +133,6 @@ export class CPGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `Combien y a-t-il d'objets : ${object.repeat(objectCount)} ?`,
       answer: objectCount.toString(),
-      explanation: `Il y a ${objectCount} ${object.includes('🍎') ? 'pommes' : 'objets'}`,
       timeEstimate: 15,
     };
   }
@@ -158,7 +155,6 @@ export class CPGenerator implements LevelGenerator {
       question: `Complète avec le bon symbole : ${a} ___ ${b}`,
       answer: correctSymbol,
       options,
-      explanation: `${a} est ${a > b ? 'plus grand que' : a < b ? 'plus petit que' : 'égal à'} ${b}`,
       timeEstimate: 20,
     };
   }
@@ -206,7 +202,6 @@ export class CPGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer,
-      explanation: `${a} + ${b} = ${result}, donc le nombre manquant est ${answer}`,
       timeEstimate: 30,
     };
   }
@@ -236,7 +231,6 @@ export class CPGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer: correctAnswer,
-      explanation: `La suite augmente de ${step} à chaque fois : ${sequence.join(', ')}`,
       timeEstimate: 25,
     };
   }
@@ -263,7 +257,6 @@ export class CPGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: `${a} + ${b} = ${result}`,
       timeEstimate: 45,
     };
   }

@@ -59,7 +59,6 @@ export class Sup3Generator implements LevelGenerator {
         `Jordan : 3 blocs 1×1`,
         `Non diagonalisable sur ℂ`,
       ]),
-      explanation: `rang(A-λI)=1 → nullité=2 → 2 vecteurs propres → 2 blocs. Tailles 2+1=3. Bloc 2×2 + bloc 1×1.`,
       timeEstimate: 70,
     };
   }
@@ -76,7 +75,6 @@ export class Sup3Generator implements LevelGenerator {
       question: `Tout groupe d'ordre ${order} = ${p}² est :`,
       answer: 'Abélien',
       options: shuffleArray(['Abélien', 'Simple', 'Non résoluble', 'Libre']),
-      explanation: `Théorème : tout p-groupe d'ordre p² est abélien (isomorphe à ℤ/p²ℤ ou ℤ/pℤ × ℤ/pℤ).`,
       timeEstimate: 40,
     };
   }
@@ -91,7 +89,6 @@ export class Sup3Generator implements LevelGenerator {
       difficultyElo: 3550,
       question: `dim((ℝ^${n})*)  = ? (dual de ℝ^${n})`,
       answer: n.toString(),
-      explanation: `Le dual d'un espace de dimension finie n est isomorphe à ℝ^n, donc dim = ${n}.`,
       timeEstimate: 20,
     };
   }
@@ -122,7 +119,6 @@ export class Sup3Generator implements LevelGenerator {
       question: `${s.name} muni de la ${s.norm} est-il un espace de ${q} ?`,
       answer: (q === 'Banach' ? s.banach : s.hilbert) ? 'Oui' : 'Non',
       options: ['Oui', 'Non', 'Seulement en dimension finie', 'Seulement sur ℝ'],
-      explanation: `${s.name} est ${s.banach ? '' : 'non '}de Banach et ${s.hilbert ? '' : 'non '}de Hilbert avec ${s.norm}.`,
       timeEstimate: 35,
     };
   }
@@ -142,7 +138,6 @@ export class Sup3Generator implements LevelGenerator {
         '√π · e^(-ξ²)',
         '1/(1+ξ²)',
       ]),
-      explanation: `TF(e^(-at²)) = √(π/a)·e^(-π²ξ²/a). Pour a=1 : √π·e^(-ξ²/4).`,
       timeEstimate: 60,
     };
   }
@@ -163,7 +158,6 @@ export class Sup3Generator implements LevelGenerator {
       question: `${t.eq} est une EDP de type :`,
       answer: t.type,
       options: shuffleArray(['hyperbolique', 'parabolique', 'elliptique', 'mixte']),
-      explanation: `${t.name} (${t.eq}) est de type ${t.type}.`,
       timeEstimate: 30,
     };
   }
@@ -190,7 +184,6 @@ export class Sup3Generator implements LevelGenerator {
       question: `X_i iid, E=μ, Var=σ²=${sigma2}. TCL : √n(X̄_n - μ) →(loi) ?`,
       answer: `N(0, ${sigma2})`,
       options: shuffleArray([`N(0, ${sigma2})`, `N(μ, ${sigma2})`, `N(0, ${sigma2/n})`, `N(0,1)`]),
-      explanation: `Par le TCL : √n(X̄_n - μ) →(loi) N(0, σ²) = N(0, ${sigma2}).`,
       timeEstimate: 35,
     };
   }
@@ -205,7 +198,6 @@ export class Sup3Generator implements LevelGenerator {
       question: `(M_n) est une martingale si E[M_{n+1} | ℱ_n] = ?`,
       answer: 'M_n',
       options: shuffleArray(['M_n', 'M_{n+1}', '0', 'E[M_n]']),
-      explanation: `Définition d'une martingale : E[M_{n+1} | ℱ_n] = M_n (espérance conditionnelle = valeur courante).`,
       timeEstimate: 25,
     };
   }
@@ -224,7 +216,6 @@ export class Sup3Generator implements LevelGenerator {
       difficultyElo: 3530,
       question: `C(${n}, ${k}) = ?`,
       answer: C.toString(),
-      explanation: `C(${n},${k}) = ${n}! / (${k}! × ${n-k}!) = ${C}`,
       timeEstimate: 40,
     };
   }

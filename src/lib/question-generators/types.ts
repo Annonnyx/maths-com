@@ -14,7 +14,7 @@ export interface GeneratedQuestion {
   difficultyElo: number;
   question: string;
   answer: string;
-  explanation: string;
+  explanation?: string;
   timeEstimate?: number;
   options?: string[]; // For MCQ
   acceptableAnswers?: string[]; // For numeric/expression with multiple valid options

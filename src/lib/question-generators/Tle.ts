@@ -63,7 +63,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(100, 200),
       question: `Calcule lim_{x->+∞} (${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}) / (${d}x ${c >= 0 ? '+' : ''} ${c}).`,
       answer: '+∞',
-      explanation: `lim_{x->+∞} = lim_{x->+∞} (${a}x² + ${b}x + ${c})/(${d}x + ${c}) = +∞ car le degré du numérateur (2) est supérieur au degré du dénominateur (1)`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input === '+∞' || input === '+inf' || input === '+Infinity';
@@ -89,7 +88,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(150, 250),
       question: `Calcule lim_{x->+∞} ${selected.expr.replace('x', 'x').replace('n', n.toString())}.`,
       answer: selected.result,
-      explanation: `${selected.desc}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input === selected.result;
@@ -111,7 +109,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(120, 220),
       question: `Calcule lim_{x->${a}} (${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}) / (x${a > 0 ? '-' : '+'} ${Math.abs(a)}).`,
       answer: '-∞',
-      explanation: `Forme indéterminée 0/0, limite = -∞ car a < 0`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input === '-∞' || input === '-inf' || input === '-Infinity';
@@ -148,7 +145,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(140, 260),
       question: `Calcule la dérivée de ${selected.expr}.`,
       answer: selected.derivative,
-      explanation: `Dérivée de ${selected.expr} = ${selected.derivative}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input.replace(/\s/g, '') === selected.derivative.replace(/\s/g, '');
@@ -168,7 +164,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(160, 280),
       question: `Calcule la dérivée de f(x) = e^${a}x ${b >= 0 ? '+' : ''} ${b}.`,
       answer: `${a}e^${a}x ${b >= 0 ? '+' : ''} ${b}`,
-      explanation: `Dérivée de e^${a}x${b >= 0 ? '+' : ''} ${b} = ${a}e^${a}x${b >= 0 ? '+' : ''} ${b}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input.replace(/\s/g, '') === `${a}e^${a}x${b >= 0 ? '+' : ''} ${b}`.replace(/\s/g, '');
@@ -190,7 +185,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(180, 300),
       question: `Calcule la dérivée de f(x) = ${selectedU}(x) × ${selectedV}(x).`,
       answer: `${selectedU}'(x) × ${selectedV} + ${selectedU}(x)`,
-      explanation: `Dérivée de ${selectedU}(x) × ${selectedV}(x) = ${selectedU}'(x) × ${selectedV} + ${selectedU}(x)`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input.replace(/\s/g, '') === `${selectedU}'(x) × ${selectedV} + ${selectedU}(x)`.replace(/\s/g, '');
@@ -210,7 +204,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(200, 320),
       question: `Calcule la dérivée de f(x) = ${selectedU}(x) / (x + 1).`,
       answer: `${selectedU}'(x) × (x + 1) - ${selectedU}(x) / (x + 1)²`,
-      explanation: `Dérivée de ${selectedU}(x)/(x+1) = [${selectedU}'(x)(x+1) - ${selectedU}(x)]/(x+1)²`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input.replace(/\s/g, '') === `${selectedU}'(x) × (x + 1) - ${selectedU}(x) / (x + 1)²`.replace(/\s/g, '');
@@ -235,7 +228,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(220, 340),
       question: `Soit f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}. Équation de la tangente en x₀ = ${x0} : y = ?`,
       answer: `${slope.toFixed(1)}x ${y0 >= 0 ? '+' : ''} ${y0.toFixed(1)}`,
-      explanation: `y = f'(x₀)(x - x₀) + f(x₀) = (${2*a*x0 + b})(x - ${x0}) + ${a*x0*x0 + b*x0 + c} = ${slope.toFixed(1)}x ${y0 >= 0 ? '+' : ''} ${y0.toFixed(1)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         // Parser "ax + b" format
@@ -285,7 +277,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(200, 350),
       question: `Calcule ∫_${lower}^${upper} (${coeffs.join(' + ')}x ${degree === 1 ? '' : coeffs[1]}x² ${coeffs.slice(2).join(' + ')}dx.`,
       answer: integral.toFixed(2),
-      explanation: `Intégrale du polynôme degré ${degree} = ${integral.toFixed(2)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -309,7 +300,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(220, 380),
       question: `Calcule ∫_${lower}^${upper} ${a}e^x dx.`,
       answer: result.toFixed(2),
-      explanation: `∫ ${a}e^x dx = ${a}e^x = ${result.toFixed(2)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -330,7 +320,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(240, 400),
       question: `Calcule ∫_${a}^${b} (1/x) dx où a, b > 0.`,
       answer: `${b} ln(${a})`,
-      explanation: `∫ ${a}^${b} (1/x) dx = ${b} ln(${a})`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const match = input.match(/^(\d+(?:\.\d+)?)\s*ln\(\d+\)$/);
@@ -370,7 +359,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(250, 450),
       question: `X suit N(${mu}, ${sigma}²). Sachant que P(X < ${a}) = ${probability}, calcule P(X < ${a}).`,
       answer: probability.toString(),
-      explanation: `Par symétrie : P(X < ${mu - 3*sigma}) = ${probability}, donc P(X < ${a}) = 1 - ${probability} = ${1 - probability}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -394,7 +382,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(300, 500),
       question: `Intervalle de fluctuation au seuil 95% pour une proportion de ${p} dans un échantillon de taille ${n}.`,
       answer: `[${lowerBound.toFixed(3)} ; ${upperBound.toFixed(3)}]`,
-      explanation: `[p - 1.96√(p(1-p)/n) ; p + 1.96√(p(1-p)/n)] = [${lowerBound.toFixed(3)} ; ${upperBound.toFixed(3)}]`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         // Accepter différents formats d'intervalles
@@ -435,7 +422,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(280, 480),
       question: `Soit u⃗(${v1[0]}, ${v1[1]}, ${v1[2]}) et v⃗(${v2[0]}, ${v2[1]}, ${v2[2]}). Calcule u⃗·v⃗.`,
       answer: dotProduct.toString(),
-      explanation: `u⃗·v⃗ = ${v1[0]}×${v2[0]} + ${v1[1]}×${v2[1]} + ${v1[2]}×${v2[2]} = ${dotProduct}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseFloat(input);
@@ -468,7 +454,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(320, 520),
       question: `Donne l'équation du plan passant par A(${A.join(',')}), B(${B.join(',')}) et C(${C.join(',')}).`,
       answer: `${normal[0]}x + ${normal[1]}y + ${normal[2]}z + ${d} = 0`,
-      explanation: `Vecteur normal : (${normal.join(',')}) · (x,y,z) + ${d} = 0`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         // Parser format "ax + by + cz + d = 0"
@@ -509,7 +494,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(200, 400),
       question: `Calcule (${selected.a[0]} + ${selected.a[1]}i) ${selected.op} (${selected.b[0]} + ${selected.b[1]}i).`,
       answer: this.performComplexOperation(selected.op, selected.a, selected.b),
-      explanation: `Opération sur nombres complexes : ${selected.op}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         return input.replace(/\s/g, '') === this.performComplexOperation(selected.op, selected.a, selected.b).replace(/\s/g, '');
@@ -529,7 +513,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(250, 480),
       question: `Écris le nombre complexe z = cos(${this.formatAngle(selectedAngle)}) + i sin(${this.formatAngle(selectedAngle)}).`,
       answer: `${Math.cos(selectedAngle).toFixed(2)} + ${Math.sin(selectedAngle).toFixed(2)}i`,
-      explanation: `Forme trigonométrique : cos(θ) + i sin(θ) avec θ = ${this.formatAngle(selectedAngle)}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         // Parser "a + bi" format
@@ -561,7 +544,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(300, 520),
       question: `Donne les racines cubiques de l'unité sous forme exponentielle.`,
       answer: `${real.toFixed(2)} + ${imag.toFixed(2)}i, ${real.toFixed(2)} - ${imag.toFixed(2)}i, ${-real.toFixed(2)} + ${imag.toFixed(2)}i`,
-      explanation: `Racines cubiques : r^3 = 1 ⇒ r = e^(2iπk/3) pour k = 0,1,2`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const parts = input.split(',');
@@ -603,7 +585,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(100, 200),
       question: `Calcule PGCD(${a}, ${b}) en utilisant l'algorithme d'Euclide.`,
       answer: pgcd.toString(),
-      explanation: `PGCD(${a}, ${b}) = ${pgcd}`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);
@@ -625,7 +606,6 @@ export class TerminaleGenerator implements LevelGenerator {
       difficultyElo: this.eloRange.min + randomInt(120, 250),
       question: `Trouve le plus petit entier x > 0 tel que ${a}x ≡ ${remainder} (mod ${n}).`,
       answer: `${remainder}`,
-      explanation: `Solution : x ≡ ${remainder} (mod ${n})`,
       validate: (userInput: string | string[]) => {
         const input = Array.isArray(userInput) ? userInput[0] : userInput;
         const userResult = parseInt(input);

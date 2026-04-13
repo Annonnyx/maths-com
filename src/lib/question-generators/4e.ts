@@ -65,7 +65,6 @@ export class QuatriemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${base}^${exponent} = ?`,
       answer: result.toString(),
-      explanation: `${base}^${exponent} = ${base} × ${base} ${exponent > 2 ? `× ${base}` : ''} = ${result}`,
       timeEstimate: 60,
     };
   }
@@ -110,7 +109,6 @@ export class QuatriemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${operation.text} = ?`,
       answer: formattedResult,
-      explanation: `Priorités opératoires : ${operation.text} = ${formattedResult}`,
       timeEstimate: 120,
     };
   }
@@ -143,7 +141,6 @@ export class QuatriemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question,
       answer: formattedResult,
-      explanation: `${question.replace(' = ?', '')} = ${formattedResult}`,
       timeEstimate: 80,
     };
   }
@@ -167,17 +164,14 @@ export class QuatriemeGenerator implements LevelGenerator {
       {
         text: `Un article coûte ${base}€. Il est en promotion avec ${percentage}% de réduction. Quel est le prix final ?`,
         answer: (base * (100 - percentage) / 100).toString(),
-        explanation: `Prix final = ${base}€ × (100 - ${percentage})% = ${base} × ${(100 - percentage) / 100} = ${base * (100 - percentage) / 100}€`
       },
       {
         text: `Le prix d'un produit augmente de ${percentage}%. Il coûtait ${base}€. Quel est le nouveau prix ?`,
         answer: (base * (100 + percentage) / 100).toString(),
-        explanation: `Nouveau prix = ${base}€ × (100 + ${percentage})% = ${base} × ${(100 + percentage) / 100} = ${base * (100 + percentage) / 100}€`
       },
       {
         text: `${percentage}% des élèves d'une école de ${base} élèves pratiquent un sport. Combien d'élèves pratiquent un sport ?`,
         answer: Math.round(base * percentage / 100).toString(),
-        explanation: `${percentage}% de ${base} = (${percentage}/100) × ${base} = ${Math.round(base * percentage / 100)} élèves`
       },
     ];
     
@@ -191,7 +185,6 @@ export class QuatriemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 100,
     };
   }
@@ -201,17 +194,14 @@ export class QuatriemeGenerator implements LevelGenerator {
       {
         text: `Une voiture consomme 6L pour 100km. Combien consomme-t-elle pour 350km ?`,
         answer: '21',
-        explanation: 'Consommation proportionnelle : 6L/100km × 350km = 21L'
       },
       {
         text: `Si 3 ouvriers construisent un mur en 8 jours, combien de jours faut-il à 6 ouvriers ?`,
         answer: '4',
-        explanation: 'Inversement proportionnel : 3 ouvriers × 8 jours = 6 ouvriers × x jours → x = (3×8)/6 = 4 jours'
       },
       {
         text: `Une recette pour 4 personnes nécessite 200g de farine. Combien faut-il pour 7 personnes ?`,
         answer: '350',
-        explanation: 'Proportionnel : 200g/4 personnes × 7 personnes = 350g'
       },
     ];
     
@@ -225,7 +215,6 @@ export class QuatriemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 120,
     };
   }
@@ -235,17 +224,14 @@ export class QuatriemeGenerator implements LevelGenerator {
       {
         text: `Calculer l'aire d'un cercle de rayon 5 cm (π ≈ 3,14)`,
         answer: '78.5',
-        explanation: 'Aire = π × r² = 3,14 × 5² = 3,14 × 25 = 78,5 cm²'
       },
       {
         text: `Un cylindre a un rayon de 3 cm et une hauteur de 10 cm. Quel est son volume (π ≈ 3,14) ?`,
         answer: '282.6',
-        explanation: 'Volume = π × r² × h = 3,14 × 3² × 10 = 3,14 × 9 × 10 = 282,6 cm³'
       },
       {
         text: `Un triangle rectangle a des côtés de 3 cm et 4 cm. Quelle est la longueur de l'hypoténuse ?`,
         answer: '5',
-        explanation: 'Pythagore : a² + b² = c² → 3² + 4² = 9 + 16 = 25 → c = √25 = 5 cm'
       },
     ];
     
@@ -259,7 +245,6 @@ export class QuatriemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 150,
     };
   }
@@ -294,7 +279,6 @@ export class QuatriemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `Résoudre : ${equation}`,
       answer: x.toString(),
-      explanation: `${a}x ${b >= 0 ? '+' : ''} ${b} = ${c}x ${d >= 0 ? '+' : ''} ${d} → ${a - c}x = ${d - b} → x = ${d - b}/${a - c} = ${x}`,
       timeEstimate: 120,
     };
   }
@@ -316,7 +300,6 @@ export class QuatriemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `Résoudre : ${equation}`,
       answer: x.toString(),
-      explanation: `${base}^${exponent}x = ${result} → ${exponent}x = ${Math.log(result) / Math.log(base)} → x = ${x}`,
       timeEstimate: 150,
     };
   }

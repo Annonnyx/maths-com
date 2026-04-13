@@ -120,7 +120,6 @@ export class AdaptiveQuestionGenerator {
       difficultyElo: this.userElo,
       question: `Question de niveau ${level} (générateur de domaine)`,
       answer: '0',
-      explanation: 'Générateur de domaine par défaut',
       timeEstimate: 30
     };
   }

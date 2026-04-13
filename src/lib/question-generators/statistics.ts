@@ -77,7 +77,6 @@ export class StatisticsGenerator implements QuestionGenerator {
       question: `Calcule la moyenne de cette série : ${numbers.join(', ')}`,
       options: answers,
       answer: roundedMean.toString(),
-      explanation: `Moyenne = (${numbers.join(' + ')}) / ${numbers.length} = ${numbers.reduce((sum, num) => sum + num, 0)} / ${numbers.length} = ${roundedMean}`,
       timeEstimate: 60,
     };
   }
@@ -140,7 +139,6 @@ export class StatisticsGenerator implements QuestionGenerator {
       question: `Calcule la médiane de cette série : ${numbers.join(', ')}`,
       options: answers,
       answer: median.toString(),
-      explanation: `Série ordonnée : ${sortedNumbers.join(', ')}. Médiane = ${sortedNumbers.length % 2 === 1 ? `le ${Math.floor(sortedNumbers.length / 2) + 1}ème terme = ${median}` : `la moyenne des ${sortedNumbers.length / 2}ème et ${sortedNumbers.length / 2 + 1}ème termes = (${sortedNumbers[sortedNumbers.length / 2 - 1]} + ${sortedNumbers[sortedNumbers.length / 2]}) / 2 = ${median}`}`,
       timeEstimate: 80,
     };
   }
@@ -187,7 +185,6 @@ export class StatisticsGenerator implements QuestionGenerator {
       question: `Dans une urne contenant ${totalItems} boules, ${favorableItems} sont rouges. Quelle est la probabilité de tirer une boule rouge ?`,
       options: answers,
       answer: probability.toString(),
-      explanation: `Probabilité = cas favorables / cas possibles = ${favorableItems} / ${totalItems} = ${probability} (${percentage}%)`,
       timeEstimate: 70,
     };
   }
@@ -238,7 +235,6 @@ export class StatisticsGenerator implements QuestionGenerator {
       question: `On lance ${n} fois une pièce de probabilité pile = ${p}. Quelle est la probabilité d'obtenir exactement ${k} piles ?`,
       options: answers,
       answer: roundedProbability.toString(),
-      explanation: `Loi binomiale : P(X = ${k}) = C(${n}, ${k}) × ${p}^${k} × ${(1 - p)}^${n - k} = ${binomialCoefficient} × ${Math.pow(p, k).toFixed(3)} × ${Math.pow(1 - p, n - k).toFixed(3)} ≈ ${roundedProbability}`,
       timeEstimate: 90,
     };
   }

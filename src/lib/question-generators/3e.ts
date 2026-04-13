@@ -57,7 +57,6 @@ export class TroisiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${threeDigit} × ${twoDigit} = ?`,
       answer: result.toString(),
-      explanation: `${threeDigit} × ${twoDigit} = ${result}`,
       timeEstimate: 180,
     };
   }
@@ -76,7 +75,6 @@ export class TroisiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `${base}^${exponent} = ?`,
       answer: result.toString(),
-      explanation: `${base}^${exponent} = ${base} × ${base} ${exponent > 2 ? `× ${base}` : ''} = ${result}`,
       timeEstimate: 90,
     };
   }
@@ -98,7 +96,6 @@ export class TroisiemeGenerator implements LevelGenerator {
         difficultyElo: context.userElo,
         question: `√${result} = ?`,
         answer: base.toString(),
-        explanation: `√${result} = ${base} car ${base}² = ${result}`,
         timeEstimate: 60,
       };
     } else {
@@ -115,7 +112,6 @@ export class TroisiemeGenerator implements LevelGenerator {
         difficultyElo: context.userElo,
         question: `√${base} est compris entre quels entiers consécutifs ?`,
         answer: `${lowerRoot} et ${upperRoot}`,
-        explanation: `${lowerRoot}² = ${lowerRoot * lowerRoot} < ${base} < ${upperRoot}² = ${upperRoot * upperRoot}`,
         timeEstimate: 80,
       };
       
@@ -183,7 +179,6 @@ export class TroisiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `(${numerator1}/${denominator1}) ÷ (${numerator2}/${denominator2}) = ? Donne ta réponse sous forme de fraction ou d'entier`,
       answer,
-      explanation: `(${numerator1}/${denominator1}) ÷ (${numerator2}/${denominator2}) = (${numerator1}/${denominator1}) × (${denominator2}/${numerator2}) = ${resultNum}/${resultDen} = ${answer}`,
       timeEstimate: 150,
     };
     
@@ -246,17 +241,14 @@ export class TroisiemeGenerator implements LevelGenerator {
       {
         text: `Calculer ${percentage}% de ${base}`,
         answer: result.toFixed(1),
-        explanation: `${percentage}% de ${base} = (${percentage}/100) × ${base} = ${result.toFixed(1)}`
       },
       {
         text: `Un article coûte ${base}€. Il est soldé avec une réduction de ${percentage}%. Quel est le prix soldé ?`,
         answer: (base - result).toFixed(1) + '€',
-        explanation: `Prix soldé = ${base}€ - ${percentage}% de ${base}€ = ${base}€ - ${result.toFixed(1)}€ = ${(base - result).toFixed(1)}€`
       },
       {
         text: `Le prix d'un produit augmente de ${percentage}%. Il coûtait ${base}€. Quel est le nouveau prix ?`,
         answer: (base + result).toFixed(1) + '€',
-        explanation: `Nouveau prix = ${base}€ + ${percentage}% de ${base}€ = ${base}€ + ${result.toFixed(1)}€ = ${(base + result).toFixed(1)}€`
       },
     ];
     
@@ -270,7 +262,6 @@ export class TroisiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 100,
     };
   }
@@ -280,17 +271,14 @@ export class TroisiemeGenerator implements LevelGenerator {
       {
         text: `Une entreprise fabrique 1500 pièces par jour. Après une modernisation, la production augmente de 15%. Combien de pièces sont fabriquées maintenant ?`,
         answer: '1725',
-        explanation: 'Augmentation = 15% de 1500 = 225. Nouvelle production = 1500 + 225 = 1725 pièces'
       },
       {
         text: `Un triangle a une base de 12 cm et une hauteur de 8 cm. Quelle est son aire ?`,
         answer: '48',
-        explanation: 'Aire = (base × hauteur) / 2 = (12 × 8) / 2 = 96 / 2 = 48 cm²'
       },
       {
         text: `Si (2/3) × x = 8, que vaut x ?`,
         answer: '12',
-        explanation: 'x = 8 ÷ (2/3) = 8 × (3/2) = 24/2 = 12'
       },
     ];
     
@@ -304,7 +292,6 @@ export class TroisiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 150,
     };
   }
@@ -314,17 +301,14 @@ export class TroisiemeGenerator implements LevelGenerator {
       {
         text: `Calculer le volume d'une sphère de rayon 3 cm (π ≈ 3,14, formule : V = 4/3 × π × r³)`,
         answer: '113.04',
-        explanation: 'V = 4/3 × 3,14 × 3³ = 4/3 × 3,14 × 27 = 113,04 cm³'
       },
       {
         text: `Un cône a un rayon de 4 cm et une hauteur de 9 cm. Quel est son volume (π ≈ 3,14) ?`,
         answer: '150.72',
-        explanation: 'V = 1/3 × π × r² × h = 1/3 × 3,14 × 4² × 9 = 1/3 × 3,14 × 16 × 9 = 150,72 cm³'
       },
       {
         text: `Dans un triangle rectangle, un angle mesure 30° et le côté adjacent mesure 8 cm. Quelle est la longueur de l'hypoténuse (cos 30° ≈ 0,87) ?`,
         answer: '9.2',
-        explanation: 'cos 30° = adjacent/hypoténuse → hypoténuse = adjacent/cos 30° = 8/0,87 ≈ 9,2 cm'
       },
     ];
     
@@ -338,7 +322,6 @@ export class TroisiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: scenario.text,
       answer: scenario.answer,
-      explanation: scenario.explanation,
       timeEstimate: 180,
     };
   }
@@ -372,7 +355,6 @@ export class TroisiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `Résoudre : ${eq.a}x² ${eq.b >= 0 ? '+' : ''} ${eq.b}x ${eq.c >= 0 ? '+' : ''} ${eq.c} = 0`,
       answer: `${eq.x1} et ${eq.x2}`,
-      explanation: `Factorisation : (x - ${eq.x1})(x - ${eq.x2}) = 0 → x = ${eq.x1} ou x = ${eq.x2}`,
       timeEstimate: 180,
     };
   }
@@ -398,7 +380,6 @@ export class TroisiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `Résoudre le système :\n${a1}x ${b1 >= 0 ? '+' : ''} ${b1}y = ${c1}\n${a2}x ${b2 >= 0 ? '+' : ''} ${b2}y = ${c2}`,
       answer: `x = ${x}, y = ${y}`,
-      explanation: `Solution unique : x = ${x}, y = ${y}`,
       timeEstimate: 200,
     };
   }
@@ -425,7 +406,6 @@ export class TroisiemeGenerator implements LevelGenerator {
       difficultyElo: context.userElo,
       question: `Simplifier : ${operation.text}`,
       answer: operation.result.toString(),
-      explanation: `${operation.text} = ${base}^${operation.text.includes('×') ? exp1 + exp2 : operation.text.includes('÷') ? exp1 - exp2 : exp1 * exp2} = ${operation.result}`,
       timeEstimate: 120,
     };
   }
