@@ -1,285 +1,286 @@
 @import "tailwindcss";
 
-/* ===== THÈMES NOMMÉS ===== */
+/* ===== LIQUID GLASS DESIGN SYSTEM ===== */
+/* Style unifié Apple-inspired avec glassmorphism */
 
-/* 1. 🌌 NÉON (thème actuel — défaut) */
+/* 1. 🌌 NÉON - Liquid Glass (thème par défaut) */
 :root[data-theme="neon"] {
-  /* Backgrounds */
-  --bg-primary: #0a0f1e;
-  --bg-secondary: #0d1b35;
-  --bg-card: rgba(255,255,255,0.05);
-  --bg-card-hover: rgba(255,255,255,0.08);
-  
-  /* Textes */
-  --text-primary: #f1f5f9;
-  --text-secondary: rgba(241,245,249,0.65);
-  --text-muted: rgba(241,245,249,0.35);
-  
-  /* Accents */
-  --accent-primary: #3b82f6;
-  --accent-secondary: #60a5fa;
-  --accent-glow: rgba(59,130,246,0.3);
-  
-  /* Rangs */
-  --rank-f: #6b7280;
-  --rank-e: #10b981;
-  --rank-d: #3b82f6;
-  --rank-c: #8b5cf6;
-  --rank-b: #f59e0b;
-  --rank-a: #ef4444;
-  --rank-s: #ec4899;
-  
-  /* UI */
-  --border: rgba(255,255,255,0.12);
-  --border-focus: #3b82f6;
-  --shadow: 0 4px 24px rgba(0,0,0,0.4);
-  --glass-blur: 20px;
-  
-  /* Spécial */
-  --gradient-hero: linear-gradient(135deg, #0a0f1e, #0d1b35);
-  --orb-1: rgba(59,130,246,0.15);
-  --orb-2: rgba(139,92,246,0.10);
-  --orb-3: rgba(6,182,212,0.08);
+  /* Backgrounds - Très subtils avec teinte bleue */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-card-hover: rgba(255,255,255,0.06);
+
+  /* Textes - Blancs cassés doux */
+  --text-primary: rgba(255,255,255,0.92);
+  --text-secondary: rgba(255,255,255,0.60);
+  --text-muted: rgba(255,255,255,0.35);
+
+  /* Accents - Bleu pastel Apple-style */
+  --accent-primary: #5ac8fa;
+  --accent-secondary: #64d2ff;
+  --accent-glow: rgba(90,200,250,0.25);
+
+  /* Rangs - Palette pastel harmonieuse */
+  --rank-f: #8e8e93;
+  --rank-e: #30d158;
+  --rank-d: #5ac8fa;
+  --rank-c: #bf5af2;
+  --rank-b: #ff9f0a;
+  --rank-a: #ff375f;
+  --rank-s: #ffd60a;
+
+  /* UI - Glass effect subtil */
+  --border: rgba(255,255,255,0.08);
+  --border-focus: #5ac8fa;
+  --shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  --glass-blur: 24px;
+
+  /* Spécial - Dégradés très doux */
+  --gradient-hero: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+  --orb-1: rgba(90,200,250,0.08);
+  --orb-2: rgba(191,90,242,0.06);
+  --orb-3: rgba(48,209,88,0.05);
 }
 
-/* 2. 🌸 CERISIER */
+/* 2. 🌸 CERISIER - Liquid Glass Rose */
 :root[data-theme="cherry"] {
-  /* Backgrounds */
-  --bg-primary: #1a0d12;
-  --bg-secondary: #2d1420;
-  --bg-card: rgba(255,182,193,0.06);
-  --bg-card-hover: rgba(255,182,193,0.10);
-  
-  /* Textes */
-  --text-primary: #fdf2f8;
-  --text-secondary: rgba(253,242,248,0.65);
-  --text-muted: rgba(253,242,248,0.35);
-  
-  /* Accents */
-  --accent-primary: #f472b6;
-  --accent-secondary: #fb7185;
-  --accent-glow: rgba(244,114,182,0.25);
-  
-  /* Rangs */
-  --rank-f: #6b7280;
-  --rank-e: #10b981;
-  --rank-d: #ec4899;
-  --rank-c: #a855f7;
-  --rank-b: #f59e0b;
-  --rank-a: #f97316;
-  --rank-s: #eab308;
-  
-  /* UI */
-  --border: rgba(244,114,182,0.15);
-  --border-focus: #f472b6;
-  --shadow: 0 4px 24px rgba(244,114,182,0.2);
-  --glass-blur: 20px;
-  
-  /* Spécial */
-  --gradient-hero: linear-gradient(135deg, #1a0d12, #2d1420);
-  --orb-1: rgba(244,114,182,0.12);
-  --orb-2: rgba(251,113,133,0.08);
-  --orb-3: rgba(216,180,254,0.07);
+  /* Backgrounds - Base sombre avec teinte rosée */
+  --bg-primary: #130a0f;
+  --bg-secondary: #1a0f14;
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-card-hover: rgba(255,255,255,0.06);
+
+  /* Textes - Blancs cassés doux */
+  --text-primary: rgba(255,255,255,0.92);
+  --text-secondary: rgba(255,255,255,0.60);
+  --text-muted: rgba(255,255,255,0.35);
+
+  /* Accents - Rose pastel Apple-style */
+  --accent-primary: #ff375f;
+  --accent-secondary: #ff6b8a;
+  --accent-glow: rgba(255,55,95,0.25);
+
+  /* Rangs - Palette pastel harmonieuse */
+  --rank-f: #8e8e93;
+  --rank-e: #30d158;
+  --rank-d: #ff375f;
+  --rank-c: #bf5af2;
+  --rank-b: #ff9f0a;
+  --rank-a: #ff375f;
+  --rank-s: #ffd60a;
+
+  /* UI - Glass effect subtil */
+  --border: rgba(255,255,255,0.08);
+  --border-focus: #ff375f;
+  --shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  --glass-blur: 24px;
+
+  /* Spécial - Dégradés très doux */
+  --gradient-hero: linear-gradient(180deg, #130a0f 0%, #1a0f14 100%);
+  --orb-1: rgba(255,55,95,0.08);
+  --orb-2: rgba(191,90,242,0.06);
+  --orb-3: rgba(48,209,88,0.05);
 }
 
-/* 3. 🌊 OCÉAN */
+/* 3. 🌊 OCÉAN - Liquid Glass Bleu */
 :root[data-theme="ocean"] {
-  /* Backgrounds */
-  --bg-primary: #030d1a;
-  --bg-secondary: #041525;
-  --bg-card: rgba(14,165,233,0.05);
-  --bg-card-hover: rgba(14,165,233,0.10);
-  
-  /* Textes */
-  --text-primary: #e0f7ff;
-  --text-secondary: rgba(224,247,255,0.6);
-  --text-muted: rgba(224,247,255,0.35);
-  
-  /* Accents */
-  --accent-primary: #0ea5e9;
-  --accent-secondary: #38bdf8;
-  --accent-glow: rgba(14,165,233,0.25);
-  
-  /* Rangs */
-  --rank-f: #64748b;
-  --rank-e: #10b981;
-  --rank-d: #06b6d4;
-  --rank-c: #3b82f6;
-  --rank-b: #8b5cf6;
-  --rank-a: #f59e0b;
-  --rank-s: #eab308;
-  
-  /* UI */
-  --border: rgba(14,165,233,0.15);
-  --border-focus: #0ea5e9;
-  --shadow: 0 4px 24px rgba(14,165,233,0.2);
-  --glass-blur: 20px;
-  
-  /* Spécial */
-  --gradient-hero: linear-gradient(135deg, #030d1a, #041a2e);
-  --orb-1: rgba(14,165,233,0.12);
-  --orb-2: rgba(6,182,212,0.08);
-  --orb-3: rgba(20,184,166,0.07);
+  /* Backgrounds - Base sombre avec teinte cyan */
+  --bg-primary: #0a0f14;
+  --bg-secondary: #0d1419;
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-card-hover: rgba(255,255,255,0.06);
+
+  /* Textes - Blancs cassés doux */
+  --text-primary: rgba(255,255,255,0.92);
+  --text-secondary: rgba(255,255,255,0.60);
+  --text-muted: rgba(255,255,255,0.35);
+
+  /* Accents - Cyan pastel Apple-style */
+  --accent-primary: #64d2ff;
+  --accent-secondary: #5ac8fa;
+  --accent-glow: rgba(100,210,255,0.25);
+
+  /* Rangs - Palette pastel harmonieuse */
+  --rank-f: #8e8e93;
+  --rank-e: #30d158;
+  --rank-d: #64d2ff;
+  --rank-c: #bf5af2;
+  --rank-b: #ff9f0a;
+  --rank-a: #ff375f;
+  --rank-s: #ffd60a;
+
+  /* UI - Glass effect subtil */
+  --border: rgba(255,255,255,0.08);
+  --border-focus: #64d2ff;
+  --shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  --glass-blur: 24px;
+
+  /* Spécial - Dégradés très doux */
+  --gradient-hero: linear-gradient(180deg, #0a0f14 0%, #0d1419 100%);
+  --orb-1: rgba(100,210,255,0.08);
+  --orb-2: rgba(191,90,242,0.06);
+  --orb-3: rgba(48,209,88,0.05);
 }
 
-/* 4. 🌿 PRAIRIE */
+/* 4. 🌿 PRAIRIE - Liquid Glass Vert */
 :root[data-theme="prairie"] {
-  /* Backgrounds */
-  --bg-primary: #071a0e;
-  --bg-secondary: #0d2614;
-  --bg-card: rgba(34,197,94,0.05);
-  --bg-card-hover: rgba(34,197,94,0.10);
-  
-  /* Textes */
-  --text-primary: #f0fdf4;
-  --text-secondary: rgba(240,253,244,0.65);
-  --text-muted: rgba(240,253,244,0.35);
-  
-  /* Accents */
-  --accent-primary: #22c55e;
-  --accent-secondary: #4ade80;
-  --accent-glow: rgba(34,197,94,0.20);
-  
-  /* Rangs */
-  --rank-f: #6b7280;
-  --rank-e: #16a34a;
-  --rank-d: #14b8a6;
-  --rank-c: #22c55e;
-  --rank-b: #84cc16;
-  --rank-a: #eab308;
-  --rank-s: #f97316;
-  
-  /* UI */
-  --border: rgba(34,197,94,0.14);
-  --border-focus: #22c55e;
-  --shadow: 0 4px 24px rgba(34,197,94,0.2);
-  --glass-blur: 20px;
-  
-  /* Spécial */
-  --gradient-hero: linear-gradient(135deg, #071a0e, #0d2614);
-  --orb-1: rgba(34,197,94,0.10);
-  --orb-2: rgba(16,185,129,0.08);
-  --orb-3: rgba(101,163,13,0.07);
+  /* Backgrounds - Base sombre avec teinte verte */
+  --bg-primary: #0a110d;
+  --bg-secondary: #0f1812;
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-card-hover: rgba(255,255,255,0.06);
+
+  /* Textes - Blancs cassés doux */
+  --text-primary: rgba(255,255,255,0.92);
+  --text-secondary: rgba(255,255,255,0.60);
+  --text-muted: rgba(255,255,255,0.35);
+
+  /* Accents - Vert pastel Apple-style */
+  --accent-primary: #30d158;
+  --accent-secondary: #5ce885;
+  --accent-glow: rgba(48,209,88,0.25);
+
+  /* Rangs - Palette pastel harmonieuse */
+  --rank-f: #8e8e93;
+  --rank-e: #30d158;
+  --rank-d: #5ac8fa;
+  --rank-c: #bf5af2;
+  --rank-b: #ff9f0a;
+  --rank-a: #ff375f;
+  --rank-s: #ffd60a;
+
+  /* UI - Glass effect subtil */
+  --border: rgba(255,255,255,0.08);
+  --border-focus: #30d158;
+  --shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  --glass-blur: 24px;
+
+  /* Spécial - Dégradés très doux */
+  --gradient-hero: linear-gradient(180deg, #0a110d 0%, #0f1812 100%);
+  --orb-1: rgba(48,209,88,0.08);
+  --orb-2: rgba(191,90,242,0.06);
+  --orb-3: rgba(90,200,250,0.05);
 }
 
-/* 5. 🌅 COUCHER DE SOLEIL */
+/* 5. 🌅 COUCHER DE SOLEIL - Liquid Glass Orange */
 :root[data-theme="sunset"] {
-  /* Backgrounds */
-  --bg-primary: #150a05;
-  --bg-secondary: #1f1005;
-  --bg-card: rgba(251,146,60,0.05);
-  --bg-card-hover: rgba(251,146,60,0.10);
-  
-  /* Textes */
-  --text-primary: #fff7ed;
-  --text-secondary: rgba(255,247,237,0.65);
-  --text-muted: rgba(255,247,237,0.35);
-  
-  /* Accents */
-  --accent-primary: #fb923c;
-  --accent-secondary: #fbbf24;
-  --accent-glow: rgba(251,146,60,0.25);
-  
-  /* Rangs */
-  --rank-f: #78716c;
-  --rank-e: #16a34a;
-  --rank-d: #ea580c;
-  --rank-c: #f97316;
-  --rank-b: #fbbf24;
-  --rank-a: #dc2626;
-  --rank-s: #eab308;
-  
-  /* UI */
-  --border: rgba(251,146,60,0.15);
-  --border-focus: #fb923c;
-  --shadow: 0 4px 24px rgba(251,146,60,0.2);
-  --glass-blur: 20px;
-  
-  /* Spécial */
-  --gradient-hero: linear-gradient(135deg, #150a05, #200c08);
-  --orb-1: rgba(251,146,60,0.12);
-  --orb-2: rgba(239,68,68,0.08);
-  --orb-3: rgba(217,119,6,0.07);
+  /* Backgrounds - Base sombre avec teinte orange */
+  --bg-primary: #120a05;
+  --bg-secondary: #1a0f08;
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-card-hover: rgba(255,255,255,0.06);
+
+  /* Textes - Blancs cassés doux */
+  --text-primary: rgba(255,255,255,0.92);
+  --text-secondary: rgba(255,255,255,0.60);
+  --text-muted: rgba(255,255,255,0.35);
+
+  /* Accents - Orange pastel Apple-style */
+  --accent-primary: #ff9f0a;
+  --accent-secondary: #ffb340;
+  --accent-glow: rgba(255,159,10,0.25);
+
+  /* Rangs - Palette pastel harmonieuse */
+  --rank-f: #8e8e93;
+  --rank-e: #30d158;
+  --rank-d: #ff9f0a;
+  --rank-c: #bf5af2;
+  --rank-b: #ffd60a;
+  --rank-a: #ff375f;
+  --rank-s: #ffd60a;
+
+  /* UI - Glass effect subtil */
+  --border: rgba(255,255,255,0.08);
+  --border-focus: #ff9f0a;
+  --shadow: 0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  --glass-blur: 24px;
+
+  /* Spécial - Dégradés très doux */
+  --gradient-hero: linear-gradient(180deg, #120a05 0%, #1a0f08 100%);
+  --orb-1: rgba(255,159,10,0.08);
+  --orb-2: rgba(255,55,95,0.06);
+  --orb-3: rgba(48,209,88,0.05);
 }
 
-/* 6. ❄️ ARCTIQUE (thème clair) */
+/* 6. ❄️ ARCTIQUE - Liquid Glass Clair Bleu */
 :root[data-theme="arctic"] {
-  /* Backgrounds */
-  --bg-primary: #e8f4fd;
-  --bg-secondary: #d1ecf9;
-  --bg-card: rgba(255,255,255,0.8);
-  --bg-card-hover: rgba(255,255,255,0.95);
-  
-  /* Textes */
-  --text-primary: #0c4a6e;
-  --text-secondary: rgba(12,74,110,0.7);
-  --text-muted: rgba(12,74,110,0.5);
-  
-  /* Accents */
-  --accent-primary: #0284c7;
-  --accent-secondary: #38bdf8;
-  --accent-glow: rgba(2,132,199,0.2);
-  
-  /* Rangs */
-  --rank-f: #64748b;
-  --rank-e: #0284c7;
-  --rank-d: #38bdf8;
-  --rank-c: #6366f1;
-  --rank-b: #8b5cf6;
-  --rank-a: #ec4899;
-  --rank-s: #f43f5e;
-  
-  /* UI */
-  --border: rgba(2,132,199,0.2);
-  --border-focus: #0284c7;
-  --shadow: 0 4px 24px rgba(2,132,199,0.15);
-  --glass-blur: 20px;
-  
-  /* Spécial */
-  --gradient-hero: linear-gradient(135deg, #e8f4fd, #d1ecf9);
-  --orb-1: rgba(2,132,199,0.08);
-  --orb-2: rgba(209,236,249,0.06);
-  --orb-3: rgba(56,189,248,0.07);
+  /* Backgrounds - Blancs cassés avec teinte bleue très subtile */
+  --bg-primary: #f5f9fc;
+  --bg-secondary: #eef4f8;
+  --bg-card: rgba(255,255,255,0.70);
+  --bg-card-hover: rgba(255,255,255,0.90);
+
+  /* Textes - Gris très foncé, pas noir pur */
+  --text-primary: rgba(30,41,59,0.92);
+  --text-secondary: rgba(30,41,59,0.55);
+  --text-muted: rgba(30,41,59,0.35);
+
+  /* Accents - Bleu pastel Apple-style */
+  --accent-primary: #007aff;
+  --accent-secondary: #5ac8fa;
+  --accent-glow: rgba(0,122,255,0.20);
+
+  /* Rangs - Palette pastel harmonieuse */
+  --rank-f: #8e8e93;
+  --rank-e: #34c759;
+  --rank-d: #007aff;
+  --rank-c: #af52de;
+  --rank-b: #ff9500;
+  --rank-a: #ff3b30;
+  --rank-s: #ffcc00;
+
+  /* UI - Glass effect subtil */
+  --border: rgba(0,0,0,0.06);
+  --border-focus: #007aff;
+  --shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --glass-blur: 24px;
+
+  /* Spécial - Dégradés très doux */
+  --gradient-hero: linear-gradient(180deg, #f5f9fc 0%, #eef4f8 100%);
+  --orb-1: rgba(0,122,255,0.06);
+  --orb-2: rgba(175,82,222,0.04);
+  --orb-3: rgba(52,199,89,0.04);
 }
 
-/* 7. ☀️ LUMIÈRE (seul thème CLAIR) */
+/* 7. ☀️ LUMIÈRE - Liquid Glass Clair Neutre */
 :root[data-theme="light"] {
-  /* Backgrounds */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --bg-card: rgba(0,0,0,0.03);
-  --bg-card-hover: rgba(0,0,0,0.06);
-  
-  /* Textes */
-  --text-primary: #0f172a;
-  --text-secondary: rgba(15,23,42,0.65);
-  --text-muted: rgba(15,23,42,0.40);
-  
-  /* Accents */
-  --accent-primary: #6366f1;
-  --accent-secondary: #818cf8;
-  --accent-glow: rgba(99,102,241,0.15);
-  
-  /* Rangs */
-  --rank-f: #6b7280;
-  --rank-e: #16a34a;
-  --rank-d: #0d9488;
-  --rank-c: #2563eb;
-  --rank-b: #7c3aed;
-  --rank-a: #dc2626;
-  --rank-s: #ca8a04;
-  
-  /* UI */
-  --border: rgba(0,0,0,0.10);
-  --border-focus: #6366f1;
-  --shadow: 0 4px 24px rgba(0,0,0,0.08);
-  --glass-blur: 20px;
-  
-  /* Spécial */
-  --gradient-hero: linear-gradient(135deg, #f8fafc, #eef2ff);
-  --orb-1: rgba(99,102,241,0.06);
-  --orb-2: rgba(139,92,246,0.04);
-  --orb-3: rgba(59,130,246,0.05);
+  /* Backgrounds - Gris très clair, quasi-blanc */
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #e8e8ed;
+  --bg-card: rgba(255,255,255,0.72);
+  --bg-card-hover: rgba(255,255,255,0.92);
+
+  /* Textes - Gris très foncé, pas noir pur */
+  --text-primary: rgba(30,30,30,0.92);
+  --text-secondary: rgba(30,30,30,0.55);
+  --text-muted: rgba(30,30,30,0.35);
+
+  /* Accents - Indigo pastel Apple-style */
+  --accent-primary: #5856d6;
+  --accent-secondary: #7b79e0;
+  --accent-glow: rgba(88,86,214,0.20);
+
+  /* Rangs - Palette pastel harmonieuse */
+  --rank-f: #8e8e93;
+  --rank-e: #34c759;
+  --rank-d: #5856d6;
+  --rank-c: #af52de;
+  --rank-b: #ff9500;
+  --rank-a: #ff3b30;
+  --rank-s: #ffcc00;
+
+  /* UI - Glass effect subtil */
+  --border: rgba(0,0,0,0.06);
+  --border-focus: #5856d6;
+  --shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --glass-blur: 24px;
+
+  /* Spécial - Dégradés très doux */
+  --gradient-hero: linear-gradient(180deg, #f5f5f7 0%, #e8e8ed 100%);
+  --orb-1: rgba(88,86,214,0.06);
+  --orb-2: rgba(175,82,222,0.04);
+  --orb-3: rgba(0,122,255,0.04);
 }
 
 /* ===== VARIABLES COMPATIBLES TAILWIND ===== */
@@ -355,7 +356,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Gaming gradients */
+/* Liquid Glass gradients */
 .bg-gradient-gaming {
   background: var(--gradient-hero);
 }
@@ -368,28 +369,50 @@ body {
   background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent-primary) 100%);
 }
 
-/* Glow effects */
+/* Liquid Glass glow effects - très subtils */
 .glow-primary {
-  box-shadow: 0 0 20px var(--accent-glow);
+  box-shadow: 0 0 30px var(--accent-glow), 0 0 60px var(--accent-glow);
 }
 
 .glow-accent {
-  box-shadow: 0 0 20px var(--accent-glow);
+  box-shadow: 0 0 30px var(--accent-glow), 0 0 60px var(--accent-glow);
 }
 
 .glow-success {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 0 30px rgba(48, 209, 88, 0.25), 0 0 60px rgba(48, 209, 88, 0.15);
 }
 
 .glow-error {
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 0 30px rgba(255, 59, 48, 0.25), 0 0 60px rgba(255, 59, 48, 0.15);
 }
 
-/* Glass effect */
+/* Liquid Glass effect - effet verre premium */
 .glass {
   background: var(--bg-card);
-  backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* Liquid Glass Card - niveau supérieur */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+/* Liquid Glass Modal */
+.glass-modal {
+  background: var(--bg-card);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.2), 0 12px 24px rgba(0,0,0,0.15);
 }
 
 /* Rank badges */

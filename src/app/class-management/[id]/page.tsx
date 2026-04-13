@@ -702,7 +702,7 @@ export default function ClassDetailsPage() {
                 <ArrowLeft className="w-5 h-5 text-[var(--text-muted)]" />
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-white">{classDetails.name}</h1>
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-[var(--text-primary)]">{classDetails.name}</h1>
                 <p className="text-[var(--text-muted)]">{classDetails.level} • {classDetails.subject}</p>
               </div>
             </div>
@@ -770,37 +770,37 @@ export default function ClassDetailsPage() {
               )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
+                <div className="bg-[var(--bg-secondary)] p-4 sm:p-6 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center justify-between mb-2">
-                    <Users className="w-8 h-8 text-blue-400" />
-                    <span className="text-2xl font-bold text-white">{classDetails.studentCount}</span>
+                    <Users className="w-6 h-6 sm:w-8 sm:h-8 text-[var(--accent-primary)]" />
+                    <span className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">{classDetails.studentCount}</span>
                   </div>
                   <p className="text-[var(--text-muted)]">Élèves inscrits</p>
                   <p className="text-sm text-[var(--text-secondary)] mt-1">sur {classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents}</p>
                 </div>
                 
-                <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
+                <div className="bg-[var(--bg-secondary)] p-4 sm:p-6 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center justify-between mb-2">
-                    <BookOpen className="w-8 h-8 text-green-400" />
-                    <span className="text-2xl font-bold text-white">0</span>
+                    <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-[var(--rank-e)]" />
+                    <span className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">0</span>
                   </div>
                   <p className="text-[var(--text-muted)]">Devoirs actifs</p>
                   <p className="text-sm text-[var(--text-secondary)] mt-1">À configurer</p>
                 </div>
                 
-                <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
+                <div className="bg-[var(--bg-secondary)] p-4 sm:p-6 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center justify-between mb-2">
-                    <MessageSquare className="w-8 h-8 text-purple-400" />
-                    <span className="text-2xl font-bold text-white">0</span>
+                    <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-[var(--rank-c)]" />
+                    <span className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">0</span>
                   </div>
                   <p className="text-[var(--text-muted)]">Messages</p>
                   <p className="text-sm text-[var(--text-secondary)] mt-1">Aucun nouveau message</p>
                 </div>
                 
-                <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
+                <div className="bg-[var(--bg-secondary)] p-4 sm:p-6 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center justify-between mb-2">
-                    <TrendingUp className="w-8 h-8 text-orange-400" />
-                    <span className="text-2xl font-bold text-white">--</span>
+                    <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-[var(--rank-b)]" />
+                    <span className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">--</span>
                   </div>
                   <p className="text-[var(--text-muted)]">Progression moyenne</p>
                   <p className="text-sm text-[var(--text-secondary)] mt-1">Données à venir</p>
@@ -812,7 +812,7 @@ export default function ClassDetailsPage() {
           {activeTab === 'my-classes' && (
             <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Mes Classes</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] mb-2">Mes Classes</h2>
                 <p className="text-[var(--text-muted)]">Toutes les classes dans lesquelles tu es inscrit</p>
               </div>
 
@@ -835,11 +835,11 @@ export default function ClassDetailsPage() {
                     <div key={classItem.id} className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-4 hover:border-[var(--border-focus)] transition-all">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-lg flex items-center justify-center">
-                            <Users className="w-6 h-6 text-blue-400" />
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[var(--accent-primary)]/20 to-[var(--accent-secondary)]/20 rounded-lg flex items-center justify-center">
+                            <Users className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--accent-primary)]" />
                           </div>
                           <div>
-                            <h3 className="text-lg font-semibold text-white">{classItem.name}</h3>
+                            <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">{classItem.name}</h3>
                             <p className="text-sm text-[var(--text-muted)]">
                               Professeur: {classItem.teacher?.displayName || classItem.teacher?.username || 'Inconnu'}
                             </p>
@@ -851,7 +851,7 @@ export default function ClassDetailsPage() {
                         <div className="flex items-center gap-2">
                           <Link
                             href={`/class-management/${classItem.id}`}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+                            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-white rounded-lg transition-colors text-sm font-medium"
                           >
                             Voir
                           </Link>
@@ -867,74 +867,74 @@ export default function ClassDetailsPage() {
           {activeTab === 'view-class' && (
             <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Vue Élève</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] mb-2">Vue Élève</h2>
                 <p className="text-[var(--text-muted)]">Tu consultes cette classe en tant qu'élève</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center gap-3 mb-3">
-                    <Users className="w-6 h-6 text-blue-400" />
-                    <h3 className="text-lg font-semibold text-white">Informations</h3>
+                    <Users className="w-6 h-6 text-[var(--accent-primary)]" />
+                    <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">Informations</h3>
                   </div>
                   <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-[var(--text-muted)]">Nom de la classe</span>
-                      <span className="text-white font-medium">{classDetails.name}</span>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-[var(--text-muted)]">Nom</span>
+                      <span className="text-[var(--text-primary)] font-medium text-right">{classDetails.name}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-2">
                       <span className="text-[var(--text-muted)]">Professeur</span>
-                      <span className="text-white font-medium">{classDetails.teacher?.displayName || classDetails.teacher?.username || 'Inconnu'}</span>
+                      <span className="text-[var(--text-primary)] font-medium text-right">{classDetails.teacher?.displayName || classDetails.teacher?.username || 'Inconnu'}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-[var(--text-muted)]">Nombre d'élèves</span>
-                      <span className="text-white font-medium">{students.length}/{classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents}</span>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-[var(--text-muted)]">Élèves</span>
+                      <span className="text-[var(--text-primary)] font-medium">{students.length}/{classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-[var(--text-muted)]">Code d'invitation</span>
-                      <span className="text-white font-mono">{classDetails.inviteCode}</span>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-[var(--text-muted)]">Code</span>
+                      <span className="text-[var(--text-primary)] font-mono">{classDetails.inviteCode}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center gap-3 mb-3">
-                    <BookOpen className="w-6 h-6 text-green-400" />
-                    <h3 className="text-lg font-semibold text-white">Devoirs</h3>
+                    <BookOpen className="w-6 h-6 text-[var(--rank-e)]" />
+                    <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">Devoirs</h3>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Devoirs actifs</span>
-                      <span className="text-white font-medium">0</span>
+                      <span className="text-[var(--text-primary)] font-medium">0</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Devoirs complétés</span>
-                      <span className="text-white font-medium">0</span>
+                      <span className="text-[var(--text-primary)] font-medium">0</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Moyenne</span>
-                      <span className="text-white font-medium">-</span>
+                      <span className="text-[var(--text-primary)] font-medium">-</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-[var(--bg-secondary)] p-4 rounded-lg border border-[var(--border)]">
                   <div className="flex items-center gap-3 mb-3">
-                    <Trophy className="w-6 h-6 text-yellow-400" />
-                    <h3 className="text-lg font-semibold text-white">Classement</h3>
+                    <Trophy className="w-6 h-6 text-[var(--rank-b)]" />
+                    <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">Classement</h3>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Ton rang</span>
-                      <span className="text-white font-medium">-</span>
+                      <span className="text-[var(--text-primary)] font-medium">-</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Points</span>
-                      <span className="text-white font-medium">0</span>
+                      <span className="text-[var(--text-primary)] font-medium">0</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Participation</span>
-                      <span className="text-white font-medium">0%</span>
+                      <span className="text-[var(--text-primary)] font-medium">0%</span>
                     </div>
                   </div>
                 </div>
@@ -945,7 +945,7 @@ export default function ClassDetailsPage() {
           {activeTab === 'students' && (
             <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-white">Liste des élèves ({students.length})</h3>
+                <h3 className="text-lg sm:text-xl font-semibold text-[var(--text-primary)]">Liste des élèves ({students.length})</h3>
                 <div className="text-sm text-[var(--text-muted)]">
                   {classDetails.studentCount}/{classDetails.maxStudents === 0 ? 'illimité' : classDetails.maxStudents} places
                 </div>
@@ -953,8 +953,8 @@ export default function ClassDetailsPage() {
               
               {/* Demandes en attente - visible uniquement pour le prof */}
               {isTeacher && joinRequests.length > 0 && (
-                <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                  <h4 className="font-semibold text-yellow-400 mb-3 flex items-center gap-2">
+                <div className="mb-6 p-4 bg-[var(--rank-b)]/10 border border-[var(--rank-b)]/30 rounded-lg">
+                  <h4 className="font-semibold text-[var(--rank-b)] mb-3 flex items-center gap-2">
                     <Clock className="w-4 h-4" />
                     Demandes en attente ({joinRequests.length})
                   </h4>
@@ -962,27 +962,27 @@ export default function ClassDetailsPage() {
                     {joinRequests.map((request) => (
                       <div key={request.id} className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] rounded-lg">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                            <span className="text-yellow-400 text-sm">
+                          <div className="w-8 h-8 bg-[var(--rank-b)]/20 rounded-full flex items-center justify-center">
+                            <span className="text-[var(--rank-b)] text-sm">
                               {request.user.displayName?.[0] || request.user.username?.[0]}
                             </span>
                           </div>
                           <div>
-                            <p className="text-white text-sm">{request.user.displayName || request.user.username}</p>
+                            <p className="text-[var(--text-primary)] text-sm">{request.user.displayName || request.user.username}</p>
                             <p className="text-xs text-[var(--text-muted)]">@{request.user.username}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => acceptStudent(request.id)}
-                            className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors flex items-center gap-1"
+                            className="px-3 py-1 bg-[var(--rank-e)]/20 hover:bg-[var(--rank-e)]/30 text-[var(--rank-e)] text-sm rounded transition-colors flex items-center gap-1"
                           >
                             <Check className="w-3 h-3" />
                             Accepter
                           </button>
                           <button
                             onClick={() => rejectStudent(request.id)}
-                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors flex items-center gap-1"
+                            className="px-3 py-1 bg-[var(--rank-a)]/20 hover:bg-[var(--rank-a)]/30 text-[var(--rank-a)] text-sm rounded transition-colors flex items-center gap-1"
                           >
                             <X className="w-3 h-3" />
                             Refuser
