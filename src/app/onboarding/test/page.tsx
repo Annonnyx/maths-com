@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
-import { 
-  Brain, Trophy, Target, Clock, CheckCircle, 
+import {
+  Brain, Trophy, Target, Clock, CheckCircle, XCircle,
   ArrowRight, Calculator, Sparkles, Star, Send
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
@@ -287,7 +287,8 @@ export default function OnboardingTestPage() {
                         </>
                       ) : (
                         <>
-                          <span className="text-sm">La réponse était : {currentQuestion.answer}</span>
+                          <XCircle className="w-5 h-5" />
+                          <span>Incorrect</span>
                         </>
                       )}
                     </div>
