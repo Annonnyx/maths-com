@@ -211,17 +211,21 @@ export class CE1Generator implements LevelGenerator {
     const b = ops.addition();
     const result = a + b;
     
-    const units = ['cm', 'm', 'kg', 'g'];
-    const unit = randomChoice(units);
+    // Séparer les unités de longueur et de masse pour cohérence
+    const lengthUnits = ['cm', 'm'];
+    const massUnits = ['g', 'kg'];
+    
+    const lengthUnit = randomChoice(lengthUnits);
+    const massUnit = randomChoice(massUnits);
     
     const scenarios = [
-      { text: `Une ficelle mesure ${a} ${unit} et ${b} ${unit}. Quelle est sa longueur totale ?`, answer: `${result} ${unit}` },
-      { text: `Un paquet pèse ${a} ${unit} et un autre pèse ${b} ${unit}. Quel est le poids total ?`, answer: `${result} ${unit}` },
+      { text: `Une ficelle mesure ${a} ${lengthUnit} et ${b} ${lengthUnit}. Quelle est sa longueur totale ?`, answer: `${result} ${lengthUnit}` },
+      { text: `Un paquet pèse ${a} ${massUnit} et un autre pèse ${b} ${massUnit}. Quel est le poids total ?`, answer: `${result} ${massUnit}` },
     ];
     const scenario = randomChoice(scenarios);
     
     return {
-      id: hashQuestion(this.level, 'measurement', [a, b, unit]),
+      id: hashQuestion(this.level, 'measurement', [a, b, scenario === scenarios[0] ? lengthUnit : massUnit]),
       type: 'numeric',
       domain: 'arithmetic',
       level: this.level,

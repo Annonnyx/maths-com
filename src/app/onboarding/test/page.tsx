@@ -9,11 +9,10 @@ import {
   ArrowRight, Calculator, Sparkles, Star, Send
 } from 'lucide-react';
 import { useSound } from '@/components/SoundProvider';
-import { Exercise, OperationType } from '@/lib/french-classes';
-import { generateEvaluationTest, validateAnswer } from '@/lib/exercises';
-import { calculateInitialElo } from '@/lib/elo';
+import { Exercise, OperationType, FrenchClass } from '@/lib/french-classes';
+import { generateTest, validateAnswer } from '@/lib/exercises';
+import { calculateDiagnosticElo, DiagnosticResult } from '@/lib/elo';
 import { getClassFromElo, formatClassName } from '@/lib/french-classes';
-import { getClassFromDifficulty } from '@/lib/french-classes';
 
 interface OnboardingState {
   questions: Exercise[];
@@ -22,6 +21,8 @@ interface OnboardingState {
   timePerQuestion: number[];
   startTime: number;
   isComplete: boolean;
+  finalElo?: number;
+  schoolClass?: string;
 }
 
 export default function OnboardingTestPage() {
@@ -43,17 +44,31 @@ export default function OnboardingTestPage() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [isGenerating, setIsGenerating] = useState(true);
 
-  // Générer le test initial
+  // Générer le test diagnostic avec questions à différents niveaux
   useEffect(() => {
     if (!session?.user) {
       router.push('/login');
       return;
     }
 
-    const generateInitialTest = async () => {
+    const generateDiagnosticTest = async () => {
       try {
-        const questions = generateEvaluationTest(15); // 15 questions avec système adaptatif
-        setState(prev => ({ ...prev, questions, startTime: Date.now() }));
+        // Test diagnostique : 3 questions à 5 niveaux différents (15 total)
+        // Permet d'évaluer précisément où se situe l'utilisateur
+        const eloLevels = [400, 800, 1200, 1600, 2000]; // CP-CE1, CM1-CM2, 6e-5e, 3e-2de, Terminale+
+        const questionsPerLevel = 3;
+        
+        let allQuestions: Exercise[] = [];
+        
+        eloLevels.forEach(elo => {
+          const levelQuestions = generateTest(elo, questionsPerLevel);
+          allQuestions = [...allQuestions, ...levelQuestions];
+        });
+        
+        // Mélanger les questions pour ne pas avoir de pattern évident
+        allQuestions = allQuestions.sort(() => Math.random() - 0.5);
+        
+        setState(prev => ({ ...prev, questions: allQuestions, startTime: Date.now() }));
         setIsGenerating(false);
       } catch (error) {
         console.error('Error generating onboarding test:', error);
@@ -61,7 +76,7 @@ export default function OnboardingTestPage() {
       }
     };
 
-    generateInitialTest();
+    generateDiagnosticTest();
   }, [session, router]);
 
   const currentQuestion = state.questions[state.currentIndex];
@@ -84,7 +99,8 @@ export default function OnboardingTestPage() {
 
     setTimeout(() => {
       if (state.currentIndex >= state.questions.length - 1) {
-        // Test terminé - calculer les résultats
+        // Test terminé - mettre à jour le state d'abord puis calculer les résultats
+        setState(prev => ({ ...prev, answers: newAnswers, timePerQuestion: newTimes }));
         completeOnboarding(newAnswers, newTimes);
       } else {
         // Passer à la question suivante
@@ -102,33 +118,43 @@ export default function OnboardingTestPage() {
 
   const completeOnboarding = async (finalAnswers: string[], finalTimes: number[]) => {
     try {
-      // Calculer les performances
-      const correctCount = finalAnswers.filter((answer, index) => 
-        validateAnswer(state.questions[index] as any, answer)
-      ).length;
+      // Construire les résultats diagnostiques avec le niveau ELO de chaque question
+      const diagnosticResults: DiagnosticResult[] = finalAnswers.map((answer, index) => {
+        const question = state.questions[index];
+        // Déterminer le niveau ELO de la question à partir de sa classe
+        const classToElo: Record<string, number> = {
+          'CP': 400, 'CE1': 400, 'CE2': 800, 'CM1': 800, 'CM2': 1200,
+          '6e': 1200, '5e': 1600, '4e': 1600, '3e': 2000, '2de': 2000,
+          '1re': 2000, 'Tle': 2000, 'Sup1': 2000, 'Sup2': 2000, 'Sup3': 2000, 'Pro': 2000
+        };
+        const questionElo = classToElo[question?.className || 'CM2'] || 1200;
+        
+        return {
+          levelElo: questionElo,
+          isCorrect: validateAnswer(question as any, answer),
+          timeTaken: Math.round(finalTimes[index] / 1000) // Convertir ms en secondes
+        };
+      });
       
-      const accuracy = correctCount / finalAnswers.length;
-      const avgTime = finalTimes.reduce((a, b) => a + b, 0) / finalTimes.length;
-      
-      // Calculer l'ELO initial basé sur la performance (niveau moyen 5 = CM2)
-      const baseElo = calculateInitialElo('CM2', accuracy, avgTime);
+      // Calculer l'ELO avec l'algorithme diagnostique
+      const finalElo = calculateDiagnosticElo(diagnosticResults);
       
       // Déterminer la classe scolaire
-      const schoolClass = getClassFromElo(baseElo);
+      const schoolClass = getClassFromElo(finalElo);
       
       // Sauvegarder les résultats
       const response = await fetch('/api/users/onboarding-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          soloElo: baseElo,
+          soloElo: finalElo,
           soloClass: schoolClass,
           hasCompletedOnboarding: true
         })
       });
 
       if (response.ok) {
-        setState(prev => ({ ...prev, isComplete: true }));
+        setState(prev => ({ ...prev, isComplete: true, answers: finalAnswers, timePerQuestion: finalTimes }));
         playSound('achievement' as any); // Temporaire, à corriger selon les types disponibles
       }
     } catch (error) {
@@ -155,11 +181,8 @@ export default function OnboardingTestPage() {
   }
 
   if (state.isComplete) {
-    const finalElo = state.answers.reduce((acc, answer, index) => {
-      return acc + (validateAnswer(state.questions[index] as any, answer) ? 50 : -25);
-    }, 400);
-    
-    const schoolClass = getClassFromElo(finalElo);
+    const finalElo = state.finalElo || 400;
+    const schoolClass = state.schoolClass || getClassFromElo(finalElo);
 
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
@@ -273,7 +296,7 @@ export default function OnboardingTestPage() {
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    className={`text-center p-4 rounded-xl ${
+                    className={`text-center p-3 sm:p-4 rounded-xl w-full max-w-xs mx-auto overflow-hidden ${
                       isCorrect 
                         ? 'bg-green-500/10 border border-green-500/30 text-green-400' 
                         : 'bg-red-500/10 border border-red-500/30 text-red-400'
@@ -282,13 +305,13 @@ export default function OnboardingTestPage() {
                     <div className="flex items-center justify-center gap-2">
                       {isCorrect ? (
                         <>
-                          <CheckCircle className="w-5 h-5" />
-                          <span>Correct !</span>
+                          <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                          <span className="break-words">Correct !</span>
                         </>
                       ) : (
                         <>
-                          <XCircle className="w-5 h-5" />
-                          <span>Incorrect</span>
+                          <XCircle className="w-5 h-5 flex-shrink-0" />
+                          <span className="break-words">Incorrect</span>
                         </>
                       )}
                     </div>

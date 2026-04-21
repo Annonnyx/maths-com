@@ -35,18 +35,17 @@ export default function DashboardPage() {
 
   // Check if user needs onboarding
   useEffect(() => {
+    // Attendre que le profil soit chargé pour éviter les faux positifs
+    if (isLoading || !profile?.user) return;
+    
     // Ne montrer l'onboarding que si TOUS les deux indiquent que ce n'est pas complété
     const needsOnboarding = session?.user && (
       !(session.user as any).hasCompletedOnboarding && 
-      (!profile?.user || !profile.user.hasCompletedOnboarding)
+      !profile.user.hasCompletedOnboarding
     );
     
-    if (needsOnboarding) {
-      setShowOnboarding(true);
-    } else {
-      setShowOnboarding(false);
-    }
-  }, [session, profile]);
+    setShowOnboarding(!!needsOnboarding);
+  }, [session, profile, isLoading]);
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);

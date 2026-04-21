@@ -196,12 +196,14 @@ export class CE2Generator implements LevelGenerator {
   private generateComplexWordProblem(context: GenerationContext): GeneratedQuestion {
     const ops = getScaledOperands(context.userElo, 'CE2');
     const { a, b } = ops.multiplication();
-    const c = ops.addition();
+    const total = a * b;
+    // S'assurer qu'on ne vend pas plus que le stock disponible
+    const c = randomInt(1, Math.max(1, total - 1));
     
     const scenarios = [
       { 
         text: `Un magasin a ${a} boîtes de ${b} crayons chacune. Il vend ${c} crayons. Combien de crayons reste-t-il ?`, 
-        answer: (a * b - c).toString() 
+        answer: (total - c).toString() 
       },
       { 
         text: `${a} enfants reçoivent chacun ${b} bonbons. Si on distribue ${c} bonbons de plus, combien y a-t-il de bonbons au total ?`, 

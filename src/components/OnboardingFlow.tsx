@@ -98,21 +98,19 @@ export default function OnboardingFlow({ onComplete, onSkip }: OnboardingFlowPro
               )}
             </button>
             
-            {step < steps.length - 1 && (
-              <button
-                onClick={() => {
-                  playSound('click');
-                  if (onSkip) {
-                    onSkip();
-                  } else {
-                    onComplete();
-                  }
-                }}
-                className="text-gray-500 hover:text-gray-300 text-sm transition-colors"
-              >
-                Passer l'introduction
-              </button>
-            )}
+            <button
+              onClick={() => {
+                playSound('click');
+                if (onSkip) {
+                  onSkip();
+                } else {
+                  onComplete();
+                }
+              }}
+              className="text-gray-500 hover:text-gray-300 text-sm transition-colors"
+            >
+              Passer l'introduction
+            </button>
           </div>
 
           {/* Step indicator */}

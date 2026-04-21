@@ -23,6 +23,7 @@ import { TerminaleGenerator } from './Tle';
 import { CinquiemeGenerator } from './5e';
 import { QuatriemeGenerator } from './4e';
 import { TroisiemeGenerator } from './3e';
+import { SixiemeGenerator } from './6e';
 
 // French school levels mapped to difficulty (1-10)
 // Supports both lowercase (cp, ce1) and uppercase/accented formats (CP, CE1, 6ème)
@@ -66,18 +67,22 @@ export class AdaptiveQuestionGenerator {
     this.userElo = userElo;
     this.generators = new Map();
     
-    // Register all level generators
+    // Register all level generators in school order
     this.generators.set('CP', new CPGenerator());
     this.generators.set('CE1', new CE1Generator());
     this.generators.set('CE2', new CE2Generator());
     this.generators.set('CM1', new CM1Generator());
     this.generators.set('CM2', new CM2Generator());
-    this.generators.set('2de', new SecondeGenerator());
-    this.generators.set('1re', new PremiereGenerator());
-    this.generators.set('Tle', new TerminaleGenerator());
+    // Collège
+    this.generators.set('6e', new SixiemeGenerator());
     this.generators.set('5e', new CinquiemeGenerator());
     this.generators.set('4e', new QuatriemeGenerator());
     this.generators.set('3e', new TroisiemeGenerator());
+    // Lycée
+    this.generators.set('2de', new SecondeGenerator());
+    this.generators.set('1re', new PremiereGenerator());
+    this.generators.set('Tle', new TerminaleGenerator());
+    // Supérieur
     this.generators.set('Sup1', new Sup1Generator());
     this.generators.set('Sup2', new Sup2Generator());
     this.generators.set('Sup3', new Sup3Generator());

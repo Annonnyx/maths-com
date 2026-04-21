@@ -128,8 +128,8 @@ function TestPage() {
         title = mode === 'competitive' ? 'Test Compétitif' : 'Test d\'entraînement';
       }
     } else {
-      // Normal test generation
-      questions = mode === 'competitive' ? generateTest(userElo, 20) : generateEvaluationTest(20, excludeGeometry);
+      // Normal test generation - both modes use adaptive algorithm based on user ELO
+      questions = generateTest(userElo, 20);
       title = mode === 'competitive' ? 'Test Compétitif' : 'Test d\'entraînement';
     }
     
@@ -775,7 +775,7 @@ function TestPage() {
               </div>
 
               {/* Navigation Dots */}
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center gap-1.5 sm:gap-2 flex-wrap max-w-full px-2">
                 {testState.questions.map((q, i) => {
                   const isAnswered = testState.answers[i] !== '';
                   const isCorrect = isAnswered && validateAnswer(q as any, testState.answers[i]);
@@ -785,14 +785,14 @@ function TestPage() {
                       key={i}
                       onClick={() => testMode === 'training' && setTestState({ ...testState, currentIndex: i })}
                       disabled={testMode === 'competitive'}
-                      className={`h-2 rounded-full transition-all ${
+                      className={`h-1.5 sm:h-2 rounded-full transition-all flex-shrink-0 ${
                         i === testState.currentIndex
-                          ? `w-6 ${testMode === 'competitive' ? 'bg-red-500' : 'bg-blue-500'}`
+                          ? `w-4 sm:w-6 ${testMode === 'competitive' ? 'bg-red-500' : 'bg-blue-500'}`
                           : isAnswered
                             ? isCorrect
-                              ? 'w-2 bg-green-500'
-                              : 'w-2 bg-red-500'
-                            : 'w-2 bg-border'
+                              ? 'w-1.5 sm:w-2 bg-green-500'
+                              : 'w-1.5 sm:w-2 bg-red-500'
+                            : 'w-1.5 sm:w-2 bg-border'
                       }`}
                     />
                   );

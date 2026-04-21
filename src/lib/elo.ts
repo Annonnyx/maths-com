@@ -273,39 +273,89 @@ export function isOperationUnlocked(elo: number, operation: string): boolean {
   return unlocked.includes(operation);
 }
 
-// Calculate initial ELO based on onboarding performance
+// Calculate initial ELO based on diagnostic test results
+// Uses performance at different ELO levels to find the true skill ceiling
+export interface DiagnosticResult {
+  levelElo: number;      // ELO level of the question (400, 800, 1200, 1600, 2000)
+  isCorrect: boolean;    // Whether answered correctly
+  timeTaken: number;     // Time in seconds
+}
+
+export function calculateDiagnosticElo(results: DiagnosticResult[]): number {
+  if (results.length === 0) return 400;
+  
+  // Group results by ELO level
+  const levelGroups: Record<number, { correct: number; total: number; avgTime: number }> = {};
+  
+  results.forEach(r => {
+    if (!levelGroups[r.levelElo]) {
+      levelGroups[r.levelElo] = { correct: 0, total: 0, avgTime: 0 };
+    }
+    levelGroups[r.levelElo].correct += r.isCorrect ? 1 : 0;
+    levelGroups[r.levelElo].total += 1;
+    levelGroups[r.levelElo].avgTime += r.timeTaken;
+  });
+  
+  // Calculate accuracy and average time per level
+  const levels = Object.entries(levelGroups).map(([elo, data]) => ({
+    elo: Number(elo),
+    accuracy: data.correct / data.total,
+    avgTime: data.avgTime / data.total
+  })).sort((a, b) => a.elo - b.elo);
+  
+  // Find the highest level with >50% accuracy (mastery threshold)
+  let masteredLevel = 400; // Start at beginner
+  let strugglingLevel: number | null = null;
+  
+  for (const level of levels) {
+    if (level.accuracy >= 0.5) {
+      masteredLevel = level.elo;
+    } else {
+      strugglingLevel = level.elo;
+      break; // First level where accuracy drops below 50%
+    }
+  }
+  
+  // Calculate fine-tuning based on performance at the ceiling level
+  const ceilingLevel = levels.find(l => l.elo === masteredLevel);
+  const ceilingAccuracy = ceilingLevel?.accuracy || 0.5;
+  const ceilingTime = ceilingLevel?.avgTime || 10;
+  
+  // Bonus/malus based on accuracy at ceiling level
+  // 100% accuracy = +200 ELO, 50% accuracy = 0, <50% = already caught above
+  const accuracyBonus = Math.round((ceilingAccuracy - 0.5) * 400);
+  
+  // Time bonus (faster solving at ceiling = higher ELO)
+  const timeBonus = ceilingTime < 5 ? 100 : ceilingTime < 10 ? 50 : ceilingTime < 20 ? 0 : -50;
+  
+  // Final calculation: mastered level + bonuses
+  let finalElo = masteredLevel + accuracyBonus + timeBonus;
+  
+  // If struggling at higher level, cap at that level minus penalty
+  if (strugglingLevel) {
+    const maxElo = strugglingLevel - 100; // Stay just below struggling level
+    finalElo = Math.min(finalElo, maxElo);
+  }
+  
+  // Clamp between reasonable bounds for new users
+  return Math.max(200, Math.min(2200, finalElo));
+}
+
+// Legacy function for backward compatibility (kept for non-diagnostic tests)
 export function calculateInitialElo(finalClass: FrenchClass, accuracy: number, avgTime: number): number {
-  // Base ELO according to final class
-  const classEloMap: Record<FrenchClass, number> = {
-    'CP': 250,   // Cours Préparatoire
-    'CE1': 400,  // Cours Élémentaire 1
-    'CE2': 600,  // Cours Élémentaire 2
-    'CM1': 850,  // Cours Moyen 1
-    'CM2': 1100, // Cours Moyen 2
-    '6e': 1400,  // Sixième
-    '5e': 1700,  // Cinquième
-    '4e': 2000,  // Quatrième
-    '3e': 2300,  // Troisième
-    '2de': 2600, // Seconde
-    '1re': 2900, // Première
-    'Tle': 3200, // Terminale
-    'Sup1': 3500, // Supérieur 1
-    'Sup2': 3750, // Supérieur 2
-    'Sup3': 4000, // Supérieur 3
-    'Pro': 4000  // Expert
+  // Use diagnostic calculation with single-level simulation
+  const classToElo: Record<FrenchClass, number> = {
+    'CP': 400, 'CE1': 600, 'CE2': 800, 'CM1': 1000, 'CM2': 1200,
+    '6e': 1500, '5e': 1750, '4e': 2000, '3e': 2250, '2de': 2500,
+    '1re': 2750, 'Tle': 3000, 'Sup1': 3250, 'Sup2': 3500, 'Sup3': 3750, 'Pro': 4000
   };
   
-  const baseElo = classEloMap[finalClass] || 500;
+  const levelElo = classToElo[finalClass] || 1000;
   
-  // Accuracy bonus (0-100%)
-  const accuracyBonus = Math.round((accuracy - 0.5) * 200); // -100 to +100
-  
-  // Time bonus (faster = higher ELO)
-  // Average time per question in seconds, lower is better
-  const timeBonus = avgTime < 5 ? 50 : avgTime < 10 ? 25 : avgTime < 15 ? 0 : -25;
-  
-  const finalElo = baseElo + accuracyBonus + timeBonus;
-  
-  // Clamp between reasonable bounds
-  return Math.max(200, Math.min(1500, finalElo));
+  // Simulate diagnostic results at that level
+  return calculateDiagnosticElo([
+    { levelElo, isCorrect: accuracy > 0.5, timeTaken: avgTime },
+    { levelElo, isCorrect: accuracy > 0.3, timeTaken: avgTime },
+    { levelElo, isCorrect: accuracy > 0.7, timeTaken: avgTime }
+  ]);
 }
