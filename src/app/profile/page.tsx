@@ -1598,6 +1598,25 @@ function ProfileContent() {
                 <button
                   onClick={async () => {
                     const url = `${window.location.origin}/u/${profile?.user?.username}`;
+                    const shareData = {
+                      title: 'Mon profil maths-app.com',
+                      text: `Viens voir mon profil sur maths-app.com !`,
+                      url: url
+                    };
+
+                    // Use Web Share API on mobile
+                    if (navigator.share) {
+                      try {
+                        await navigator.share(shareData);
+                        setShowShareModal(false);
+                        return;
+                      } catch (error) {
+                        // User cancelled or error, fallback to copy
+                        console.log('Share cancelled, falling back to copy');
+                      }
+                    }
+
+                    // Fallback: copy to clipboard
                     try {
                       await navigator.clipboard.writeText(url);
                       setCopied(true);
@@ -1622,8 +1641,8 @@ function ProfileContent() {
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4" />
-                      Copier
+                      <Share2 className="w-4 h-4" />
+                      Partager
                     </>
                   )}
                 </button>
