@@ -30,8 +30,15 @@ export async function GET(request: NextRequest) {
       ]
     });
 
-    // Pour l'instant, retourner des demandes vides jusqu'à ce que la migration soit faite
-    const teacherRequests: any[] = [];
+    // Récupérer les demandes professeur
+    const teacherRequests = await prisma.teacherRequest.findMany({
+      where: {
+        status: 'pending'
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
 
     return NextResponse.json({
       users,

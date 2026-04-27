@@ -98,16 +98,16 @@ export default function TeacherRequestModal({ isOpen, onClose }: TeacherRequestM
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-[#12121a] rounded-2xl border border-gray-800 max-w-lg w-full max-h-[90vh] overflow-y-auto"
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-[#12121a] rounded-2xl border border-gray-800 max-w-lg w-full max-h-[90vh] overflow-y-auto"
+          >
         {/* Header */}
         <div className="p-6 border-b border-gray-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -287,7 +287,9 @@ export default function TeacherRequestModal({ isOpen, onClose }: TeacherRequestM
             </>
           )}
         </div>
-      </motion.div>
-    </div>
+        </motion.div>
+      </div>
+      )}
+    </AnimatePresence>
   );
 }

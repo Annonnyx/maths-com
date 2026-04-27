@@ -39,13 +39,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user is already a teacher
-    const currentUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { isTeacher: true }
+    // Get user from email
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true, isTeacher: true }
     });
 
-    if (currentUser?.isTeacher) {
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Check if user is already a teacher
+    if (user.isTeacher) {
       return NextResponse.json({ 
         error: 'Already a teacher',
         details: 'You are already registered as a teacher'
@@ -55,7 +60,7 @@ export async function POST(request: NextRequest) {
     // Check if user already has a pending request
     const existingRequest = await prisma.teacherRequest.findFirst({
       where: { 
-        userId: session.user.id,
+        userId: user.id,
         status: 'pending'
       }
     });
@@ -70,7 +75,7 @@ export async function POST(request: NextRequest) {
     // Créer la demande
     const teacherRequest = await prisma.teacherRequest.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         name: name.trim(),
         email: session.user.email,
         school: school.trim(),

@@ -53,6 +53,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculer la difficulté moyenne basée sur les joueurs
+    if (gameSession.players.length === 0) {
+      return NextResponse.json({ error: 'No players in game session' }, { status: 400 });
+    }
     const avgElo = gameSession.players.reduce((sum, player) => 
       sum + (player.user.multiplayerElo || 400), 0) / gameSession.players.length;
     const difficulty = Math.max(1, Math.min(10, Math.round(avgElo / 100)));

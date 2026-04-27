@@ -62,10 +62,7 @@ export default function GameLobbyPage() {
   const [hostParticipating, setHostParticipating] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = getSupabase();
 
   useEffect(() => {
     const fetchGameData = async () => {

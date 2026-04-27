@@ -142,7 +142,7 @@ function TestPage() {
     
     const { questions, title } = generateQuestions(mode);
     
-    // Create test in database first to get testId
+    // Create test in database first to get testId (only if authenticated)
     let testId = null;
     if (session?.user) {
       try {
@@ -155,7 +155,7 @@ function TestPage() {
             courseType
           })
         });
-        
+
         if (response.ok) {
           const testData = await response.json();
           testId = testData.id;
@@ -366,15 +366,15 @@ function TestPage() {
     });
     setShowResults(true);
     
-    // Save results to database for competitive mode
-    if (testMode === 'competitive') {
+    // Save results to database for competitive mode (only if authenticated)
+    if (testMode === 'competitive' && session?.user) {
       saveTestResults();
     }
   };
 
   const saveTestResults = async () => {
     if (!testState || !testMode || !testState.testId) return;
-    
+
     // Don't save if user is not authenticated (guest mode)
     if (!session?.user) {
       console.log('Guest mode: Test results not saved');

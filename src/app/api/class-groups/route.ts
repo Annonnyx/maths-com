@@ -7,18 +7,27 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('Loading class groups for user:', session.user.id);
-    console.log('Session full:', session);
+    // Get user from email
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    console.log('Loading class groups for user:', user.id);
 
     const groups = await prisma.classGroup.findMany({
       where: {
         OR: [
-          { teacherId: session.user.id },
-          { members: { some: { userId: session.user.id } } }
+          { teacherId: user.id },
+          { members: { some: { userId: user.id } } }
         ]
       },
       include: {
@@ -55,17 +64,21 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Vérifier si l'utilisateur est professeur
+    // Get user from email
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { isTeacher: true }
+      where: { email: session.user.email },
+      select: { id: true, isTeacher: true }
     });
 
-    if (!user?.isTeacher) {
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    if (!user.isTeacher) {
       return NextResponse.json({ error: 'Only teachers can create groups' }, { status: 403 });
     }
 
@@ -120,10 +133,10 @@ export async function POST(request: NextRequest) {
         maxStudents: maxStudents || 30, // 30 par défaut, 0 = illimité
         isPrivate: isPrivate ?? false,
         inviteCode,
-        teacherId: session.user.id,
+        teacherId: user.id,
         members: {
           create: {
-            userId: session.user.id,
+            userId: user.id,
             role: 'teacher'
           }
         }

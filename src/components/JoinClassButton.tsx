@@ -11,12 +11,9 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '@/lib/supabase';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = getSupabase();
 
 interface JoinClassButtonProps {
   teacherId: string;

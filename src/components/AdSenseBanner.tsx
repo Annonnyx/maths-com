@@ -72,20 +72,21 @@ export function AdSenseBanner({
   const dimensions = getDimensions();
 
   return (
-    <div className={`w-full flex justify-center ${className}`} style={{ minHeight: dimensions.height === 'auto' ? '90px' : dimensions.height }}>
+    <div className={`w-full flex justify-center ${className}`} style={{ minHeight: dimensions.height === 'auto' ? '90px' : dimensions.height, minWidth: '200px' }}>
       <ins
         ref={adRef as any}
         className="adsbygoogle"
         style={{ 
           display: 'block',
-          width: dimensions.width,
-          height: dimensions.height
+          width: dimensions.width === '100%' ? '100%' : dimensions.width,
+          height: dimensions.height === 'auto' ? 'auto' : dimensions.height,
+          minWidth: '200px'
         }}
         data-ad-client="ca-pub-5606384371601059"
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
         data-full-width-responsive="true"
-        data-ad-test={process.env.NODE_ENV === 'development' ? 'on' : 'off'} // Test mode in dev
+        data-ad-test={process.env.NODE_ENV === 'development' ? 'on' : 'off'}
       />
     </div>
   );
