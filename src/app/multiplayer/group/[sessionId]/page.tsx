@@ -60,7 +60,7 @@ function GameContent() {
     if (!sessionId) return;
 
     // Charger les informations de la session
-    fetch(`/api/game/kahoot/session/${sessionId}`)
+    fetch(`/api/game/group/session/${sessionId}`)
       .then(res => res.json())
       .then(data => {
         setGameSession(data.session);
@@ -151,10 +151,9 @@ function GameContent() {
 
   const startGame = async () => {
     try {
-      const response = await fetch('/api/game/start', {
+      const response = await fetch(`/api/game/group/${sessionId}/start`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId })
+        headers: { 'Content-Type': 'application/json' }
       });
 
       if (response.ok) {

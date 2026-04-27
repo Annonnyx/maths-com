@@ -154,8 +154,16 @@ export default function OnboardingTestPage() {
       });
 
       if (response.ok) {
-        setState(prev => ({ ...prev, isComplete: true, answers: finalAnswers, timePerQuestion: finalTimes }));
-        playSound('achievement' as any); // Temporaire, à corriger selon les types disponibles
+        const data = await response.json();
+        setState(prev => ({ 
+          ...prev, 
+          isComplete: true, 
+          answers: finalAnswers, 
+          timePerQuestion: finalTimes,
+          finalElo: finalElo,
+          schoolClass: schoolClass
+        }));
+        playSound('achievement' as any);
       }
     } catch (error) {
       console.error('Error completing onboarding:', error);

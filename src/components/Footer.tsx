@@ -49,9 +49,9 @@ export default function Footer() {
               Créé par <span className="text-indigo-400 font-medium">Noé BARNERON</span>
             </p>
             <div className="flex gap-4">
-              <a 
-                href="https://discord.gg/FYbYK4nK7p" 
-                target="_blank" 
+              <a
+                href="https://discord.gg/2hD5GVVRvt"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#5865F2] hover:text-[#5865F2]/80 transition-colors"
                 title="Discord Maths-app"
