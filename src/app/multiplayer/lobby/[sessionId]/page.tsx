@@ -10,7 +10,7 @@ import {
   Trophy, Target, Zap, Swords, UserPlus, GraduationCap,
   SkipForward, Square, ArrowLeft
 } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '@/lib/supabase';
 
 interface GameSession {
   id: string;
