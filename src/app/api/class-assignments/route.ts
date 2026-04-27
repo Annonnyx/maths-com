@@ -160,9 +160,9 @@ export async function POST(request: NextRequest) {
         questions.push({
           assignmentId: assignment.id,
           question: q.question,
-          answer: q.answer, 
+          answer: q.answer,
           type: q.type || 'calculation',
-          difficultyElo: q.difficultyElo || 1000,
+          difficulty: q.difficultyElo || 1000,
           order: i,
         });
       }
