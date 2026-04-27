@@ -13,6 +13,8 @@ export async function middleware(req: NextRequest) {
     '/login',
     '/register',
     '/courses',
+    '/courses/geometry',
+    '/test',
     '/cgu',
     '/confidentialite',
     '/cookies',
