@@ -402,7 +402,7 @@ export default function MultiplayerPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="bg-gradient-to-br from-blue-500/20 to-cyan-600/20 rounded-xl sm:rounded-2xl border border-blue-500/30 p-5 sm:p-8"
+              className="bg-card rounded-xl sm:rounded-2xl border border-blue-500/30 p-5 sm:p-8"
             >
               <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
                 <Settings className="w-6 h-6 text-blue-400" />
@@ -418,7 +418,7 @@ export default function MultiplayerPage() {
                     className={`p-4 rounded-xl border-2 transition-all ${
                       selectedMode === 'ranked_1v1'
                         ? 'border-blue-500 bg-blue-500/20'
-                        : 'border-[#3a3a4a] hover:border-blue-500/50 hover:bg-blue-500/10'
+                        : 'border-border hover:border-blue-500/50 hover:bg-blue-500/10'
                     }`}
                   >
                     <Trophy className="w-6 h-6 mb-2 mx-auto text-yellow-400" />
@@ -430,7 +430,7 @@ export default function MultiplayerPage() {
                     className={`p-4 rounded-xl border-2 transition-all ${
                       selectedMode === 'casual_1v1'
                         ? 'border-blue-500 bg-blue-500/20'
-                        : 'border-[#3a3a4a] hover:border-blue-500/50 hover:bg-blue-500/10'
+                        : 'border-border hover:border-blue-500/50 hover:bg-blue-500/10'
                     }`}
                   >
                     <Users className="w-6 h-6 mb-2 mx-auto text-blue-400" />
@@ -451,7 +451,7 @@ export default function MultiplayerPage() {
                       className={`p-4 rounded-xl border-2 transition-all ${
                         selectedTimeControl === key
                           ? 'bg-blue-500/20 text-white'
-                          : 'bg-[#1e1e2e] hover:bg-blue-500/10 text-muted-foreground hover:text-white'
+                          : 'bg-muted hover:bg-blue-500/10 text-muted-foreground hover:text-white'
                       }`}
                     >
                       <div className="text-lg mb-1">{config.name}</div>
@@ -466,7 +466,7 @@ export default function MultiplayerPage() {
                 <button
                   onClick={startSearch}
                   disabled={searching || !session}
-                  className="w-full py-4 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3"
+                  className="w-full py-4 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3 text-white"
                 >
                   <Search className="w-6 h-6" />
                   {searching ? 'Recherche en cours...' : 'Trouver un adversaire'}
@@ -474,7 +474,7 @@ export default function MultiplayerPage() {
                 
                 <button
                   onClick={() => setShowFriends(!showFriends)}
-                  className="w-full py-3 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
                 >
                   <UserPlus className="w-5 h-5" />
                   Défier un ami
@@ -505,7 +505,7 @@ export default function MultiplayerPage() {
                       className={`p-3 rounded-xl border-2 transition-all ${
                         timePerQuestion === time
                           ? 'border-purple-500 bg-purple-500/20'
-                          : 'border-[#3a3a4a] hover:border-purple-500/50 hover:bg-purple-500/10'
+                          : 'border-border hover:border-purple-500/50 hover:bg-purple-500/10'
                       }`}
                     >
                       <div className="font-semibold">{time}s</div>
@@ -525,7 +525,7 @@ export default function MultiplayerPage() {
                       className={`p-3 rounded-xl border-2 transition-all ${
                         questionCount === count
                           ? 'border-green-500 bg-green-500/20'
-                          : 'border-[#3a3a4a] hover:border-green-500/50 hover:bg-green-500/10'
+                          : 'border-border hover:border-green-500/50 hover:bg-green-500/10'
                       }`}
                     >
                       <div className="font-semibold">{count}</div>
@@ -550,7 +550,7 @@ export default function MultiplayerPage() {
                       className={`p-3 rounded-xl border-2 transition-all ${
                         difficulty === diff.value
                           ? `border-${diff.color === 'green' ? 'green' : diff.color === 'blue' ? 'blue' : diff.color === 'red' ? 'red' : 'purple'}-500 bg-${diff.color === 'green' ? 'green' : diff.color === 'blue' ? 'blue' : diff.color === 'red' ? 'red' : 'purple'}-500/20`
-                          : 'border-[#3a3a4a] hover:border-gray-500/50 hover:bg-gray-500/10'
+                          : 'border-border hover:border-muted-foreground/50 hover:bg-muted'
                       }`}
                     >
                       <div className="font-semibold">{diff.label}</div>
@@ -564,7 +564,7 @@ export default function MultiplayerPage() {
                 <button
                   onClick={createGroupGame}
                   disabled={isCreating || !session}
-                  className="py-4 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+                  className="py-4 bg-purple-500 hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold transition-all flex items-center justify-center gap-2 text-white"
                 >
                   <QrCode className="w-5 h-5" />
                   {isCreating ? 'Création...' : 'Créer la partie'}
@@ -576,7 +576,7 @@ export default function MultiplayerPage() {
                     placeholder="Code 6 lettres"
                     value={joinCode}
                     onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                    className="flex-1 px-4 py-3 bg-[#1e1e2e] border border-[#3a3a4a] rounded-xl text-white placeholder-[#6a6a7a] focus:outline-none focus:border-primary"
+                    className="flex-1 px-4 py-3 bg-muted border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary"
                     maxLength={6}
                   />
                   <button
@@ -727,7 +727,7 @@ export default function MultiplayerPage() {
                             {friend.user.username.charAt(0).toUpperCase()}
                           </div>
                           {friend.user.isOnline && (
-                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1e1e2e]" />
+                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                           )}
                         </div>
                         <div>
@@ -775,7 +775,7 @@ export default function MultiplayerPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-gradient-to-br from-[#1e1e2e] to-[#2a2a3a] rounded-2xl border border-[#3a3a4a] p-8 text-center"
+              className="bg-card rounded-2xl border border-border p-8 text-center"
             >
               <div className="mb-6">
                 <div className="w-16 h-16 border-4 border-primary/30 rounded-full border-t-transparent animate-spin mx-auto mb-4"></div>

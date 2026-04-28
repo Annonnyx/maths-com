@@ -144,13 +144,13 @@ export default function FAQAndReporting() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-[#1a1a2e] p-1 rounded-xl">
+      <div className="flex gap-1 mb-6 bg-muted p-1 rounded-xl">
         <button
           onClick={() => setActiveTab('faq')}
           className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all ${
             activeTab === 'faq'
               ? 'bg-indigo-500 text-white'
-              : 'text-gray-400 hover:text-white'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <HelpCircle className="w-4 h-4 inline mr-2" />
@@ -192,7 +192,7 @@ export default function FAQAndReporting() {
                   className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
                     selectedCategory === key
                       ? 'bg-indigo-500 text-white'
-                      : 'bg-gray-700 text-gray-400 hover:text-white'
+                      : 'bg-muted text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -209,11 +209,11 @@ export default function FAQAndReporting() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-[#12121a] rounded-xl border border-border overflow-hidden"
+                  className="bg-card rounded-xl border border-border overflow-hidden"
                 >
                   <button
                     onClick={() => setExpandedFAQ(expandedFAQ === faq.question ? null : faq.question)}
-                    className="w-full p-4 text-left hover:bg-[#1a1a2e] transition-colors"
+                    className="w-full p-4 text-left hover:bg-muted transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-foreground">{faq.question}</span>
@@ -244,7 +244,7 @@ export default function FAQAndReporting() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="bg-[#12121a] rounded-2xl border border-border p-6"
+            className="bg-card rounded-2xl border border-border p-6"
           >
             <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Bug className="w-5 h-5 text-red-400" />
@@ -268,7 +268,7 @@ export default function FAQAndReporting() {
                       className={`p-3 rounded-lg border transition-all flex items-center gap-2 ${
                         reportForm.type === value
                           ? 'bg-indigo-500 border-indigo-500 text-white'
-                          : 'border-border hover:border-gray-500 text-gray-400'
+                          : 'border-border hover:border-muted text-muted-foreground'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -284,7 +284,7 @@ export default function FAQAndReporting() {
                 <select
                   value={reportForm.category}
                   onChange={(e) => setReportForm(prev => ({ ...prev, category: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground"
+                  className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground"
                 >
                   <option value="general">Général</option>
                   <option value="math">Mathématiques</option>
@@ -302,7 +302,7 @@ export default function FAQAndReporting() {
                   value={reportForm.title}
                   onChange={(e) => setReportForm(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Résumez votre question ou problème..."
-                  className="w-full px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground"
+                  className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground"
                   required
                 />
               </div>
@@ -328,7 +328,7 @@ export default function FAQAndReporting() {
                   value={reportForm.email}
                   onChange={(e) => setReportForm(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="Pour vous contacter si nécessaire..."
-                  className="w-full px-3 py-2 bg-[#2a2a3a] border border-border rounded-lg text-foreground"
+                  className="w-full px-3 py-2 bg-muted border border-border rounded-lg text-foreground"
                 />
               </div>
 

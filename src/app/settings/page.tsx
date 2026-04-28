@@ -77,10 +77,10 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-white">
-      <header className="border-b border-border bg-[#12121a]/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Link href="/dashboard" className="text-muted-foreground hover:text-white transition-colors">
+          <Link href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="text-xl font-bold">Paramètres</h1>
@@ -112,7 +112,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-muted rounded-xl">
               <div className="flex items-center gap-3">
                 <Moon className="w-5 h-5 text-indigo-400" />
                 <div>
@@ -126,7 +126,7 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-muted rounded-xl">
               <div className="flex items-center gap-3">
                 <Zap className="w-5 h-5 text-yellow-400" />
                 <div>
@@ -155,7 +155,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-muted rounded-xl">
               <div className="flex items-center gap-3">
                 <Volume2 className="w-5 h-5 text-blue-400" />
                 <div>
@@ -184,7 +184,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-muted rounded-xl">
               <div className="flex items-center gap-3">
                 <Users className="w-5 h-5 text-green-400" />
                 <div>
@@ -198,7 +198,7 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-muted rounded-xl">
               <div className="flex items-center gap-3">
                 <Swords className="w-5 h-5 text-red-400" />
                 <div>
@@ -227,7 +227,7 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-[#1a1a2e] rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-muted rounded-xl">
               <div className="flex items-center gap-3">
                 <Zap className="w-5 h-5 text-orange-400" />
                 <div>
