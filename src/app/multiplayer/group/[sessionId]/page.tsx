@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { Trophy, Clock, Users, Zap, CheckCircle, XCircle, Timer } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 interface GameSession {
   id: string;
@@ -20,15 +20,23 @@ interface GameSession {
 
 interface Player {
   id: string;
-  session_id: string;
-  user_id: string;
+  sessionId: string;
+  session_id?: string;
+  userId: string;
+  user_id?: string;
   score: number;
-  joined_at: Date;
-  is_ready: boolean;
-  updated_at: Date;
+  joinedAt?: Date;
+  joined_at?: Date;
+  isReady?: boolean;
+  is_ready?: boolean;
+  updatedAt?: Date;
+  updated_at?: Date;
   user: {
+    id: string;
     username: string;
     displayName?: string;
+    multiplayerElo?: number;
+    multiplayerClass?: string;
   };
 }
 
@@ -47,39 +55,115 @@ function GameContent() {
   const params = useParams();
   const sessionId = params.sessionId as string;
 
+  const supabase = getSupabase();
+
   const [gameSession, setGameSession] = useState<GameSession | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [hasAnswered, setHasAnswered] = useState(false);
   const [gameStatus, setGameStatus] = useState<'waiting' | 'playing' | 'finished'>('waiting');
   const [finalScores, setFinalScores] = useState<Player[]>([]);
 
+  // Load game session data
   useEffect(() => {
     if (!sessionId) return;
 
-    // Charger les informations de la session
-    fetch(`/api/game/group/session/${sessionId}`)
-      .then(res => res.json())
-      .then(data => {
-        setGameSession(data.session);
-        setPlayers(data.players || []);
-      })
-      .catch(err => console.error('Error loading game session:', err));
+    const loadSession = async () => {
+      try {
+        // Use the unified session endpoint
+        const res = await fetch(`/api/multiplayer/game/session/${sessionId}`);
+        const data = await res.json();
+        
+        if (data.session) {
+          setGameSession(data.session);
+          setPlayers(data.players || []);
+          setCurrentQuestionIndex(data.session.currentQuestionIndex || 0);
+          
+          if (data.session.status === 'active') {
+            setGameStatus('playing');
+            // Load questions from DB
+            const qRes = await fetch(`/api/game/group/question/${sessionId}`);
+            if (qRes.ok) {
+              const qData = await qRes.json();
+              const qs = qData.questions || [];
+              setQuestions(qs);
+              if (qs.length > 0) {
+                const idx = data.session.currentQuestionIndex || 0;
+                setCurrentQuestion(qs[idx] || qs[0]);
+              }
+            }
+          } else if (data.session.status === 'finished') {
+            setGameStatus('finished');
+            const sorted = (data.players || []).sort((a: Player, b: Player) => b.score - a.score);
+            setFinalScores(sorted);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading game session:', err);
+      }
+    };
+    
+    loadSession();
 
-    // S'abonner aux updates en temps réel
+    // Subscribe to realtime updates
     const channel = supabase
-      .channel(`game_session_${sessionId}`)
+      .channel(`game_group_${sessionId}`)
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'game_players' },
         (payload: any) => {
           if (payload.eventType === 'INSERT') {
-            setPlayers(prev => [...prev, payload.new]);
+            // Re-fetch to get user data
+            fetch(`/api/multiplayer/game/session/${sessionId}`)
+              .then(r => r.json())
+              .then(d => setPlayers(d.players || []))
+              .catch(() => {});
           } else if (payload.eventType === 'UPDATE') {
             setPlayers(prev => 
               prev.map(p => p.id === payload.new.id ? { ...p, ...payload.new } : p)
             );
+          }
+        }
+      )
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'game_sessions' },
+        (payload: any) => {
+          const newStatus = payload.new.status;
+          const newIndex = payload.new.current_question_index;
+          
+          if (newStatus === 'active' && gameStatus === 'waiting') {
+            setGameStatus('playing');
+            // Load questions when game starts
+            fetch(`/api/game/group/question/${sessionId}`)
+              .then(r => r.json())
+              .then(qData => {
+                const qs = qData.questions || [];
+                setQuestions(qs);
+                if (qs.length > 0) {
+                  setCurrentQuestion(qs[newIndex || 0]);
+                  setCurrentQuestionIndex(newIndex || 0);
+                  setTimeLeft(30);
+                  setHasAnswered(false);
+                  setSelectedAnswer('');
+                }
+              })
+              .catch(() => {});
+          } else if (newStatus === 'active' && newIndex !== undefined) {
+            // Host advanced to next question
+            setCurrentQuestionIndex(newIndex);
+            if (questions[newIndex]) {
+              setCurrentQuestion(questions[newIndex]);
+              setTimeLeft(30);
+              setHasAnswered(false);
+              setSelectedAnswer('');
+            }
+          } else if (newStatus === 'finished') {
+            setGameStatus('finished');
+            const sorted = [...players].sort((a, b) => b.score - a.score);
+            setFinalScores(sorted);
           }
         }
       )
@@ -90,29 +174,15 @@ function GameContent() {
     };
   }, [sessionId]);
 
+  // Timer countdown
   useEffect(() => {
-    if (gameSession?.status === 'active' && !currentQuestion) {
-      // Charger la question actuelle
-      fetch(`/api/game/kahoot/question/${sessionId}`)
-        .then(res => res.json())
-        .then(data => {
-          setCurrentQuestion(data.question);
-          setTimeLeft(30);
-          setHasAnswered(false);
-          setSelectedAnswer('');
-        })
-        .catch(err => console.error('Error loading question:', err));
-    }
-  }, [gameSession?.status, currentQuestion]);
-
-  useEffect(() => {
-    if (timeLeft > 0 && gameStatus === 'playing') {
+    if (timeLeft > 0 && gameStatus === 'playing' && currentQuestion) {
       const timer = setTimeout(() => {
         setTimeLeft(prev => prev - 1);
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [timeLeft, gameStatus]);
+  }, [timeLeft, gameStatus, currentQuestion]);
 
   const handleAnswer = async (answer: string) => {
     if (hasAnswered || !currentQuestion) return;
@@ -135,10 +205,9 @@ function GameContent() {
       const data = await response.json();
       
       if (data.success) {
-        // Mettre à jour le score du joueur
         setPlayers(prev => 
           prev.map(p => 
-            p.user_id === session?.user?.id 
+            p.userId === session?.user?.id 
               ? { ...p, score: p.score + data.points }
               : p
           )
@@ -151,30 +220,60 @@ function GameContent() {
 
   const startGame = async () => {
     try {
-      const response = await fetch(`/api/game/group/${sessionId}/start`, {
+      const response = await fetch(`/api/game/group/session/${sessionId}/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
 
       if (response.ok) {
+        const data = await response.json();
         setGameStatus('playing');
+        const qs = data.questions || [];
+        setQuestions(qs);
+        if (qs.length > 0) {
+          setCurrentQuestion(qs[0]);
+          setCurrentQuestionIndex(0);
+          setTimeLeft(30);
+        }
       }
     } catch (error) {
       console.error('Error starting game:', error);
     }
   };
 
-  const nextQuestion = () => {
-    // Logique pour passer à la question suivante
-    setCurrentQuestion(null);
-    setTimeLeft(30);
-    setHasAnswered(false);
-    setSelectedAnswer('');
+  const nextQuestion = async () => {
+    try {
+      const response = await fetch(`/api/game/group/${sessionId}/next`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionIndex: currentQuestionIndex + 1 })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.gameFinished) {
+          setGameStatus('finished');
+          const sorted = [...players].sort((a, b) => b.score - a.score);
+          setFinalScores(sorted);
+        } else {
+          setCurrentQuestionIndex(prev => prev + 1);
+          if (questions[currentQuestionIndex + 1]) {
+            setCurrentQuestion(questions[currentQuestionIndex + 1]);
+          } else if (data.nextQuestion) {
+            setCurrentQuestion(data.nextQuestion);
+          }
+          setTimeLeft(30);
+          setHasAnswered(false);
+          setSelectedAnswer('');
+        }
+      }
+    } catch (error) {
+      console.error('Error advancing question:', error);
+    }
   };
 
   const finishGame = () => {
     setGameStatus('finished');
-    // Trier les joueurs par score
     const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
     setFinalScores(sortedPlayers);
   };
@@ -287,7 +386,7 @@ function GameContent() {
         </div>
 
         {/* Écran d'attente */}
-        {gameStatus === 'waiting' && gameSession?.host_id === session?.user?.id && (
+        {gameStatus === 'waiting' && gameSession?.host_id === (session?.user as any)?.id && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -296,7 +395,7 @@ function GameContent() {
             <Users className="w-16 h-16 text-blue-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-4">En attente des joueurs...</h2>
             <p className="text-muted-foreground mb-6">
-              {players.length} / {gameSession.max_players} joueurs connectés
+              {players.length} / {gameSession?.max_players} joueurs connectés
             </p>
             
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
@@ -315,7 +414,7 @@ function GameContent() {
               ))}
             </div>
 
-            {players.length >= 2 && (
+            {players.length >= 1 && (
               <button
                 onClick={startGame}
                 className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-lg transition-colors flex items-center gap-2 mx-auto"
@@ -347,33 +446,40 @@ function GameContent() {
             {/* Question */}
             <div className="bg-card rounded-2xl border border-border p-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-6">Question {(gameSession?.current_question_index || 0) + 1}</h2>
+                <h2 className="text-3xl font-bold mb-6">Question {currentQuestionIndex + 1}</h2>
                 <div className="text-4xl font-medium mb-8 p-6 bg-muted rounded-xl">
                   {currentQuestion.question}
                 </div>
               </div>
 
-              {/* Réponses */}
-              <div className="grid grid-cols-2 gap-4">
-                {['A', 'B', 'C', 'D'].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => handleAnswer(option)}
+              {/* Réponse */}
+              <div className="max-w-md mx-auto">
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  if (selectedAnswer.trim()) handleAnswer(selectedAnswer.trim());
+                }}>
+                  <input
+                    type="text"
+                    value={selectedAnswer}
+                    onChange={(e) => setSelectedAnswer(e.target.value)}
                     disabled={hasAnswered}
-                    className={`p-6 rounded-xl border-2 font-semibold text-lg transition-all ${
-                      selectedAnswer === option
-                        ? 'border-primary bg-primary text-white'
-                        : 'border-border bg-card hover:border-primary/50 hover:bg-primary/10'
-                    } ${hasAnswered ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
+                    placeholder="Ta réponse..."
+                    className="w-full px-6 py-4 text-2xl text-center bg-muted border-2 border-border rounded-xl focus:outline-none focus:border-primary disabled:opacity-50"
+                    autoFocus
+                  />
+                  <button
+                    type="submit"
+                    disabled={hasAnswered || !selectedAnswer.trim()}
+                    className="w-full mt-4 py-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white rounded-xl font-semibold text-lg transition-all"
                   >
-                    {option}
+                    {hasAnswered ? 'Réponse envoyée' : 'Valider'}
                   </button>
-                ))}
+                </form>
               </div>
             </div>
 
             {/* Feedback */}
-            {hasAnswered && (
+            {hasAnswered && currentQuestion && (
               <div className="text-center mt-6">
                 <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-lg ${
                   selectedAnswer === currentQuestion.answer ? 'bg-green-500' : 'bg-red-500'
@@ -386,10 +492,22 @@ function GameContent() {
                   ) : (
                     <>
                       <XCircle className="w-6 h-6 text-white" />
-                      <span className="text-white font-semibold">Incorrect !</span>
+                      <span className="text-white font-semibold">Incorrect ! Réponse : {currentQuestion.answer}</span>
                     </>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Host controls - next question */}
+            {hasAnswered && gameSession?.host_id === (session?.user as any)?.id && (
+              <div className="text-center mt-4">
+                <button
+                  onClick={nextQuestion}
+                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors"
+                >
+                  Question suivante
+                </button>
               </div>
             )}
             </motion.div>
@@ -403,13 +521,13 @@ function GameContent() {
               Classement en direct
             </h3>
             <div className="space-y-2">
-              {players
+              {[...players]
                 .sort((a, b) => b.score - a.score)
                 .map((player, index) => (
                   <div
                     key={player.id}
                     className={`flex items-center justify-between p-3 rounded-lg ${
-                      player.user_id === session?.user?.id ? 'bg-primary/20 border-primary/50' : 'bg-muted'
+                      player.userId === (session?.user as any)?.id ? 'bg-primary/20 border-primary/50' : 'bg-muted'
                     }`}
                   >
                     <div className="flex items-center gap-3">

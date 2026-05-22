@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Users, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 interface GameSession {
   id: string;
@@ -60,37 +60,23 @@ function JoinGameContent() {
           
           // Rediriger vers le lobby
           router.push(`/multiplayer/lobby/${data.session.id}`);
-          return;
-          
-          // Charger les joueurs existants
-          const playersResponse = await fetch(`/api/multiplayer/game/${data.session.id}`);
-          if (playersResponse.ok) {
-            const playersData = await playersResponse.json();
-            setPlayers(playersData.players || []);
-          }
-          
-          // S'abonner aux updates en temps réel
-          const channel = supabase
-            .channel(`game_session_${data.session.id}`)
-            .on('postgres_changes', 
-              { event: '*', schema: 'public', table: 'game_players' },
-              (payload: any) => {
-                if (payload.eventType === 'INSERT') {
-                  setPlayers(prev => [...prev, payload.new]);
-                } else if (payload.eventType === 'UPDATE') {
-                  setPlayers(prev => 
-                    prev.map(p => p.id === payload.new.id ? { ...p, ...payload.new } : p)
-                  );
-                }
-              }
-            )
-            .subscribe();
-
-          return () => {
-            supabase.removeChannel(channel);
-          };
         } else {
           const errorData = await response.json();
+          if (errorData.error === 'Already in this game' || errorData.rejoined) {
+            // Already in game - redirect to lobby
+            if (errorData.session?.id) {
+              router.push(`/multiplayer/lobby/${errorData.session.id}`);
+              return;
+            }
+            const validateResponse = await fetch(`/api/game/validate-code?code=${gameCode}`).catch(() => null);
+            if (validateResponse?.ok) {
+              const validateData = await validateResponse.json();
+              if (validateData.session?.id) {
+                router.push(`/multiplayer/lobby/${validateData.session.id}`);
+                return;
+              }
+            }
+          }
           setError(errorData.error || 'Code invalide');
         }
       } catch (err) {
@@ -99,7 +85,7 @@ function JoinGameContent() {
     };
 
     fetchGameSession();
-  }, [gameCode]);
+  }, [gameCode, router]);
 
   const handleJoinGame = async () => {
     if (!joinCode || joinCode.length !== 6) {
@@ -122,36 +108,15 @@ function JoinGameContent() {
         setGameSession(data.session);
         setIsJoined(true);
         
-        // Charger les joueurs existants
-        const playersResponse = await fetch(`/api/multiplayer/game/${data.session.id}`);
-        if (playersResponse.ok) {
-          const playersData = await playersResponse.json();
-          setPlayers(playersData.players || []);
-        }
-        
-        // S'abonner aux updates en temps réel
-        const channel = supabase
-          .channel(`game_session_${data.session.id}`)
-          .on('postgres_changes', 
-            { event: '*', schema: 'public', table: 'game_players' },
-            (payload: any) => {
-              if (payload.eventType === 'INSERT') {
-                setPlayers(prev => [...prev, payload.new]);
-              } else if (payload.eventType === 'UPDATE') {
-                setPlayers(prev => 
-                  prev.map(p => p.id === payload.new.id ? { ...p, ...payload.new } : p)
-                );
-              }
-            }
-          )
-          .subscribe();
-
-        return () => {
-          supabase.removeChannel(channel);
-        };
+        // Redirect to lobby page directly
+        router.push(`/multiplayer/lobby/${data.session.id}`);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Code invalide');
+        if (errorData.error === 'Already in this game') {
+          setError('Tu es déjà dans cette partie. Retourne au lobby.');
+        } else {
+          setError(errorData.error || 'Code invalide');
+        }
       }
     } catch (err) {
       setError('Erreur de connexion');

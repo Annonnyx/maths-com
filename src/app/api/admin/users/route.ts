@@ -30,11 +30,8 @@ export async function GET(request: NextRequest) {
       ]
     });
 
-    // Récupérer les demandes professeur
+    // Récupérer toutes les demandes professeur
     const teacherRequests = await prisma.teacherRequest.findMany({
-      where: {
-        status: 'pending'
-      },
       orderBy: {
         createdAt: 'desc'
       }

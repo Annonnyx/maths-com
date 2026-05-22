@@ -19,6 +19,39 @@ async function isAdminEmail(email: string): Promise<boolean> {
   return false;
 }
 
+// GET /api/teacher-requests - Lister les demandes (admin only)
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const isAdmin = await isAdminEmail(session.user.email);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    const requests = await prisma.teacherRequest.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: { id: true, username: true, displayName: true, email: true }
+        }
+      }
+    });
+
+    return NextResponse.json({ requests });
+  } catch (error: any) {
+    console.error('Error fetching teacher requests:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', details: error?.message },
+      { status: 500 }
+    );
+  }
+}
+
 // POST /api/teacher-requests - Soumettre une demande professeur
 export async function POST(request: NextRequest) {
   try {

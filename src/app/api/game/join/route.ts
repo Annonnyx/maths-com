@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid game code' }, { status: 400 });
     }
 
-    // Trouver la session de jeu
+    // Trouver la session de jeu (waiting ou active pour permettre la reconnexion)
     const gameSession = await prisma.$queryRaw<Array<{
       id: string;
       code: string;
@@ -33,14 +33,14 @@ export async function POST(req: NextRequest) {
       updated_at: Date;
     }>>`
       SELECT * FROM game_sessions 
-      WHERE code = ${code.toUpperCase()} AND status = 'waiting'
+      WHERE code = ${code.toUpperCase()} AND status IN ('waiting', 'active')
     `;
 
     if (gameSession.length === 0) {
-      return NextResponse.json({ error: 'Game not found or already started' }, { status: 404 });
+      return NextResponse.json({ error: 'Partie non trouvée ou déjà terminée' }, { status: 404 });
     }
 
-    // Vérifier si le joueur n'est pas déjà dans la partie
+    // Vérifier si le joueur est déjà dans la partie
     const existingPlayer = await prisma.gamePlayer.findFirst({
       where: {
         sessionId: gameSession[0].id,
@@ -49,7 +49,18 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingPlayer) {
-      return NextResponse.json({ error: 'Already in this game' }, { status: 400 });
+      // Déjà dans la partie - retourner les infos pour permettre la reconnexion
+      return NextResponse.json({
+        success: true,
+        session: gameSession[0],
+        player: existingPlayer,
+        rejoined: true
+      });
+    }
+
+    // Ne pas permettre de rejoindre une partie déjà active en tant que nouveau joueur
+    if (gameSession[0].status === 'active') {
+      return NextResponse.json({ error: 'La partie a déjà commencé' }, { status: 400 });
     }
 
     // Vérifier si la partie est pleine

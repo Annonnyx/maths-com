@@ -78,6 +78,7 @@ export async function POST(
       nextQuestion: {
         id: nextQuestion?.id,
         question: nextQuestion?.question,
+        answer: nextQuestion?.answer,
         type: nextQuestion?.type,
         difficulty: nextQuestion?.difficulty,
         order: nextQuestion?.order

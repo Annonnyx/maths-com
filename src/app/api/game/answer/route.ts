@@ -13,16 +13,32 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { sessionId, answer, isCorrect } = body;
+    const { sessionId, answer, questionId } = body;
 
-    if (!sessionId || answer === undefined || isCorrect === undefined) {
+    if (!sessionId || answer === undefined) {
       return NextResponse.json({ 
         error: 'Missing required fields',
-        details: 'sessionId, answer, and isCorrect are required'
+        details: 'sessionId and answer are required'
       }, { status: 400 });
     }
 
-    // Mettre à jour le score du joueur
+    // Valider la réponse côté serveur si on a un questionId
+    let isCorrect = false;
+    if (questionId) {
+      const question = await prisma.gameQuestion.findUnique({
+        where: { id: questionId }
+      });
+      if (question) {
+        // Comparaison flexible: trim + lowercase
+        const userAnswer = String(answer).trim().toLowerCase();
+        const correctAnswer = String(question.answer).trim().toLowerCase();
+        isCorrect = userAnswer === correctAnswer;
+      }
+    } else {
+      // Fallback: utiliser le isCorrect du client (rétro-compatibilité)
+      isCorrect = body.isCorrect === true;
+    }
+
     const points = isCorrect ? 10 : 0;
     
     await prisma.$queryRaw`
@@ -31,22 +47,15 @@ export async function POST(req: NextRequest) {
       WHERE session_id = ${sessionId} AND user_id = ${session.user.id}
     `;
 
-    console.log('✅ Answer submitted:', {
-      sessionId,
-      userId: session.user.id,
-      answer,
-      isCorrect,
-      points
-    });
-
     return NextResponse.json({
       success: true,
       points,
+      isCorrect,
       totalScore: points
     });
 
   } catch (error: any) {
-    console.error('❌ Error submitting answer:', error);
+    console.error('Error submitting answer:', error);
     return NextResponse.json({ 
       error: 'Failed to submit answer',
       details: error?.message || 'Unknown error'

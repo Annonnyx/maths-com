@@ -65,6 +65,10 @@ export default function GameLobbyPage() {
   const supabase = getSupabase();
 
   useEffect(() => {
+    if (!sessionId) return;
+    
+    let channel: any = null;
+
     const fetchGameData = async () => {
       try {
         // Récupérer la session de jeu
@@ -78,45 +82,42 @@ export default function GameLobbyPage() {
         setPlayers(sessionData.players || []);
 
         // Vérifier si l'utilisateur est l'hôte
-        setIsHost(session?.user?.id === sessionData.session.hostId);
+        const hostId = sessionData.session.hostId || sessionData.session.host_id;
+        setIsHost(session?.user?.id === hostId);
 
-        // Récupérer les questions
-        const questionsResponse = await fetch(`/api/game/question/${sessionId}`);
-        if (questionsResponse.ok) {
-          const questionsData = await questionsResponse.json();
-          setQuestions(questionsData.questions || []);
+        // Si la partie est déjà active, rediriger vers le jeu
+        if (sessionData.session.status === 'active') {
+          router.push(`/multiplayer/group/${sessionId}`);
+          return;
         }
 
         // S'abonner aux updates en temps réel
-        const channel = supabase
-          .channel(`game_session_${sessionId}`)
+        channel = supabase
+          .channel(`lobby_${sessionId}`)
           .on('postgres_changes', 
             { event: '*', schema: 'public', table: 'game_players' },
             (payload: any) => {
-              if (payload.eventType === 'INSERT') {
-                setPlayers(prev => [...prev, payload.new]);
-              } else if (payload.eventType === 'UPDATE') {
-                setPlayers(prev => 
-                  prev.map(p => p.id === payload.new.id ? { ...p, ...payload.new } : p)
-                );
-              } else if (payload.eventType === 'DELETE') {
-                setPlayers(prev => prev.filter(p => p.id !== payload.old.id));
-              }
+              // Re-fetch full player list to get user data
+              fetch(`/api/multiplayer/game/session/${sessionId}`)
+                .then(r => r.json())
+                .then(d => setPlayers(d.players || []))
+                .catch(() => {});
             }
           )
           .on('postgres_changes',
-            { event: '*', schema: 'public', table: 'game_sessions' },
+            { event: 'UPDATE', schema: 'public', table: 'game_sessions' },
             (payload: any) => {
-              if (payload.eventType === 'UPDATE') {
-                setGameSession(prev => prev ? { ...prev, ...payload.new } : null);
+              const newData = payload.new;
+              if (newData.status === 'active') {
+                // Game started! Redirect all players to game page
+                router.push(`/multiplayer/group/${sessionId}`);
+              } else {
+                setGameSession(prev => prev ? { ...prev, ...newData } : null);
               }
             }
           )
           .subscribe();
 
-        return () => {
-          supabase.removeChannel(channel);
-        };
       } catch (err) {
         setError('Erreur de chargement');
       } finally {
@@ -124,29 +125,33 @@ export default function GameLobbyPage() {
       }
     };
 
-    if (sessionId) {
-      fetchGameData();
-    }
-  }, [sessionId, session?.user?.id]);
+    fetchGameData();
+    
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [sessionId, session?.user?.id, router]);
 
   const startGame = async () => {
     if (!gameSession) return;
 
     try {
-      const response = await fetch(`/api/game/group/session/${sessionId}/start`, {
+      // Use the unified start API
+      const response = await fetch(`/api/game/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          hostParticipating,
-          questionCount: questions.length 
-        })
+        body: JSON.stringify({ sessionId })
       });
 
       if (response.ok) {
         setGameStarted(true);
-        router.push(`/multiplayer/game/${sessionId}`);
+        // Redirect to the group game page
+        router.push(`/multiplayer/group/${sessionId}`);
       } else {
-        setError('Erreur lors du lancement');
+        const data = await response.json();
+        setError(data.error || 'Erreur lors du lancement');
       }
     } catch (err) {
       setError('Erreur de connexion');

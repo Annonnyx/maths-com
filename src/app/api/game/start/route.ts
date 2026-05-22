@@ -87,14 +87,29 @@ export async function POST(request: NextRequest) {
     await prisma.gameSession.update({
       where: { id: sessionId },
       data: {
-        status: 'active'
+        status: 'active',
+        currentQuestionIndex: 0
       }
+    });
+
+    // Récupérer les questions créées pour les retourner au client
+    const savedQuestions = await prisma.gameQuestion.findMany({
+      where: { sessionId: gameSession.id },
+      orderBy: { order: 'asc' }
     });
 
     return NextResponse.json({
       success: true,
       questionsCreated: createdQuestions.count,
-      gameStarted: true
+      gameStarted: true,
+      questions: savedQuestions.map(q => ({
+        id: q.id,
+        question: q.question,
+        answer: q.answer,
+        type: q.type,
+        difficulty: q.difficulty,
+        order: q.order
+      }))
     });
 
   } catch (error) {

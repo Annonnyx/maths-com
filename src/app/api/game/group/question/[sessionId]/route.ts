@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-// GET /api/game/kahoot/question/[sessionId] - Récupérer la question actuelle synchronisée
+// GET /api/game/group/question/[sessionId] - Récupérer toutes les questions d'une session de groupe
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
@@ -30,43 +30,33 @@ export async function GET(
       return NextResponse.json({ error: 'Game not active' }, { status: 400 });
     }
 
-    // Récupérer la question actuelle synchronisée
-    const currentQuestion = await prisma.gameQuestion.findFirst({
-      where: {
-        sessionId,
-        order: gameSession.currentQuestionIndex
-      }
+    // Récupérer toutes les questions de la session, triées par ordre
+    const questions = await prisma.gameQuestion.findMany({
+      where: { sessionId },
+      orderBy: { order: 'asc' }
     });
 
-    if (!currentQuestion) {
-      return NextResponse.json({ error: 'Question not found' }, { status: 404 });
+    if (questions.length === 0) {
+      return NextResponse.json({ error: 'No questions found' }, { status: 404 });
     }
 
-    // Formater la question pour le frontend
-    const { QuestionGeneratorFactory } = await import('@/lib/question-generators');
-    const generatedQuestion = QuestionGeneratorFactory.generateQuestion('arithmetic', currentQuestion.difficulty);
-
     return NextResponse.json({
-      question: {
-        id: currentQuestion.id,
-        question: currentQuestion.question,
-        options: generatedQuestion.options,
-        answer: currentQuestion.answer,
-        type: currentQuestion.type,
-        difficulty: currentQuestion.difficulty,
-        order: currentQuestion.order,
-        timeLimit: 30 // 30 secondes par question
-      },
+      questions: questions.map(q => ({
+        id: q.id,
+        question: q.question,
+        answer: q.answer,
+        type: q.type,
+        difficulty: q.difficulty,
+        order: q.order
+      })),
       currentIndex: gameSession.currentQuestionIndex,
-      totalQuestions: await prisma.gameQuestion.count({
-        where: { sessionId }
-      })
+      totalQuestions: questions.length
     });
 
   } catch (error) {
-    console.error('Error fetching Kahoot question:', error);
+    console.error('Error fetching group questions:', error);
     return NextResponse.json({ 
-      error: 'Failed to fetch question',
+      error: 'Failed to fetch questions',
       details: (error as Error)?.message || 'Unknown error'
     }, { status: 500 });
   }

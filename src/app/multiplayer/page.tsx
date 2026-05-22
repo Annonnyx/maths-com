@@ -232,9 +232,13 @@ export default function MultiplayerPage() {
       const data = await response.json();
       
       if (data.success) {
-        window.location.href = `/multiplayer/game/${data.session.id}`;
+        window.location.href = `/multiplayer/lobby/${data.session.id}`;
       } else {
-        setError(data.error || 'Code invalide');
+        if (data.error === 'Already in this game') {
+          setError('Tu es déjà dans cette partie.');
+        } else {
+          setError(data.error || 'Code invalide');
+        }
       }
     } catch (error) {
       console.error('Error joining game:', error);
@@ -306,8 +310,8 @@ export default function MultiplayerPage() {
       });
       
       if (response.ok) {
-        // Navigate to the game after successfully starting
-        window.location.href = `/multiplayer/game/${createdSession.id}`;
+        // Navigate to the group game page after successfully starting
+        window.location.href = `/multiplayer/group/${createdSession.id}`;
       } else {
         const error = await response.json();
         setError(error.error || 'Erreur lors du démarrage');
